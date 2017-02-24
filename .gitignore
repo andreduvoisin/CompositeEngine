@@ -5,3 +5,5 @@
 *.VC.VC.opendb
 CompositeEngine/.vs
 CompositeEngine/Debug
+CompositeEngine/Release
+COmpositeEngine/x64
