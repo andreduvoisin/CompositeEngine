@@ -1,0 +1,9 @@
+# Ignore from Git
+
+# Directories
+CompositeEngine/.vs
+CompositeEngine/Debug
+
+# File Types
+*.VC.db
+*.VC.VC.opendb
