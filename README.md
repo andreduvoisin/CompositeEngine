@@ -1,29 +1,20 @@
-# README #
+# Composite Engine #
 
-This README would normally document whatever steps are necessary to get your application up and running.
+This shit ain't prime.
 
 ### What is this repository for? ###
 
-* Quick summary
-* Version
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
+* GAME ENGINE BADASSERY
 
 ### How do I get set up? ###
 
-* Summary of set up
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
+* hit play (and pray)
 
 ### Contribution guidelines ###
 
-* Writing tests
-* Code review
-* Other guidelines
+* git push origin master -f
 
 ### Who do I talk to? ###
 
-* Repo owner or admin
-* Other community or team contact
+* do-not-reply@andreduvoisin.com
+* i *promise* i look at that email
