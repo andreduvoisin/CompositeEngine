@@ -8,7 +8,8 @@
 
 
 /*
-https://www.3dgep.com/introduction-to-directx-11/
+ * https://www.3dgep.com/introduction-to-directx-11/
+ * https://www.3dgep.com/introduction-to-opengl-and-glsl/
 */
 
 
