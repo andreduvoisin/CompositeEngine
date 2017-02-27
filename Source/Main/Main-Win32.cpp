@@ -624,7 +624,6 @@ bool LoadContent()
 	HRESULT hr = g_d3dDevice->CreateBuffer(&vertexBufferDesc, &resourceData, &g_d3dVertexBuffer);
 	if (FAILED(hr))
 	{
-		std::cout << "1" << std::endl;
 		return false;
 	}
 
@@ -642,7 +641,6 @@ bool LoadContent()
 	hr = g_d3dDevice->CreateBuffer(&indexBufferDesc, &resourceData, &g_d3dIndexBuffer);
 	if (FAILED(hr))
 	{
-		std::cout << "2" << std::endl;
 		return false;
 	}
 
@@ -659,19 +657,16 @@ bool LoadContent()
 	hr = g_d3dDevice->CreateBuffer(&constantBufferDesc, nullptr, &g_d3dConstantBuffers[CB_Application]);
 	if (FAILED(hr))
 	{
-		std::cout << "3" << std::endl;
 		return false;
 	}
 	hr = g_d3dDevice->CreateBuffer(&constantBufferDesc, nullptr, &g_d3dConstantBuffers[CB_Frame]);
 	if (FAILED(hr))
 	{
-		std::cout << "4" << std::endl;
 		return false;
 	}
 	hr = g_d3dDevice->CreateBuffer(&constantBufferDesc, nullptr, &g_d3dConstantBuffers[CB_Object]);
 	if (FAILED(hr))
 	{
-		std::cout << "5" << std::endl;
 		return false;
 	}
 
@@ -688,14 +683,12 @@ bool LoadContent()
 	hr = D3DReadFileToBlob(compiledVertexShaderObject, &vertexShaderBlob);
 	if (FAILED(hr))
 	{
-		std::cout << "6" << std::endl;
 		return false;
 	}
 
 	hr = g_d3dDevice->CreateVertexShader(vertexShaderBlob->GetBufferPointer(), vertexShaderBlob->GetBufferSize(), nullptr, &g_d3dVertexShader);
 	if (FAILED(hr))
 	{
-		std::cout << "7" << std::endl;
 		return false;
 	}
 
@@ -724,7 +717,6 @@ bool LoadContent()
 	hr = g_d3dDevice->CreateInputLayout(vertexLayoutDesc, _countof(vertexLayoutDesc), vertexShaderBlob->GetBufferPointer(), vertexShaderBlob->GetBufferSize(), &g_d3dInputLayout);
 	if (FAILED(hr))
 	{
-		std::cout << "8" << std::endl;
 		return false;
 	}
 
@@ -738,14 +730,12 @@ bool LoadContent()
 	hr = D3DReadFileToBlob(compiledPixelShaderObject, &pixelShaderBlob);
 	if (FAILED(hr))
 	{
-		std::cout << "9" << std::endl;
 		return false;
 	}
 
 	hr = g_d3dDevice->CreatePixelShader(pixelShaderBlob->GetBufferPointer(), pixelShaderBlob->GetBufferSize(), nullptr, &g_d3dPixelShader);
 	if (FAILED(hr))
 	{
-		std::cout << "10" << std::endl;
 		return false;
 	}
 
