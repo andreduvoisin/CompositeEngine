@@ -239,8 +239,8 @@ int Run()
 			// debugging and you don't want the deltaTime value to explode).
 			deltaTime = std::min<float>(deltaTime, maxTimeStep);
 
-			//Update(deltaTime);
-			//Render();
+			Update(deltaTime);
+			Render();
 		}
 	}
 
@@ -249,12 +249,12 @@ int Run()
 
 
 /*
-The QueryRefreshRate function is used to query the ideal refresh rate
-given the specified screen dimensions. If the vSync flag is FALSE then
-this function simply returns 0/1 which indicates that the screen should
-be refreshed as quickly as possible without waiting for a vertical sync.
-You can see the implementation of the QueryRefreshRate function by
-(downloading the demo available at the end of this article)TM.
+	The QueryRefreshRate function is used to query the ideal refresh rate
+	given the specified screen dimensions. If the vSync flag is FALSE then
+	this function simply returns 0/1 which indicates that the screen should
+	be refreshed as quickly as possible without waiting for a vertical sync.
+	You can see the implementation of the QueryRefreshRate function by
+	(downloading the demo available at the end of this article)TM.
 */
 DXGI_RATIONAL QueryRefreshRate(unsigned int clientWidth, unsigned int clientHeight, BOOL vSync)
 {
@@ -263,7 +263,7 @@ DXGI_RATIONAL QueryRefreshRate(unsigned int clientWidth, unsigned int clientHeig
 	UNREFERENCED_PARAMETER(vSync);
 
 	DXGI_RATIONAL retVal;
-	retVal.Numerator = 0;
+	retVal.Numerator = 1;
 	retVal.Denominator = 1;
 	return retVal;
 }
@@ -438,6 +438,441 @@ int InitDirectX(HINSTANCE hInstance, BOOL vSync)
 }
 
 
+// Get the latest profile for the specified shader type.
+template<class ShaderClass>
+std::string GetLatestProfile();
+
+
+template<>
+std::string GetLatestProfile<ID3D11VertexShader>()
+{
+	assert(g_d3dDevice);
+
+	// Query the current feature level:
+	D3D_FEATURE_LEVEL featureLevel = g_d3dDevice->GetFeatureLevel();
+
+	switch (featureLevel)
+	{
+		case D3D_FEATURE_LEVEL_11_1:
+		case D3D_FEATURE_LEVEL_11_0:
+			{
+				return "vs_5_0";
+			}
+			break;
+		case D3D_FEATURE_LEVEL_10_1:
+			{
+				return "vs_4_1";
+			}
+			break;
+		case D3D_FEATURE_LEVEL_10_0:
+			{
+				return "vs_4_0";
+			}
+			break;
+		case D3D_FEATURE_LEVEL_9_3:
+			{
+				return "vs_4_0_level_9_3";
+			}
+			break;
+		case D3D_FEATURE_LEVEL_9_2:
+		case D3D_FEATURE_LEVEL_9_1:
+			{
+				return "vs_4_0_level_9_1";
+			}
+			break;
+	} // switch(featureLevel)
+
+	return "";
+}
+
+
+template<>
+std::string GetLatestProfile<ID3D11PixelShader>()
+{
+	assert(g_d3dDevice);
+
+	// Query the current feature level:
+	D3D_FEATURE_LEVEL featureLevel = g_d3dDevice->GetFeatureLevel();
+	switch (featureLevel)
+	{
+		case D3D_FEATURE_LEVEL_11_1:
+		case D3D_FEATURE_LEVEL_11_0:
+			{
+				return "ps_5_0";
+			}
+			break;
+		case D3D_FEATURE_LEVEL_10_1:
+			{
+				return "ps_4_1";
+			}
+			break;
+		case D3D_FEATURE_LEVEL_10_0:
+			{
+				return "ps_4_0";
+			}
+			break;
+		case D3D_FEATURE_LEVEL_9_3:
+			{
+				return "ps_4_0_level_9_3";
+			}
+			break;
+		case D3D_FEATURE_LEVEL_9_2:
+		case D3D_FEATURE_LEVEL_9_1:
+			{
+				return "ps_4_0_level_9_1";
+			}
+			break;
+	}
+
+	return "";
+}
+
+
+template<class ShaderClass>
+ShaderClass* CreateShader(ID3DBlob* pShaderBlob, ID3D11ClassLinkage* pClassLinkage);
+
+
+template<>
+ID3D11VertexShader* CreateShader<ID3D11VertexShader>(ID3DBlob* pShaderBlob, ID3D11ClassLinkage* pClassLinkage)
+{
+	assert(g_d3dDevice);
+	assert(pShaderBlob);
+
+	ID3D11VertexShader* pVertexShader = nullptr;
+	g_d3dDevice->CreateVertexShader(pShaderBlob->GetBufferPointer(), pShaderBlob->GetBufferSize(), pClassLinkage, &pVertexShader);
+
+	return pVertexShader;
+}
+
+
+template<>
+ID3D11PixelShader* CreateShader<ID3D11PixelShader>(ID3DBlob* pShaderBlob, ID3D11ClassLinkage* pClassLinkage)
+{
+	assert(g_d3dDevice);
+	assert(pShaderBlob);
+
+	ID3D11PixelShader* pPixelShader = nullptr;
+	g_d3dDevice->CreatePixelShader(pShaderBlob->GetBufferPointer(), pShaderBlob->GetBufferSize(), pClassLinkage, &pPixelShader);
+
+	return pPixelShader;
+}
+
+
+template<class ShaderClass>
+ShaderClass* LoadShader(const std::wstring& fileName, const std::string& entryPoint, const std::string& _profile)
+{
+	ID3DBlob* pShaderBlob = nullptr;
+	ID3DBlob* pErrorBlob = nullptr;
+	ShaderClass* pShader = nullptr;
+
+	std::string profile = _profile;
+	if (profile == "latest")
+	{
+		profile = GetLatestProfile<ShaderClass>();
+	}
+
+	UINT flags = D3DCOMPILE_ENABLE_STRICTNESS;
+#if _DEBUG
+	flags |= D3DCOMPILE_DEBUG;
+#endif
+
+	HRESULT hr = D3DCompileFromFile(fileName.c_str(), nullptr,
+		D3D_COMPILE_STANDARD_FILE_INCLUDE, entryPoint.c_str(), profile.c_str(),
+		flags, 0, &pShaderBlob, &pErrorBlob);
+
+	if (FAILED(hr))
+	{
+		if (pErrorBlob)
+		{
+			std::string errorMessage = (char*)pErrorBlob->GetBufferPointer();
+			OutputDebugStringA(errorMessage.c_str());
+
+			SafeRelease(pShaderBlob);
+			SafeRelease(pErrorBlob);
+		}
+
+		return false;
+	}
+	
+	pShader = CreateShader<ShaderClass>(pShaderBlob, nullptr);
+
+	SafeRelease(pShaderBlob);
+	SafeRelease(pErrorBlob);
+
+	return pShader;
+}
+
+
+bool LoadContent()
+{
+	assert(g_d3dDevice);
+
+	// Create an initialize the vertex buffer.
+	D3D11_BUFFER_DESC vertexBufferDesc;
+	ZeroMemory(&vertexBufferDesc, sizeof(D3D11_BUFFER_DESC));
+
+	vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	vertexBufferDesc.ByteWidth = sizeof(VertexPosColor) * _countof(g_Vertices);
+	vertexBufferDesc.CPUAccessFlags = 0;
+	vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+
+	D3D11_SUBRESOURCE_DATA resourceData;
+	ZeroMemory(&resourceData, sizeof(D3D11_SUBRESOURCE_DATA));
+
+	resourceData.pSysMem = g_Vertices;
+
+	HRESULT hr = g_d3dDevice->CreateBuffer(&vertexBufferDesc, &resourceData, &g_d3dVertexBuffer);
+	if (FAILED(hr))
+	{
+		std::cout << "1" << std::endl;
+		return false;
+	}
+
+
+	// Create and initialize the index buffer.
+	D3D11_BUFFER_DESC indexBufferDesc;
+	ZeroMemory(&indexBufferDesc, sizeof(D3D11_BUFFER_DESC));
+
+	indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+	indexBufferDesc.ByteWidth = sizeof(WORD) * _countof(g_Indicies);
+	indexBufferDesc.CPUAccessFlags = 0;
+	indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	resourceData.pSysMem = g_Indicies;
+
+	hr = g_d3dDevice->CreateBuffer(&indexBufferDesc, &resourceData, &g_d3dIndexBuffer);
+	if (FAILED(hr))
+	{
+		std::cout << "2" << std::endl;
+		return false;
+	}
+
+
+	// Create the constant buffers for the variables defined in the vertex shader.
+	D3D11_BUFFER_DESC constantBufferDesc;
+	ZeroMemory(&constantBufferDesc, sizeof(D3D11_BUFFER_DESC));
+
+	constantBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	constantBufferDesc.ByteWidth = sizeof(XMMATRIX);
+	constantBufferDesc.CPUAccessFlags = 0;
+	constantBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+
+	hr = g_d3dDevice->CreateBuffer(&constantBufferDesc, nullptr, &g_d3dConstantBuffers[CB_Application]);
+	if (FAILED(hr))
+	{
+		std::cout << "3" << std::endl;
+		return false;
+	}
+	hr = g_d3dDevice->CreateBuffer(&constantBufferDesc, nullptr, &g_d3dConstantBuffers[CB_Frame]);
+	if (FAILED(hr))
+	{
+		std::cout << "4" << std::endl;
+		return false;
+	}
+	hr = g_d3dDevice->CreateBuffer(&constantBufferDesc, nullptr, &g_d3dConstantBuffers[CB_Object]);
+	if (FAILED(hr))
+	{
+		std::cout << "5" << std::endl;
+		return false;
+	}
+
+
+	// Load the shaders at runtime.
+	//g_d3dVertexShader = LoadShader<ID3D11VertexShader>(L"../data/shaders/SimpleVertexShader.hlsl", "SimpleVertexShader", "latest");
+	//g_d3dPixelShader = LoadShader<ID3D11PixelShader>(L"../data/shaders/SimplePixelShader.hlsl", "SimplePixelShader", "latest");
+
+
+	// Load the compiled vertex shader.
+	ID3DBlob* vertexShaderBlob;
+	LPCWSTR compiledVertexShaderObject = L"SimpleVertexShader.cso";
+
+	hr = D3DReadFileToBlob(compiledVertexShaderObject, &vertexShaderBlob);
+	if (FAILED(hr))
+	{
+		std::cout << "6" << std::endl;
+		return false;
+	}
+
+	hr = g_d3dDevice->CreateVertexShader(vertexShaderBlob->GetBufferPointer(), vertexShaderBlob->GetBufferSize(), nullptr, &g_d3dVertexShader);
+	if (FAILED(hr))
+	{
+		std::cout << "7" << std::endl;
+		return false;
+	}
+
+	
+	// Load shader from byte array.
+	//hr = g_d3dDevice->CreateVertexShader(g_SimpleVertexShader, sizeof(g_SimpleVertexShader), nullptr, &g_d3dVertexShader);
+	//if (FAILED(hr))
+	//{
+	//	return false;
+	//}
+
+	//hr = g_d3dDevice->CreatePixelShader(g_SimplePixelShader, sizeof(g_SimplePixelShader), nullptr, &g_d3dPixelShader);
+	//if (FAILED(hr))
+	//{
+	//	return false;
+	//}
+
+
+	// Create the input layout for the vertex shader.
+	D3D11_INPUT_ELEMENT_DESC vertexLayoutDesc[] =
+	{
+		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(VertexPosColor,Position), D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{"COLOR", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(VertexPosColor,Color), D3D11_INPUT_PER_VERTEX_DATA, 0}
+	};
+
+	hr = g_d3dDevice->CreateInputLayout(vertexLayoutDesc, _countof(vertexLayoutDesc), vertexShaderBlob->GetBufferPointer(), vertexShaderBlob->GetBufferSize(), &g_d3dInputLayout);
+	if (FAILED(hr))
+	{
+		std::cout << "8" << std::endl;
+		return false;
+	}
+
+	SafeRelease(vertexShaderBlob);
+
+
+	// Load the compiled pixel shader.
+	ID3DBlob* pixelShaderBlob;
+	LPCWSTR compiledPixelShaderObject = L"SimplePixelShader.cso";
+
+	hr = D3DReadFileToBlob(compiledPixelShaderObject, &pixelShaderBlob);
+	if (FAILED(hr))
+	{
+		std::cout << "9" << std::endl;
+		return false;
+	}
+
+	hr = g_d3dDevice->CreatePixelShader(pixelShaderBlob->GetBufferPointer(), pixelShaderBlob->GetBufferSize(), nullptr, &g_d3dPixelShader);
+	if (FAILED(hr))
+	{
+		std::cout << "10" << std::endl;
+		return false;
+	}
+
+	SafeRelease(pixelShaderBlob);
+	
+	
+	// Setup the projection matrix.
+	RECT clientRect;
+	GetClientRect(g_WindowHandle, &clientRect);
+
+	// Compute the exact client dimensions.
+	// This is required for a correct projection matrix.
+	float clientWidth = static_cast<float>(clientRect.right - clientRect.left);
+	float clientHeight = static_cast<float>(clientRect.bottom - clientRect.top);
+
+	g_ProjectionMatrix = XMMatrixPerspectiveFovLH(XMConvertToRadians(45.0f), clientWidth / clientHeight, 0.1f, 100.0f);
+
+	g_d3dDeviceContext->UpdateSubresource(g_d3dConstantBuffers[CB_Application], 0, nullptr, &g_ProjectionMatrix, 0, 0);
+
+	return true;
+}
+
+
+void Update(float deltaTime)
+{
+	XMVECTOR eyePosition = XMVectorSet(0, 0, -10, 1);
+	XMVECTOR focusPoint = XMVectorSet(0, 0, 0, 1);
+	XMVECTOR upDirection = XMVectorSet(0, 1, 0, 0);
+	g_ViewMatrix = XMMatrixLookAtLH(eyePosition, focusPoint, upDirection);
+	g_d3dDeviceContext->UpdateSubresource(g_d3dConstantBuffers[CB_Frame], 0, nullptr, &g_ViewMatrix, 0, 0);
+
+
+	static float angle = 0.0f;
+	angle += 90.0f * deltaTime;
+	XMVECTOR rotationAxis = XMVectorSet(0, 1, 1, 0);
+
+	g_WorldMatrix = XMMatrixRotationAxis(rotationAxis, XMConvertToRadians(angle));
+	g_d3dDeviceContext->UpdateSubresource(g_d3dConstantBuffers[CB_Object], 0, nullptr, &g_WorldMatrix, 0, 0);
+}
+
+
+// Clear the color and depth buffers.
+void Clear(const FLOAT clearColor[4], FLOAT clearDepth, UINT8 clearStencil)
+{
+	g_d3dDeviceContext->ClearRenderTargetView(g_d3dRenderTargetView, clearColor);
+	g_d3dDeviceContext->ClearDepthStencilView(g_d3dDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, clearDepth, clearStencil);
+}
+
+
+void Present(bool vSync)
+{
+	if (vSync)
+	{
+		g_d3dSwapChain->Present(1, 0);
+	}
+	else
+	{
+		g_d3dSwapChain->Present(0, 0);
+	}
+}
+
+
+void Render()
+{
+	assert(g_d3dDevice);
+	assert(g_d3dDeviceContext);
+
+	Clear(Colors::Salmon, 1.0f, 0);
+
+
+	const UINT vertexStride = sizeof(VertexPosColor);
+	const UINT offset = 0;
+
+	g_d3dDeviceContext->IASetVertexBuffers(0, 1, &g_d3dVertexBuffer, &vertexStride, &offset);
+	g_d3dDeviceContext->IASetInputLayout(g_d3dInputLayout);
+	g_d3dDeviceContext->IASetIndexBuffer(g_d3dIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
+	g_d3dDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+
+	g_d3dDeviceContext->VSSetShader(g_d3dVertexShader, nullptr, 0);
+	g_d3dDeviceContext->VSSetConstantBuffers(0, 3, g_d3dConstantBuffers);
+
+
+	g_d3dDeviceContext->RSSetState(g_d3dRasterizerState);
+	g_d3dDeviceContext->RSSetViewports(1, &g_Viewport);
+
+
+	g_d3dDeviceContext->PSSetShader(g_d3dPixelShader, nullptr, 0);
+
+
+	g_d3dDeviceContext->OMSetRenderTargets(1, &g_d3dRenderTargetView, g_d3dDepthStencilView);
+	g_d3dDeviceContext->OMSetDepthStencilState(g_d3dDepthStencilState, 1);
+
+
+	g_d3dDeviceContext->DrawIndexed(_countof(g_Indicies), 0, 0);
+
+
+	Present(g_EnableVSync);
+}
+
+
+void UnloadContent()
+{
+	SafeRelease(g_d3dConstantBuffers[CB_Application]);
+	SafeRelease(g_d3dConstantBuffers[CB_Frame]);
+	SafeRelease(g_d3dConstantBuffers[CB_Object]);
+	SafeRelease(g_d3dIndexBuffer);
+	SafeRelease(g_d3dVertexBuffer);
+	SafeRelease(g_d3dInputLayout);
+	SafeRelease(g_d3dVertexShader);
+	SafeRelease(g_d3dPixelShader);
+}
+
+
+void Cleanup()
+{
+	SafeRelease(g_d3dDepthStencilView);
+	SafeRelease(g_d3dRenderTargetView);
+	SafeRelease(g_d3dDepthStencilBuffer);
+	SafeRelease(g_d3dDepthStencilState);
+	SafeRelease(g_d3dRasterizerState);
+	SafeRelease(g_d3dSwapChain);
+	SafeRelease(g_d3dDeviceContext);
+	SafeRelease(g_d3dDevice);
+}
+
+
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPWSTR cmdLine, int cmdShow)
 {
 	UNREFERENCED_PARAMETER(prevInstance);
@@ -462,7 +897,16 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPWSTR cmdLine,
 		return -1;
 	}
 
+	if (!LoadContent())
+	{
+		MessageBox(nullptr, TEXT("Failed to load content."), TEXT("Error"), MB_OK);
+		return -1;
+	}
+
 	int returnCode = Run();
+
+	UnloadContent();
+	Cleanup();
 
 	return returnCode;
 }

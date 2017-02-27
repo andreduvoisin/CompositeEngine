@@ -15,6 +15,9 @@
     <Filter Include="Source\Common">
       <UniqueIdentifier>{7f41f4cb-8aa3-4ec8-99af-2971a7936aaa}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Shaders">
+      <UniqueIdentifier>{71c7268c-fc08-4f4b-b930-b3972f44c13a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Source\Main\Main-Win32.cpp">
@@ -28,5 +31,13 @@
     <ClInclude Include="..\Source\Common\Defines.h">
       <Filter>Source\Common</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="..\Source\Shaders\SimpleVertexShader.hlsl">
+      <Filter>Source\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Source\Shaders\SimplePixelShader.hlsl">
+      <Filter>Source\Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>
