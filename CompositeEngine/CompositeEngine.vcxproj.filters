@@ -40,10 +40,10 @@
     <ClInclude Include="..\Source\Common\Defines.h">
       <Filter>Source\Common</Filter>
     </ClInclude>
-    <ClInclude Include="DarwinPCH.h">
+    <ClInclude Include="inc\Camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\Desktop\OpenGLTutorial\Tutorial1\inc\Camera.h">
+    <ClInclude Include="inc\DarwinPCH.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -54,5 +54,13 @@
     <FxCompile Include="..\Source\Shaders\SimplePixelShader.hlsl">
       <Filter>Source\Shaders</Filter>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="data\shaders\simpleShader.frag">
+      <Filter>Source\Shaders</Filter>
+    </None>
+    <None Include="data\shaders\simpleShader.vert">
+      <Filter>Source\Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>
