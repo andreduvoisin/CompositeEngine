@@ -18,6 +18,12 @@
     <Filter Include="Source\Shaders">
       <UniqueIdentifier>{71c7268c-fc08-4f4b-b930-b3972f44c13a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{3d3466c8-50be-4f18-807a-e8fed1839605}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Darwin">
+      <UniqueIdentifier>{5581e3e6-5623-4f85-9cef-3720bb664f3d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Source\Main\Main-Win32.cpp">
@@ -26,10 +32,19 @@
     <ClCompile Include="..\Source\Main\Main-Darwin.cpp">
       <Filter>Source\Main</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\Desktop\OpenGLTutorial\Tutorial1\src\Camera.cpp">
+      <Filter>Source\Darwin</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Source\Common\Defines.h">
       <Filter>Source\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="DarwinPCH.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Desktop\OpenGLTutorial\Tutorial1\inc\Camera.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

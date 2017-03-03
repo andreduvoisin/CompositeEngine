@@ -73,18 +73,22 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>../Source</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>extern\freeglut-2.8.1\include;extern\glew-1.10.0\include;extern\glm-0.9.5.1;../Header Files;../Source</AdditionalIncludeDirectories>
       <WarningLevel>Level4</WarningLevel>
       <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
     <Manifest />
     <Manifest />
+    <Link>
+      <AdditionalLibraryDirectories>extern\freeglut-2.8.1\lib\x86\Debug;extern\glew-1.10.0\lib\Debug\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>freeglut_static.lib;glew32sd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>../Source</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>extern\freeglut-2.8.1\include;extern\glew-1.10.0\include;extern\glm-0.9.5.1;../Source</AdditionalIncludeDirectories>
       <WarningLevel>Level4</WarningLevel>
       <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
@@ -97,13 +101,15 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>../Source</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>extern\freeglut-2.8.1\include;extern\glew-1.10.0\include;extern\glm-0.9.5.1;../Header Files;../Source</AdditionalIncludeDirectories>
       <WarningLevel>Level4</WarningLevel>
       <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>extern\glew-1.10.0\lib\Release\Win32;extern\freeglut-2.8.1\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>freeglut_static.lib;glew32s.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Manifest />
     <Manifest />
@@ -114,7 +120,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>../Source</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>extern\freeglut-2.8.1\include;extern\glew-1.10.0\include;extern\glm-0.9.5.1;../Source</AdditionalIncludeDirectories>
       <WarningLevel>Level4</WarningLevel>
       <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
@@ -126,11 +132,14 @@
     <Manifest />
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\..\Desktop\OpenGLTutorial\Tutorial1\src\Camera.cpp" />
     <ClCompile Include="..\Source\Main\Main-Darwin.cpp" />
     <ClCompile Include="..\Source\Main\Main-Win32.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\..\Desktop\OpenGLTutorial\Tutorial1\inc\Camera.h" />
     <ClInclude Include="..\Source\Common\Defines.h" />
+    <ClInclude Include="DarwinPCH.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\Source\Shaders\SimplePixelShader.hlsl">
