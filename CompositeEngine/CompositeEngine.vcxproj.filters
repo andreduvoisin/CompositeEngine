@@ -32,7 +32,7 @@
     <ClCompile Include="..\Source\Main\Main-Darwin.cpp">
       <Filter>Source\Main</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\Desktop\OpenGLTutorial\Tutorial1\src\Camera.cpp">
+    <ClCompile Include="..\Source\Darwin\Camera.cpp">
       <Filter>Source\Darwin</Filter>
     </ClCompile>
   </ItemGroup>

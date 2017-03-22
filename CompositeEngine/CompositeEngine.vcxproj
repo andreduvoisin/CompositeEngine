@@ -132,7 +132,7 @@
     <Manifest />
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\Desktop\OpenGLTutorial\Tutorial1\src\Camera.cpp" />
+    <ClCompile Include="..\Source\Darwin\Camera.cpp" />
     <ClCompile Include="..\Source\Main\Main-Darwin.cpp" />
     <ClCompile Include="..\Source\Main\Main-Win32.cpp" />
   </ItemGroup>
