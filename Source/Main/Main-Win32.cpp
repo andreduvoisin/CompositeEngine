@@ -6,10 +6,15 @@
 
 #include <Windows.h>
 
+//For FBX stuffz
+#include <fbxsdk.h>
+#include <vector>
+
 
 /*
  * https://www.3dgep.com/introduction-to-directx-11/
  * https://www.3dgep.com/introduction-to-opengl-and-glsl/
+ * http://www.walkerb.net/blog/dx-4/
 */
 
 
@@ -129,6 +134,89 @@ WORD g_Indicies[36] =
 	1, 5, 6, 1, 6, 2,
 	4, 0, 3, 4, 3, 7
 };
+
+
+// TODO: Clean this shit.
+//
+// For FBX Stuffz
+//
+struct MyVertex
+{
+	float pos[3];
+};
+
+FbxManager* g_pFbxSdkManager = nullptr;
+
+HRESULT LoadFBX(std::vector<MyVertex>* pOutVertexVector, std::vector<WORD>* pOutIndexBufVector)
+{
+	if (g_pFbxSdkManager == nullptr)
+	{
+		g_pFbxSdkManager = FbxManager::Create();
+
+		FbxIOSettings* pIOsettings = FbxIOSettings::Create(g_pFbxSdkManager, IOSROOT);
+		g_pFbxSdkManager->SetIOSettings(pIOsettings);
+	}
+
+	FbxImporter* pImporter = FbxImporter::Create(g_pFbxSdkManager, "");
+	FbxScene* pFbxScene = FbxScene::Create(g_pFbxSdkManager, "");
+
+	bool bSuccess = pImporter->Initialize("C:\\Users\\Ryan\\Documents\\CompositeEngine\\compositeengine\\Assets\\bat.fbx", -1, g_pFbxSdkManager->GetIOSettings());
+	if (!bSuccess) return E_FAIL;
+
+	bSuccess = pImporter->Import(pFbxScene);
+	if (!bSuccess) return E_FAIL;
+
+	pImporter->Destroy();
+
+	FbxNode* pFbxRootNode = pFbxScene->GetRootNode();
+
+	if (pFbxRootNode)
+	{
+		for (int i = 0; i < pFbxRootNode->GetChildCount(); i++)
+		{
+			FbxNode* pFbxChildNode = pFbxRootNode->GetChild(i);
+
+			if (pFbxChildNode->GetNodeAttribute() == NULL)
+				continue;
+
+			FbxNodeAttribute::EType AttributeType = pFbxChildNode->GetNodeAttribute()->GetAttributeType();
+
+			if (AttributeType != FbxNodeAttribute::eMesh)
+				continue;
+
+			FbxMesh* pMesh = (FbxMesh*)pFbxChildNode->GetNodeAttribute();
+
+			FbxVector4* pVertices = pMesh->GetControlPoints();
+
+			for (int j = 0; j < pMesh->GetPolygonCount(); j++)
+			{
+				int iNumVertices = pMesh->GetPolygonSize(j);
+				assert(iNumVertices == 3);
+
+				for (int k = 0; k < iNumVertices; k++)
+				{
+					int iControlPointIndex = pMesh->GetPolygonVertex(j, k);
+
+					MyVertex vertex;
+					vertex.pos[0] = (float)pVertices[iControlPointIndex].mData[0];
+					vertex.pos[1] = (float)pVertices[iControlPointIndex].mData[1];
+					vertex.pos[2] = (float)pVertices[iControlPointIndex].mData[2];
+					pOutVertexVector->push_back(vertex);
+					pOutVertexVector->push_back(vertex);
+
+					pOutIndexBufVector->push_back((unsigned short)pOutIndexBufVector->size());
+				}
+			}
+
+		}
+
+	}
+	return S_OK;
+}
+
+std::vector<MyVertex> g_wonder_woman;
+std::vector<WORD> g_wonder_woman_indices;
+
 
 
 // Forward declarations.
@@ -613,14 +701,14 @@ bool LoadContent()
 	ZeroMemory(&vertexBufferDesc, sizeof(D3D11_BUFFER_DESC));
 
 	vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	vertexBufferDesc.ByteWidth = sizeof(VertexPosColor) * _countof(g_Vertices);
+	vertexBufferDesc.ByteWidth = sizeof(MyVertex) * g_wonder_woman.size();
 	vertexBufferDesc.CPUAccessFlags = 0;
 	vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
 
 	D3D11_SUBRESOURCE_DATA resourceData;
 	ZeroMemory(&resourceData, sizeof(D3D11_SUBRESOURCE_DATA));
 
-	resourceData.pSysMem = g_Vertices;
+	resourceData.pSysMem = g_wonder_woman.data();
 
 	HRESULT hr = g_d3dDevice->CreateBuffer(&vertexBufferDesc, &resourceData, &g_d3dVertexBuffer);
 	if (FAILED(hr))
@@ -634,10 +722,10 @@ bool LoadContent()
 	ZeroMemory(&indexBufferDesc, sizeof(D3D11_BUFFER_DESC));
 
 	indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
-	indexBufferDesc.ByteWidth = sizeof(WORD) * _countof(g_Indicies);
+	indexBufferDesc.ByteWidth = sizeof(WORD) * g_wonder_woman_indices.size();
 	indexBufferDesc.CPUAccessFlags = 0;
 	indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	resourceData.pSysMem = g_Indicies;
+	resourceData.pSysMem = g_wonder_woman_indices.data();
 
 	hr = g_d3dDevice->CreateBuffer(&indexBufferDesc, &resourceData, &g_d3dIndexBuffer);
 	if (FAILED(hr))
@@ -711,8 +799,8 @@ bool LoadContent()
 	// Create the input layout for the vertex shader.
 	D3D11_INPUT_ELEMENT_DESC vertexLayoutDesc[] =
 	{
-		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(VertexPosColor,Position), D3D11_INPUT_PER_VERTEX_DATA, 0},
-		{"COLOR", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(VertexPosColor,Color), D3D11_INPUT_PER_VERTEX_DATA, 0}
+		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{"COLOR", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0}
 	};
 
 	hr = g_d3dDevice->CreateInputLayout(vertexLayoutDesc, _countof(vertexLayoutDesc), vertexShaderBlob->GetBufferPointer(), vertexShaderBlob->GetBufferSize(), &g_d3dInputLayout);
@@ -762,7 +850,7 @@ bool LoadContent()
 
 void Update(float deltaTime)
 {
-	XMVECTOR eyePosition = XMVectorSet(0, 0, -10, 1);
+	XMVECTOR eyePosition = XMVectorSet(0, 0, -20, 1);
 	XMVECTOR focusPoint = XMVectorSet(0, 0, 0, 1);
 	XMVECTOR upDirection = XMVectorSet(0, 1, 0, 0);
 	g_ViewMatrix = XMMatrixLookAtLH(eyePosition, focusPoint, upDirection);
@@ -831,7 +919,7 @@ void Render()
 	g_d3dDeviceContext->OMSetDepthStencilState(g_d3dDepthStencilState, 1);
 
 
-	g_d3dDeviceContext->DrawIndexed(_countof(g_Indicies), 0, 0);
+	g_d3dDeviceContext->DrawIndexed(g_wonder_woman_indices.size(), 0, 0);
 
 
 	Present(g_EnableVSync);
@@ -868,6 +956,12 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPWSTR cmdLine,
 {
 	UNREFERENCED_PARAMETER(prevInstance);
 	UNREFERENCED_PARAMETER(cmdLine);
+
+	if (LoadFBX(&g_wonder_woman, &g_wonder_woman_indices) != S_OK)
+	{
+		MessageBox(nullptr, TEXT("RIP wonder woman"), TEXT("Error"), MB_OK);
+		return -1;
+	}
 
 	// Check for DirectX Math library support.
 	if (!XMVerifyCPUSupport())
