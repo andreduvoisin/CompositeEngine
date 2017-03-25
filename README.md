@@ -8,7 +8,10 @@ This shit ain't prime.
 
 ### How do I get set up? ###
 
+* Download FBX SDK 2017.1
+* Copy .dll files to debug/release dirs
 * hit play (and pray)
+* TODO: Fix the manual copying.
 
 ### Contribution guidelines ###
 

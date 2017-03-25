@@ -150,11 +150,19 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\Source\Darwin\Camera.cpp" />
+    <ClCompile Include="..\Source\Graphics\MeshData.cpp" />
+    <ClCompile Include="..\Source\Graphics\MeshManager.cpp" />
+    <ClCompile Include="..\Source\Graphics\Win32\GraphicsDeviceWin32.cpp" />
     <ClCompile Include="..\Source\Main\Main-Darwin.cpp" />
     <ClCompile Include="..\Source\Main\Main-Win32.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Source\Common\Defines.h" />
+    <ClInclude Include="..\Source\Common\Singleton.h" />
+    <ClInclude Include="..\Source\Graphics\GraphicsDevice.h" />
+    <ClInclude Include="..\Source\Graphics\MeshData.h" />
+    <ClInclude Include="..\Source\Graphics\MeshManager.h" />
+    <ClInclude Include="..\Source\Graphics\Win32\GraphicsDeviceWin32.h" />
     <ClInclude Include="inc\Camera.h" />
     <ClInclude Include="inc\DarwinPCH.h" />
   </ItemGroup>
