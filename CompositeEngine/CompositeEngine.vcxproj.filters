@@ -24,6 +24,12 @@
     <Filter Include="Source\Darwin">
       <UniqueIdentifier>{5581e3e6-5623-4f85-9cef-3720bb664f3d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Graphics">
+      <UniqueIdentifier>{aa674ee3-84de-498b-9421-0b9457f72027}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Graphics\Win32">
+      <UniqueIdentifier>{16e50d6c-f001-46ee-a701-bffba4d8d351}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Source\Main\Main-Win32.cpp">
@@ -35,6 +41,15 @@
     <ClCompile Include="..\Source\Darwin\Camera.cpp">
       <Filter>Source\Darwin</Filter>
     </ClCompile>
+    <ClCompile Include="..\Source\Graphics\Win32\GraphicsDeviceWin32.cpp">
+      <Filter>Source\Graphics\Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Graphics\MeshManager.cpp">
+      <Filter>Source\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Source\Graphics\MeshData.cpp">
+      <Filter>Source\Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Source\Common\Defines.h">
@@ -45,6 +60,21 @@
     </ClInclude>
     <ClInclude Include="inc\DarwinPCH.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\Common\Singleton.h">
+      <Filter>Source\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\Graphics\GraphicsDevice.h">
+      <Filter>Source\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\Graphics\Win32\GraphicsDeviceWin32.h">
+      <Filter>Source\Graphics\Win32</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\Graphics\MeshManager.h">
+      <Filter>Source\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Source\Graphics\MeshData.h">
+      <Filter>Source\Graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
