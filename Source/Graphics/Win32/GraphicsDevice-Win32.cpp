@@ -1,4 +1,4 @@
-#include "GraphicsDeviceWin32.h"
+#include "GraphicsDevice-Win32.h"
 
 #include "Graphics\MeshData.h"
 #include "Graphics\MeshManager.h"
