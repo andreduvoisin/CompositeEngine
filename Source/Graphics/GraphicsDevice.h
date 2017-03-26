@@ -2,7 +2,7 @@
 #define _CE_GRAPHICS_DEVICE_H_
 
 #if _WIN32
-#include "Win32\GraphicsDeviceWin32.h"
+#include "Win32\GraphicsDevice-Win32.h"
 #else
 #error "Platform not supported."
 #endif

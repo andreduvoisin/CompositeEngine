@@ -1,21 +1,41 @@
 // Main for Win32
-
-/*
-** https://www.3dgep.com/introduction-to-directx-11/
-** https://www.3dgep.com/introduction-to-opengl-and-glsl/
-** http://www.walkerb.net/blog/dx-4/
-*/
-
 #ifdef _WIN32
 
+#include "Application\Application.h"
 #include "Common\Defines.h"
-
 #include "Graphics\GraphicsDevice.h"
 #include "Graphics\MeshManager.h"
 
 #include <Windows.h>
 
 #include <algorithm>
+
+
+bool Initialize(HINSTANCE hInstance, int cmdShow)
+{
+	// Initialize our Application.
+	CE::Application::Get().Initialize();
+
+	// Initialize our Mesh Manager.
+	CE::MeshManager::Get().Initialize();
+
+	// Initialize our Graphics Device.
+	if (!CE::GraphicsDevice::Get().Initialize(hInstance, cmdShow))
+	{
+		return false;
+	}
+
+	return true;
+}
+
+
+void Destroy()
+{
+	// To be safe, destroy in reverse initialize order.
+	CE::GraphicsDevice::Get().Destroy();
+	CE::MeshManager::Get().Destroy();
+	CE::Application::Get().Destroy();
+}
 
 
 // The main application loop.
@@ -59,25 +79,17 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPWSTR cmdLine,
 	UNREFERENCED_PARAMETER(prevInstance);
 	UNREFERENCED_PARAMETER(cmdLine);
 
-	// Initialize our Mesh Manager.
-	CE::MeshManager::Get().Initialize();
-
-	if (!CE::MeshManager::Get().GetMeshData("..\\..\\Assets\\bat.fbx"))
-	{
-		MessageBox(nullptr, TEXT("RIP Batman"), TEXT("Error"), MB_OK);
-		return -1;
-	}
-
-	// Initialize our Graphics Device.
-	if (!CE::GraphicsDevice::Get().Initialize(hInstance, cmdShow))
+	// Initialize.
+	if (!Initialize(hInstance, cmdShow))
 	{
 		return -1;
 	}
 
+	// Run the application.
 	int returnCode = Run();
 
-	CE::GraphicsDevice::Get().Destroy();
-	CE::MeshManager::Get().Destroy();
+	// Destroy.
+	Destroy();
 
 	return returnCode;
 }

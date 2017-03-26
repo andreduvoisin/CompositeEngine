@@ -21,3 +21,9 @@ This shit ain't prime.
 
 * do-not-reply@andreduvoisin.com
 * i *promise* i look at that email
+
+### References ###
+
+* https://www.3dgep.com/introduction-to-directx-11/
+* https://www.3dgep.com/introduction-to-opengl-and-glsl/
+* http://www.walkerb.net/blog/dx-4/
