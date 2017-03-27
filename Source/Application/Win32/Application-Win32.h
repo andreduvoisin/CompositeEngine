@@ -3,7 +3,6 @@
 
 #include "Common\Singleton.h"
 
-
 typedef struct _iobuf FILE;
 
 namespace CE
@@ -25,4 +24,4 @@ namespace CE
 	class Application : public ApplicationWin32 {};
 }
 
-#endif
+#endif // _CE_APPLICATION_WIN32_H_

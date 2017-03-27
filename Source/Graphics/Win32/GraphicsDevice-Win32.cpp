@@ -3,9 +3,13 @@
 #include "Graphics\MeshData.h"
 #include "Graphics\MeshManager.h"
 
+#include "Input\InputManager.h"
+
 #include <d3dcompiler.h>
 #include <DirectXMath.h>
 #include <DirectXColors.h>
+
+#include <cstdio>
 
 
 const LONG g_WindowWidth = 1280;
@@ -81,6 +85,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
+float batX = 0.0f;
+float batY = 0.0f;
+float batZ = 0.0f;
+
 
 namespace CE
 {
@@ -123,18 +131,19 @@ namespace CE
 
 	void GraphicsDeviceWin32::Update(float deltaTime)
 	{
-		DirectX::XMVECTOR eyePosition = DirectX::XMVectorSet(0, 0, -20, 1);
+		DirectX::XMVECTOR eyePosition = DirectX::XMVectorSet(0, 0, -100, 1);
 		DirectX::XMVECTOR focusPoint = DirectX::XMVectorSet(0, 0, 0, 1);
 		DirectX::XMVECTOR upDirection = DirectX::XMVectorSet(0, 1, 0, 0);
 		g_ViewMatrix = DirectX::XMMatrixLookAtLH(eyePosition, focusPoint, upDirection);
 		g_d3dDeviceContext->UpdateSubresource(g_d3dConstantBuffers[ConstantBuffer::CB_Frame], 0, nullptr, &g_ViewMatrix, 0, 0);
 
+		if (InputManager::Get().GetKey('W'))
+		{
+			printf("move bitch");
+			batX += 0.01f;
+		}
 
-		static float angle = 0.0f;
-		angle += 90.0f * deltaTime;
-		DirectX::XMVECTOR rotationAxis = DirectX::XMVectorSet(0, 1, 1, 0);
-
-		g_WorldMatrix = DirectX::XMMatrixRotationAxis(rotationAxis, DirectX::XMConvertToRadians(angle));
+		g_WorldMatrix = DirectX::XMMatrixTranslation(batX, batY, batZ);
 		g_d3dDeviceContext->UpdateSubresource(g_d3dConstantBuffers[ConstantBuffer::CB_Object], 0, nullptr, &g_WorldMatrix, 0, 0);
 	}
 

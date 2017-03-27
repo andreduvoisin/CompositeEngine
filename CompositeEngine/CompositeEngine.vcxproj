@@ -154,6 +154,7 @@
     <ClCompile Include="..\Source\Graphics\MeshData.cpp" />
     <ClCompile Include="..\Source\Graphics\MeshManager.cpp" />
     <ClCompile Include="..\Source\Graphics\Win32\GraphicsDevice-Win32.cpp" />
+    <ClCompile Include="..\Source\Input\Win32\InputManager-Win32.cpp" />
     <ClCompile Include="..\Source\Main\Main-Darwin.cpp" />
     <ClCompile Include="..\Source\Main\Main-Win32.cpp" />
   </ItemGroup>
@@ -166,6 +167,8 @@
     <ClInclude Include="..\Source\Graphics\MeshData.h" />
     <ClInclude Include="..\Source\Graphics\MeshManager.h" />
     <ClInclude Include="..\Source\Graphics\Win32\GraphicsDevice-Win32.h" />
+    <ClInclude Include="..\Source\Input\InputManager.h" />
+    <ClInclude Include="..\Source\Input\Win32\InputManager-Win32.h" />
     <ClInclude Include="inc\Camera.h" />
     <ClInclude Include="inc\DarwinPCH.h" />
   </ItemGroup>
