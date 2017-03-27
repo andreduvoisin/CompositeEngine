@@ -5,6 +5,7 @@
 #include "Common\Defines.h"
 #include "Graphics\GraphicsDevice.h"
 #include "Graphics\MeshManager.h"
+#include "Input\InputManager.h"
 
 #include <Windows.h>
 
@@ -15,6 +16,8 @@ bool Initialize(HINSTANCE hInstance, int cmdShow)
 {
 	// Initialize our Application.
 	CE::Application::Get().Initialize();
+
+	CE::InputManager::Get().Initialize();
 
 	// Initialize our Mesh Manager.
 	CE::MeshManager::Get().Initialize();
@@ -34,6 +37,7 @@ void Destroy()
 	// To be safe, destroy in reverse initialize order.
 	CE::GraphicsDevice::Get().Destroy();
 	CE::MeshManager::Get().Destroy();
+	CE::InputManager::Get().Destroy();
 	CE::Application::Get().Destroy();
 }
 
@@ -51,8 +55,22 @@ int Run()
 	{
 		if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE))
 		{
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
+			// Mouse input.
+			if (msg.message >= WM_MOUSEFIRST && msg.message <= WM_MOUSELAST)
+			{
+				CE::InputManager::Get().HandleMouseEvent(msg);
+			}
+			// Keyboard input.
+			else if (msg.message >= WM_KEYFIRST && msg.message <= WM_KEYLAST)
+			{
+				CE::InputManager::Get().HandleKeyboardEvent(msg);
+			}
+			// Default message case.
+			else
+			{
+				TranslateMessage(&msg);
+				DispatchMessage(&msg);
+			}
 		}
 		else
 		{
