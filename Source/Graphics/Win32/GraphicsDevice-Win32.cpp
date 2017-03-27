@@ -139,8 +139,19 @@ namespace CE
 
 		if (InputManager::Get().GetKey('W'))
 		{
-			printf("move bitch");
 			batX += 0.01f;
+		}
+		if (InputManager::Get().GetKey('S'))
+		{
+			batX -= 0.01f;
+		}
+		if (InputManager::Get().GetKey('A'))
+		{
+			batY += 0.01f;
+		}
+		if (InputManager::Get().GetKey('D'))
+		{
+			batY -= 0.01f;
 		}
 
 		g_WorldMatrix = DirectX::XMMatrixTranslation(batX, batY, batZ);
