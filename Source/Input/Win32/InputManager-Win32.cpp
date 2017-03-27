@@ -27,10 +27,10 @@ namespace CE
 			switch (msg.message)
 			{
 			case WM_KEYDOWN:
-				m_inputMap[msg.wParam] = true;
+				m_inputMap[(char)msg.wParam] = true;
 				break;
 			case WM_KEYUP:
-				m_inputMap[msg.wParam] = false;
+				m_inputMap[(char)msg.wParam] = false;
 				break;
 			}
 		}
