@@ -85,9 +85,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
-float batX = 0.0f;
-float batY = 0.0f;
-float batZ = 0.0f;
+DirectX::XMVECTOR pos = DirectX::XMVectorSet(0, 0, 0, 1);
+DirectX::XMVECTOR forward = DirectX::XMVectorSet(0, -1, 0, 0);
+DirectX::XMVECTOR up = DirectX::XMVectorSet(0, 0, 1, 0);
+float rot = 0.0f;
 
 
 namespace CE
@@ -129,32 +130,63 @@ namespace CE
 		Cleanup();
 	}
 
+	void PrintVector(const char *str, const DirectX::XMVECTOR& vec) {
+		printf("%s: (%f, %f, %f, %f)\n", str, vec.m128_f32[0], vec.m128_f32[1], vec.m128_f32[2], vec.m128_f32[3]);
+	}
+
 	void GraphicsDeviceWin32::Update(float deltaTime)
 	{
-		DirectX::XMVECTOR eyePosition = DirectX::XMVectorSet(0, 0, -100, 1);
+		DirectX::XMVECTOR eyePosition = DirectX::XMVectorSet(0, 5, 0, 1);
 		DirectX::XMVECTOR focusPoint = DirectX::XMVectorSet(0, 0, 0, 1);
-		DirectX::XMVECTOR upDirection = DirectX::XMVectorSet(0, 1, 0, 0);
+		DirectX::XMVECTOR upDirection = DirectX::XMVectorSet(0, 0, 1, 0);
+		DirectX::XMVECTOR rotationVec = DirectX::XMVectorSet(0, 0, 1, 0);
+
 		g_ViewMatrix = DirectX::XMMatrixLookAtLH(eyePosition, focusPoint, upDirection);
 		g_d3dDeviceContext->UpdateSubresource(g_d3dConstantBuffers[ConstantBuffer::CB_Frame], 0, nullptr, &g_ViewMatrix, 0, 0);
 
-		if (InputManager::Get().GetKey('W'))
-		{
-			batY += 0.01f;
-		}
+		//DirectX::XMMATRIX rotMatrix = DirectX::XMMatrixRotationAxis(rotationVec, rot);
+		//forward = DirectX::XMVector3Transform(forward, rotMatrix);
+		//float cosine = DirectX::XMScalarCos(rot);
+		//forward = DirectX::XMVectorSet(cosine / forward.m128_f32[0], cosine / forward.m128_f32[1], cosine / forward.m128_f32[2], 0);
+		//forward = DirectX::XMVector3Normalize(forward);
+
+		const float MOVE_CONST = 0.01f;
+
+		DirectX::XMVECTOR smallForward = DirectX::XMVectorMultiply(forward, DirectX::XMVectorSet(MOVE_CONST, MOVE_CONST, MOVE_CONST, 1));
+		
 		if (InputManager::Get().GetKey('S'))
 		{
-			batY -= 0.01f;
+			pos = DirectX::XMVectorAdd(pos, DirectX::XMVectorMultiply(smallForward, DirectX::g_XMNegativeOne));
+		}
+		if (InputManager::Get().GetKey('W'))
+		{
+			pos = DirectX::XMVectorAdd(pos, smallForward);
+		}
+		if (InputManager::Get().GetKey('E'))
+		{
+			pos = DirectX::XMVectorAdd(pos, DirectX::XMVector3Cross(smallForward, up));
+		}
+		if (InputManager::Get().GetKey('Q'))
+		{
+			pos = DirectX::XMVectorAdd(pos, DirectX::XMVector3Cross(up, smallForward));
 		}
 		if (InputManager::Get().GetKey('D'))
 		{
-			batX += 0.01f;
+			rot += 0.001f;
+			DirectX::XMMATRIX rotMatrix = DirectX::XMMatrixRotationAxis(rotationVec, 0.001f);
+			forward = DirectX::XMVector3Transform(forward, rotMatrix);
 		}
 		if (InputManager::Get().GetKey('A'))
 		{
-			batX -= 0.01f;
+			rot -= 0.001f;
+			DirectX::XMMATRIX rotMatrix = DirectX::XMMatrixRotationAxis(rotationVec, -0.001f);
+			forward = DirectX::XMVector3Transform(forward, rotMatrix);
 		}
 
-		g_WorldMatrix = DirectX::XMMatrixTranslation(batX, batY, batZ);
+		//PrintVector("pos", pos);
+		PrintVector("forward", forward);
+
+		g_WorldMatrix = DirectX::XMMatrixRotationAxis(rotationVec, rot) * DirectX::XMMatrixTranslationFromVector(pos);
 		g_d3dDeviceContext->UpdateSubresource(g_d3dConstantBuffers[ConstantBuffer::CB_Object], 0, nullptr, &g_WorldMatrix, 0, 0);
 	}
 
@@ -190,7 +222,7 @@ namespace CE
 		g_d3dDeviceContext->OMSetDepthStencilState(g_d3dDepthStencilState, 1);
 
 		// "I'm Batman."
-		MeshData* meshData = MeshManager::Get().GetMeshData("..\\..\\Assets\\bat.fbx");
+		MeshData* meshData = MeshManager::Get().GetMeshData("..\\..\\Assets\\watcher.fbx");
 
 		g_d3dDeviceContext->DrawIndexed((UINT)meshData->m_indices.size(), 0, 0);
 
@@ -378,7 +410,7 @@ namespace CE
 		rasterizerDesc.DepthClipEnable = TRUE;
 		rasterizerDesc.FillMode = D3D11_FILL_SOLID;
 		rasterizerDesc.FrontCounterClockwise = FALSE;
-		rasterizerDesc.MultisampleEnable = FALSE;
+		rasterizerDesc.MultisampleEnable = TRUE;
 		rasterizerDesc.ScissorEnable = FALSE;
 		rasterizerDesc.SlopeScaledDepthBias = 0.0f;
 
@@ -428,7 +460,7 @@ namespace CE
 		assert(g_d3dDevice);
 
 		// "I'm Batman."
-		MeshData* meshData = MeshManager::Get().GetMeshData("..\\..\\Assets\\bat.fbx");
+		MeshData* meshData = MeshManager::Get().GetMeshData("..\\..\\Assets\\watcher.fbx");
 
 		// Create an initialize the vertex buffer.
 		D3D11_BUFFER_DESC vertexBufferDesc;
