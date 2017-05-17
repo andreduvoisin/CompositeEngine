@@ -71,15 +71,15 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 	switch (message)
 	{
-	case WM_PAINT:
-		hDC = BeginPaint(hwnd, &paintStruct);
-		EndPaint(hwnd, &paintStruct);
-		break;
-	case WM_DESTROY:
-		PostQuitMessage(0);
-		break;
-	default:
-		return DefWindowProc(hwnd, message, wParam, lParam);
+		case WM_PAINT:
+			hDC = BeginPaint(hwnd, &paintStruct);
+			EndPaint(hwnd, &paintStruct);
+			break;
+		case WM_DESTROY:
+			PostQuitMessage(0);
+			break;
+		default:
+			return DefWindowProc(hwnd, message, wParam, lParam);
 	}
 
 	return 0;
@@ -222,7 +222,7 @@ namespace CE
 		g_d3dDeviceContext->OMSetDepthStencilState(g_d3dDepthStencilState, 1);
 
 		// "I'm Batman."
-		MeshData* meshData = MeshManager::Get().GetMeshData("..\\..\\Assets\\watcher.fbx");
+		MeshData* meshData = MeshManager::Get().GetMeshData("..\\..\\..\\Assets\\watcher.fbx");
 
 		g_d3dDeviceContext->DrawIndexed((UINT)meshData->m_indices.size(), 0, 0);
 
@@ -460,7 +460,7 @@ namespace CE
 		assert(g_d3dDevice);
 
 		// "I'm Batman."
-		MeshData* meshData = MeshManager::Get().GetMeshData("..\\..\\Assets\\watcher.fbx");
+		MeshData* meshData = MeshManager::Get().GetMeshData("..\\..\\..\\Assets\\watcher.fbx");
 
 		// Create an initialize the vertex buffer.
 		D3D11_BUFFER_DESC vertexBufferDesc;

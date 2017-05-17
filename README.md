@@ -1,6 +1,6 @@
 # Composite Engine #
 
-This shit ain't prime.
+This shit ain't Prime.
 
 ### What is this repository for? ###
 
@@ -8,6 +8,7 @@ This shit ain't prime.
 
 ### How do I get set up? ###
 
+* Download VS2017 w/ C++ CMake support.
 * Download FBX SDK 2017.1
 * Copy .dll files to debug/release dirs
 * hit play (and pray)

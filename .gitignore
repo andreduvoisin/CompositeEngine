@@ -1,12 +1,15 @@
 # Ignore from Git
 
 # Visual Studio
+.vs
 *.VC.db
 *.VC.VC.opendb
 CompositeEngine/.vs
 CompositeEngine/Debug
 CompositeEngine/Release
-COmpositeEngine/x64
+CompositeEngine/x64
+
+build
 
 # Shader Generated Header Files
 Source/Shaders/*.h
