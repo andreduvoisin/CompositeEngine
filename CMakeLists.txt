@@ -54,6 +54,7 @@ target_link_libraries(
 		d3dcompiler
 		#winmm
 		libfbxsdk
+
 		glew32sd
 		freeglut_static
 )
