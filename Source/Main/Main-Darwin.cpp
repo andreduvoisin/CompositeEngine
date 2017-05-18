@@ -236,8 +236,8 @@ int main(int argc, char* argv[])
 	InitGLEW();
 
 	// Load some shaders.
-	GLuint vertexShader = LoadShader(GL_VERTEX_SHADER, "../data/shaders/simpleShader.vert");
-	GLuint fragmentShader = LoadShader(GL_FRAGMENT_SHADER, "../data/shaders/simpleShader.frag");
+	GLuint vertexShader = LoadShader(GL_VERTEX_SHADER, "../../../CompositeEngine/data/shaders/simpleShader.vert");
+	GLuint fragmentShader = LoadShader(GL_FRAGMENT_SHADER, "../../../CompositeEngine/data/shaders/simpleShader.frag");
 
 	std::vector<GLuint> shaders;
 	shaders.push_back(vertexShader);
