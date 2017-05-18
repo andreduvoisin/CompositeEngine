@@ -1,14 +1,12 @@
 cmake_minimum_required(VERSION 3.7.2)
 
 project(CompositeEngine)
+
 file(GLOB_RECURSE CPP_FILES "Source/*.cpp")
 
 include_directories(
 	"Source"
 	"C:/Program Files/Autodesk/FBX/FBX SDK/2017.1/include"
-)
-
-include_directories(
 	"CompositeEngine/inc"
 	"CompositeEngine/extern/freeglut-2.8.1/include"
 	"CompositeEngine/extern/glew-1.10.0/include"
@@ -20,7 +18,6 @@ link_directories(
 	"CompositeEngine/extern/glew-1.10.0/lib/Debug/Win32"
 	"C:/Program Files/Autodesk/FBX/FBX SDK/2017.1/lib/vs2015/x86/debug"
 )
-
 
 set_source_files_properties(
 	"Source/Shaders/SimplePixelShader.hlsl"
@@ -43,13 +40,22 @@ set_source_files_properties(
 # TODO: Remove freeglut/glew/glm
 # TODO: SDL 2.0
 # TODO: Figure out FBX SDK
-add_executable(CompositeEngine WIN32 ${CPP_FILES} "Source/Shaders/SimplePixelShader.hlsl" "Source/Shaders/SimpleVertexShader.hlsl")
-target_link_libraries(CompositeEngine
-	d3d11
-	dxgi
-	d3dcompiler
-	winmm
-	libfbxsdk
+add_executable(
+	CompositeEngine
+	WIN32
+		${CPP_FILES}
+		"Source/Shaders/SimplePixelShader.hlsl"
+		"Source/Shaders/SimpleVertexShader.hlsl")
+
+target_link_libraries(
+	CompositeEngine
+		d3d11
+		#dxgi
+		d3dcompiler
+		#winmm
+		libfbxsdk
+		glew32sd
+		freeglut_static
 )
 
-install(TARGETS CompositeEngine DESTINATION bin)
+#install(TARGETS CompositeEngine DESTINATION bin)
