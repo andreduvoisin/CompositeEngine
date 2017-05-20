@@ -27,3 +27,4 @@ This shit ain't Prime.
 * https://www.3dgep.com/introduction-to-directx-11/
 * https://www.3dgep.com/introduction-to-opengl-and-glsl/
 * http://www.walkerb.net/blog/dx-4/
+* http://usa.autodesk.com/adsk/servlet/pc/item?siteID=123112&id=26012646
