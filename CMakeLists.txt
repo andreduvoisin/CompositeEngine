@@ -2,25 +2,24 @@ cmake_minimum_required(VERSION 3.7.2)
 
 project(CompositeEngine)
 
-file(GLOB_RECURSE CPP_FILES "Source/*.cpp")
+file(GLOB_RECURSE CPP_FILES "src/*.cpp")
 
 include_directories(
-	"Source"
-	"C:/Program Files/Autodesk/FBX/FBX SDK/2017.1/include"
-	"CompositeEngine/inc"
-	"CompositeEngine/extern/freeglut-2.8.1/include"
-	"CompositeEngine/extern/glew-1.10.0/include"
-	"CompositeEngine/extern/glm-0.9.5.1"
+	"src"
+	"extern/FBX SDK/2017.1/include"
+	"extern/freeglut-2.8.1/include"
+	"extern/glew-1.10.0/include"
+	"extern/glm-0.9.5.1"
 )
 
 link_directories(
-	"CompositeEngine/extern/freeglut-2.8.1/lib/x86/Debug"
-	"CompositeEngine/extern/glew-1.10.0/lib/Debug/Win32"
-	"C:/Program Files/Autodesk/FBX/FBX SDK/2017.1/lib/vs2015/x86/debug"
+	"extern/freeglut-2.8.1/lib/x86/Debug"
+	"extern/glew-1.10.0/lib/Debug/Win32"
+	"extern/FBX SDK/2017.1/lib/vs2015/x86/debug"
 )
 
 set_source_files_properties(
-	"Source/Shaders/SimplePixelShader.hlsl"
+	"src/shaders/SimplePixelShader.hlsl"
 	PROPERTIES
 		VS_SHADER_TYPE Pixel
 		VS_SHADER_MODEL 4.0_level_9_3
@@ -28,7 +27,7 @@ set_source_files_properties(
 )
 
 set_source_files_properties(
-	"Source/Shaders/SimpleVertexShader.hlsl"
+	"src/shaders/SimpleVertexShader.hlsl"
 	PROPERTIES
 		VS_SHADER_TYPE Vertex
 		VS_SHADER_MODEL 4.0_level_9_3
@@ -42,10 +41,10 @@ set_source_files_properties(
 # TODO: Figure out FBX SDK
 add_executable(
 	CompositeEngine
-	WIN32
+	#WIN32
 		${CPP_FILES}
-		"Source/Shaders/SimplePixelShader.hlsl"
-		"Source/Shaders/SimpleVertexShader.hlsl")
+		"src/shaders/SimplePixelShader.hlsl"
+		"src/shaders/SimpleVertexShader.hlsl")
 
 target_link_libraries(
 	CompositeEngine
