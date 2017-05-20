@@ -8,9 +8,8 @@ This shit ain't Prime.
 
 ### How do I get set up? ###
 
-* Download VS2017 w/ C++ CMake support.
-* Download FBX SDK 2017.1
-* Copy .dll files to debug/release dirs
+* Download VS2017 with C++ CMake support.
+* Copy FBX SDK 2017.1 .dll files to debug/release dirs
 * hit play (and pray)
 * TODO: Fix the manual copying.
 
