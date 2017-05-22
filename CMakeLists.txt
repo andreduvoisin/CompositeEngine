@@ -6,7 +6,7 @@ file(GLOB_RECURSE CPP_FILES "src/*.cpp")
 
 include_directories(
 	"src"
-	"extern/FBX SDK/2017.1/include"
+	"extern/FBX SDK/2018.1.1/include"
 	"extern/freeglut-2.8.1/include"
 	"extern/glew-1.10.0/include"
 	"extern/glm-0.9.5.1"
@@ -15,7 +15,7 @@ include_directories(
 link_directories(
 	"extern/freeglut-2.8.1/lib/x86/Debug"
 	"extern/glew-1.10.0/lib/Debug/Win32"
-	"extern/FBX SDK/2017.1/lib/vs2015/x86/debug"
+	"extern/FBX SDK/2018.1.1/lib/vs2015/x86/debug"
 )
 
 set_source_files_properties(
