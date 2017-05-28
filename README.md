@@ -11,13 +11,10 @@ GAME ENGINE BADASSERY
 #### Windows ####
 
 * Install VS2017.
-	* VS2017: extern/vs_community__972827533.1495945236.exe or https://www.visualstudio.com/downloads/
+	* VS2017: https://www.visualstudio.com/downloads/
 		* Include "Visual C++ tools for CMake" under "Desktop development with C++".
 	* Add MSBuild.exe to PATH.
 		* C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\MSBuild\15.0\Bin
-
-* Copy the appropriate FBX SDK .dll files to Debug/Release directories.
-	* TODO: Make this automatic in the build process.
 
 #### All Platforms ####
 
