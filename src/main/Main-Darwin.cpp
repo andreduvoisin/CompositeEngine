@@ -1,6 +1,6 @@
 // Main for Darwin
 
-#ifdef _WIN32
+#ifdef __APPLE__
 
 #include "darwin\DarwinPCH.h"
 #include "darwin\Camera.h"
