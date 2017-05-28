@@ -12,12 +12,9 @@ GAME ENGINE BADASSERY
 
 * Install VS2017.
 	* VS2017: extern/vs_community__972827533.1495945236.exe or https://www.visualstudio.com/downloads/
-		* Include "Visual C++ tools for CMake" under "Desktop development with C++"
-
-* Install VS2010 and SP1 (for SDL).
-	* VS2010: extern/en_visual_studio_2010_vc_express_web_installer_x86_516528.exe or https://my.visualstudio.com/Downloads?q=Visual%20Studio%202010%20VC%20Express
-	* Service Pack 1: extern/VS10sp1-KB983509.exe or http://download.cnet.com/Microsoft-Visual-Studio-2010-Service-Pack-1/3000-2070_4-75451099.html
-	* Open VS2010 and register the product. (Help -> Register Product)
+		* Include "Visual C++ tools for CMake" under "Desktop development with C++".
+	* Add MSBuild.exe to PATH.
+		* C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\MSBuild\15.0\Bin
 
 * Copy the appropriate FBX SDK .dll files to Debug/Release directories.
 	* TODO: Make this automatic in the build process.
