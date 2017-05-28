@@ -31,7 +31,7 @@ struct VertexShaderOutput
 };
 
 
-VertexShaderOutput SimpleVertexShader(AppData IN)
+VertexShaderOutput main(AppData IN)
 {
 	VertexShaderOutput OUT;
 
