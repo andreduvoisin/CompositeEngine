@@ -10,12 +10,14 @@ include_directories(
 	"extern/freeglut-2.8.1/include"
 	"extern/glew-1.10.0/include"
 	"extern/glm-0.9.5.1"
+	"extern/SDL2-2.0.5/include"
 )
 
 link_directories(
 	"extern/freeglut-2.8.1/lib/x86/Debug"
 	"extern/glew-1.10.0/lib/Debug/Win32"
 	"extern/FBX SDK/2018.1.1/lib/vs2015/x86/debug"
+	"extern/SDL2-2.0.5/VisualC/Win32/Debug"
 )
 
 set_source_files_properties(
@@ -32,6 +34,16 @@ set_source_files_properties(
 		VS_SHADER_TYPE Vertex
 		VS_SHADER_MODEL 4.0_level_9_3
 		VS_SHADER_ENTRYPOINT SimpleVertexShader
+)
+
+execute_process(
+	COMMAND
+		MSBuild
+		"../../extern/SDL2-2.0.5/VisualC/SDL.sln"
+		/p:PlatformToolset=v141
+		/p:Configuration=${CE_CONFIGURATION}
+		/p:Platform=${CE_PLATFORM}
+		/m
 )
 
 # TODO: Remove Win32
@@ -53,6 +65,8 @@ target_link_libraries(
 		d3dcompiler
 		#winmm
 		libfbxsdk
+		SDL2
+		SDL2main
 
 		glew32sd
 		freeglut_static

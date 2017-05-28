@@ -4,6 +4,7 @@
 
 #include "darwin\DarwinPCH.h"
 #include "darwin\Camera.h"
+#include <SDL.h>
 
 #define BUFFER_OFFSET(offset) ((void*)(offset))
 #define MEMBER_OFFSET(s,m) ((char*)NULL + (offsetof(s,m)))
@@ -280,6 +281,8 @@ int main(int argc, char* argv[])
 
 
 	glutMainLoop();
+
+	return 0;
 }
 
 void ReshapeGL(int w, int h)

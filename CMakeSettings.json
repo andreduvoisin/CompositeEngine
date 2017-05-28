@@ -8,7 +8,17 @@
       "buildRoot": "${projectDir}\\build\\${name}",
       "cmakeCommandArgs": "",
       "buildCommandArgs": "-m -v:minimal",
-      "ctestCommandArgs": ""
+      "ctestCommandArgs": "",
+      "variables": [
+        {
+          "name": "CE_CONFIGURATION",
+          "value": "Debug"
+        },
+        {
+          "name": "CE_PLATFORM",
+          "value": "Win32"
+        }
+      ]
     },
     {
       "name": "x86-Release",
@@ -17,7 +27,17 @@
       "buildRoot": "${projectDir}\\build\\${name}",
       "cmakeCommandArgs": "",
       "buildCommandArgs": "-m -v:minimal",
-      "ctestCommandArgs": ""
+      "ctestCommandArgs": "",
+      "variables": [
+        {
+          "name": "CE_CONFIGURATION",
+          "value": "Release"
+        },
+        {
+          "name": "CE_PLATFORM",
+          "value": "Win32"
+        }
+      ]
     },
     {
       "name": "x64-Debug",
@@ -26,7 +46,17 @@
       "buildRoot": "${projectDir}\\build\\${name}",
       "cmakeCommandArgs": "",
       "buildCommandArgs": "-m -v:minimal",
-      "ctestCommandArgs": ""
+      "ctestCommandArgs": "",
+      "variables": [
+        {
+          "name": "CE_CONFIGURATION",
+          "value": "Debug"
+        },
+        {
+          "name": "CE_PLATFORM",
+          "value": "x64"
+        }
+      ]
     },
     {
       "name": "x64-Release",
@@ -35,7 +65,17 @@
       "buildRoot": "${projectDir}\\build\\${name}",
       "cmakeCommandArgs": "",
       "buildCommandArgs": "-m -v:minimal",
-      "ctestCommandArgs": ""
+      "ctestCommandArgs": "",
+      "variables": [
+        {
+          "name": "CE_CONFIGURATION",
+          "value": "Release"
+        },
+        {
+          "name": "CE_PLATFORM",
+          "value": "x64"
+        }
+      ]
     }
   ]
 }
