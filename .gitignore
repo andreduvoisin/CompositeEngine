@@ -1,7 +1,7 @@
-# Ignore from Git
+# .gitignore
 
 # Build Folder
-build
+build/*
 
 # Visual Studio
 .vs
