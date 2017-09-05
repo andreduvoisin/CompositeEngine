@@ -23,3 +23,8 @@ extern/SDL2-2.0.5/VisualC/tests/*/x64
 extern/SDL2-2.0.5/VisualC/tests/*/*.bmp
 extern/SDL2-2.0.5/VisualC/tests/*/*.wav
 extern/SDL2-2.0.5/VisualC/tests/*/*.dat
+
+# GLEW
+extern/glew-2.1.0/bin
+extern/glew-2.1.0/lib
+extern/glew-2.1.0/build/vc12/tmp

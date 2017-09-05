@@ -35,18 +35,16 @@ add_executable(CompositeEngine ${SRC_FILES})
 
 include_directories(${SRC_DIR})
 
-# freeglut/glew/glm
+# freeglut/glm
 # TODO: Remove these dependencies.
 include_directories(
 	"${EXTERN_DIR}/freeglut-2.8.1/include"
-	"${EXTERN_DIR}/glew-1.10.0/include"
 	"${EXTERN_DIR}/glm-0.9.5.1"
 )
 
 target_link_libraries(
 	CompositeEngine
 		"${EXTERN_DIR}/freeglut-2.8.1/lib/x86/Debug/freeglut_static.lib"
-		"${EXTERN_DIR}/glew-1.10.0/lib/Debug/Win32/glew32sd.lib"
 )
 
 # DirectX
@@ -79,6 +77,42 @@ if(WIN32)
 		"${PROJECT_BINARY_DIR}/${CE_CONFIGURATION}/SDL2.dll"
 		COPYONLY
 	)
+endif()
+
+# GLEW
+if(WIN32)
+	set(GLEW_ROOT_DIR "${EXTERN_DIR}/glew-2.1.0")
+	set(GLEW_MSVC_DIR "${GLEW_ROOT_DIR}/build/vc12")
+
+	if(${CE_CONFIGURATION} STREQUAL "Debug")
+		set(GLEW_CONFIGURATION "d")
+	else()
+		set(GLEW_CONFIGURATION "")
+	endif()
+	
+	execute_process(
+		COMMAND
+			MSBuild
+			"${GLEW_MSVC_DIR}/glew.sln"
+			/p:PlatformToolset=v141
+			/p:Configuration=${CE_CONFIGURATION}
+			/p:Platform=${CE_PLATFORM}
+			/m
+	)
+
+	include_directories("${GLEW_ROOT_DIR}/include")
+
+	# Statically-Linked Library
+	target_compile_definitions(CompositeEngine PRIVATE GLEW_STATIC)
+	target_link_libraries(CompositeEngine "${GLEW_ROOT_DIR}/lib/${CE_CONFIGURATION}/${CE_PLATFORM}/glew32s${GLEW_CONFIGURATION}.lib")
+
+	# Dynamically-Linked Library
+	#target_link_libraries(CompositeEngine "${GLEW_ROOT_DIR}/lib/${CE_CONFIGURATION}/${CE_PLATFORM}/glew32${GLEW_CONFIGURATION}.lib")
+	#configure_file(
+	#	"${GLEW_ROOT_DIR}/bin/${CE_CONFIGURATION}/${CE_PLATFORM}/glew32${GLEW_CONFIGURATION}.dll"
+	#	"${PROJECT_BINARY_DIR}/${CE_CONFIGURATION}/glew32${GLEW_CONFIGURATION}.dll"
+	#	COPYONLY
+	#)
 endif()
 
 # FBX SDK
