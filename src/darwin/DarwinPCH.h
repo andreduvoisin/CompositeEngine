@@ -4,7 +4,6 @@
 #include <vector>
 #include <ctime>
 
-#define GLEW_STATIC
 #include <GL/glew.h>
 #ifdef _WIN32
 #include <GL/wglew.h> // For wglSwapInterval
