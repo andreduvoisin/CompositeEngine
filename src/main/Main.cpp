@@ -1,4 +1,5 @@
 #include <SDL.h>
+#include <GL\glew.h>
 #include <SDL_opengl.h>
 #include <gl\GLU.h>
 
@@ -29,6 +30,75 @@ SDL_Surface* g_currentSurface = NULL;
 
 bool g_renderQuad = true;
 
+GLuint g_programID = 0;
+GLint g_vertexPos2DLocation = -1;
+GLuint g_vbo = 0;
+GLuint g_ibo = 0;
+
+void printProgramLog(GLuint program)
+{
+	//Make sure name is shader
+	if (glIsProgram(program))
+	{
+		//Program log length
+		int infoLogLength = 0;
+		int maxLength = infoLogLength;
+
+		//Get info string length
+		glGetProgramiv(program, GL_INFO_LOG_LENGTH, &maxLength);
+
+		//Allocate string
+		char* infoLog = new char[maxLength];
+
+		//Get info log
+		glGetProgramInfoLog(program, maxLength, &infoLogLength, infoLog);
+		if (infoLogLength > 0)
+		{
+			//Print Log
+			printf("%s\n", infoLog);
+		}
+
+		//Deallocate string
+		delete[] infoLog;
+	}
+	else
+	{
+		printf("Name %d is not a program\n", program);
+	}
+}
+
+void printShaderLog(GLuint shader)
+{
+	//Make sure name is shader
+	if (glIsShader(shader))
+	{
+		//Shader log length
+		int infoLogLength = 0;
+		int maxLength = infoLogLength;
+
+		//Get info string length
+		glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &maxLength);
+
+		//Allocate string
+		char* infoLog = new char[maxLength];
+
+		//Get info log
+		glGetShaderInfoLog(shader, maxLength, &infoLogLength, infoLog);
+		if (infoLogLength > 0)
+		{
+			//Print Log
+			printf("%s\n", infoLog);
+		}
+
+		//Deallocate string
+		delete[] infoLog;
+	}
+	else
+	{
+		printf("Name %d is not a shader\n", shader);
+	}
+}
+
 void HandleKeys(unsigned char key, int x, int y)
 {
 	if (key == 'q')
@@ -44,6 +114,35 @@ void Update()
 
 void Render()
 {
+	//Clear color buffer
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	//Render quad
+	if (g_renderQuad)
+	{
+		//Bind program
+		glUseProgram(g_programID);
+
+		//Enable vertex position
+		glEnableVertexAttribArray(g_vertexPos2DLocation);
+
+		//Set vertex data
+		glBindBuffer(GL_ARRAY_BUFFER, g_vbo);
+		glVertexAttribPointer(g_vertexPos2DLocation, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), NULL);
+
+		//Set index data and render
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_ibo);
+		glDrawElements(GL_TRIANGLE_FAN, 4, GL_UNSIGNED_INT, NULL);
+
+		//Disable vertex position
+		glDisableVertexAttribArray(g_vertexPos2DLocation);
+
+		//Unbind program
+		glUseProgram(NULL);
+	}
+
+	// OpenGL 2.1
+	/*
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	if (g_renderQuad)
@@ -55,10 +154,88 @@ void Render()
 		glVertex2f(-0.5f, 0.5f);
 		glEnd();
 	}
+	*/
 }
 
 bool InitializeOpenGL()
 {
+	g_programID = glCreateProgram();
+
+	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+	const GLchar* vertexShaderSource[] =
+	{
+		"#version 140\nin vec2 LVertexPos2D; void main() { gl_Position = vec4(LVertexPos2D.x, LVertexPos2D.y, 0, 1); }"
+	};
+	glShaderSource(vertexShader, 1, vertexShaderSource, NULL);
+	glCompileShader(vertexShader);
+	GLint vShaderCompiled = GL_FALSE;
+	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &vShaderCompiled);
+	if (vShaderCompiled != GL_TRUE)
+	{
+		printf("Unable to compile vertex shader %d!\n", vertexShader);
+		printShaderLog(vertexShader);
+		return false;
+	}
+	glAttachShader(g_programID, vertexShader);
+
+	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+	const GLchar* fragmentShaderSource[] =
+	{
+		"#version 140\nout vec4 LFragment; void main() { LFragment = vec4(1.0, 1.0, 1.0, 1.0); }"
+	};
+	glShaderSource(fragmentShader, 1, fragmentShaderSource, NULL);
+	glCompileShader(fragmentShader);
+	GLint fShaderCompiled = GL_FALSE;
+	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &fShaderCompiled);
+	if (fShaderCompiled != GL_TRUE)
+	{
+		printf("Unable to compile fragment shader %d!\n", fragmentShader);
+		printShaderLog(fragmentShader);
+		return false;
+	}
+	glAttachShader(g_programID, fragmentShader);
+
+	glLinkProgram(g_programID);
+	GLint programSuccess = GL_TRUE;
+	glGetProgramiv(g_programID, GL_LINK_STATUS, &programSuccess);
+	if (programSuccess != GL_TRUE)
+	{
+		printf("Error linking program %d!\n", g_programID);
+		printProgramLog(g_programID);
+		return false;
+	}
+
+	g_vertexPos2DLocation = glGetAttribLocation(g_programID, "LVertexPos2D");
+	if (g_vertexPos2DLocation == -1)
+	{
+		printf("LVertexPos2D is not a valid glsl program variable!\n");
+		return false;
+	}
+
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+
+	GLfloat vertexData[] =
+	{
+		-0.5f, -0.5f,
+		0.5f, -0.5f,
+		0.5f,  0.5f,
+		-0.5f,  0.5f
+	};
+
+	GLuint indexData[] = { 0, 1, 2, 3 };
+
+	glGenBuffers(1, &g_vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, g_vbo);
+	glBufferData(GL_ARRAY_BUFFER, 2 * 4 * sizeof(GLfloat), vertexData, GL_STATIC_DRAW);
+	
+	glGenBuffers(1, &g_ibo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_ibo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 4 * sizeof(GLuint), indexData, GL_STATIC_DRAW);
+
+	return true;
+
+	// OpenGL 2.1
+	/*
 	GLenum error = GL_NO_ERROR;
 
 	glMatrixMode(GL_PROJECTION);
@@ -91,6 +268,7 @@ bool InitializeOpenGL()
 	}
 
 	return true;
+	*/
 }
 
 bool Initialize()
@@ -102,8 +280,9 @@ bool Initialize()
 	}
 
 	// Use OpenGL 2.1
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
 	g_window = SDL_CreateWindow(
 		"Composite Engine",
@@ -127,6 +306,14 @@ bool Initialize()
 	{
 		printf("OpenGL context could not be created! SDL_Error: %s\n", SDL_GetError());
 		return false;
+	}
+
+	// Initialize GLEW
+	//glewExperimental = GL_TRUE;
+	GLenum glewError = glewInit();
+	if (glewError != GLEW_OK)
+	{
+		printf("Error initializing GLEW! %s\n", glewGetErrorString(glewError));
 	}
 
 	// Use VSync
