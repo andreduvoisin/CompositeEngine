@@ -456,7 +456,7 @@ int main(int argc, char* argv[])
 					//		//g_currentSurface = g_keyPressSurfaces[KEY_PRESS_SURFACE_DEFAULT];
 					//		break;
 					//}
-					//break;
+					break;
 
 				case SDL_TEXTINPUT:
 				{
