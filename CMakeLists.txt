@@ -35,11 +35,10 @@ add_executable(CompositeEngine ${SRC_FILES})
 
 include_directories(${SRC_DIR})
 
-# freeglut/glm
+# freeglut
 # TODO: Remove these dependencies.
 include_directories(
 	"${EXTERN_DIR}/freeglut-2.8.1/include"
-	"${EXTERN_DIR}/glm-0.9.5.1"
 )
 
 target_link_libraries(
@@ -114,6 +113,9 @@ if(WIN32)
 	#	COPYONLY
 	#)
 endif()
+
+# GLM
+include_directories("${EXTERN_DIR}/glm-0.9.8.5")
 
 # FBX SDK
 if(WIN32)
