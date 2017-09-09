@@ -36,7 +36,11 @@ GAME ENGINE BADASSERY
 
 * GLEW: http://glew.sourceforge.net/
 	* 2.1.0: https://sourceforge.net/projects/glew/files/glew/2.1.0/
-	* Reference: http://glew.sourceforge.net/ (sidebar)
+	* Reference: See Above (sidebar)
+
+* GLM: https://glm.g-truc.net/
+	* 0.9.8.5: https://glm.g-truc.net/0.9.8/index.html
+	* Reference: See Above (sidebar)
 
 * FBX SDK: https://www.autodesk.com/products/fbx/overview
 	* 2018.1.1: http://usa.autodesk.com/adsk/servlet/pc/item?siteID=123112&id=26416130
