@@ -64,6 +64,7 @@ GAME ENGINE BADASSERY
 		* https://www.opengl.org/archives/resources/faq/technical/gettingstarted.htm (archived)
 		* https://en.wikipedia.org/wiki/OpenGL
 		* https://en.wikipedia.org/wiki/OpenGL_ES
+		* http://ogl-samples.g-truc.net/ (click Home button)
 	* Tutorials:
 		* https://www.3dgep.com/introduction-to-opengl-and-glsl/
 		* http://www.opengl-tutorial.org/

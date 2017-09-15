@@ -72,7 +72,7 @@ namespace CE
 					vertex.y = (float)pVertices[iControlPointIndex].mData[1];
 					vertex.z = (float)pVertices[iControlPointIndex].mData[2];
 					m_vertices.push_back(vertex);
-					m_vertices.push_back(vertex);
+					//m_vertices.push_back(vertex);
 
 					m_indices.push_back((WORD)m_indices.size());
 				}
