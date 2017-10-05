@@ -12,8 +12,8 @@
 #include "graphics\MeshManager.h"
 #include "graphics\MeshData.h"
 
-const int SCREEN_WIDTH = 640;
-const int SCREEN_HEIGHT = 480;
+const int SCREEN_WIDTH = 1920;
+const int SCREEN_HEIGHT = 1080;
 
 SDL_Window* g_window = NULL;
 SDL_Surface* g_surface = NULL;
@@ -42,6 +42,8 @@ GLuint g_ibo = 0;
 GLuint g_vao = 0;
 
 GLuint g_mvpMatrixID = -1;
+
+const char* g_fbxName = "..\\..\\..\\assets\\Unarmed Idle 01.fbx";
 
 void printProgramLog(GLuint program)
 {
@@ -149,18 +151,20 @@ void Render()
 
 	glUseProgram(g_programID);
 
-	glm::mat4 projection = glm::perspective(glm::pi<float>() * 0.25f, (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
-	glm::mat4 view = glm::lookAt(glm::vec3(4, 3, 3), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+	glm::mat4 projection = glm::perspective(glm::pi<float>() * 0.25f, (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 1000.0f);
+	glm::mat4 view = glm::lookAt(glm::vec3(0, 0, 400), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 	glm::mat4 model = glm::mat4(1.0f);
 	glm::mat4 mvp = projection * view * model;
 	glUniformMatrix4fv(g_mvpMatrixID, 1, GL_FALSE, &mvp[0][0]);
 		
 	glBindVertexArray(g_vao);
 
-	CE::MeshData* meshData = CE::MeshManager::Get().GetMeshData("..\\..\\..\\Assets\\watcher.fbx");
+	CE::MeshData* meshData = CE::MeshManager::Get().GetMeshData(g_fbxName);
 
 	//glDrawArrays(GL_TRIANGLES, 0, 3);
-	glDrawArrays(GL_TRIANGLES, 0, meshData->m_vertices.size());
+	//glDrawArrays(GL_TRIANGLES, 0, meshData->m_vertices.size());
+	glDrawElements(GL_TRIANGLES, meshData->m_indices.size(), GL_UNSIGNED_INT, NULL);
+	//glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, NULL);
 }
 
 bool InitializeOpenGL()
@@ -235,39 +239,81 @@ bool InitializeOpenGL()
 
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
-	//GLfloat vertexData[] =
-	//{
-	//	-0.5f, -0.5f,
-	//	0.5f, -0.5f,
-	//	0.5f,  0.5f,
-	//	-0.5f,  0.5f
+	//const GLfloat vertex_buffer_data[] = {
+	//	-1.0f, -1.0f, 0.0f,
+	//	1.0f, -1.0f, 0.0f,
+	//	0.0f,  1.0f, 0.0f,
 	//};
 
-	//GLuint indexData[] = { 0, 1, 2, 3 };
+	//const unsigned int index_buffer_data[] = {
+	//	0, 1, 2
+	//};
 
-	float points[] = {
-		0.0f,  0.5f,  0.0f,
-		0.5f, -0.5f,  0.0f,
-		-0.5f, -0.5f,  0.0f
+	const GLfloat vertex_buffer_data[] = {
+		-0.500000, -0.500000, 0.000000,
+		-0.500000, 0.500000, 0.000000,
+		0.500000, 0.500000, 0.000000,
+		0.500000, -0.500000, 0.000000,
+		-0.500000, -0.500000, 1.000000,
+		0.500000, -0.500000, 1.000000,
+		0.500000, 0.500000, 1.000000,
+		-0.500000, 0.500000, 1.000000,
+	};
+
+	const unsigned int index_buffer_data[] = {
+		0, 1, 2,
+		0, 2, 3,
+		4, 5, 6,
+		4, 6, 7,
+		0, 3, 5,
+		0, 5, 4,
+		3, 2, 6,
+		3, 6, 5,
+		2, 1, 7,
+		2, 7, 6,
+		1, 0, 4,
+		1, 4, 7,
 	};
 
 	// "I'm Batman."
-	CE::MeshData* meshData = CE::MeshManager::Get().GetMeshData("..\\..\\..\\Assets\\watcher.fbx");
+	CE::MeshData* meshData = CE::MeshManager::Get().GetMeshData(g_fbxName);
 
 	glGenVertexArrays(1, &g_vao);
 	glBindVertexArray(g_vao);
 
 	glGenBuffers(1, &g_vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, g_vbo);
-	glBufferData(GL_ARRAY_BUFFER, meshData->m_vertices.size() * sizeof(CE::MeshData::Vertex), meshData->m_vertices.data(), GL_STATIC_DRAW);
-	//glBufferData(GL_ARRAY_BUFFER, 9 * sizeof(float), points, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, meshData->m_vertices.size() * sizeof(CE::Vertex), meshData->m_vertices.data(), GL_STATIC_DRAW);
+	//glBufferData(GL_ARRAY_BUFFER, 24 * sizeof(float), vertex_buffer_data, GL_STATIC_DRAW);
+
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	glGenBuffers(1, &g_ibo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_ibo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, meshData->m_indices.size() * sizeof(unsigned int), meshData->m_indices.data(), GL_STATIC_DRAW);
+	//glBufferData(GL_ELEMENT_ARRAY_BUFFER, 36 * sizeof(unsigned int), index_buffer_data, GL_STATIC_DRAW);
+	//glEnableVertexAttribArray(1);
+
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 	glEnableVertexAttribArray(0);
 
-	//glGenBuffers(1, &g_ibo);
-	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_ibo);
-	//glBufferData(GL_ELEMENT_ARRAY_BUFFER, meshData->m_indices.size() * sizeof(WORD), meshData->m_indices.data(), GL_STATIC_DRAW);
-	//glEnableVertexAttribArray(1);
+	//for (int i = 0; i < meshData->m_vertices.size(); ++i)
+	//{
+	//	const CE::Position& pos = meshData->m_vertices[i].position;
+	//	printf("x: %f, y: %f, z: %f\n", pos.x, pos.y, pos.z);
+	//}
+
+	//for (int i = 0; i < meshData->m_indices.size(); i += 3)
+	//{
+	//	printf("idx: %i, %i, %i\n", meshData->m_indices[i], meshData->m_indices[i+1], meshData->m_indices[i+2]);
+	//}
+
+	printf("meshData->m_vertices.size(): %u\n", meshData->m_vertices.size());
+	printf("meshData->m_indices.size(): %u\n", meshData->m_indices.size());
 
 	return true;
 }
@@ -335,8 +381,8 @@ bool Initialize()
 
 	const GLubyte* renderer = glGetString(GL_RENDERER); // get renderer string
 	const GLubyte* version = glGetString(GL_VERSION); // version as a string
-	printf("Renderer: %s\n", renderer);
-	printf("OpenGL version supported %s\n", version);
+	printf("GL_RENDERER: %s\n", renderer);
+	printf("GL_VERSION: %s\n", version);
 
 	// tell GL to only draw onto a pixel if the shape is closer to the viewer
 	glEnable(GL_DEPTH_TEST); // enable depth-testing

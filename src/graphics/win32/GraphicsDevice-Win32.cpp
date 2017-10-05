@@ -467,7 +467,7 @@ namespace CE
 		ZeroMemory(&vertexBufferDesc, sizeof(D3D11_BUFFER_DESC));
 
 		vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-		vertexBufferDesc.ByteWidth = sizeof(MeshData::Vertex) * (UINT)meshData->m_vertices.size();
+		vertexBufferDesc.ByteWidth = sizeof(Vertex) * (UINT)meshData->m_vertices.size();
 		vertexBufferDesc.CPUAccessFlags = 0;
 		vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
 

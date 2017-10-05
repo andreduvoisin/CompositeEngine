@@ -40,7 +40,6 @@ include_directories(${SRC_DIR})
 include_directories(
 	"${EXTERN_DIR}/freeglut-2.8.1/include"
 )
-
 target_link_libraries(
 	CompositeEngine
 		"${EXTERN_DIR}/freeglut-2.8.1/lib/x86/Debug/freeglut_static.lib"
@@ -136,11 +135,19 @@ if(WIN32)
 
 	include_directories("${FBXSDK_ROOT_DIR}/include")
 
-	target_link_libraries(CompositeEngine "${FBXSDK_MSVC_DIR}/${FBXSDK_PLATFORM}/${FBXSDK_CONFIGURATION}/libfbxsdk.lib")
+	# FBX SDK can be linked statically (with either /MD or /MT) or dynamically.
+	# opengl32.lib and glu32.lib link with /MD, so we can't link with /MT.
+	# /MD[d] is included in CMAKE_CXX_FLAGS[_*] by default.
 
-	configure_file(
-		"${FBXSDK_MSVC_DIR}/${FBXSDK_PLATFORM}/${FBXSDK_CONFIGURATION}/libfbxsdk.dll"
-		"${PROJECT_BINARY_DIR}/${CE_CONFIGURATION}/libfbxsdk.dll"
-		COPYONLY
-	)
+	# Statically-Linked Library (/MD)
+	target_link_libraries(CompositeEngine "${FBXSDK_MSVC_DIR}/${FBXSDK_PLATFORM}/${FBXSDK_CONFIGURATION}/libfbxsdk-md.lib")
+
+	# Dynamically-Linked Library
+	#target_compile_definitions(CompositeEngine PRIVATE FBXSDK_SHARED)
+	#target_link_libraries(CompositeEngine "${FBXSDK_MSVC_DIR}/${FBXSDK_PLATFORM}/${FBXSDK_CONFIGURATION}/libfbxsdk.lib")
+	#configure_file(
+	#	"${FBXSDK_MSVC_DIR}/${FBXSDK_PLATFORM}/${FBXSDK_CONFIGURATION}/libfbxsdk.dll"
+	#	"${PROJECT_BINARY_DIR}/${CE_CONFIGURATION}/libfbxsdk.dll"
+	#	COPYONLY
+	#)
 endif()

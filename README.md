@@ -68,6 +68,7 @@ GAME ENGINE BADASSERY
 	* Tutorials:
 		* https://www.3dgep.com/introduction-to-opengl-and-glsl/
 		* http://www.opengl-tutorial.org/
+		* https://learnopengl.com/
 		* https://sites.google.com/site/opengltutorialsbyaks/
 			* https://sites.google.com/site/opengltutorialsbyaks/introduction-to-opengl-3-2---tutorial-01
 	* Function Loading and GLEW-specific:
@@ -86,3 +87,6 @@ GAME ENGINE BADASSERY
 	* http://www.ayxia.com/gitea/john/test65
 		* http://www.ayxia.com/gitea/john/test65/src/master/src/tools/munge
 	* http://www.ayxia.com/gitea/john/engine67
+
+* Lang's FBX SDK Guide: https://www.gamedev.net/articles/programming/graphics/how-to-work-with-fbx-sdk-r3582/
+* C++ Skeletal Animation Library: https://github.com/guillaumeblanc/ozz-animation
