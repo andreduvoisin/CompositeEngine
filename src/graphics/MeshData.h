@@ -6,10 +6,51 @@
 #include <vector>
 
 
-namespace fbxsdk { class FbxManager; }
+namespace fbxsdk
+{
+	class FbxManager;
+	class FbxMesh;
+	class FbxNode;
+	class FbxSurfaceMaterial;
+}
 
 namespace CE
 {
+	struct Position
+	{
+		float x, y, z;
+	};
+
+	inline bool operator==(const Position& lhs, const Position& rhs)
+	{
+		return lhs.x == rhs.x
+			&& lhs.y == rhs.y
+			&& lhs.z == rhs.z;
+	}
+
+	struct TextureCoordinate
+	{
+		float u, v;
+	};
+
+	inline bool operator==(const TextureCoordinate& lhs, const TextureCoordinate& rhs)
+	{
+		return lhs.u == rhs.u
+			&& lhs.v == rhs.v;
+	}
+
+	struct Vertex
+	{
+		Position position;
+		//TextureCoordinate textureCoordinate;
+	};
+
+	inline bool operator==(const Vertex& lhs, const Vertex& rhs)
+	{
+		return lhs.position == rhs.position;
+			//&& lhs.textureCoordinate == rhs.textureCoordinate;
+	}
+
 	struct MeshData
 	{
 	public:
@@ -22,13 +63,20 @@ namespace CE
 
 		void Draw();
 
+	private:
+		void ParseNodes(fbxsdk::FbxNode* pFbxRootNode);
+		void LoadInformation(fbxsdk::FbxMesh* pMesh);
+		void ProcessMaterialTexture(fbxsdk::FbxSurfaceMaterial* inMaterial);
+
 	//private:
-		struct Vertex
-		{
-			float x, y, z;
-		};
+	public:
+
 		std::vector<Vertex> m_vertices;
-		std::vector<WORD> m_indices;
+		std::vector<unsigned int> m_indices;
+
+		std::string m_diffuseMapName;
+		std::string m_specularMapName;
+		std::string m_normalMapName;
 	};
 }
 

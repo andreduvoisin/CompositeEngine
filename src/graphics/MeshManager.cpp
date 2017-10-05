@@ -24,6 +24,8 @@ namespace CE
 			delete it->second;
 		}
 		m_meshMap.clear();
+
+		g_pFbxSdkManager->Destroy();
 	}
 
 	MeshData* MeshManager::GetMeshData(const char* szMeshFile)
