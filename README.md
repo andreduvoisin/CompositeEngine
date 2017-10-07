@@ -46,6 +46,10 @@ GAME ENGINE BADASSERY
 	* 2018.1.1: http://usa.autodesk.com/adsk/servlet/pc/item?siteID=123112&id=26416130
 	* Reference: http://help.autodesk.com/view/FBX/2018/ENU/
 
+* stb_image: https://github.com/nothings/stb
+	* 2.16: https://github.com/nothings/stb/blob/9d9f75eb682dd98b34de08bb5c489c6c561c9fa6/stb_image.h
+	* Reference: See File
+
 ### Resources ###
 
 * DirectX:
