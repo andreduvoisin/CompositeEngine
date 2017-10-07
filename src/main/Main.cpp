@@ -12,8 +12,11 @@
 #include "graphics\MeshManager.h"
 #include "graphics\MeshData.h"
 
-const int SCREEN_WIDTH = 1920;
-const int SCREEN_HEIGHT = 1080;
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
+
+const int SCREEN_WIDTH = 1280;
+const int SCREEN_HEIGHT = 720;
 
 SDL_Window* g_window = NULL;
 SDL_Surface* g_surface = NULL;
@@ -152,7 +155,7 @@ void Render()
 	glUseProgram(g_programID);
 
 	glm::mat4 projection = glm::perspective(glm::pi<float>() * 0.25f, (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 1000.0f);
-	glm::mat4 view = glm::lookAt(glm::vec3(0, 0, 400), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+	glm::mat4 view = glm::lookAt(glm::vec3(0, 100, 400), glm::vec3(0, 100, 0), glm::vec3(0, 1, 0));
 	glm::mat4 model = glm::mat4(1.0f);
 	glm::mat4 mvp = projection * view * model;
 	glUniformMatrix4fv(g_mvpMatrixID, 1, GL_FALSE, &mvp[0][0]);
@@ -164,7 +167,7 @@ void Render()
 	//glDrawArrays(GL_TRIANGLES, 0, 3);
 	//glDrawArrays(GL_TRIANGLES, 0, meshData->m_vertices.size());
 	glDrawElements(GL_TRIANGLES, meshData->m_indices.size(), GL_UNSIGNED_INT, NULL);
-	//glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, NULL);
+	//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
 }
 
 bool InitializeOpenGL()
@@ -179,9 +182,12 @@ bool InitializeOpenGL()
 	const char* vertexShaderSource =
 		"#version 410\n"
 		"in vec3 vp;"
+		"in vec2 tp;"
 		"uniform mat4 mvp;"
+		"out vec2 texCoord;"
 		"void main() {"
 		"  gl_Position = mvp * vec4(vp, 1.0);"
+		"  texCoord = tp;"
 		"}";
 	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
 	glCompileShader(vertexShader);
@@ -203,8 +209,10 @@ bool InitializeOpenGL()
 	const char* fragmentShaderSource =
 		"#version 410\n"
 		"out vec4 frag_colour;"
+		"in vec2 texCoord;"
+		"uniform sampler2D ourTexture;"
 		"void main() {"
-		"  frag_colour = vec4(0.5, 0.0, 0.5, 1.0);"
+		"  frag_colour = texture(ourTexture, texCoord);"
 		"}";
 	glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
 	glCompileShader(fragmentShader);
@@ -239,41 +247,43 @@ bool InitializeOpenGL()
 
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
-	//const GLfloat vertex_buffer_data[] = {
-	//	-1.0f, -1.0f, 0.0f,
-	//	1.0f, -1.0f, 0.0f,
-	//	0.0f,  1.0f, 0.0f,
-	//};
-
-	//const unsigned int index_buffer_data[] = {
-	//	0, 1, 2
-	//};
-
 	const GLfloat vertex_buffer_data[] = {
-		-0.500000, -0.500000, 0.000000,
-		-0.500000, 0.500000, 0.000000,
-		0.500000, 0.500000, 0.000000,
-		0.500000, -0.500000, 0.000000,
-		-0.500000, -0.500000, 1.000000,
-		0.500000, -0.500000, 1.000000,
-		0.500000, 0.500000, 1.000000,
-		-0.500000, 0.500000, 1.000000,
+		-0.5f, -0.5f, 0.0f,		0.0f, 0.0f,
+		-0.5f, 0.5f, 0.0f,		0.0f, 1.0f,
+		0.5f, 0.5f, 0.0f,		1.0f, 1.0f,
+		0.5f, -0.5f, 0.0f,		1.0f, 0.0f,
 	};
 
 	const unsigned int index_buffer_data[] = {
 		0, 1, 2,
 		0, 2, 3,
-		4, 5, 6,
-		4, 6, 7,
-		0, 3, 5,
-		0, 5, 4,
-		3, 2, 6,
-		3, 6, 5,
-		2, 1, 7,
-		2, 7, 6,
-		1, 0, 4,
-		1, 4, 7,
 	};
+
+	//const GLfloat vertex_buffer_data[] = {
+	//	-0.500000, -0.500000, 0.000000,
+	//	-0.500000, 0.500000, 0.000000,
+	//	0.500000, 0.500000, 0.000000,
+	//	0.500000, -0.500000, 0.000000,
+	//	-0.500000, -0.500000, 1.000000,
+	//	0.500000, -0.500000, 1.000000,
+	//	0.500000, 0.500000, 1.000000,
+	//	-0.500000, 0.500000, 1.000000,
+	//};
+
+	//const unsigned int index_buffer_data[] = {
+	//	0, 1, 2,
+	//	0, 2, 3,
+	//	4, 5, 6,
+	//	4, 6, 7,
+	//	0, 3, 5,
+	//	0, 5, 4,
+	//	3, 2, 6,
+	//	3, 6, 5,
+	//	2, 1, 7,
+	//	2, 7, 6,
+	//	1, 0, 4,
+	//	1, 4, 7,
+	//};
 
 	// "I'm Batman."
 	CE::MeshData* meshData = CE::MeshManager::Get().GetMeshData(g_fbxName);
@@ -286,25 +296,40 @@ bool InitializeOpenGL()
 	glBufferData(GL_ARRAY_BUFFER, meshData->m_vertices.size() * sizeof(CE::Vertex), meshData->m_vertices.data(), GL_STATIC_DRAW);
 	//glBufferData(GL_ARRAY_BUFFER, 24 * sizeof(float), vertex_buffer_data, GL_STATIC_DRAW);
 
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
 	glGenBuffers(1, &g_ibo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_ibo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, meshData->m_indices.size() * sizeof(unsigned int), meshData->m_indices.data(), GL_STATIC_DRAW);
 	//glBufferData(GL_ELEMENT_ARRAY_BUFFER, 36 * sizeof(unsigned int), index_buffer_data, GL_STATIC_DRAW);
-	//glEnableVertexAttribArray(1);
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+	stbi_set_flip_vertically_on_load(true);
+	int width, height, channels;
+	unsigned char* data = stbi_load(meshData->m_diffuseMapName.c_str(), &width, &height, &channels, 0);
+
+	unsigned int texture;
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	unsigned int glChannels = channels == 3 ? GL_RGB : GL_RGBA;
+	glTexImage2D(GL_TEXTURE_2D, 0, glChannels, width, height, 0, glChannels, GL_UNSIGNED_BYTE, data);
+	glGenerateMipmap(GL_TEXTURE_2D);
+
+	stbi_image_free(data);
+
+	unsigned int stride = sizeof(CE::Vertex);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, NULL);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride, (void*)sizeof(CE::Position));
 	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
 
 	//for (int i = 0; i < meshData->m_vertices.size(); ++i)
 	//{
-	//	const CE::Position& pos = meshData->m_vertices[i].position;
-	//	printf("x: %f, y: %f, z: %f\n", pos.x, pos.y, pos.z);
+	//	//const CE::Position& pos = meshData->m_vertices[i].position;
+	//	//printf("x: %f, y: %f, z: %f\n", pos.x, pos.y, pos.z);
+	//	const CE::TextureCoordinate& tex = meshData->m_vertices[i].textureCoordinate;
+	//	printf("u: %f, v: %f\n", tex.u, tex.v);
 	//}
 
 	//for (int i = 0; i < meshData->m_indices.size(); i += 3)

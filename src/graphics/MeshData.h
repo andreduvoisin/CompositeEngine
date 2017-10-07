@@ -42,13 +42,13 @@ namespace CE
 	struct Vertex
 	{
 		Position position;
-		//TextureCoordinate textureCoordinate;
+		TextureCoordinate textureCoordinate;
 	};
 
 	inline bool operator==(const Vertex& lhs, const Vertex& rhs)
 	{
-		return lhs.position == rhs.position;
-			//&& lhs.textureCoordinate == rhs.textureCoordinate;
+		return lhs.position == rhs.position
+			&& lhs.textureCoordinate == rhs.textureCoordinate;
 	}
 
 	struct MeshData
