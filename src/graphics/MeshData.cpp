@@ -174,8 +174,15 @@ namespace CE
 	void MeshData::LoadInformation(FbxMesh* pMesh)
 	{
 		//get all UV set names
-		//FbxStringList lUVSetNameList;
-		//pMesh->GetUVSetNames(lUVSetNameList);
+		FbxStringList lUVSetNameList;
+		pMesh->GetUVSetNames(lUVSetNameList);
+
+		for (int lUVSetIndex = 0; lUVSetIndex < lUVSetNameList.GetCount(); lUVSetIndex++)
+		{
+			const char* lUVSetName = lUVSetNameList.GetStringAt(lUVSetIndex);
+			const FbxGeometryElementUV* lUVElement = pMesh->GetElementUV(lUVSetName);
+			printf("lUVSetName: %s\n", lUVSetName);
+		}
 
 		FbxVector4* pVertices = pMesh->GetControlPoints();
 		m_indices.reserve(pMesh->GetControlPointsCount());
@@ -188,7 +195,7 @@ namespace CE
 			//get lUVSetIndex-th uv set
 			//const char* lUVSetName = lUVSetNameList.GetStringAt(lUVSetIndex);
 			//const FbxGeometryElementUV* lUVElement = pMesh->GetElementUV(lUVSetName);
-			const FbxGeometryElementUV* lUVElement = pMesh->GetElementUV(0);
+			const FbxGeometryElementUV* lUVElement = pMesh->GetElementUV(0);// , fbxsdk::FbxLayerElement::eTextureDiffuse);
 
 			if (!lUVElement)
 			{
@@ -279,6 +286,9 @@ namespace CE
 						}
 
 						lUVValue = lUVElement->GetDirectArray().GetAt(lUVIndex);
+
+						vertex.textureCoordinate.u = lUVValue[0];
+						vertex.textureCoordinate.v = lUVValue[1];
 
 
 						unsigned int index;
