@@ -54,12 +54,12 @@ endif()
 if(WIN32)
 	set(SDL_ROOT_DIR "${EXTERN_DIR}/SDL2-2.0.5")
 	set(SDL_MSVC_DIR "${SDL_ROOT_DIR}/VisualC")
-
+	
+	# TODO: Uses v100. What happens if v100 isn't installed?
 	execute_process(
 		COMMAND
 			MSBuild
 			"${SDL_MSVC_DIR}/SDL.sln"
-			/p:PlatformToolset=v141
 			/p:Configuration=${CE_CONFIGURATION}
 			/p:Platform=${CE_PLATFORM}
 			/m
@@ -88,11 +88,11 @@ if(WIN32)
 		set(GLEW_CONFIGURATION "")
 	endif()
 	
+	# TODO: Uses v120. What happens if v120 isn't installed?
 	execute_process(
 		COMMAND
 			MSBuild
 			"${GLEW_MSVC_DIR}/glew.sln"
-			/p:PlatformToolset=v141
 			/p:Configuration=${CE_CONFIGURATION}
 			/p:Platform=${CE_PLATFORM}
 			/m
