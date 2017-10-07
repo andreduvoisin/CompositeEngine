@@ -116,6 +116,9 @@ endif()
 # GLM
 include_directories("${EXTERN_DIR}/glm-0.9.8.5")
 
+# stb_image
+include_directories("${EXTERN_DIR}/stb_image-2.16")
+
 # FBX SDK
 if(WIN32)
 	set(FBXSDK_ROOT_DIR "${EXTERN_DIR}/FBX SDK/2018.1.1")
