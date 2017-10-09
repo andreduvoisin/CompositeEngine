@@ -75,6 +75,7 @@ GAME ENGINE BADASSERY
 		* https://learnopengl.com/
 		* https://sites.google.com/site/opengltutorialsbyaks/
 			* https://sites.google.com/site/opengltutorialsbyaks/introduction-to-opengl-3-2---tutorial-01
+		* https://en.wikibooks.org/wiki/OpenGL_Programming
 	* Function Loading and GLEW-specific:
 		* https://stackoverflow.com/questions/3933027/how-to-get-the-gl-library-headers
 		* https://stackoverflow.com/questions/14413/using-opengl-extensions-on-windows
