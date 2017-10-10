@@ -405,12 +405,29 @@ namespace CE
 					if (m_skeleton.joints[i].name == currJointName)
 					{
 						currJointIndex = i;
+						break;
 					}
 				}
 
-				FbxAMatrix transformMatrix;
-				FbxAMatrix transformLinkMatrix;
-				FbxAMatrix globalBindposeInverseMatrix;
+				if (currJointIndex == -1)
+				{
+					printf("Couldn't find joint index.\n");
+					continue; // should this break? or return even?
+				}
+
+				FbxAMatrix transformMatrix = currCluster->GetTransformMatrix(transformMatrix);
+				FbxAMatrix transformLinkMatrix = currCluster->GetTransformLinkMatrix(transformLinkMatrix);
+				FbxAMatrix globalBindposeInverseMatrix = transformLinkMatrix.Inverse() * transformMatrix * geometryTransform;
+				for (unsigned i = 0; i < 16; ++i)
+				{
+					m_skeleton.joints[currJointIndex].inverseBindPose[i][i % 4] = globalBindposeInverseMatrix[i][i % 4];
+				}
+
+				unsigned int numOfIndices = currCluster->GetControlPointIndicesCount();
+				for (unsigned i = 0; i < numOfIndices; ++i)
+				{
+
+				}
 			}
 		}
 	}
