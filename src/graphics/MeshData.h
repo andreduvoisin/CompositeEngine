@@ -4,7 +4,8 @@
 #include <Windows.h>
 
 #include <vector>
-
+#include <glm\glm.hpp>
+#include <glm\gtc\quaternion.hpp>
 
 namespace fbxsdk
 {
@@ -51,6 +52,32 @@ namespace CE
 			&& lhs.textureCoordinate == rhs.textureCoordinate;
 	}
 
+	struct Joint
+	{
+		glm::mat4 inverseBindPose;
+		std::string name;
+		byte parentIndex;
+	};
+
+	struct Skeleton
+	{
+		int jointCount;
+		std::vector<Joint> joints;
+	};
+
+	struct JointPose
+	{
+		glm::quat rotation;
+		glm::vec3 translation;
+		glm::vec3 scale;
+	};
+
+	struct SkeletonPose
+	{
+		Skeleton* skeleton;
+		std::vector<JointPose> localPoses;
+	};
+
 	struct MeshData
 	{
 	public:
@@ -67,6 +94,9 @@ namespace CE
 		void ParseNodes(fbxsdk::FbxNode* pFbxRootNode);
 		void LoadInformation(fbxsdk::FbxMesh* pMesh);
 		void ProcessMaterialTexture(fbxsdk::FbxSurfaceMaterial* inMaterial);
+		void ProcessAnimation(fbxsdk::FbxNode* node);
+		void ProcessSkeletonHierarchy(FbxNode* inRootNode);
+		void ProcessSkeletonHierarchyRecursively(FbxNode* inNode, int inDepth, int myIndex, int inParentIndex);
 
 	//private:
 	public:
@@ -77,6 +107,8 @@ namespace CE
 		std::string m_diffuseMapName;
 		std::string m_specularMapName;
 		std::string m_normalMapName;
+
+		Skeleton m_skeleton;
 	};
 }
 

@@ -374,6 +374,71 @@ namespace CE
 		}
 	}
 
+	void MeshData::ProcessAnimation(FbxNode* node)
+	{
+		ProcessSkeletonHierarchy(node);
+
+		FbxMesh* currMesh = node->GetMesh();
+		unsigned int numOfDeformers = currMesh->GetDeformerCount();
+		FbxAMatrix geometryTransform = FbxAMatrix(
+			node->GetGeometricTranslation(FbxNode::eSourcePivot),
+			node->GetGeometricRotation(FbxNode::eSourcePivot),
+			node->GetGeometricScaling(FbxNode::eSourcePivot));
+
+		for (unsigned deformerIndex = 0; deformerIndex < numOfDeformers; ++deformerIndex)
+		{
+			FbxSkin* currSkin = reinterpret_cast<FbxSkin*>(currMesh->GetDeformer(deformerIndex, FbxDeformer::eSkin));
+			if (!currSkin)
+			{
+				continue;
+			}
+
+			unsigned numOfClusters = currSkin->GetClusterCount();
+			for (unsigned clusterIndex = 0; clusterIndex < numOfClusters; ++clusterIndex)
+			{
+				FbxCluster* currCluster = currSkin->GetCluster(clusterIndex);
+				std::string currJointName = currCluster->GetLink()->GetName();
+
+				unsigned int currJointIndex = -1;
+				for (unsigned i = 0; i < m_skeleton.joints.size(); ++i)
+				{
+					if (m_skeleton.joints[i].name == currJointName)
+					{
+						currJointIndex = i;
+					}
+				}
+
+				FbxAMatrix transformMatrix;
+				FbxAMatrix transformLinkMatrix;
+				FbxAMatrix globalBindposeInverseMatrix;
+			}
+		}
+	}
+
+	void MeshData::ProcessSkeletonHierarchy(FbxNode* inRootNode)
+	{
+		for (int childIndex = 0; childIndex < inRootNode->GetChildCount(); ++childIndex)
+		{
+			FbxNode* currNode = inRootNode->GetChild(childIndex);
+			ProcessSkeletonHierarchyRecursively(currNode, 0, 0, -1);
+		}
+	}
+
+	void MeshData::ProcessSkeletonHierarchyRecursively(FbxNode* inNode, int inDepth, int myIndex, int inParentIndex)
+	{
+		if (inNode->GetNodeAttribute() && inNode->GetNodeAttribute()->GetAttributeType() && inNode->GetNodeAttribute()->GetAttributeType() == FbxNodeAttribute::eSkeleton)
+		{
+			Joint currJoint;
+			currJoint.parentIndex = inParentIndex;
+			currJoint.name = inNode->GetName();
+			m_skeleton.joints.push_back(currJoint);
+		}
+		for (int i = 0; i < inNode->GetChildCount(); i++)
+		{
+			ProcessSkeletonHierarchyRecursively(inNode->GetChild(i), inDepth + 1, m_skeleton.joints.size(), myIndex);
+		}
+	}
+
 	void MeshData::Draw()
 	{
 
