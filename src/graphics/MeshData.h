@@ -4,6 +4,7 @@
 #include <Windows.h>
 
 #include <vector>
+#include <unordered_map>
 #include <glm\glm.hpp>
 #include <glm\gtc\quaternion.hpp>
 
@@ -12,6 +13,7 @@ namespace fbxsdk
 	class FbxManager;
 	class FbxMesh;
 	class FbxNode;
+	class FbxScene;
 	class FbxSurfaceMaterial;
 }
 
@@ -44,6 +46,9 @@ namespace CE
 	{
 		Position position;
 		TextureCoordinate textureCoordinate;
+		float jointWeights[4];
+		unsigned jointIndices[4];
+		unsigned numWeights;
 	};
 
 	inline bool operator==(const Vertex& lhs, const Vertex& rhs)
@@ -56,26 +61,37 @@ namespace CE
 	{
 		glm::mat4 inverseBindPose;
 		std::string name;
-		byte parentIndex;
+		short parentIndex;
 	};
 
 	struct Skeleton
 	{
-		int jointCount;
 		std::vector<Joint> joints;
 	};
 
 	struct JointPose
 	{
-		glm::quat rotation;
-		glm::vec3 translation;
-		glm::vec3 scale;
+		glm::mat4 localPose;
 	};
 
 	struct SkeletonPose
 	{
-		Skeleton* skeleton;
-		std::vector<JointPose> localPoses;
+		std::vector<JointPose> jointPoses;
+	};
+
+	struct KeyFrame
+	{
+		glm::mat4 localPose;
+		int frameNum;
+	};
+
+	struct Animation
+	{
+		std::string name;
+		std::vector<std::vector<KeyFrame>> keyFrames;
+		int currFrame;
+		int numFrames;
+		float time;
 	};
 
 	struct MeshData
@@ -88,15 +104,19 @@ namespace CE
 
 		bool LoadMesh(fbxsdk::FbxManager* fbxManager, const char* szFileName);
 
+		void InitializeAnimationData();
+		//void CalculatePose(short joint, KeyFrame* frame1, KeyFrame* frame2);
+
 		void Draw();
+		void Update(float deltaTime);
 
 	private:
-		void ParseNodes(fbxsdk::FbxNode* pFbxRootNode);
+		void ParseNodes(fbxsdk::FbxNode* pFbxRootNode, fbxsdk::FbxScene* pFbxScene);
 		void LoadInformation(fbxsdk::FbxMesh* pMesh);
 		void ProcessMaterialTexture(fbxsdk::FbxSurfaceMaterial* inMaterial);
-		void ProcessAnimation(fbxsdk::FbxNode* node);
-		void ProcessSkeletonHierarchy(FbxNode* inRootNode);
-		void ProcessSkeletonHierarchyRecursively(FbxNode* inNode, int inDepth, int myIndex, int inParentIndex);
+		void ProcessAnimation(fbxsdk::FbxNode* node, fbxsdk::FbxScene* scene);
+		void ProcessSkeletonHierarchy(fbxsdk::FbxNode* inRootNode);
+		void ProcessSkeletonHierarchyRecursively(fbxsdk::FbxNode* inNode, int inDepth, int myIndex, int inParentIndex);
 
 	//private:
 	public:
@@ -108,7 +128,13 @@ namespace CE
 		std::string m_specularMapName;
 		std::string m_normalMapName;
 
+		std::unordered_map<int, int> m_controlPointToVertex;
+
+		// what even is an animation component lol
 		Skeleton m_skeleton;
+		SkeletonPose m_pose;
+		Animation m_animation;
+		std::vector<glm::mat4> m_palette;
 	};
 }
 

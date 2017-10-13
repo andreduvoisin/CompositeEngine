@@ -124,12 +124,15 @@ namespace CE
 			return false;
 		}
 
-		ParseNodes(pFbxRootNode);
+		ProcessSkeletonHierarchy(pFbxRootNode);
+		ParseNodes(pFbxRootNode, pFbxScene);
+
+		InitializeAnimationData();
 
 		return true;
 	}
 
-	void MeshData::ParseNodes(FbxNode* pFbxRootNode)
+	void MeshData::ParseNodes(FbxNode* pFbxRootNode, FbxScene* pFbxScene)
 	{
 		PrintNode(pFbxRootNode);
 
@@ -142,7 +145,7 @@ namespace CE
 			//	continue;
 			//}
 
-			ParseNodes(pFbxChildNode);
+			ParseNodes(pFbxChildNode, pFbxScene);
 
 			if (pFbxChildNode->GetNodeAttribute() == NULL)
 			{
@@ -164,6 +167,7 @@ namespace CE
 			}
 
 			LoadInformation(pMesh);
+			ProcessAnimation(pFbxChildNode, pFbxScene);
 
 			printf("m_diffuseMapName: %s\n", m_diffuseMapName.c_str());
 			printf("m_specularMapName: %s\n", m_specularMapName.c_str());
@@ -231,19 +235,6 @@ namespace CE
 					continue;
 				}
 
-				if (lPolySize == 4)
-				{
-					quadCount++;
-				}
-				else if (lPolySize == 3)
-				{
-					triCount++;
-				}
-				else
-				{
-					unknownCount++;
-				}
-
 				const int numTris = lPolySize - 2;
 
 				for (int tris = 0; tris < numTris; ++tris)
@@ -260,6 +251,7 @@ namespace CE
 						int lPolyVertIndex = pMesh->GetPolygonVertex(lPolyIndex, currentIndex);
 
 						Vertex vertex;
+						vertex.numWeights = 0;
 						vertex.position.x = (float)pVertices[lPolyVertIndex][0];
 						vertex.position.y = (float)pVertices[lPolyVertIndex][1];
 						vertex.position.z = (float)pVertices[lPolyVertIndex][2];
@@ -290,7 +282,6 @@ namespace CE
 						vertex.textureCoordinate.u = lUVValue[0];
 						vertex.textureCoordinate.v = lUVValue[1];
 
-
 						unsigned int index;
 						for (index = 0; index < m_vertices.size(); ++index)
 						{
@@ -303,6 +294,7 @@ namespace CE
 						if (index == m_vertices.size())
 						{
 							m_vertices.push_back(vertex);
+							m_controlPointToVertex[lPolyVertIndex] = m_vertices.size() - 1;
 							//m_vertices.push_back(vertex);
 						}
 
@@ -317,10 +309,6 @@ namespace CE
 				lPolyIndexCounter += lPolySize;
 			}
 		//}
-
-		printf("quadCount: %i\n", quadCount);
-		printf("triCount: %i\n", triCount);
-		printf("unknownCount: %i\n", unknownCount);
 	}
 
 	void MeshData::ProcessMaterialTexture(fbxsdk::FbxSurfaceMaterial* inMaterial)
@@ -374,7 +362,7 @@ namespace CE
 		}
 	}
 
-	void MeshData::ProcessAnimation(FbxNode* node)
+	void MeshData::ProcessAnimation(FbxNode* node, FbxScene* scene)
 	{
 		ProcessSkeletonHierarchy(node);
 
@@ -415,19 +403,64 @@ namespace CE
 					continue; // should this break? or return even?
 				}
 
-				FbxAMatrix transformMatrix = currCluster->GetTransformMatrix(transformMatrix);
-				FbxAMatrix transformLinkMatrix = currCluster->GetTransformLinkMatrix(transformLinkMatrix);
+				FbxAMatrix transformMatrix; // The transformation of the mesh at binding time
+				currCluster->GetTransformMatrix(transformMatrix);
+				FbxAMatrix transformLinkMatrix; // The transformation of the cluster(joint) at binding time from joint space to world space
+				currCluster->GetTransformLinkMatrix(transformLinkMatrix);
 				FbxAMatrix globalBindposeInverseMatrix = transformLinkMatrix.Inverse() * transformMatrix * geometryTransform;
 				for (unsigned i = 0; i < 16; ++i)
 				{
-					m_skeleton.joints[currJointIndex].inverseBindPose[i][i % 4] = globalBindposeInverseMatrix[i][i % 4];
+					m_skeleton.joints[currJointIndex].inverseBindPose[i / 4][i % 4] = globalBindposeInverseMatrix.Get(i / 4, i % 4);
 				}
 
 				unsigned int numOfIndices = currCluster->GetControlPointIndicesCount();
-				for (unsigned i = 0; i < numOfIndices; ++i)
+				for (unsigned controlPointIndex = 0; controlPointIndex < numOfIndices; ++controlPointIndex)
 				{
-
+					Vertex& vertex = m_vertices[m_controlPointToVertex[currCluster->GetControlPointIndices()[controlPointIndex]]];
+					vertex.jointIndices[vertex.numWeights] = currJointIndex;
+					vertex.jointWeights[vertex.numWeights] = currCluster->GetControlPointWeights()[controlPointIndex];
+					vertex.numWeights++;
 				}
+
+				// Single-take animation information.
+				FbxAnimStack* currAnimStack = scene->GetSrcObject<FbxAnimStack>(1);
+				FbxString animStackName = currAnimStack->GetName();
+				std::string animationName = animStackName.Buffer();
+				FbxTakeInfo* takeInfo = scene->GetTakeInfo(animStackName);
+				FbxTime start = takeInfo->mLocalTimeSpan.GetStart();
+				FbxTime end = takeInfo->mLocalTimeSpan.GetStop();
+				FbxLongLong animationLength = end.GetFrameCount(FbxTime::eFrames24) - start.GetFrameCount(FbxTime::eFrames24) + 1;
+				
+				m_animation.name = animationName;
+				m_animation.numFrames = animationLength;
+				m_animation.currFrame = 0;
+				m_animation.time = 0;
+
+				for (FbxLongLong i = start.GetFrameCount(FbxTime::eFrames24); i <= end.GetFrameCount(FbxTime::eFrames24); ++i)
+				{
+					KeyFrame keyFrame;
+					FbxTime currTime;
+					currTime.SetFrame(i, FbxTime::eFrames24);
+					FbxAMatrix currentTransformOffset = node->EvaluateGlobalTransform(currTime) * geometryTransform;
+					keyFrame.frameNum = i;
+					FbxAMatrix localPose = currentTransformOffset.Inverse() * currCluster->GetLink()->EvaluateGlobalTransform(currTime);
+					for (unsigned i = 0; i < 16; ++i)
+					{
+						keyFrame.localPose[i / 4][i % 4] = localPose.Get(i / 4, i % 4);
+					}
+					m_animation.keyFrames[currJointIndex].push_back(keyFrame);
+				}
+			}
+		}
+
+		// ensure we have 4 joints per vertex
+		for (auto it = m_vertices.begin(); it != m_vertices.end(); ++it)
+		{
+			while (it->numWeights < 4)
+			{
+				it->jointIndices[it->numWeights] = 0;
+				it->jointWeights[it->numWeights] = 0;
+				++it->numWeights;
 			}
 		}
 	}
@@ -443,16 +476,97 @@ namespace CE
 
 	void MeshData::ProcessSkeletonHierarchyRecursively(FbxNode* inNode, int inDepth, int myIndex, int inParentIndex)
 	{
-		if (inNode->GetNodeAttribute() && inNode->GetNodeAttribute()->GetAttributeType() && inNode->GetNodeAttribute()->GetAttributeType() == FbxNodeAttribute::eSkeleton)
+		if (inNode->GetNodeAttribute() 
+			&& inNode->GetNodeAttribute()->GetAttributeType() 
+			&& inNode->GetNodeAttribute()->GetAttributeType() == FbxNodeAttribute::eSkeleton)
 		{
 			Joint currJoint;
 			currJoint.parentIndex = inParentIndex;
 			currJoint.name = inNode->GetName();
 			m_skeleton.joints.push_back(currJoint);
+
+			m_pose.jointPoses.push_back(JointPose());
+			m_animation.keyFrames.push_back(std::vector<KeyFrame>());
 		}
 		for (int i = 0; i < inNode->GetChildCount(); i++)
 		{
 			ProcessSkeletonHierarchyRecursively(inNode->GetChild(i), inDepth + 1, m_skeleton.joints.size(), myIndex);
+		}
+	}
+
+	void MeshData::InitializeAnimationData()
+	{
+		for (int i = 0; i < m_skeleton.joints.size(); ++i)
+		{
+			glm::mat4* localPose;
+			if (!m_animation.keyFrames[i].empty())
+			{
+				localPose = &m_animation.keyFrames[i][0].localPose;
+			}
+			else
+			{
+				localPose = &glm::mat4(
+					1, 0, 0, 0, 
+					0, 1, 0, 0, 
+					0, 0, 1, 0, 
+					0, 0, 0, 1);
+			}
+			m_pose.jointPoses[i].localPose = *localPose;
+		}
+
+		m_palette.push_back(m_pose.jointPoses[0].localPose);
+		for (int i = 1; i < m_skeleton.joints.size(); ++i)
+		{
+			m_palette.push_back(m_palette[m_skeleton.joints[i].parentIndex] * m_pose.jointPoses[i].localPose);
+		}
+
+		for (int i = 0; i < m_skeleton.joints.size(); ++i)
+		{
+			m_palette[i] *= m_skeleton.joints[i].inverseBindPose;
+		}
+	}
+
+	void MeshData::Update(float deltaTime)
+	{
+		m_animation.time += deltaTime * .001f;
+		m_animation.currFrame = int(24.0f * m_animation.time);
+
+		if (m_animation.currFrame >= m_animation.numFrames)
+		{
+			m_animation.currFrame -= m_animation.numFrames;
+			m_animation.time -= float(m_animation.numFrames) / 24.0f;
+		}
+
+		for (int i = 0; i < m_skeleton.joints.size(); ++i)
+		{
+			glm::mat4* localPose;
+			if (!m_animation.keyFrames[i].empty())
+			{
+				localPose = &m_animation.keyFrames[i][m_animation.currFrame].localPose;
+			}
+			else
+			{
+				localPose = &glm::mat4(
+					1, 0, 0, 0,
+					0, 1, 0, 0,
+					0, 0, 1, 0,
+					0, 0, 0, 1);
+			}
+			m_pose.jointPoses[i].localPose = *localPose;
+
+			if (m_skeleton.joints[i].parentIndex == -1)
+			{
+				m_palette[i] = m_pose.jointPoses[i].localPose;
+			}
+			else
+			{
+				m_palette[i] = m_palette[m_skeleton.joints[i].parentIndex] * m_pose.jointPoses[i].localPose;
+			}
+		}
+
+		for (int i = 0; i < m_skeleton.joints.size(); ++i)
+		{
+			m_palette[i] *= m_skeleton.joints[i].inverseBindPose;
 		}
 	}
 
