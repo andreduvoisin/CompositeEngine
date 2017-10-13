@@ -45,6 +45,7 @@ GLuint g_ibo = 0;
 GLuint g_vao = 0;
 
 GLuint g_mvpMatrixID = -1;
+GLuint g_paletteMatrixID = -1;
 
 const char* g_fbxName = "..\\..\\..\\assets\\Unarmed Idle 01.fbx";
 
@@ -183,10 +184,19 @@ bool InitializeOpenGL()
 		"#version 410\n"
 		"in vec3 vp;"
 		"in vec2 tp;"
+		"in vec4 jointWeights;"
+		"in int jointIndices[4];"
+		"in int numWeights;" // TODO: remove. always 4
 		"uniform mat4 mvp;"
+		"uniform mat4 palette[100];"
+		"out vec2 posCoord;"
 		"out vec2 texCoord;"
 		"void main() {"
-		"  gl_Position = mvp * vec4(vp, 1.0);"
+		"  vec4 position = palette[jointIndices[0]] * (vec4(vp, 1.0) * jointWeights.x);"
+		"  position += palette[jointIndices[1]] * (vec4(vp, 1.0) * jointWeights.y);"
+		"  position += palette[jointIndices[2]] * (vec4(vp, 1.0) * jointWeights.z);"
+		"  position += palette[jointIndices[3]] * (vec4(vp, 1.0) * jointWeights.w);"
+		"  gl_Position = mvp * position;"
 		"  texCoord = tp;"
 		"}";
 	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
@@ -237,6 +247,7 @@ bool InitializeOpenGL()
 	}
 
 	g_mvpMatrixID = glGetUniformLocation(g_programID, "mvp");
+	g_paletteMatrixID = glGetUniformLocation(g_programID, "palette");
 
 	//g_vertexPos2DLocation = glGetAttribLocation(g_programID, "LVertexPos2D");
 	//if (g_vertexPos2DLocation == -1)
@@ -288,12 +299,14 @@ bool InitializeOpenGL()
 	// "I'm Batman."
 	CE::MeshData* meshData = CE::MeshManager::Get().GetMeshData(g_fbxName);
 
+	int vertexSize = sizeof(float) * 3 + sizeof(float) * 2 + sizeof(float) * 4 + sizeof(unsigned) * 4 + sizeof(unsigned) * 1;
+
 	glGenVertexArrays(1, &g_vao);
 	glBindVertexArray(g_vao);
 
 	glGenBuffers(1, &g_vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, g_vbo);
-	glBufferData(GL_ARRAY_BUFFER, meshData->m_vertices.size() * sizeof(CE::Vertex), meshData->m_vertices.data(), GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, meshData->m_vertices.size() * vertexSize, meshData->m_vertices.data(), GL_STATIC_DRAW);
 	//glBufferData(GL_ARRAY_BUFFER, 24 * sizeof(float), vertex_buffer_data, GL_STATIC_DRAW);
 
 	glGenBuffers(1, &g_ibo);
@@ -318,7 +331,7 @@ bool InitializeOpenGL()
 
 	stbi_image_free(data);
 
-	unsigned int stride = sizeof(CE::Vertex);
+	unsigned int stride = vertexSize;
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, NULL);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride, (void*)sizeof(CE::Position));
 	glEnableVertexAttribArray(0);
@@ -518,8 +531,16 @@ int main(int argc, char* argv[])
 
 	SDL_StartTextInput();
 
+	unsigned long long now = SDL_GetPerformanceCounter();
+	unsigned long long last = 0;
+	float deltaTime = 0;
+
 	while (!quit)
 	{
+		last = now;
+		now = SDL_GetPerformanceCounter();
+		deltaTime = double((now - last) * 1000) / SDL_GetPerformanceFrequency();
+
 		while (SDL_PollEvent(&event) != 0)
 		{
 			switch (event.type)
@@ -558,6 +579,10 @@ int main(int argc, char* argv[])
 					break;
 			}
 		}
+
+		CE::MeshData* meshData = CE::MeshManager::Get().GetMeshData(g_fbxName);
+		glUniformMatrix4fv(g_paletteMatrixID, meshData->m_palette.size(), GL_FALSE, (const GLfloat*)(&meshData->m_palette[0][0]));
+		meshData->Update(deltaTime);
 
 		Render();
 		SDL_GL_SwapWindow(g_window);
