@@ -460,7 +460,7 @@ namespace CE
 			{
 				it->jointIndices[it->numWeights] = 0;
 				it->jointWeights[it->numWeights] = 0;
-				++it->numWeights;
+				it->numWeights++;
 			}
 		}
 	}
@@ -485,7 +485,6 @@ namespace CE
 			currJoint.name = inNode->GetName();
 			m_skeleton.joints.push_back(currJoint);
 
-			m_pose.jointPoses.push_back(JointPose());
 			m_animation.keyFrames.push_back(std::vector<KeyFrame>());
 		}
 		for (int i = 0; i < inNode->GetChildCount(); i++)
@@ -507,33 +506,10 @@ namespace CE
 			m_skeleton.joints[i].inverseBindPose = glm::inverse(m_skeleton.joints[i].inverseBindPose);
 		}
 		*/
+		m_palette.reserve(m_skeleton.joints.size());
 		for (int i = 0; i < m_skeleton.joints.size(); ++i)
 		{
-			glm::mat4* localPose;
-			if (!m_animation.keyFrames[i].empty())
-			{
-				localPose = &m_animation.keyFrames[i][0].localPose;
-			}
-			else
-			{
-				localPose = &glm::mat4(
-					1, 0, 0, 0,
-					0, 1, 0, 0,
-					0, 0, 1, 0,
-					0, 0, 0, 1);
-			}
-			m_pose.jointPoses[i].localPose = *localPose;
-		}
-
-		m_palette.push_back(m_pose.jointPoses[0].localPose);
-		for (int i = 1; i < m_skeleton.joints.size(); ++i)
-		{
-			m_palette.push_back(m_palette[m_skeleton.joints[i].parentIndex] * m_pose.jointPoses[i].localPose);
-		}
-
-		for (int i = 0; i < m_skeleton.joints.size(); ++i)
-		{
-			m_palette[i] *= m_skeleton.joints[i].inverseBindPose;
+			m_palette.push_back(glm::mat4());
 		}
 	}
 
@@ -550,34 +526,32 @@ namespace CE
 
 		for (int i = 0; i < m_skeleton.joints.size(); ++i)
 		{
-			glm::mat4* localPose;
+			glm::mat4 localPose;
 			if (!m_animation.keyFrames[i].empty())
 			{
-				localPose = &m_animation.keyFrames[i][m_animation.currFrame].localPose;
+				localPose = m_animation.keyFrames[i][m_animation.currFrame].localPose;
 			}
 			else
 			{
-				localPose = &glm::mat4(
-					1, 0, 0, 0,
-					0, 1, 0, 0,
-					0, 0, 1, 0,
-					0, 0, 0, 1);
+				localPose = glm::mat4(1.0f);
 			}
-			m_pose.jointPoses[i].localPose = *localPose;
 
 			if (m_skeleton.joints[i].parentIndex == -1)
 			{
-				m_palette[i] = m_pose.jointPoses[i].localPose;
+				//m_palette[i] = glm::mat4(-1.0f);
+				m_palette[i] = localPose;
 			}
 			else
 			{
-				m_palette[i] = m_palette[m_skeleton.joints[i].parentIndex] * m_pose.jointPoses[i].localPose;
+				m_palette[i] = localPose;
+				//m_palette[i] = glm::mat4(-1.0f);
+				//m_palette[i] = m_palette[m_skeleton.joints[i].parentIndex] * localPose;
 			}
 		}
 
 		for (int i = 0; i < m_skeleton.joints.size(); ++i)
 		{
-			m_palette[i] *= m_skeleton.joints[i].inverseBindPose;
+			m_palette[i] = m_palette[i] * m_skeleton.joints[i].inverseBindPose;
 		}
 	}
 
