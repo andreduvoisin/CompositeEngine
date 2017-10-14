@@ -164,6 +164,7 @@ void Render()
 	glBindVertexArray(g_vao);
 
 	CE::MeshData* meshData = CE::MeshManager::Get().GetMeshData(g_fbxName);
+	glUniformMatrix4fv(g_paletteMatrixID, meshData->m_palette.size(), GL_FALSE, &meshData->m_palette[0][0][0]);
 
 	//glDrawArrays(GL_TRIANGLES, 0, 3);
 	//glDrawArrays(GL_TRIANGLES, 0, meshData->m_vertices.size());
@@ -184,18 +185,17 @@ bool InitializeOpenGL()
 		"#version 410\n"
 		"in vec3 vp;"
 		"in vec2 tp;"
-		"in vec4 jointWeights;"
-		"in int jointIndices[4];"
-		"in int numWeights;" // TODO: remove. always 4
+		"in float jointWeights[4];"
+		"in unsigned int jointIndices[4];"
+		"in unsigned int numWeights;" // TODO: remove. always 4
 		"uniform mat4 mvp;"
-		"uniform mat4 palette[100];"
-		"out vec2 posCoord;"
+		"uniform mat4 palette[67];"
 		"out vec2 texCoord;"
 		"void main() {"
-		"  vec4 position = palette[jointIndices[0]] * (vec4(vp, 1.0) * jointWeights.x);"
-		"  position += palette[jointIndices[1]] * (vec4(vp, 1.0) * jointWeights.y);"
-		"  position += palette[jointIndices[2]] * (vec4(vp, 1.0) * jointWeights.z);"
-		"  position += palette[jointIndices[3]] * (vec4(vp, 1.0) * jointWeights.w);"
+		"  vec4 position = (palette[jointIndices[0]] * vec4(vp, 1.0)) * jointWeights[0];"
+		"  position += (palette[jointIndices[1]] * vec4(vp, 1.0)) * jointWeights[1];"
+		"  position += (palette[jointIndices[2]] * vec4(vp, 1.0)) * jointWeights[2];"
+		"  position += (palette[jointIndices[3]] * vec4(vp, 1.0)) * jointWeights[3];"
 		"  gl_Position = mvp * position;"
 		"  texCoord = tp;"
 		"}";
@@ -334,8 +334,14 @@ bool InitializeOpenGL()
 	unsigned int stride = vertexSize;
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, NULL);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride, (void*)sizeof(CE::Position));
+	glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, stride, (void*)(sizeof(CE::Position) + sizeof(CE::TextureCoordinate)));
+	glVertexAttribPointer(3, 4, GL_UNSIGNED_INT, GL_FALSE, stride, (void*)(sizeof(CE::Position) + sizeof(CE::TextureCoordinate) + sizeof(float) * 4));
+	glVertexAttribPointer(4, 1, GL_UNSIGNED_INT, GL_FALSE, stride, (void*)(sizeof(CE::Position) + sizeof(CE::TextureCoordinate) + sizeof(float) * 4 + sizeof(unsigned) * 4));
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
+	glEnableVertexAttribArray(2);
+	glEnableVertexAttribArray(3);
+	glEnableVertexAttribArray(4);
 
 	//for (int i = 0; i < meshData->m_vertices.size(); ++i)
 	//{
@@ -581,7 +587,6 @@ int main(int argc, char* argv[])
 		}
 
 		CE::MeshData* meshData = CE::MeshManager::Get().GetMeshData(g_fbxName);
-		glUniformMatrix4fv(g_paletteMatrixID, meshData->m_palette.size(), GL_FALSE, (const GLfloat*)(&meshData->m_palette[0][0]));
 		meshData->Update(deltaTime);
 
 		Render();

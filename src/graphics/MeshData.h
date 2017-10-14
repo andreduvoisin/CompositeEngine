@@ -69,16 +69,6 @@ namespace CE
 		std::vector<Joint> joints;
 	};
 
-	struct JointPose
-	{
-		glm::mat4 localPose;
-	};
-
-	struct SkeletonPose
-	{
-		std::vector<JointPose> jointPoses;
-	};
-
 	struct KeyFrame
 	{
 		glm::mat4 localPose;
@@ -132,7 +122,6 @@ namespace CE
 
 		// what even is an animation component lol
 		Skeleton m_skeleton;
-		SkeletonPose m_pose;
 		Animation m_animation;
 		std::vector<glm::mat4> m_palette;
 	};
