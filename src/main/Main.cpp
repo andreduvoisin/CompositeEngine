@@ -47,7 +47,7 @@ GLuint g_vao = 0;
 GLuint g_mvpMatrixID = -1;
 GLuint g_paletteMatrixID = -1;
 
-const char* g_fbxName = "..\\..\\..\\assets\\Unarmed Idle 01.fbx";
+const char* g_fbxName = "..\\..\\..\\assets\\Stand Up.fbx";
 
 void printProgramLog(GLuint program)
 {

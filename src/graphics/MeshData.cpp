@@ -496,6 +496,17 @@ namespace CE
 
 	void MeshData::InitializeAnimationData()
 	{
+		/*
+		for (int i = 1; i < m_skeleton.joints.size(); ++i)
+		{
+			m_skeleton.joints[i].inverseBindPose = m_skeleton.joints[m_skeleton.joints[i].parentIndex].inverseBindPose * m_skeleton.joints[i].inverseBindPose;
+		}
+
+		for (int i = 0; i < m_skeleton.joints.size(); ++i)
+		{
+			m_skeleton.joints[i].inverseBindPose = glm::inverse(m_skeleton.joints[i].inverseBindPose);
+		}
+		*/
 		for (int i = 0; i < m_skeleton.joints.size(); ++i)
 		{
 			glm::mat4* localPose;
@@ -506,9 +517,9 @@ namespace CE
 			else
 			{
 				localPose = &glm::mat4(
-					1, 0, 0, 0, 
-					0, 1, 0, 0, 
-					0, 0, 1, 0, 
+					1, 0, 0, 0,
+					0, 1, 0, 0,
+					0, 0, 1, 0,
 					0, 0, 0, 1);
 			}
 			m_pose.jointPoses[i].localPose = *localPose;
