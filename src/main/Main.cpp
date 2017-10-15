@@ -45,9 +45,12 @@ GLuint g_ibo = 0;
 GLuint g_vao = 0;
 
 GLuint g_mvpMatrixID = -1;
-GLuint g_paletteMatrixID = -1;
+GLuint g_paletteID = -1;
+GLuint g_paletteTextureUnit = -1;
+GLuint g_diffuseTextureID = -1;
+GLuint g_diffuseTextureUnit = -1;
 
-const char* g_fbxName = "..\\..\\..\\assets\\Stand Up.fbx";
+const char* g_fbxName = "..\\..\\..\\assets\\Soldier_animated_jump.fbx";
 
 void printProgramLog(GLuint program)
 {
@@ -156,15 +159,17 @@ void Render()
 	glUseProgram(g_programID);
 
 	glm::mat4 projection = glm::perspective(glm::pi<float>() * 0.25f, (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 1000.0f);
-	glm::mat4 view = glm::lookAt(glm::vec3(0, 100, 400), glm::vec3(0, 100, 0), glm::vec3(0, 1, 0));
+	glm::mat4 view = glm::lookAt(glm::vec3(0, 0, 400), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 	glm::mat4 model = glm::mat4(1.0f);
 	glm::mat4 mvp = projection * view * model;
 	glUniformMatrix4fv(g_mvpMatrixID, 1, GL_FALSE, &mvp[0][0]);
-		
-	glBindVertexArray(g_vao);
 
 	CE::MeshData* meshData = CE::MeshManager::Get().GetMeshData(g_fbxName);
-	glUniformMatrix4fv(g_paletteMatrixID, meshData->m_palette.size(), GL_FALSE, &meshData->m_palette[0][0][0]);
+	glActiveTexture(GL_TEXTURE0 + g_paletteTextureUnit);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, 4, meshData->m_palette.size(), 0, GL_RGBA32F, GL_FLOAT, meshData->m_palette.data());
+	//glUniform1i(g_paletteID, g_paletteTextureUnit);
+
+	glBindVertexArray(g_vao);
 
 	//glDrawArrays(GL_TRIANGLES, 0, 3);
 	//glDrawArrays(GL_TRIANGLES, 0, meshData->m_vertices.size());
@@ -189,13 +194,33 @@ bool InitializeOpenGL()
 		"in unsigned int jointIndices[4];"
 		"in unsigned int numWeights;" // TODO: remove. always 4
 		"uniform mat4 mvp;"
-		"uniform mat4 palette[67];"
+		"uniform sampler2D palette;"
 		"out vec2 texCoord;"
 		"void main() {"
-		"  vec4 position = (palette[jointIndices[0]] * vec4(vp, 1.0)) * jointWeights[0];"
-		"  position += (palette[jointIndices[1]] * vec4(vp, 1.0)) * jointWeights[1];"
-		"  position += (palette[jointIndices[2]] * vec4(vp, 1.0)) * jointWeights[2];"
-		"  position += (palette[jointIndices[3]] * vec4(vp, 1.0)) * jointWeights[3];"
+		"  mat4 texturePalette = mat4("
+		"    texture(palette, vec2(0.00, float(30 - jointIndices[0]) / 31.0)),"
+		"    texture(palette, vec2(0.25, float(30 - jointIndices[0]) / 31.0)),"
+		"    texture(palette, vec2(0.50, float(30 - jointIndices[0]) / 31.0)),"
+		"    texture(palette, vec2(0.75, float(30 - jointIndices[0]) / 31.0)));"
+		"  vec4 position = (texturePalette * vec4(vp, 1.0)) * jointWeights[0];"
+		"  texturePalette = mat4("
+		"    texture(palette, vec2(0.00, float(30 - jointIndices[1]) / 31.0)),"
+		"    texture(palette, vec2(0.25, float(30 - jointIndices[1]) / 31.0)),"
+		"    texture(palette, vec2(0.50, float(30 - jointIndices[1]) / 31.0)),"
+		"    texture(palette, vec2(0.75, float(30 - jointIndices[1]) / 31.0)));"
+		"  position += (texturePalette * vec4(vp, 1.0)) * jointWeights[1];"
+		"  texturePalette = mat4("
+		"    texture(palette, vec2(0.00, float(30 - jointIndices[2]) / 31.0)),"
+		"    texture(palette, vec2(0.25, float(30 - jointIndices[2]) / 31.0)),"
+		"    texture(palette, vec2(0.50, float(30 - jointIndices[2]) / 31.0)),"
+		"    texture(palette, vec2(0.75, float(30 - jointIndices[2]) / 31.0)));"
+		"  position += (texturePalette * vec4(vp, 1.0)) * jointWeights[2];"
+		"  texturePalette = mat4("
+		"    texture(palette, vec2(0.00, float(30 - jointIndices[3]) / 31.0)),"
+		"    texture(palette, vec2(0.25, float(30 - jointIndices[3]) / 31.0)),"
+		"    texture(palette, vec2(0.50, float(30 - jointIndices[3]) / 31.0)),"
+		"    texture(palette, vec2(0.75, float(30 - jointIndices[3]) / 31.0)));"
+		"  position += (texturePalette * vec4(vp, 1.0)) * jointWeights[3];"
 		"  gl_Position = mvp * position;"
 		"  texCoord = tp;"
 		"}";
@@ -247,7 +272,8 @@ bool InitializeOpenGL()
 	}
 
 	g_mvpMatrixID = glGetUniformLocation(g_programID, "mvp");
-	g_paletteMatrixID = glGetUniformLocation(g_programID, "palette");
+	g_paletteID = glGetUniformLocation(g_programID, "palette");
+	g_diffuseTextureID = glGetUniformLocation(g_programID, "ourTexture");
 
 	//g_vertexPos2DLocation = glGetAttribLocation(g_programID, "LVertexPos2D");
 	//if (g_vertexPos2DLocation == -1)
@@ -318,7 +344,10 @@ bool InitializeOpenGL()
 	int width, height, channels;
 	unsigned char* data = stbi_load(meshData->m_diffuseMapName.c_str(), &width, &height, &channels, 0);
 
-	unsigned int texture;
+	unsigned texture;
+
+	g_diffuseTextureUnit = 0;
+	glActiveTexture(GL_TEXTURE0 + g_diffuseTextureUnit);
 	glGenTextures(1, &texture);
 	glBindTexture(GL_TEXTURE_2D, texture);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -328,8 +357,19 @@ bool InitializeOpenGL()
 	unsigned int glChannels = channels == 3 ? GL_RGB : GL_RGBA;
 	glTexImage2D(GL_TEXTURE_2D, 0, glChannels, width, height, 0, glChannels, GL_UNSIGNED_BYTE, data);
 	glGenerateMipmap(GL_TEXTURE_2D);
+	glUniform1i(g_diffuseTextureID, 0);
 
 	stbi_image_free(data);
+
+	g_paletteTextureUnit = 1;
+	glActiveTexture(GL_TEXTURE0 + g_paletteTextureUnit);
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glUniform1i(g_paletteID, g_paletteTextureUnit);
 
 	unsigned int stride = vertexSize;
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, NULL);
@@ -428,6 +468,10 @@ bool Initialize()
 	printf("GL_RENDERER: %s\n", renderer);
 	printf("GL_VERSION: %s\n", version);
 
+	GLint components;
+	glGetIntegerv(GL_MAX_VERTEX_UNIFORM_COMPONENTS, &components);
+	printf("GL_MAX_VERTEX_UNIFORM_COMPONENTS: %u\n", components);
+
 	// tell GL to only draw onto a pixel if the shape is closer to the viewer
 	glEnable(GL_DEPTH_TEST); // enable depth-testing
 	glDepthFunc(GL_LESS); // depth-testing interprets a smaller value as "closer"
@@ -521,12 +565,14 @@ int main(int argc, char* argv[])
 	if (!Initialize())
 	{
 		printf("Failed to initialize.\n");
+		getchar();
 		return -1;
 	}
 
 	if (!LoadMedia())
 	{
 		printf("Failed to load media.\n");
+		getchar();
 		return -1;
 	}
 

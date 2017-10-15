@@ -71,21 +71,19 @@ namespace CE
 
 	struct KeyFrame
 	{
-		/*
-		glm::vec3 translation;
-		glm::vec3 rotation;
-		glm::vec3 scale;
-		int frameNum;
+		//glm::vec3 translation;
+		//glm::vec3 rotation;
+		//glm::vec3 scale;
+		//int frameNum;
 
-		KeyFrame()
-			: translation(glm::vec3())
-			, rotation(glm::vec3())
-			, scale(glm::vec3())
-			, frameNum(-1)
-		{
+		//KeyFrame()
+		//	: translation(glm::vec3())
+		//	, rotation(glm::vec3())
+		//	, scale(glm::vec3())
+		//	, frameNum(-1)
+		//{
 
-		}
-		*/
+		//}
 
 		glm::mat4 localPose;
 		int frameNum;
