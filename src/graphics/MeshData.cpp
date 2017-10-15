@@ -4,6 +4,7 @@
 
 #include <assert.h>
 #include <map>
+#include <cmath>
 
 #include <glm\gtx\transform.hpp>
 
@@ -143,11 +144,6 @@ namespace CE
 		{
 			FbxNode* pFbxChildNode = pFbxRootNode->GetChild(i);
 
-			//if (strcmp(pFbxChildNode->GetName(), "Paladin_J_Nordstrom_Sword") != 0)
-			//{
-			//	continue;
-			//}
-
 			ParseNodes(pFbxChildNode, pFbxScene);
 
 			if (pFbxChildNode->GetNodeAttribute() == NULL)
@@ -162,7 +158,7 @@ namespace CE
 
 			FbxMesh* pMesh = (FbxMesh*)pFbxChildNode->GetNodeAttribute();
 
-			if (strcmp(pFbxChildNode->GetName(), "Paladin_J_Nordstrom") != 0)
+			if (strcmp(pFbxChildNode->GetName(), "soldier_Military_Male_Lod_1") != 0)
 			{
 				continue;
 			}
@@ -336,7 +332,8 @@ namespace CE
 					fbxsdk::FbxLayeredTexture* layeredTexture = property.GetSrcObject<fbxsdk::FbxLayeredTexture>(i);
 					if (layeredTexture)
 					{
-						throw std::exception("Layered Texture is currently unsupported\n");
+						printf("Layered Texture is currently unsupported\n");
+						continue;
 					}
 					else
 					{
@@ -425,6 +422,13 @@ namespace CE
 				for (unsigned controlPointIndex = 0; controlPointIndex < numOfIndices; ++controlPointIndex)
 				{
 					Vertex& vertex = m_vertices[m_controlPointToVertex[currCluster->GetControlPointIndices()[controlPointIndex]]];
+
+					if (vertex.numWeights >= 4)
+					{
+						printf("too many weights!\n");
+						continue;
+					}
+
 					vertex.jointIndices[vertex.numWeights] = currJointIndex;
 					vertex.jointWeights[vertex.numWeights] = currCluster->GetControlPointWeights()[controlPointIndex];
 					vertex.numWeights++;
@@ -472,7 +476,7 @@ namespace CE
 						std::map<int, KeyFrame> keyFrames;
 
 						FbxAnimCurve* lAnimCurve = NULL;
-						lAnimCurve = node->LclTranslation.GetCurve(lAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
+						lAnimCurve = currCluster->GetLink()->LclTranslation.GetCurve(lAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
 						if (lAnimCurve)
 						{
 							int lKeyCount = lAnimCurve->KeyGetCount();
@@ -489,7 +493,7 @@ namespace CE
 								keyFrame.translation.x = lKeyValue;
 							}
 						}
-						lAnimCurve = node->LclTranslation.GetCurve(lAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
+						lAnimCurve = currCluster->GetLink()->LclTranslation.GetCurve(lAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
 						if (lAnimCurve)
 						{
 							int lKeyCount = lAnimCurve->KeyGetCount();
@@ -506,7 +510,7 @@ namespace CE
 								keyFrame.translation.y = lKeyValue;
 							}
 						}
-						lAnimCurve = node->LclTranslation.GetCurve(lAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
+						lAnimCurve = currCluster->GetLink()->LclTranslation.GetCurve(lAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
 						if (lAnimCurve)
 						{
 							int lKeyCount = lAnimCurve->KeyGetCount();
@@ -525,7 +529,7 @@ namespace CE
 						}
 
 
-						lAnimCurve = node->LclRotation.GetCurve(lAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
+						lAnimCurve = currCluster->GetLink()->LclRotation.GetCurve(lAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
 						if (lAnimCurve)
 						{
 							int lKeyCount = lAnimCurve->KeyGetCount();
@@ -542,7 +546,7 @@ namespace CE
 								keyFrame.rotation.x = lKeyValue;
 							}
 						}
-						lAnimCurve = node->LclRotation.GetCurve(lAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
+						lAnimCurve = currCluster->GetLink()->LclRotation.GetCurve(lAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
 						if (lAnimCurve)
 						{
 							int lKeyCount = lAnimCurve->KeyGetCount();
@@ -559,7 +563,7 @@ namespace CE
 								keyFrame.rotation.y = lKeyValue;
 							}
 						}
-						lAnimCurve = node->LclRotation.GetCurve(lAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
+						lAnimCurve = currCluster->GetLink()->LclRotation.GetCurve(lAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
 						if (lAnimCurve)
 						{
 							int lKeyCount = lAnimCurve->KeyGetCount();
@@ -577,7 +581,7 @@ namespace CE
 							}
 						}
 
-						lAnimCurve = node->LclScaling.GetCurve(lAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
+						lAnimCurve = currCluster->GetLink()->LclScaling.GetCurve(lAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
 						if (lAnimCurve)
 						{
 							int lKeyCount = lAnimCurve->KeyGetCount();
@@ -591,10 +595,10 @@ namespace CE
 
 								KeyFrame& keyFrame = keyFrames[frameNum];
 								keyFrame.frameNum = frameNum;
-								keyFrame.rotation.x = lKeyValue;
+								keyFrame.scale.x = lKeyValue;
 							}
 						}
-						lAnimCurve = node->LclScaling.GetCurve(lAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
+						lAnimCurve = currCluster->GetLink()->LclScaling.GetCurve(lAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
 						if (lAnimCurve)
 						{
 							int lKeyCount = lAnimCurve->KeyGetCount();
@@ -611,7 +615,7 @@ namespace CE
 								keyFrame.scale.y = lKeyValue;
 							}
 						}
-						lAnimCurve = node->LclScaling.GetCurve(lAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
+						lAnimCurve = currCluster->GetLink()->LclScaling.GetCurve(lAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
 						if (lAnimCurve)
 						{
 							int lKeyCount = lAnimCurve->KeyGetCount();
@@ -636,14 +640,13 @@ namespace CE
 					}
 				}
 				*/
-
 				// Single-take animation information.
-				FbxAnimStack* currAnimStack = scene->GetSrcObject<FbxAnimStack>(1);
+				FbxAnimStack* currAnimStack = scene->GetSrcObject<FbxAnimStack>(0);
+				scene->SetCurrentAnimationStack(currAnimStack);
 				FbxString animStackName = currAnimStack->GetName();
 				std::string animationName = animStackName.Buffer();
-				FbxTakeInfo* takeInfo = scene->GetTakeInfo(animStackName);
-				FbxTime start = takeInfo->mLocalTimeSpan.GetStart();
-				FbxTime end = takeInfo->mLocalTimeSpan.GetStop();
+				FbxTime start = currAnimStack->GetLocalTimeSpan().GetStart();
+				FbxTime end = currAnimStack->GetLocalTimeSpan().GetStop();
 				FbxLongLong animationLength = end.GetFrameCount(FbxTime::eFrames24) - start.GetFrameCount(FbxTime::eFrames24) + 1;
 
 				m_animation.name = animationName;
@@ -651,14 +654,16 @@ namespace CE
 				m_animation.currFrame = 0;
 				m_animation.time = 0;
 
+				FbxAnimEvaluator* evaluator = scene->GetAnimationEvaluator();
+
 				for (FbxLongLong i = start.GetFrameCount(FbxTime::eFrames24); i <= end.GetFrameCount(FbxTime::eFrames24); ++i)
 				{
 					KeyFrame keyFrame;
 					FbxTime currTime;
 					currTime.SetFrame(i, FbxTime::eFrames24);
-					FbxAMatrix currentTransformOffset = node->EvaluateGlobalTransform(currTime) * geometryTransform;
+					FbxAMatrix currentTransformOffset = evaluator->GetNodeGlobalTransform(node, currTime) * geometryTransform;
 					keyFrame.frameNum = i;
-					FbxAMatrix localPose = currentTransformOffset.Inverse() * currCluster->GetLink()->EvaluateGlobalTransform(currTime);
+					FbxAMatrix localPose = currentTransformOffset.Inverse() * evaluator->GetNodeGlobalTransform(currCluster->GetLink(), currTime);
 					for (unsigned i = 0; i < 16; ++i)
 					{
 						keyFrame.localPose[i / 4][i % 4] = localPose.Get(i / 4, i % 4);
@@ -735,9 +740,11 @@ namespace CE
 
 		if (m_animation.currFrame >= m_animation.numFrames)
 		{
-			m_animation.currFrame -= m_animation.numFrames;
-			m_animation.time -= float(m_animation.numFrames) / 24.0f;
+			m_animation.currFrame %= m_animation.numFrames;
+			m_animation.time = fmod(m_animation.time, float(m_animation.numFrames) / 24.0f);
 		}
+
+		static bool fuckPalette = false;
 
 		for (int i = 0; i < m_skeleton.joints.size(); ++i)
 		{
@@ -758,16 +765,41 @@ namespace CE
 			}
 			else
 			{
-				//m_palette[i] = localPose;
-				//m_palette[i] = glm::mat4(-1.0f);
-				m_palette[i] = m_palette[m_skeleton.joints[i].parentIndex] *localPose;
+				if (fuckPalette)
+				{
+					m_palette[i] = glm::mat4(-12, -14, -11, -14, -21, -31, -41, -11, -13, -11, -41, -31, -13, -21, -41, -11);
+					m_palette[i] = glm::mat4(0.0f);
+				}
+				else
+				{
+					m_palette[i] = localPose;
+					//m_palette[i] = m_palette[m_skeleton.joints[i].parentIndex] * localPose;
+				}
 			}
 		}
 
+		//fuckPalette = !fuckPalette;
+
+		static bool didPrint = true;
+
+		if (!didPrint)
+		{
+			printf("palette:\n");
+		}
 		for (int i = 0; i < m_skeleton.joints.size(); ++i)
 		{
 			m_palette[i] = m_palette[i] * m_skeleton.joints[i].inverseBindPose;
+			if (!didPrint)
+			{
+				printf("%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f\n",
+					m_palette[i][0][0], m_palette[i][0][1], m_palette[i][0][2], m_palette[i][0][3],
+					m_palette[i][1][0], m_palette[i][1][1], m_palette[i][1][2], m_palette[i][1][3],
+					m_palette[i][2][0], m_palette[i][2][1], m_palette[i][2][2], m_palette[i][2][3],
+					m_palette[i][3][0], m_palette[i][3][1], m_palette[i][3][2], m_palette[i][3][3]);
+			}
 		}
+
+		didPrint = true;
 	}
 
 	void MeshData::Draw()
