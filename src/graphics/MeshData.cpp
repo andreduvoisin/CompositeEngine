@@ -3,6 +3,9 @@
 #include <fbxsdk.h>
 
 #include <assert.h>
+#include <map>
+
+#include <glm\gtx\transform.hpp>
 
 /* Tab character ("\t") counter */
 int numTabs = 0;
@@ -158,6 +161,11 @@ namespace CE
 			}
 
 			FbxMesh* pMesh = (FbxMesh*)pFbxChildNode->GetNodeAttribute();
+
+			if (strcmp(pFbxChildNode->GetName(), "Paladin_J_Nordstrom") != 0)
+			{
+				continue;
+			}
 
 			unsigned int materialCount = pFbxChildNode->GetMaterialCount();
 			for (unsigned int i = 0; i < materialCount; ++i)
@@ -421,7 +429,7 @@ namespace CE
 					vertex.jointWeights[vertex.numWeights] = currCluster->GetControlPointWeights()[controlPointIndex];
 					vertex.numWeights++;
 				}
-
+				/*
 				// Single-take animation information.
 				FbxAnimStack* currAnimStack = scene->GetSrcObject<FbxAnimStack>(1);
 				FbxString animStackName = currAnimStack->GetName();
@@ -431,6 +439,213 @@ namespace CE
 				FbxTime end = takeInfo->mLocalTimeSpan.GetStop();
 				FbxLongLong animationLength = end.GetFrameCount(FbxTime::eFrames24) - start.GetFrameCount(FbxTime::eFrames24) + 1;
 				
+				m_animation.name = animationName;
+				m_animation.numFrames = animationLength;
+				m_animation.currFrame = 0;
+				m_animation.time = 0;
+
+				for (FbxLongLong i = start.GetFrameCount(FbxTime::eFrames24); i <= end.GetFrameCount(FbxTime::eFrames24); ++i)
+				{
+					KeyFrame keyFrame;
+					FbxTime currTime;
+					currTime.SetFrame(i, FbxTime::eFrames24);
+					FbxAMatrix currentTransformOffset = node->EvaluateGlobalTransform(currTime) * geometryTransform;
+					keyFrame.frameNum = i;
+					FbxAMatrix localPose = currentTransformOffset.Inverse() * currCluster->GetLink()->EvaluateGlobalTransform(currTime);
+					for (unsigned i = 0; i < 16; ++i)
+					{
+						keyFrame.localPose[i / 4][i % 4] = localPose.Get(i / 4, i % 4);
+					}
+					m_animation.keyFrames[currJointIndex].push_back(keyFrame);
+				}
+				*/
+				/*
+				for (int i = 0; i < scene->GetSrcObjectCount<FbxAnimStack>(); i++)
+				{
+					FbxAnimStack* lAnimStack = scene->GetSrcObject<FbxAnimStack>(i);
+
+					int nbAnimLayers = lAnimStack->GetMemberCount<FbxAnimLayer>();
+					for (int l = 0; l < nbAnimLayers; l++)
+					{
+						FbxAnimLayer* lAnimLayer = lAnimStack->GetMember<FbxAnimLayer>(l);
+
+						std::map<int, KeyFrame> keyFrames;
+
+						FbxAnimCurve* lAnimCurve = NULL;
+						lAnimCurve = node->LclTranslation.GetCurve(lAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
+						if (lAnimCurve)
+						{
+							int lKeyCount = lAnimCurve->KeyGetCount();
+							for (int k = 0; k < lKeyCount; ++k)
+							{
+								// TODO: get interpolation type (fbxsdk DisplayAnimation.cxx)
+								float lKeyValue = lAnimCurve->KeyGetValue(k);
+								FbxTime lKeyTime = lAnimCurve->KeyGetTime(k);
+
+								int frameNum = lKeyTime.GetFrameCount();
+
+								KeyFrame& keyFrame = keyFrames[frameNum];
+								keyFrame.frameNum = frameNum;
+								keyFrame.translation.x = lKeyValue;
+							}
+						}
+						lAnimCurve = node->LclTranslation.GetCurve(lAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
+						if (lAnimCurve)
+						{
+							int lKeyCount = lAnimCurve->KeyGetCount();
+							for (int k = 0; k < lKeyCount; ++k)
+							{
+								// TODO: get interpolation type (fbxsdk DisplayAnimation.cxx)
+								float lKeyValue = lAnimCurve->KeyGetValue(k);
+								FbxTime lKeyTime = lAnimCurve->KeyGetTime(k);
+
+								int frameNum = lKeyTime.GetFrameCount();
+
+								KeyFrame& keyFrame = keyFrames[frameNum];
+								keyFrame.frameNum = frameNum;
+								keyFrame.translation.y = lKeyValue;
+							}
+						}
+						lAnimCurve = node->LclTranslation.GetCurve(lAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
+						if (lAnimCurve)
+						{
+							int lKeyCount = lAnimCurve->KeyGetCount();
+							for (int k = 0; k < lKeyCount; ++k)
+							{
+								// TODO: get interpolation type (fbxsdk DisplayAnimation.cxx)
+								float lKeyValue = lAnimCurve->KeyGetValue(k);
+								FbxTime lKeyTime = lAnimCurve->KeyGetTime(k);
+
+								int frameNum = lKeyTime.GetFrameCount();
+
+								KeyFrame& keyFrame = keyFrames[frameNum];
+								keyFrame.frameNum = frameNum;
+								keyFrame.translation.z = lKeyValue;
+							}
+						}
+
+
+						lAnimCurve = node->LclRotation.GetCurve(lAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
+						if (lAnimCurve)
+						{
+							int lKeyCount = lAnimCurve->KeyGetCount();
+							for (int k = 0; k < lKeyCount; ++k)
+							{
+								// TODO: get interpolation type (fbxsdk DisplayAnimation.cxx)
+								float lKeyValue = lAnimCurve->KeyGetValue(k);
+								FbxTime lKeyTime = lAnimCurve->KeyGetTime(k);
+
+								int frameNum = lKeyTime.GetFrameCount();
+
+								KeyFrame& keyFrame = keyFrames[frameNum];
+								keyFrame.frameNum = frameNum;
+								keyFrame.rotation.x = lKeyValue;
+							}
+						}
+						lAnimCurve = node->LclRotation.GetCurve(lAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
+						if (lAnimCurve)
+						{
+							int lKeyCount = lAnimCurve->KeyGetCount();
+							for (int k = 0; k < lKeyCount; ++k)
+							{
+								// TODO: get interpolation type (fbxsdk DisplayAnimation.cxx)
+								float lKeyValue = lAnimCurve->KeyGetValue(k);
+								FbxTime lKeyTime = lAnimCurve->KeyGetTime(k);
+
+								int frameNum = lKeyTime.GetFrameCount();
+
+								KeyFrame& keyFrame = keyFrames[frameNum];
+								keyFrame.frameNum = frameNum;
+								keyFrame.rotation.y = lKeyValue;
+							}
+						}
+						lAnimCurve = node->LclRotation.GetCurve(lAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
+						if (lAnimCurve)
+						{
+							int lKeyCount = lAnimCurve->KeyGetCount();
+							for (int k = 0; k < lKeyCount; ++k)
+							{
+								// TODO: get interpolation type (fbxsdk DisplayAnimation.cxx)
+								float lKeyValue = lAnimCurve->KeyGetValue(k);
+								FbxTime lKeyTime = lAnimCurve->KeyGetTime(k);
+
+								int frameNum = lKeyTime.GetFrameCount();
+
+								KeyFrame& keyFrame = keyFrames[frameNum];
+								keyFrame.frameNum = frameNum;
+								keyFrame.rotation.z = lKeyValue;
+							}
+						}
+
+						lAnimCurve = node->LclScaling.GetCurve(lAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
+						if (lAnimCurve)
+						{
+							int lKeyCount = lAnimCurve->KeyGetCount();
+							for (int k = 0; k < lKeyCount; ++k)
+							{
+								// TODO: get interpolation type (fbxsdk DisplayAnimation.cxx)
+								float lKeyValue = lAnimCurve->KeyGetValue(k);
+								FbxTime lKeyTime = lAnimCurve->KeyGetTime(k);
+
+								int frameNum = lKeyTime.GetFrameCount();
+
+								KeyFrame& keyFrame = keyFrames[frameNum];
+								keyFrame.frameNum = frameNum;
+								keyFrame.rotation.x = lKeyValue;
+							}
+						}
+						lAnimCurve = node->LclScaling.GetCurve(lAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
+						if (lAnimCurve)
+						{
+							int lKeyCount = lAnimCurve->KeyGetCount();
+							for (int k = 0; k < lKeyCount; ++k)
+							{
+								// TODO: get interpolation type (fbxsdk DisplayAnimation.cxx)
+								float lKeyValue = lAnimCurve->KeyGetValue(k);
+								FbxTime lKeyTime = lAnimCurve->KeyGetTime(k);
+
+								int frameNum = lKeyTime.GetFrameCount();
+
+								KeyFrame& keyFrame = keyFrames[frameNum];
+								keyFrame.frameNum = frameNum;
+								keyFrame.scale.y = lKeyValue;
+							}
+						}
+						lAnimCurve = node->LclScaling.GetCurve(lAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
+						if (lAnimCurve)
+						{
+							int lKeyCount = lAnimCurve->KeyGetCount();
+							for (int k = 0; k < lKeyCount; ++k)
+							{
+								// TODO: get interpolation type (fbxsdk DisplayAnimation.cxx)
+								float lKeyValue = lAnimCurve->KeyGetValue(k);
+								FbxTime lKeyTime = lAnimCurve->KeyGetTime(k);
+
+								int frameNum = lKeyTime.GetFrameCount();
+
+								KeyFrame& keyFrame = keyFrames[frameNum];
+								keyFrame.frameNum = frameNum;
+								keyFrame.scale.z = lKeyValue;
+							}
+						}
+
+						for (auto it = keyFrames.begin(); it != keyFrames.end(); ++it)
+						{
+							m_animation.keyFrames[currJointIndex].push_back(it->second);
+						}
+					}
+				}
+				*/
+
+				// Single-take animation information.
+				FbxAnimStack* currAnimStack = scene->GetSrcObject<FbxAnimStack>(1);
+				FbxString animStackName = currAnimStack->GetName();
+				std::string animationName = animStackName.Buffer();
+				FbxTakeInfo* takeInfo = scene->GetTakeInfo(animStackName);
+				FbxTime start = takeInfo->mLocalTimeSpan.GetStart();
+				FbxTime end = takeInfo->mLocalTimeSpan.GetStop();
+				FbxLongLong animationLength = end.GetFrameCount(FbxTime::eFrames24) - start.GetFrameCount(FbxTime::eFrames24) + 1;
+
 				m_animation.name = animationName;
 				m_animation.numFrames = animationLength;
 				m_animation.currFrame = 0;
@@ -543,9 +758,9 @@ namespace CE
 			}
 			else
 			{
-				m_palette[i] = localPose;
+				//m_palette[i] = localPose;
 				//m_palette[i] = glm::mat4(-1.0f);
-				//m_palette[i] = m_palette[m_skeleton.joints[i].parentIndex] * localPose;
+				m_palette[i] = m_palette[m_skeleton.joints[i].parentIndex] *localPose;
 			}
 		}
 
