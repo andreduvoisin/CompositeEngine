@@ -300,11 +300,7 @@ namespace CE
 						if (index == m_vertices.size())
 						{
 							m_vertices.push_back(vertex);
-							if (m_controlPointToVertex.find(lPolyVertIndex) != m_controlPointToVertex.end())
-							{
-								printf("wtfff");
-							}
-							m_controlPointToVertex[lPolyVertIndex] = m_vertices.size() - 1;
+							m_controlPointToVertices[lPolyVertIndex].push_back(m_vertices.size() - 1);
 							//m_vertices.push_back(vertex);
 						}
 
@@ -427,22 +423,21 @@ namespace CE
 				unsigned int numOfIndices = currCluster->GetControlPointIndicesCount();
 				for (unsigned controlPointIndex = 0; controlPointIndex < numOfIndices; ++controlPointIndex)
 				{
-					Vertex& vertex = m_vertices[m_controlPointToVertex[currCluster->GetControlPointIndices()[controlPointIndex]]];
-
-					if (vertex.numWeights >= 4)
+					const auto& verticesForControlPoint = m_controlPointToVertices[currCluster->GetControlPointIndices()[controlPointIndex]];
+					for (unsigned vertexIndex = 0; vertexIndex < verticesForControlPoint.size(); ++vertexIndex)
 					{
-						printf("too many weights!\n");
-						continue;
-					}
+						Vertex& vertex = m_vertices[verticesForControlPoint[vertexIndex]];
 
-					if (m_controlPointToVertex[currCluster->GetControlPointIndices()[controlPointIndex]] == 40)
-					{
-						printf("wtf");
-					}
+						if (vertex.numWeights >= 4)
+						{
+							printf("too many weights!\n");
+							continue;
+						}
 
-					vertex.jointIndices[vertex.numWeights] = currJointIndex;
-					vertex.jointWeights[vertex.numWeights] = currCluster->GetControlPointWeights()[controlPointIndex];
-					vertex.numWeights++;
+						vertex.jointIndices[vertex.numWeights] = currJointIndex;
+						vertex.jointWeights[vertex.numWeights] = currCluster->GetControlPointWeights()[controlPointIndex];
+						vertex.numWeights++;
+					}
 				}
 				/*
 				// Single-take animation information.
@@ -818,16 +813,25 @@ namespace CE
 		{
 			VertexForGPU vertexForGPU;
 			vertexForGPU.textureCoordinate = m_vertices[i].textureCoordinate;
-			vertexForGPU.position = glm::vec4(0.0f);
 			glm::vec4 vertexInitialPosition = glm::vec4(
 				m_vertices[i].position.x,
 				m_vertices[i].position.y,
 				m_vertices[i].position.z,
 				1.0f);
-			for (int j = 0; j < 4; ++j)
+
+			if (!m_skeleton.joints.empty())
 			{
-				vertexForGPU.position += (m_palette[m_vertices[i].jointIndices[j]] * vertexInitialPosition) * m_vertices[i].jointWeights[j];
+				vertexForGPU.position = glm::vec4(0.0f);
+				for (int j = 0; j < 4; ++j)
+				{
+					vertexForGPU.position += (m_palette[m_vertices[i].jointIndices[j]] * vertexInitialPosition) * m_vertices[i].jointWeights[j];
+				}
 			}
+			else
+			{
+				vertexForGPU.position = vertexInitialPosition;
+			}
+
 			m_verticesForGPU.push_back(vertexForGPU);
 		}
 	}

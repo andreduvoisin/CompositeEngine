@@ -162,18 +162,22 @@ void Render()
 	glBindVertexArray(g_vao);
 
 	glm::mat4 projection = glm::perspective(glm::pi<float>() * 0.25f, (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 1000.0f);
-	//glm::mat4 view = glm::lookAt(glm::vec3(0, 100, 400), glm::vec3(0, 100, 0), glm::vec3(0, 1, 0));
-	glm::mat4 view = glm::lookAt(glm::vec3(0, -400, 0), glm::vec3(0, 0, 0), glm::vec3(0, 0, 1));
+	//glm::mat4 view = glm::lookAt(glm::vec3(0, 100, 400), glm::vec3(0, 100, 0), glm::vec3(0, 1, 0)); // paladin
+	glm::mat4 view = glm::lookAt(glm::vec3(0, -400, 0), glm::vec3(0, 0, 0), glm::vec3(0, 0, 1)); // solider
+	//glm::mat4 view = glm::lookAt(glm::vec3(0, 2, 8), glm::vec3(0, 2, 0), glm::vec3(0, 1, 0)); // wonder woman
 	glm::mat4 model = glm::mat4(1.0f);
 	glm::mat4 mvp = projection * view * model;
 	glUniformMatrix4fv(g_mvpMatrixID, 1, GL_FALSE, &mvp[0][0]);
 
 	CE::MeshData* meshData = CE::MeshManager::Get().GetMeshData(g_fbxName);
-	glActiveTexture(GL_TEXTURE0 + g_paletteTextureUnit);
-	glBindTexture(GL_TEXTURE_BUFFER, g_paletteGenTex);
-	glTexBuffer(GL_TEXTURE_BUFFER, GL_RGBA32F, g_tbo);
-	glBufferData(GL_TEXTURE_BUFFER, meshData->m_palette.size() * sizeof(glm::mat4), meshData->m_palette.data(), GL_DYNAMIC_DRAW);
-	glUniform1i(g_paletteID, g_paletteTextureUnit);
+	if (!meshData->m_palette.empty())
+	{
+		glActiveTexture(GL_TEXTURE0 + g_paletteTextureUnit);
+		glBindTexture(GL_TEXTURE_BUFFER, g_paletteGenTex);
+		glTexBuffer(GL_TEXTURE_BUFFER, GL_RGBA32F, g_tbo);
+		glBufferData(GL_TEXTURE_BUFFER, meshData->m_palette.size() * sizeof(glm::mat4), meshData->m_palette.data(), GL_DYNAMIC_DRAW);
+		glUniform1i(g_paletteID, g_paletteTextureUnit);
+	}
 
 	int vertexSize = sizeof(float) * 4 + sizeof(float) * 2;
 	glBindBuffer(GL_ARRAY_BUFFER, g_vbo);
@@ -382,12 +386,15 @@ bool InitializeOpenGL()
 
 	stbi_image_free(data);
 
-	g_paletteTextureUnit = 1;
-	glGenBuffers(1, &g_tbo);
-	glBindBuffer(GL_TEXTURE_BUFFER, g_tbo);
-	glBufferData(GL_TEXTURE_BUFFER, meshData->m_palette.size() * sizeof(glm::mat4), meshData->m_palette.data(), GL_DYNAMIC_DRAW);
-	glActiveTexture(GL_TEXTURE0 + g_paletteTextureUnit);
-	glGenTextures(1, &g_paletteGenTex);
+	if (!meshData->m_palette.empty())
+	{
+		g_paletteTextureUnit = 1;
+		glGenBuffers(1, &g_tbo);
+		glBindBuffer(GL_TEXTURE_BUFFER, g_tbo);
+		glBufferData(GL_TEXTURE_BUFFER, meshData->m_palette.size() * sizeof(glm::mat4), meshData->m_palette.data(), GL_DYNAMIC_DRAW);
+		glActiveTexture(GL_TEXTURE0 + g_paletteTextureUnit);
+		glGenTextures(1, &g_paletteGenTex);
+	}
 
 	//unsigned int stride = vertexSize;
 	//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, NULL);

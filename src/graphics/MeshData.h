@@ -53,8 +53,8 @@ namespace CE
 
 	inline bool operator==(const Vertex& lhs, const Vertex& rhs)
 	{
-		return lhs.position == rhs.position;
-			//&& lhs.textureCoordinate == rhs.textureCoordinate;
+		return lhs.position == rhs.position
+			&& lhs.textureCoordinate == rhs.textureCoordinate;
 	}
 
 	struct Joint
@@ -138,7 +138,7 @@ namespace CE
 		std::string m_specularMapName;
 		std::string m_normalMapName;
 
-		std::unordered_map<int, int> m_controlPointToVertex;
+		std::unordered_map<int, std::vector<int>> m_controlPointToVertices;
 
 		// what even is an animation component lol
 		Skeleton m_skeleton;
