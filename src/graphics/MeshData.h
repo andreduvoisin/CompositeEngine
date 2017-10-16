@@ -47,14 +47,14 @@ namespace CE
 		Position position;
 		TextureCoordinate textureCoordinate;
 		float jointWeights[4];
-		unsigned jointIndices[4];
+		int jointIndices[4];
 		unsigned numWeights;
 	};
 
 	inline bool operator==(const Vertex& lhs, const Vertex& rhs)
 	{
-		return lhs.position == rhs.position
-			&& lhs.textureCoordinate == rhs.textureCoordinate;
+		return lhs.position == rhs.position;
+			//&& lhs.textureCoordinate == rhs.textureCoordinate;
 	}
 
 	struct Joint
@@ -98,6 +98,12 @@ namespace CE
 		float time;
 	};
 
+	struct VertexForGPU
+	{
+		glm::vec4 position;
+		TextureCoordinate textureCoordinate;
+	};
+
 	struct MeshData
 	{
 	public:
@@ -138,6 +144,7 @@ namespace CE
 		Skeleton m_skeleton;
 		Animation m_animation;
 		std::vector<glm::mat4> m_palette;
+		std::vector<VertexForGPU> m_verticesForGPU;
 	};
 }
 
