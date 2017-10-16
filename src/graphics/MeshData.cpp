@@ -160,10 +160,10 @@ namespace CE
 
 			//soldier_Military_Male_Lod_1
 			//Paladin_J_Nordstrom
-			if (strcmp(pFbxChildNode->GetName(), "soldier_Military_Male_Lod_1") != 0)
-			{
-				continue;
-			}
+			//if (strcmp(pFbxChildNode->GetName(), "soldier_Military_Male_Lod_1") != 0)
+			//{
+			//	continue;
+			//}
 
 			unsigned int materialCount = pFbxChildNode->GetMaterialCount();
 			for (unsigned int i = 0; i < materialCount; ++i)
