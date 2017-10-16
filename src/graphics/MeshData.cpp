@@ -158,6 +158,8 @@ namespace CE
 
 			FbxMesh* pMesh = (FbxMesh*)pFbxChildNode->GetNodeAttribute();
 
+			//soldier_Military_Male_Lod_1
+			//Paladin_J_Nordstrom
 			if (strcmp(pFbxChildNode->GetName(), "soldier_Military_Male_Lod_1") != 0)
 			{
 				continue;
@@ -298,6 +300,10 @@ namespace CE
 						if (index == m_vertices.size())
 						{
 							m_vertices.push_back(vertex);
+							if (m_controlPointToVertex.find(lPolyVertIndex) != m_controlPointToVertex.end())
+							{
+								printf("wtfff");
+							}
 							m_controlPointToVertex[lPolyVertIndex] = m_vertices.size() - 1;
 							//m_vertices.push_back(vertex);
 						}
@@ -427,6 +433,11 @@ namespace CE
 					{
 						printf("too many weights!\n");
 						continue;
+					}
+
+					if (m_controlPointToVertex[currCluster->GetControlPointIndices()[controlPointIndex]] == 40)
+					{
+						printf("wtf");
 					}
 
 					vertex.jointIndices[vertex.numWeights] = currJointIndex;
@@ -800,6 +811,25 @@ namespace CE
 		}
 
 		didPrint = true;
+
+		m_verticesForGPU.clear();
+		m_verticesForGPU.reserve(m_vertices.size());
+		for (int i = 0; i < m_vertices.size(); ++i)
+		{
+			VertexForGPU vertexForGPU;
+			vertexForGPU.textureCoordinate = m_vertices[i].textureCoordinate;
+			vertexForGPU.position = glm::vec4(0.0f);
+			glm::vec4 vertexInitialPosition = glm::vec4(
+				m_vertices[i].position.x,
+				m_vertices[i].position.y,
+				m_vertices[i].position.z,
+				1.0f);
+			for (int j = 0; j < 4; ++j)
+			{
+				vertexForGPU.position += (m_palette[m_vertices[i].jointIndices[j]] * vertexInitialPosition) * m_vertices[i].jointWeights[j];
+			}
+			m_verticesForGPU.push_back(vertexForGPU);
+		}
 	}
 
 	void MeshData::Draw()

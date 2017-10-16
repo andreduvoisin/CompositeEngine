@@ -43,10 +43,12 @@ GLuint g_programID = 0;
 GLuint g_vbo = 0;
 GLuint g_ibo = 0;
 GLuint g_vao = 0;
+GLuint g_tbo = 0;
 
 GLuint g_mvpMatrixID = -1;
 GLuint g_paletteID = -1;
 GLuint g_paletteTextureUnit = -1;
+GLuint g_paletteGenTex = -1;
 GLuint g_diffuseTextureID = -1;
 GLuint g_diffuseTextureUnit = -1;
 
@@ -157,19 +159,25 @@ void Render()
 	//}
 
 	glUseProgram(g_programID);
+	glBindVertexArray(g_vao);
 
 	glm::mat4 projection = glm::perspective(glm::pi<float>() * 0.25f, (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 1000.0f);
-	glm::mat4 view = glm::lookAt(glm::vec3(0, 0, 400), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+	//glm::mat4 view = glm::lookAt(glm::vec3(0, 100, 400), glm::vec3(0, 100, 0), glm::vec3(0, 1, 0));
+	glm::mat4 view = glm::lookAt(glm::vec3(0, -400, 0), glm::vec3(0, 0, 0), glm::vec3(0, 0, 1));
 	glm::mat4 model = glm::mat4(1.0f);
 	glm::mat4 mvp = projection * view * model;
 	glUniformMatrix4fv(g_mvpMatrixID, 1, GL_FALSE, &mvp[0][0]);
 
 	CE::MeshData* meshData = CE::MeshManager::Get().GetMeshData(g_fbxName);
 	glActiveTexture(GL_TEXTURE0 + g_paletteTextureUnit);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, 4, meshData->m_palette.size(), 0, GL_RGBA32F, GL_FLOAT, meshData->m_palette.data());
-	//glUniform1i(g_paletteID, g_paletteTextureUnit);
+	glBindTexture(GL_TEXTURE_BUFFER, g_paletteGenTex);
+	glTexBuffer(GL_TEXTURE_BUFFER, GL_RGBA32F, g_tbo);
+	glBufferData(GL_TEXTURE_BUFFER, meshData->m_palette.size() * sizeof(glm::mat4), meshData->m_palette.data(), GL_DYNAMIC_DRAW);
+	glUniform1i(g_paletteID, g_paletteTextureUnit);
 
-	glBindVertexArray(g_vao);
+	int vertexSize = sizeof(float) * 4 + sizeof(float) * 2;
+	glBindBuffer(GL_ARRAY_BUFFER, g_vbo);
+	glBufferData(GL_ARRAY_BUFFER, meshData->m_verticesForGPU.size() * vertexSize, meshData->m_verticesForGPU.data(), GL_DYNAMIC_DRAW);
 
 	//glDrawArrays(GL_TRIANGLES, 0, 3);
 	//glDrawArrays(GL_TRIANGLES, 0, meshData->m_vertices.size());
@@ -186,52 +194,63 @@ bool InitializeOpenGL()
 	//{
 	//	"#version 410\nin vec2 LVertexPos2D; void main() { gl_Position = vec4(LVertexPos2D.x, LVertexPos2D.y, 0, 1); }"
 	//};
+	//const char* vertexShaderSource =
+	//	"#version 410\n"
+	//	"in vec3 vp;"
+	//	"in vec2 tp;"
+	//	"in float jointWeights[4];"
+	//	"in int jointIndices[4];"
+	//	"in unsigned int numWeights;" // TODO: remove. always 4
+	//	"uniform mat4 mvp;"
+	//	"uniform samplerBuffer palette;"
+	//	"out vec2 texCoord;"
+	//	"void main() {"
+	//	"  mat4 texturePalette = mat4("
+	//	"    texelFetch(palette, jointIndices[0] * 4),"
+	//	"    texelFetch(palette, jointIndices[0] * 4 + 1),"
+	//	"    texelFetch(palette, jointIndices[0] * 4 + 2),"
+	//	"    texelFetch(palette, jointIndices[0] * 4 + 3));"
+	//	"  vec4 position = (texturePalette * vec4(vp, 1.0)) * jointWeights[0];"
+	//	"  texturePalette = mat4("
+	//	"    texelFetch(palette, jointIndices[1] * 4),"
+	//	"    texelFetch(palette, jointIndices[1] * 4 + 1),"
+	//	"    texelFetch(palette, jointIndices[1] * 4 + 2),"
+	//	"    texelFetch(palette, jointIndices[1] * 4 + 3));"
+	//	"  position += (texturePalette * vec4(vp, 1.0)) * jointWeights[1];"
+	//	"  texturePalette = mat4("
+	//	"    texelFetch(palette, jointIndices[2] * 4),"
+	//	"    texelFetch(palette, jointIndices[2] * 4 + 1),"
+	//	"    texelFetch(palette, jointIndices[2] * 4 + 2),"
+	//	"    texelFetch(palette, jointIndices[2] * 4 + 3));"
+	//	"  position += (texturePalette * vec4(vp, 1.0)) * jointWeights[2];"
+	//	"  texturePalette = mat4("
+	//	"    texelFetch(palette, jointIndices[3] * 4),"
+	//	"    texelFetch(palette, jointIndices[3] * 4 + 1),"
+	//	"    texelFetch(palette, jointIndices[3] * 4 + 2),"
+	//	"    texelFetch(palette, jointIndices[3] * 4 + 3));"
+	//	"  position += (texturePalette * vec4(vp, 1.0)) * jointWeights[3];"
+	//	"  gl_Position = mvp * position;"
+	//	"  texCoord = tp;"
+	//	"}";
 	const char* vertexShaderSource =
 		"#version 410\n"
-		"in vec3 vp;"
+		"in vec4 vp;"
 		"in vec2 tp;"
-		"in float jointWeights[4];"
-		"in unsigned int jointIndices[4];"
-		"in unsigned int numWeights;" // TODO: remove. always 4
 		"uniform mat4 mvp;"
-		"uniform sampler2D palette;"
+		"uniform samplerBuffer palette;"
 		"out vec2 texCoord;"
 		"void main() {"
-		"  mat4 texturePalette = mat4("
-		"    texture(palette, vec2(0.00, float(30 - jointIndices[0]) / 31.0)),"
-		"    texture(palette, vec2(0.25, float(30 - jointIndices[0]) / 31.0)),"
-		"    texture(palette, vec2(0.50, float(30 - jointIndices[0]) / 31.0)),"
-		"    texture(palette, vec2(0.75, float(30 - jointIndices[0]) / 31.0)));"
-		"  vec4 position = (texturePalette * vec4(vp, 1.0)) * jointWeights[0];"
-		"  texturePalette = mat4("
-		"    texture(palette, vec2(0.00, float(30 - jointIndices[1]) / 31.0)),"
-		"    texture(palette, vec2(0.25, float(30 - jointIndices[1]) / 31.0)),"
-		"    texture(palette, vec2(0.50, float(30 - jointIndices[1]) / 31.0)),"
-		"    texture(palette, vec2(0.75, float(30 - jointIndices[1]) / 31.0)));"
-		"  position += (texturePalette * vec4(vp, 1.0)) * jointWeights[1];"
-		"  texturePalette = mat4("
-		"    texture(palette, vec2(0.00, float(30 - jointIndices[2]) / 31.0)),"
-		"    texture(palette, vec2(0.25, float(30 - jointIndices[2]) / 31.0)),"
-		"    texture(palette, vec2(0.50, float(30 - jointIndices[2]) / 31.0)),"
-		"    texture(palette, vec2(0.75, float(30 - jointIndices[2]) / 31.0)));"
-		"  position += (texturePalette * vec4(vp, 1.0)) * jointWeights[2];"
-		"  texturePalette = mat4("
-		"    texture(palette, vec2(0.00, float(30 - jointIndices[3]) / 31.0)),"
-		"    texture(palette, vec2(0.25, float(30 - jointIndices[3]) / 31.0)),"
-		"    texture(palette, vec2(0.50, float(30 - jointIndices[3]) / 31.0)),"
-		"    texture(palette, vec2(0.75, float(30 - jointIndices[3]) / 31.0)));"
-		"  position += (texturePalette * vec4(vp, 1.0)) * jointWeights[3];"
-		"  gl_Position = mvp * position;"
+		"  gl_Position = mvp * vp;"
 		"  texCoord = tp;"
 		"}";
 	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
 	glCompileShader(vertexShader);
 	GLint vShaderCompiled = GL_FALSE;
 	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &vShaderCompiled);
+	printShaderLog(vertexShader);
 	if (vShaderCompiled != GL_TRUE)
 	{
 		printf("Unable to compile vertex shader %d!\n", vertexShader);
-		printShaderLog(vertexShader);
 		return false;
 	}
 	glAttachShader(g_programID, vertexShader);
@@ -253,10 +272,10 @@ bool InitializeOpenGL()
 	glCompileShader(fragmentShader);
 	GLint fShaderCompiled = GL_FALSE;
 	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &fShaderCompiled);
+	printShaderLog(fragmentShader);
 	if (fShaderCompiled != GL_TRUE)
 	{
 		printf("Unable to compile fragment shader %d!\n", fragmentShader);
-		printShaderLog(fragmentShader);
 		return false;
 	}
 	glAttachShader(g_programID, fragmentShader);
@@ -264,10 +283,10 @@ bool InitializeOpenGL()
 	glLinkProgram(g_programID);
 	GLint programSuccess = GL_TRUE;
 	glGetProgramiv(g_programID, GL_LINK_STATUS, &programSuccess);
+	printProgramLog(g_programID);
 	if (programSuccess != GL_TRUE)
 	{
 		printf("Error linking program %d!\n", g_programID);
-		printProgramLog(g_programID);
 		return false;
 	}
 
@@ -325,15 +344,17 @@ bool InitializeOpenGL()
 	// "I'm Batman."
 	CE::MeshData* meshData = CE::MeshManager::Get().GetMeshData(g_fbxName);
 
-	int vertexSize = sizeof(float) * 3 + sizeof(float) * 2 + sizeof(float) * 4 + sizeof(unsigned) * 4 + sizeof(unsigned) * 1;
+	//int vertexSize = sizeof(float) * 3 + sizeof(float) * 2 + sizeof(float) * 4 + sizeof(int) * 4 + sizeof(unsigned) * 1;
+
+	int vertexSize = sizeof(float) * 4 + sizeof(float) * 2;
 
 	glGenVertexArrays(1, &g_vao);
 	glBindVertexArray(g_vao);
 
 	glGenBuffers(1, &g_vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, g_vbo);
-	glBufferData(GL_ARRAY_BUFFER, meshData->m_vertices.size() * vertexSize, meshData->m_vertices.data(), GL_STATIC_DRAW);
-	//glBufferData(GL_ARRAY_BUFFER, 24 * sizeof(float), vertex_buffer_data, GL_STATIC_DRAW);
+	//glBufferData(GL_ARRAY_BUFFER, meshData->m_vertices.size() * vertexSize, meshData->m_vertices.data(), GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, meshData->m_verticesForGPU.size() * vertexSize, meshData->m_verticesForGPU.data(), GL_DYNAMIC_DRAW);
 
 	glGenBuffers(1, &g_ibo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_ibo);
@@ -357,31 +378,34 @@ bool InitializeOpenGL()
 	unsigned int glChannels = channels == 3 ? GL_RGB : GL_RGBA;
 	glTexImage2D(GL_TEXTURE_2D, 0, glChannels, width, height, 0, glChannels, GL_UNSIGNED_BYTE, data);
 	glGenerateMipmap(GL_TEXTURE_2D);
-	glUniform1i(g_diffuseTextureID, 0);
+	glUniform1i(g_diffuseTextureID, g_diffuseTextureUnit);
 
 	stbi_image_free(data);
 
 	g_paletteTextureUnit = 1;
+	glGenBuffers(1, &g_tbo);
+	glBindBuffer(GL_TEXTURE_BUFFER, g_tbo);
+	glBufferData(GL_TEXTURE_BUFFER, meshData->m_palette.size() * sizeof(glm::mat4), meshData->m_palette.data(), GL_DYNAMIC_DRAW);
 	glActiveTexture(GL_TEXTURE0 + g_paletteTextureUnit);
-	glGenTextures(1, &texture);
-	glBindTexture(GL_TEXTURE_2D, texture);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glUniform1i(g_paletteID, g_paletteTextureUnit);
+	glGenTextures(1, &g_paletteGenTex);
+
+	//unsigned int stride = vertexSize;
+	//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, NULL);
+	//glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride, (void*)sizeof(CE::Position));
+	//glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, stride, (void*)(sizeof(CE::Position) + sizeof(CE::TextureCoordinate)));
+	//glVertexAttribPointer(3, 4, GL_INT, GL_FALSE, stride, (void*)(sizeof(CE::Position) + sizeof(CE::TextureCoordinate) + sizeof(float) * 4));
+	//glVertexAttribPointer(4, 1, GL_UNSIGNED_INT, GL_FALSE, stride, (void*)(sizeof(CE::Position) + sizeof(CE::TextureCoordinate) + sizeof(float) * 4 + sizeof(int) * 4));
+	//glEnableVertexAttribArray(0);
+	//glEnableVertexAttribArray(1);
+	//glEnableVertexAttribArray(2);
+	//glEnableVertexAttribArray(3);
+	//glEnableVertexAttribArray(4);
 
 	unsigned int stride = vertexSize;
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, NULL);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride, (void*)sizeof(CE::Position));
-	glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, stride, (void*)(sizeof(CE::Position) + sizeof(CE::TextureCoordinate)));
-	glVertexAttribPointer(3, 4, GL_UNSIGNED_INT, GL_FALSE, stride, (void*)(sizeof(CE::Position) + sizeof(CE::TextureCoordinate) + sizeof(float) * 4));
-	glVertexAttribPointer(4, 1, GL_UNSIGNED_INT, GL_FALSE, stride, (void*)(sizeof(CE::Position) + sizeof(CE::TextureCoordinate) + sizeof(float) * 4 + sizeof(unsigned) * 4));
+	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, stride, NULL);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride, (void*)sizeof(glm::vec4));
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
-	glEnableVertexAttribArray(2);
-	glEnableVertexAttribArray(3);
-	glEnableVertexAttribArray(4);
 
 	//for (int i = 0; i < meshData->m_vertices.size(); ++i)
 	//{
