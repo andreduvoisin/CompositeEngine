@@ -6,8 +6,9 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include <string>
-
 #include <cstdio>
+#include <fstream>
+#include <sstream>
 
 #include "graphics\MeshManager.h"
 #include "graphics\MeshData.h"
@@ -190,15 +191,26 @@ void Render()
 	//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
 }
 
+std::string ReadFile(const char* file)
+{
+	std::ifstream stream(file);
+
+	if (!stream.is_open())
+	{
+		printf("Error Opening File: %s\n", file);
+		return std::string();
+	}
+
+	std::stringstream buffer;
+	buffer << stream.rdbuf();
+	return buffer.str();
+}
+
 bool InitializeOpenGL()
 {
 	g_programID = glCreateProgram();
 
 	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	//const GLchar* vertexShaderSource[] =
-	//{
-	//	"#version 410\nin vec2 LVertexPos2D; void main() { gl_Position = vec4(LVertexPos2D.x, LVertexPos2D.y, 0, 1); }"
-	//};
 	//const char* vertexShaderSource =
 	//	"#version 410\n"
 	//	"in vec3 vp;"
@@ -237,18 +249,9 @@ bool InitializeOpenGL()
 	//	"  gl_Position = mvp * position;"
 	//	"  texCoord = tp;"
 	//	"}";
-	const char* vertexShaderSource =
-		"#version 410\n"
-		"in vec4 vp;"
-		"in vec2 tp;"
-		"uniform mat4 mvp;"
-		"uniform samplerBuffer palette;"
-		"out vec2 texCoord;"
-		"void main() {"
-		"  gl_Position = mvp * vp;"
-		"  texCoord = tp;"
-		"}";
-	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+	std::string vertexShaderSource = ReadFile("..\\..\\..\\src\\shaders\\VertexShader.vert");
+	const char* vertexShaderSourceStr = vertexShaderSource.c_str();
+	glShaderSource(vertexShader, 1, &vertexShaderSourceStr, NULL);
 	glCompileShader(vertexShader);
 	GLint vShaderCompiled = GL_FALSE;
 	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &vShaderCompiled);
@@ -265,15 +268,9 @@ bool InitializeOpenGL()
 	//{
 	//	"#version 410\nout vec4 LFragment; void main() { LFragment = vec4(1.0, 1.0, 1.0, 1.0); }"
 	//};
-	const char* fragmentShaderSource =
-		"#version 410\n"
-		"out vec4 frag_colour;"
-		"in vec2 texCoord;"
-		"uniform sampler2D ourTexture;"
-		"void main() {"
-		"  frag_colour = texture(ourTexture, texCoord);"
-		"}";
-	glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+	std::string fragmentShaderSource = ReadFile("..\\..\\..\\src\\shaders\\FragmentShader.frag");
+	const char* fragmentShaderSourceStr = fragmentShaderSource.c_str();
+	glShaderSource(fragmentShader, 1, &fragmentShaderSourceStr, NULL);
 	glCompileShader(fragmentShader);
 	GLint fShaderCompiled = GL_FALSE;
 	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &fShaderCompiled);
