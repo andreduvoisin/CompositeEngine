@@ -8,7 +8,8 @@ in vec2 tp;
 
 out vec2 texCoord;
 
-void main() {
+void main()
+{
 	gl_Position = mvp * vp;
 	texCoord = tp;
 }
