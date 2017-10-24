@@ -210,6 +210,8 @@ bool InitializeOpenGL()
 {
 	g_programID = glCreateProgram();
 
+	// TODO: Copy shaders in CMAKE to .exe dir (or subdir next to .exe).
+
 	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
 	//const char* vertexShaderSource =
 	//	"#version 410\n"
