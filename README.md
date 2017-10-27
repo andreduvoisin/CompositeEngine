@@ -97,3 +97,6 @@ GAME ENGINE BADASSERY
 * C++ Skeletal Animation Library: https://github.com/guillaumeblanc/ozz-animation
 
 * Models and Animations: https://www.mixamo.com/
+
+* NVIDIA Nsight: http://www.nvidia.com/object/nsight.html
+	* Reference: http://docs.nvidia.com/nsight-visual-studio-edition/5.4/Nsight_Visual_Studio_Edition_User_Guide.htm
