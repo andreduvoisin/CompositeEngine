@@ -46,7 +46,7 @@ GLuint g_ibo = 0;
 GLuint g_vao = 0;
 GLuint g_tbo = 0;
 
-GLuint g_mvpMatrixID = -1;
+GLuint g_projectionViewModelMatrixID = -1;
 GLuint g_paletteID = -1;
 GLuint g_paletteTextureUnit = -1;
 GLuint g_paletteGenTex = -1;
@@ -168,8 +168,8 @@ void Render()
 	//glm::mat4 view = glm::lookAt(glm::vec3(0, 2, 8), glm::vec3(0, 2, 0), glm::vec3(0, 1, 0)); // wonder woman
 	glm::mat4 view = glm::lookAt(glm::vec3(0, 200, 700), glm::vec3(0, 50, 0), glm::vec3(0, 1, 0)); // thriller
 	glm::mat4 model = glm::mat4(1.0f);
-	glm::mat4 mvp = projection * view * model;
-	glUniformMatrix4fv(g_mvpMatrixID, 1, GL_FALSE, &mvp[0][0]);
+	glm::mat4 projectionViewModel = projection * view * model;
+	glUniformMatrix4fv(g_projectionViewModelMatrixID, 1, GL_FALSE, &projectionViewModel[0][0]);
 
 	CE::MeshData* meshData = CE::MeshManager::Get().GetMeshData(g_fbxName);
 	if (!meshData->m_palette.empty())
@@ -273,9 +273,9 @@ bool InitializeOpenGL()
 		return false;
 	}
 
-	g_mvpMatrixID = glGetUniformLocation(g_programID, "mvp");
+	g_projectionViewModelMatrixID = glGetUniformLocation(g_programID, "projectionViewModel");
 	g_paletteID = glGetUniformLocation(g_programID, "palette");
-	g_diffuseTextureID = glGetUniformLocation(g_programID, "ourTexture");
+	g_diffuseTextureID = glGetUniformLocation(g_programID, "diffuseTexture");
 
 	//g_vertexPos2DLocation = glGetAttribLocation(g_programID, "LVertexPos2D");
 	//if (g_vertexPos2DLocation == -1)
