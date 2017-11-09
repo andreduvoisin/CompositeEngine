@@ -177,13 +177,30 @@ void Render()
 		glActiveTexture(GL_TEXTURE0 + g_paletteTextureUnit);
 		glBindTexture(GL_TEXTURE_BUFFER, g_paletteGenTex);
 		glTexBuffer(GL_TEXTURE_BUFFER, GL_RGBA32F, g_tbo);
+		glBindBuffer(GL_TEXTURE_BUFFER, g_tbo);
 		glBufferData(GL_TEXTURE_BUFFER, meshData->m_palette.size() * sizeof(glm::mat4), meshData->m_palette.data(), GL_DYNAMIC_DRAW);
 		glUniform1i(g_paletteID, g_paletteTextureUnit);
 	}
 
-	int vertexSize = sizeof(float) * 4 + sizeof(float) * 2;
+	//for (int i = 0; i < meshData->m_vertices.size(); ++i)
+	//{
+	//	for (int j = 0; j < 2; ++j)
+	//	{
+	//		meshData->m_vertices[i].jointIndices[j] = 1;
+	//		meshData->m_vertices[i].jointWeights[j] = 0.5;
+	//	}
+	//	for (int j = 2; j < 4; ++j)
+	//	{
+	//		meshData->m_vertices[i].jointIndices[j] = 0;
+	//		meshData->m_vertices[i].jointWeights[j] = 0;
+	//	}
+	//}
+
+	int vertexSize = sizeof(float) * 3 + sizeof(float) * 2 + sizeof(float) * 4 + sizeof(int) * 4 + sizeof(unsigned) * 1;
+	//int vertexSize = sizeof(float) * 4 + sizeof(float) * 2;
 	glBindBuffer(GL_ARRAY_BUFFER, g_vbo);
-	glBufferData(GL_ARRAY_BUFFER, meshData->m_verticesForGPU.size() * vertexSize, meshData->m_verticesForGPU.data(), GL_DYNAMIC_DRAW);
+	//glBufferData(GL_ARRAY_BUFFER, meshData->m_verticesForGPU.size() * vertexSize, meshData->m_verticesForGPU.data(), GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, meshData->m_vertices.size() * vertexSize, meshData->m_vertices.data(), GL_STATIC_DRAW);
 
 	//glDrawArrays(GL_TRIANGLES, 0, 3);
 	//glDrawArrays(GL_TRIANGLES, 0, meshData->m_vertices.size());
@@ -213,44 +230,6 @@ bool InitializeOpenGL()
 	// TODO: Copy shaders in CMAKE to .exe dir (or subdir next to .exe).
 
 	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	//const char* vertexShaderSource =
-	//	"#version 410\n"
-	//	"in vec3 vp;"
-	//	"in vec2 tp;"
-	//	"in float jointWeights[4];"
-	//	"in int jointIndices[4];"
-	//	"in unsigned int numWeights;" // TODO: remove. always 4
-	//	"uniform mat4 mvp;"
-	//	"uniform samplerBuffer palette;"
-	//	"out vec2 texCoord;"
-	//	"void main() {"
-	//	"  mat4 texturePalette = mat4("
-	//	"    texelFetch(palette, jointIndices[0] * 4),"
-	//	"    texelFetch(palette, jointIndices[0] * 4 + 1),"
-	//	"    texelFetch(palette, jointIndices[0] * 4 + 2),"
-	//	"    texelFetch(palette, jointIndices[0] * 4 + 3));"
-	//	"  vec4 position = (texturePalette * vec4(vp, 1.0)) * jointWeights[0];"
-	//	"  texturePalette = mat4("
-	//	"    texelFetch(palette, jointIndices[1] * 4),"
-	//	"    texelFetch(palette, jointIndices[1] * 4 + 1),"
-	//	"    texelFetch(palette, jointIndices[1] * 4 + 2),"
-	//	"    texelFetch(palette, jointIndices[1] * 4 + 3));"
-	//	"  position += (texturePalette * vec4(vp, 1.0)) * jointWeights[1];"
-	//	"  texturePalette = mat4("
-	//	"    texelFetch(palette, jointIndices[2] * 4),"
-	//	"    texelFetch(palette, jointIndices[2] * 4 + 1),"
-	//	"    texelFetch(palette, jointIndices[2] * 4 + 2),"
-	//	"    texelFetch(palette, jointIndices[2] * 4 + 3));"
-	//	"  position += (texturePalette * vec4(vp, 1.0)) * jointWeights[2];"
-	//	"  texturePalette = mat4("
-	//	"    texelFetch(palette, jointIndices[3] * 4),"
-	//	"    texelFetch(palette, jointIndices[3] * 4 + 1),"
-	//	"    texelFetch(palette, jointIndices[3] * 4 + 2),"
-	//	"    texelFetch(palette, jointIndices[3] * 4 + 3));"
-	//	"  position += (texturePalette * vec4(vp, 1.0)) * jointWeights[3];"
-	//	"  gl_Position = mvp * position;"
-	//	"  texCoord = tp;"
-	//	"}";
 	std::string vertexShaderSource = ReadFile("..\\..\\..\\src\\shaders\\VertexShader.vert");
 	const char* vertexShaderSourceStr = vertexShaderSource.c_str();
 	glShaderSource(vertexShader, 1, &vertexShaderSourceStr, NULL);
@@ -348,17 +327,16 @@ bool InitializeOpenGL()
 	// "I'm Batman."
 	CE::MeshData* meshData = CE::MeshManager::Get().GetMeshData(g_fbxName);
 
-	//int vertexSize = sizeof(float) * 3 + sizeof(float) * 2 + sizeof(float) * 4 + sizeof(int) * 4 + sizeof(unsigned) * 1;
-
-	int vertexSize = sizeof(float) * 4 + sizeof(float) * 2;
+	int vertexSize = sizeof(float) * 3 + sizeof(float) * 2 + sizeof(float) * 4 + sizeof(int) * 4 + sizeof(unsigned) * 1;
+	//int vertexSize = sizeof(float) * 4 + sizeof(float) * 2;
 
 	glGenVertexArrays(1, &g_vao);
 	glBindVertexArray(g_vao);
 
 	glGenBuffers(1, &g_vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, g_vbo);
-	//glBufferData(GL_ARRAY_BUFFER, meshData->m_vertices.size() * vertexSize, meshData->m_vertices.data(), GL_STATIC_DRAW);
-	glBufferData(GL_ARRAY_BUFFER, meshData->m_verticesForGPU.size() * vertexSize, meshData->m_verticesForGPU.data(), GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, meshData->m_vertices.size() * vertexSize, meshData->m_vertices.data(), GL_STATIC_DRAW);
+	//glBufferData(GL_ARRAY_BUFFER, meshData->m_verticesForGPU.size() * vertexSize, meshData->m_verticesForGPU.data(), GL_DYNAMIC_DRAW);
 
 	glGenBuffers(1, &g_ibo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_ibo);
@@ -396,36 +374,33 @@ bool InitializeOpenGL()
 		glGenTextures(1, &g_paletteGenTex);
 	}
 
-	//unsigned int stride = vertexSize;
-	//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, NULL);
-	//glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride, (void*)sizeof(CE::Position));
-	//glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, stride, (void*)(sizeof(CE::Position) + sizeof(CE::TextureCoordinate)));
-	//glVertexAttribPointer(3, 4, GL_INT, GL_FALSE, stride, (void*)(sizeof(CE::Position) + sizeof(CE::TextureCoordinate) + sizeof(float) * 4));
-	//glVertexAttribPointer(4, 1, GL_UNSIGNED_INT, GL_FALSE, stride, (void*)(sizeof(CE::Position) + sizeof(CE::TextureCoordinate) + sizeof(float) * 4 + sizeof(int) * 4));
-	//glEnableVertexAttribArray(0);
-	//glEnableVertexAttribArray(1);
-	//glEnableVertexAttribArray(2);
-	//glEnableVertexAttribArray(3);
-	//glEnableVertexAttribArray(4);
-
 	unsigned int stride = vertexSize;
-	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, stride, NULL);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride, (void*)sizeof(glm::vec4));
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, NULL);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride, (void*)sizeof(CE::Position));
+	glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, stride, (void*)(sizeof(CE::Position) + sizeof(CE::TextureCoordinate)));
+	glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, stride, (void*)(sizeof(CE::Position) + sizeof(CE::TextureCoordinate) + sizeof(float) * 1));
+	glVertexAttribPointer(4, 1, GL_FLOAT, GL_FALSE, stride, (void*)(sizeof(CE::Position) + sizeof(CE::TextureCoordinate) + sizeof(float) * 2));
+	glVertexAttribPointer(5, 1, GL_FLOAT, GL_FALSE, stride, (void*)(sizeof(CE::Position) + sizeof(CE::TextureCoordinate) + sizeof(float) * 3));
+	glVertexAttribIPointer(6, 1, GL_INT, stride, (void*)(sizeof(CE::Position) + sizeof(CE::TextureCoordinate) + sizeof(float) * 4));
+	glVertexAttribIPointer(7, 1, GL_INT, stride, (void*)(sizeof(CE::Position) + sizeof(CE::TextureCoordinate) + sizeof(float) * 4 + sizeof(int) * 1));
+	glVertexAttribIPointer(8, 1, GL_INT, stride, (void*)(sizeof(CE::Position) + sizeof(CE::TextureCoordinate) + sizeof(float) * 4 + sizeof(int) * 2));
+	glVertexAttribIPointer(9, 1, GL_INT, stride, (void*)(sizeof(CE::Position) + sizeof(CE::TextureCoordinate) + sizeof(float) * 4 + sizeof(int) * 3));
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
+	glEnableVertexAttribArray(2);
+	glEnableVertexAttribArray(3);
+	glEnableVertexAttribArray(4);
+	glEnableVertexAttribArray(5);
+	glEnableVertexAttribArray(6);
+	glEnableVertexAttribArray(7);
+	glEnableVertexAttribArray(8);
+	glEnableVertexAttribArray(9);
 
-	//for (int i = 0; i < meshData->m_vertices.size(); ++i)
-	//{
-	//	//const CE::Position& pos = meshData->m_vertices[i].position;
-	//	//printf("x: %f, y: %f, z: %f\n", pos.x, pos.y, pos.z);
-	//	const CE::TextureCoordinate& tex = meshData->m_vertices[i].textureCoordinate;
-	//	printf("u: %f, v: %f\n", tex.u, tex.v);
-	//}
-
-	//for (int i = 0; i < meshData->m_indices.size(); i += 3)
-	//{
-	//	printf("idx: %i, %i, %i\n", meshData->m_indices[i], meshData->m_indices[i+1], meshData->m_indices[i+2]);
-	//}
+	//unsigned int stride = vertexSize;
+	//glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, stride, NULL);
+	//glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride, (void*)sizeof(glm::vec4));
+	//glEnableVertexAttribArray(0);
+	//glEnableVertexAttribArray(1);
 
 	printf("meshData->m_vertices.size(): %u\n", meshData->m_vertices.size());
 	printf("meshData->m_indices.size(): %u\n", meshData->m_indices.size());

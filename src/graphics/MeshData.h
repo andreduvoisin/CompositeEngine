@@ -98,11 +98,11 @@ namespace CE
 		float time;
 	};
 
-	struct VertexForGPU
-	{
-		glm::vec4 position;
-		TextureCoordinate textureCoordinate;
-	};
+	//struct VertexForGPU
+	//{
+	//	glm::vec4 position;
+	//	TextureCoordinate textureCoordinate;
+	//};
 
 	struct MeshData
 	{
@@ -144,7 +144,7 @@ namespace CE
 		Skeleton m_skeleton;
 		Animation m_animation;
 		std::vector<glm::mat4> m_palette;
-		std::vector<VertexForGPU> m_verticesForGPU;
+		//std::vector<VertexForGPU> m_verticesForGPU;
 	};
 }
 
