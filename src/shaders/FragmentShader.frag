@@ -1,20 +1,12 @@
 #version 410
 
-uniform sampler2D ourTexture;
+uniform sampler2D diffuseTexture;
 
-in vec2 texCoord;
-in vec4 debugColor;
+in vec2 textureCoordinate;
 
-out vec4 frag_colour;
+out vec4 fragmentColor;
 
 void main()
 {
-	if (debugColor.a != 0)
-	{
-		frag_colour = debugColor;
-	}
-	else
-	{
-		frag_colour = texture(ourTexture, texCoord);
-	}
+	fragmentColor = texture(diffuseTexture, textureCoordinate);
 }

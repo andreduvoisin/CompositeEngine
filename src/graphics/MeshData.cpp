@@ -97,40 +97,7 @@ namespace CE
 {
 	MeshData::MeshData()
 	{
-		Vertex vertex;
-		vertex.textureCoordinate.u = 0;
-		vertex.textureCoordinate.v = 0;
-		vertex.numWeights = 4;
-		for (int i = 0; i < vertex.numWeights; ++i)
-		{
-			vertex.jointWeights[i] = 0.2 * i;
-		}
 
-		vertex.jointIndices[0] = 1;
-		vertex.jointIndices[1] = 1;
-		vertex.jointIndices[2] = 1;
-		vertex.jointIndices[3] = 1;
-
-		vertex.position.x = 0;
-		vertex.position.y = 0;
-		vertex.position.z = 50;
-		m_vertices.push_back(vertex);
-
-		vertex.position.x = 50;
-		m_vertices.push_back(vertex);
-
-		vertex.position.z = 100;
-		m_vertices.push_back(vertex);
-
-		vertex.position.x = 0;
-		m_vertices.push_back(vertex);
-
-		m_indices.push_back(0);
-		m_indices.push_back(1);
-		m_indices.push_back(2);
-		m_indices.push_back(0);
-		m_indices.push_back(2);
-		m_indices.push_back(3);
 	}
 
 	MeshData::~MeshData()
