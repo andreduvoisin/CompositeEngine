@@ -97,7 +97,40 @@ namespace CE
 {
 	MeshData::MeshData()
 	{
+		Vertex vertex;
+		vertex.textureCoordinate.u = 0;
+		vertex.textureCoordinate.v = 0;
+		vertex.numWeights = 4;
+		for (int i = 0; i < vertex.numWeights; ++i)
+		{
+			vertex.jointWeights[i] = 0.2 * i;
+		}
 
+		vertex.jointIndices[0] = 1;
+		vertex.jointIndices[1] = 1;
+		vertex.jointIndices[2] = 1;
+		vertex.jointIndices[3] = 1;
+
+		vertex.position.x = 0;
+		vertex.position.y = 0;
+		vertex.position.z = 50;
+		m_vertices.push_back(vertex);
+
+		vertex.position.x = 50;
+		m_vertices.push_back(vertex);
+
+		vertex.position.z = 100;
+		m_vertices.push_back(vertex);
+
+		vertex.position.x = 0;
+		m_vertices.push_back(vertex);
+
+		m_indices.push_back(0);
+		m_indices.push_back(1);
+		m_indices.push_back(2);
+		m_indices.push_back(0);
+		m_indices.push_back(2);
+		m_indices.push_back(3);
 	}
 
 	MeshData::~MeshData()
@@ -807,33 +840,33 @@ namespace CE
 
 		didPrint = true;
 
-		m_verticesForGPU.clear();
-		m_verticesForGPU.reserve(m_vertices.size());
-		for (int i = 0; i < m_vertices.size(); ++i)
-		{
-			VertexForGPU vertexForGPU;
-			vertexForGPU.textureCoordinate = m_vertices[i].textureCoordinate;
-			glm::vec4 vertexInitialPosition = glm::vec4(
-				m_vertices[i].position.x,
-				m_vertices[i].position.y,
-				m_vertices[i].position.z,
-				1.0f);
+		//m_verticesForGPU.clear();
+		//m_verticesForGPU.reserve(m_vertices.size());
+		//for (int i = 0; i < m_vertices.size(); ++i)
+		//{
+		//	VertexForGPU vertexForGPU;
+		//	vertexForGPU.textureCoordinate = m_vertices[i].textureCoordinate;
+		//	glm::vec4 vertexInitialPosition = glm::vec4(
+		//		m_vertices[i].position.x,
+		//		m_vertices[i].position.y,
+		//		m_vertices[i].position.z,
+		//		1.0f);
 
-			if (!m_skeleton.joints.empty())
-			{
-				vertexForGPU.position = glm::vec4(0.0f);
-				for (int j = 0; j < 4; ++j)
-				{
-					vertexForGPU.position += (m_palette[m_vertices[i].jointIndices[j]] * vertexInitialPosition) * m_vertices[i].jointWeights[j];
-				}
-			}
-			else
-			{
-				vertexForGPU.position = vertexInitialPosition;
-			}
+		//	if (!m_skeleton.joints.empty())
+		//	{
+		//		vertexForGPU.position = glm::vec4(0.0f);
+		//		for (int j = 0; j < 4; ++j)
+		//		{
+		//			vertexForGPU.position += (m_palette[m_vertices[i].jointIndices[j]] * vertexInitialPosition) * m_vertices[i].jointWeights[j];
+		//		}
+		//	}
+		//	else
+		//	{
+		//		vertexForGPU.position = vertexInitialPosition;
+		//	}
 
-			m_verticesForGPU.push_back(vertexForGPU);
-		}
+		//	m_verticesForGPU.push_back(vertexForGPU);
+		//}
 	}
 
 	void MeshData::Draw()
