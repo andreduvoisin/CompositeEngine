@@ -196,7 +196,7 @@ void Render()
 	//	}
 	//}
 
-	int vertexSize = sizeof(float) * 3 + sizeof(float) * 2 + sizeof(float) * 4 + sizeof(int) * 4 + sizeof(unsigned) * 1;
+	int vertexSize = sizeof(float) * 3 + sizeof(float) * 2 + sizeof(int) * 4 + sizeof(float) * 4 + sizeof(unsigned) * 1;
 	//int vertexSize = sizeof(float) * 4 + sizeof(float) * 2;
 	glBindBuffer(GL_ARRAY_BUFFER, g_vbo);
 	//glBufferData(GL_ARRAY_BUFFER, meshData->m_verticesForGPU.size() * vertexSize, meshData->m_verticesForGPU.data(), GL_DYNAMIC_DRAW);
@@ -327,7 +327,7 @@ bool InitializeOpenGL()
 	// "I'm Batman."
 	CE::MeshData* meshData = CE::MeshManager::Get().GetMeshData(g_fbxName);
 
-	int vertexSize = sizeof(float) * 3 + sizeof(float) * 2 + sizeof(float) * 4 + sizeof(int) * 4 + sizeof(unsigned) * 1;
+	int vertexSize = sizeof(float) * 3 + sizeof(float) * 2 + sizeof(int) * 4 +  sizeof(float) * 4 + sizeof(unsigned) * 1;
 	//int vertexSize = sizeof(float) * 4 + sizeof(float) * 2;
 
 	glGenVertexArrays(1, &g_vao);
@@ -377,14 +377,14 @@ bool InitializeOpenGL()
 	unsigned int stride = vertexSize;
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, NULL);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride, (void*)sizeof(CE::Position));
-	glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, stride, (void*)(sizeof(CE::Position) + sizeof(CE::TextureCoordinate)));
-	glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, stride, (void*)(sizeof(CE::Position) + sizeof(CE::TextureCoordinate) + sizeof(float) * 1));
-	glVertexAttribPointer(4, 1, GL_FLOAT, GL_FALSE, stride, (void*)(sizeof(CE::Position) + sizeof(CE::TextureCoordinate) + sizeof(float) * 2));
-	glVertexAttribPointer(5, 1, GL_FLOAT, GL_FALSE, stride, (void*)(sizeof(CE::Position) + sizeof(CE::TextureCoordinate) + sizeof(float) * 3));
-	glVertexAttribIPointer(6, 1, GL_INT, stride, (void*)(sizeof(CE::Position) + sizeof(CE::TextureCoordinate) + sizeof(float) * 4));
-	glVertexAttribIPointer(7, 1, GL_INT, stride, (void*)(sizeof(CE::Position) + sizeof(CE::TextureCoordinate) + sizeof(float) * 4 + sizeof(int) * 1));
-	glVertexAttribIPointer(8, 1, GL_INT, stride, (void*)(sizeof(CE::Position) + sizeof(CE::TextureCoordinate) + sizeof(float) * 4 + sizeof(int) * 2));
-	glVertexAttribIPointer(9, 1, GL_INT, stride, (void*)(sizeof(CE::Position) + sizeof(CE::TextureCoordinate) + sizeof(float) * 4 + sizeof(int) * 3));
+	glVertexAttribIPointer(2, 1, GL_INT, stride, (void*)(sizeof(CE::Position) + sizeof(CE::TextureCoordinate)));
+	glVertexAttribIPointer(3, 1, GL_INT, stride, (void*)(sizeof(CE::Position) + sizeof(CE::TextureCoordinate) + sizeof(int) * 1));
+	glVertexAttribIPointer(4, 1, GL_INT, stride, (void*)(sizeof(CE::Position) + sizeof(CE::TextureCoordinate) + sizeof(int) * 2));
+	glVertexAttribIPointer(5, 1, GL_INT, stride, (void*)(sizeof(CE::Position) + sizeof(CE::TextureCoordinate) + sizeof(int) * 3));
+	glVertexAttribPointer(6, 1, GL_FLOAT, GL_FALSE, stride, (void*)(sizeof(CE::Position) + sizeof(CE::TextureCoordinate) + sizeof(int) * 4));
+	glVertexAttribPointer(7, 1, GL_FLOAT, GL_FALSE, stride, (void*)(sizeof(CE::Position) + sizeof(CE::TextureCoordinate) + sizeof(int) * 4 + sizeof(float) * 1));
+	glVertexAttribPointer(8, 1, GL_FLOAT, GL_FALSE, stride, (void*)(sizeof(CE::Position) + sizeof(CE::TextureCoordinate) + sizeof(int) * 4 + sizeof(float) * 2));
+	glVertexAttribPointer(9, 1, GL_FLOAT, GL_FALSE, stride, (void*)(sizeof(CE::Position) + sizeof(CE::TextureCoordinate) + sizeof(int) * 4 + sizeof(float) * 3));
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
 	glEnableVertexAttribArray(2);

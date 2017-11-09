@@ -46,8 +46,8 @@ namespace CE
 	{
 		Position position;
 		TextureCoordinate textureCoordinate;
-		float jointWeights[4];
 		int jointIndices[4];
+		float jointWeights[4];
 		unsigned numWeights;
 	};
 
