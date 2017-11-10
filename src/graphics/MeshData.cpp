@@ -750,8 +750,6 @@ namespace CE
 			m_animation.time = fmod(m_animation.time, float(m_animation.numFrames) / 24.0f);
 		}
 
-		static bool fuckPalette = false;
-
 		for (int i = 0; i < m_skeleton.joints.size(); ++i)
 		{
 			glm::mat4 localPose;
@@ -766,74 +764,19 @@ namespace CE
 
 			if (m_skeleton.joints[i].parentIndex == -1)
 			{
-				//m_palette[i] = glm::mat4(-1.0f);
 				m_palette[i] = localPose;
 			}
 			else
 			{
-				if (fuckPalette)
-				{
-					m_palette[i] = glm::mat4(-12, -14, -11, -14, -21, -31, -41, -11, -13, -11, -41, -31, -13, -21, -41, -11);
-					m_palette[i] = glm::mat4(0.0f);
-				}
-				else
-				{
-					m_palette[i] = localPose;
-					//m_palette[i] = m_palette[m_skeleton.joints[i].parentIndex] * localPose;
-				}
+				m_palette[i] = localPose;
+				//m_palette[i] = m_palette[m_skeleton.joints[i].parentIndex] * localPose;
 			}
 		}
 
-		//fuckPalette = !fuckPalette;
-
-		static bool didPrint = true;
-
-		if (!didPrint)
-		{
-			printf("palette:\n");
-		}
 		for (int i = 0; i < m_skeleton.joints.size(); ++i)
 		{
 			m_palette[i] = m_palette[i] * m_skeleton.joints[i].inverseBindPose;
-			if (!didPrint)
-			{
-				printf("%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f\n",
-					m_palette[i][0][0], m_palette[i][0][1], m_palette[i][0][2], m_palette[i][0][3],
-					m_palette[i][1][0], m_palette[i][1][1], m_palette[i][1][2], m_palette[i][1][3],
-					m_palette[i][2][0], m_palette[i][2][1], m_palette[i][2][2], m_palette[i][2][3],
-					m_palette[i][3][0], m_palette[i][3][1], m_palette[i][3][2], m_palette[i][3][3]);
-			}
 		}
-
-		didPrint = true;
-
-		//m_verticesForGPU.clear();
-		//m_verticesForGPU.reserve(m_vertices.size());
-		//for (int i = 0; i < m_vertices.size(); ++i)
-		//{
-		//	VertexForGPU vertexForGPU;
-		//	vertexForGPU.textureCoordinate = m_vertices[i].textureCoordinate;
-		//	glm::vec4 vertexInitialPosition = glm::vec4(
-		//		m_vertices[i].position.x,
-		//		m_vertices[i].position.y,
-		//		m_vertices[i].position.z,
-		//		1.0f);
-
-		//	if (!m_skeleton.joints.empty())
-		//	{
-		//		vertexForGPU.position = glm::vec4(0.0f);
-		//		for (int j = 0; j < 4; ++j)
-		//		{
-		//			vertexForGPU.position += (m_palette[m_vertices[i].jointIndices[j]] * vertexInitialPosition) * m_vertices[i].jointWeights[j];
-		//		}
-		//	}
-		//	else
-		//	{
-		//		vertexForGPU.position = vertexInitialPosition;
-		//	}
-
-		//	m_verticesForGPU.push_back(vertexForGPU);
-		//}
 	}
 
 	void MeshData::Draw()
