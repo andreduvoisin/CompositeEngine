@@ -432,36 +432,6 @@ namespace CE
 					}
 				}
 				/*
-				// Single-take animation information.
-				FbxAnimStack* currAnimStack = scene->GetSrcObject<FbxAnimStack>(1);
-				FbxString animStackName = currAnimStack->GetName();
-				std::string animationName = animStackName.Buffer();
-				FbxTakeInfo* takeInfo = scene->GetTakeInfo(animStackName);
-				FbxTime start = takeInfo->mLocalTimeSpan.GetStart();
-				FbxTime end = takeInfo->mLocalTimeSpan.GetStop();
-				FbxLongLong animationLength = end.GetFrameCount(FbxTime::eFrames24) - start.GetFrameCount(FbxTime::eFrames24) + 1;
-				
-				m_animation.name = animationName;
-				m_animation.numFrames = animationLength;
-				m_animation.currFrame = 0;
-				m_animation.time = 0;
-
-				for (FbxLongLong i = start.GetFrameCount(FbxTime::eFrames24); i <= end.GetFrameCount(FbxTime::eFrames24); ++i)
-				{
-					KeyFrame keyFrame;
-					FbxTime currTime;
-					currTime.SetFrame(i, FbxTime::eFrames24);
-					FbxAMatrix currentTransformOffset = node->EvaluateGlobalTransform(currTime) * geometryTransform;
-					keyFrame.frameNum = i;
-					FbxAMatrix localPose = currentTransformOffset.Inverse() * currCluster->GetLink()->EvaluateGlobalTransform(currTime);
-					for (unsigned i = 0; i < 16; ++i)
-					{
-						keyFrame.localPose[i / 4][i % 4] = localPose.Get(i / 4, i % 4);
-					}
-					m_animation.keyFrames[currJointIndex].push_back(keyFrame);
-				}
-				*/
-				/*
 				for (int i = 0; i < scene->GetSrcObjectCount<FbxAnimStack>(); i++)
 				{
 					FbxAnimStack* lAnimStack = scene->GetSrcObject<FbxAnimStack>(i);
