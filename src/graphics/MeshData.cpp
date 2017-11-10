@@ -262,9 +262,6 @@ namespace CE
 						vertex.position.y = (float)pVertices[lPolyVertIndex][1];
 						vertex.position.z = (float)pVertices[lPolyVertIndex][2];
 
-						//printf("pVertices[lPolyVertIndex]: %f, %f, %f, %f\n", (float)pVertices[lPolyVertIndex][0], (float)pVertices[lPolyVertIndex][1], (float)pVertices[lPolyVertIndex][2], (float)pVertices[lPolyVertIndex][3]);
-
-
 						FbxVector2 lUVValue;
 
 						//the UV index depends on the reference mode
@@ -301,14 +298,9 @@ namespace CE
 						{
 							m_vertices.push_back(vertex);
 							m_controlPointToVertices[lPolyVertIndex].push_back(m_vertices.size() - 1);
-							//m_vertices.push_back(vertex);
 						}
 
 						m_indices.push_back(index);
-
-						//User TODO:
-						//Print out the value of UV(lUVValue) or log it to a file
-						//printf("%f, %f\n", lUVValue.mData[0], lUVValue.mData[1]);
 					}
 				}
 
