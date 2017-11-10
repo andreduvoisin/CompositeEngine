@@ -669,7 +669,7 @@ namespace CE
 					currTime.SetFrame(i, FbxTime::eFrames24);
 					FbxAMatrix currentTransformOffset = evaluator->GetNodeGlobalTransform(node, currTime) * geometryTransform;
 					keyFrame.frameNum = i;
-					FbxAMatrix localPose = currentTransformOffset.Inverse() * evaluator->GetNodeGlobalTransform(currCluster->GetLink(), currTime);
+					FbxAMatrix localPose = currentTransformOffset.Inverse() * evaluator->GetNodeLocalTransform(currCluster->GetLink(), currTime);
 					for (unsigned i = 0; i < 16; ++i)
 					{
 						keyFrame.localPose[i / 4][i % 4] = localPose.Get(i / 4, i % 4);
@@ -768,8 +768,7 @@ namespace CE
 			}
 			else
 			{
-				m_palette[i] = localPose;
-				//m_palette[i] = m_palette[m_skeleton.joints[i].parentIndex] * localPose;
+				m_palette[i] = m_palette[m_skeleton.joints[i].parentIndex] * localPose;
 			}
 		}
 
