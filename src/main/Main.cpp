@@ -40,7 +40,6 @@ SDL_Surface* g_currentSurface = NULL;
 bool g_renderQuad = true;
 
 GLuint g_programID = 0;
-//GLint g_vertexPos2DLocation = -1;
 GLuint g_vbo = 0;
 GLuint g_ibo = 0;
 GLuint g_vao = 0;
@@ -135,30 +134,6 @@ void Render()
 	//Clear color buffer
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	//Render quad
-	//if (g_renderQuad)
-	//{
-	//	//Bind program
-	//	glUseProgram(g_programID);
-
-	//	//Enable vertex position
-	//	glEnableVertexAttribArray(g_vertexPos2DLocation);
-
-	//	//Set vertex data
-	//	glBindBuffer(GL_ARRAY_BUFFER, g_vbo);
-	//	glVertexAttribPointer(g_vertexPos2DLocation, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), NULL);
-
-	//	//Set index data and render
-	//	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_ibo);
-	//	glDrawElements(GL_TRIANGLE_FAN, 4, GL_UNSIGNED_INT, NULL);
-
-	//	//Disable vertex position
-	//	glDisableVertexAttribArray(g_vertexPos2DLocation);
-
-	//	//Unbind program
-	//	glUseProgram(NULL);
-	//}
-
 	glUseProgram(g_programID);
 	glBindVertexArray(g_vao);
 
@@ -182,30 +157,11 @@ void Render()
 		glUniform1i(g_paletteID, g_paletteTextureUnit);
 	}
 
-	//for (int i = 0; i < meshData->m_vertices.size(); ++i)
-	//{
-	//	for (int j = 0; j < 2; ++j)
-	//	{
-	//		meshData->m_vertices[i].jointIndices[j] = 1;
-	//		meshData->m_vertices[i].jointWeights[j] = 0.5;
-	//	}
-	//	for (int j = 2; j < 4; ++j)
-	//	{
-	//		meshData->m_vertices[i].jointIndices[j] = 0;
-	//		meshData->m_vertices[i].jointWeights[j] = 0;
-	//	}
-	//}
-
 	int vertexSize = sizeof(float) * 3 + sizeof(float) * 2 + sizeof(int) * 4 + sizeof(float) * 4 + sizeof(unsigned) * 1;
-	//int vertexSize = sizeof(float) * 4 + sizeof(float) * 2;
 	glBindBuffer(GL_ARRAY_BUFFER, g_vbo);
-	//glBufferData(GL_ARRAY_BUFFER, meshData->m_verticesForGPU.size() * vertexSize, meshData->m_verticesForGPU.data(), GL_DYNAMIC_DRAW);
 	glBufferData(GL_ARRAY_BUFFER, meshData->m_vertices.size() * vertexSize, meshData->m_vertices.data(), GL_STATIC_DRAW);
 
-	//glDrawArrays(GL_TRIANGLES, 0, 3);
-	//glDrawArrays(GL_TRIANGLES, 0, meshData->m_vertices.size());
 	glDrawElements(GL_TRIANGLES, meshData->m_indices.size(), GL_UNSIGNED_INT, NULL);
-	//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
 }
 
 std::string ReadFile(const char* file)
@@ -277,58 +233,11 @@ bool InitializeOpenGL()
 	g_paletteID = glGetUniformLocation(g_programID, "palette");
 	g_diffuseTextureID = glGetUniformLocation(g_programID, "diffuseTexture");
 
-	//g_vertexPos2DLocation = glGetAttribLocation(g_programID, "LVertexPos2D");
-	//if (g_vertexPos2DLocation == -1)
-	//{
-	//	printf("LVertexPos2D is not a valid glsl program variable!\n");
-	//	return false;
-	//}
-
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
-	const GLfloat vertex_buffer_data[] = {
-		-0.5f, -0.5f, 0.0f,		0.0f, 0.0f,
-		-0.5f, 0.5f, 0.0f,		0.0f, 1.0f,
-		0.5f, 0.5f, 0.0f,		1.0f, 1.0f,
-		0.5f, -0.5f, 0.0f,		1.0f, 0.0f,
-	};
-
-	const unsigned int index_buffer_data[] = {
-		0, 1, 2,
-		0, 2, 3,
-	};
-
-	//const GLfloat vertex_buffer_data[] = {
-	//	-0.500000, -0.500000, 0.000000,
-	//	-0.500000, 0.500000, 0.000000,
-	//	0.500000, 0.500000, 0.000000,
-	//	0.500000, -0.500000, 0.000000,
-	//	-0.500000, -0.500000, 1.000000,
-	//	0.500000, -0.500000, 1.000000,
-	//	0.500000, 0.500000, 1.000000,
-	//	-0.500000, 0.500000, 1.000000,
-	//};
-
-	//const unsigned int index_buffer_data[] = {
-	//	0, 1, 2,
-	//	0, 2, 3,
-	//	4, 5, 6,
-	//	4, 6, 7,
-	//	0, 3, 5,
-	//	0, 5, 4,
-	//	3, 2, 6,
-	//	3, 6, 5,
-	//	2, 1, 7,
-	//	2, 7, 6,
-	//	1, 0, 4,
-	//	1, 4, 7,
-	//};
-
-	// "I'm Batman."
 	CE::MeshData* meshData = CE::MeshManager::Get().GetMeshData(g_fbxName);
 
 	int vertexSize = sizeof(float) * 3 + sizeof(float) * 2 + sizeof(int) * 4 +  sizeof(float) * 4 + sizeof(unsigned) * 1;
-	//int vertexSize = sizeof(float) * 4 + sizeof(float) * 2;
 
 	glGenVertexArrays(1, &g_vao);
 	glBindVertexArray(g_vao);
@@ -336,12 +245,10 @@ bool InitializeOpenGL()
 	glGenBuffers(1, &g_vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, g_vbo);
 	glBufferData(GL_ARRAY_BUFFER, meshData->m_vertices.size() * vertexSize, meshData->m_vertices.data(), GL_STATIC_DRAW);
-	//glBufferData(GL_ARRAY_BUFFER, meshData->m_verticesForGPU.size() * vertexSize, meshData->m_verticesForGPU.data(), GL_DYNAMIC_DRAW);
 
 	glGenBuffers(1, &g_ibo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_ibo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, meshData->m_indices.size() * sizeof(unsigned int), meshData->m_indices.data(), GL_STATIC_DRAW);
-	//glBufferData(GL_ELEMENT_ARRAY_BUFFER, 36 * sizeof(unsigned int), index_buffer_data, GL_STATIC_DRAW);
 
 	stbi_set_flip_vertically_on_load(true);
 	int width, height, channels;
@@ -395,15 +302,6 @@ bool InitializeOpenGL()
 	glEnableVertexAttribArray(7);
 	glEnableVertexAttribArray(8);
 	glEnableVertexAttribArray(9);
-
-	//unsigned int stride = vertexSize;
-	//glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, stride, NULL);
-	//glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride, (void*)sizeof(glm::vec4));
-	//glEnableVertexAttribArray(0);
-	//glEnableVertexAttribArray(1);
-
-	printf("meshData->m_vertices.size(): %u\n", meshData->m_vertices.size());
-	printf("meshData->m_indices.size(): %u\n", meshData->m_indices.size());
 
 	return true;
 }
