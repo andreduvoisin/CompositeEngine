@@ -71,22 +71,22 @@ namespace CE
 
 	struct KeyFrame
 	{
-		//glm::vec3 translation;
-		//glm::vec3 rotation;
-		//glm::vec3 scale;
-		//int frameNum;
-
-		//KeyFrame()
-		//	: translation(glm::vec3())
-		//	, rotation(glm::vec3())
-		//	, scale(glm::vec3())
-		//	, frameNum(-1)
-		//{
-
-		//}
+		glm::vec3 translation;
+		glm::vec3 rotation;
+		glm::vec3 scale;
 
 		glm::mat4 localPose;
 		int frameNum;
+
+		KeyFrame()
+			: translation(glm::vec3())
+			, rotation(glm::vec3())
+			, scale(glm::vec3())
+			, localPose(glm::mat4())
+			, frameNum(-1)
+		{
+
+		}
 	};
 
 	struct Animation

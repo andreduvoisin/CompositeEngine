@@ -38,6 +38,7 @@ GLuint g_diffuseTextureID = -1;
 GLuint g_diffuseTextureUnit = -1;
 
 const char* g_fbxName = "..\\..\\..\\assets\\Thriller Part 2.fbx";
+//const char* g_fbxName = "..\\..\\..\\assets\\Stand Up.fbx";
 
 void printProgramLog(GLuint program)
 {

@@ -4,6 +4,7 @@
 
 #include <assert.h>
 #include <map>
+#include <set>
 #include <cmath>
 
 #include <glm\gtx\transform.hpp>
@@ -431,19 +432,22 @@ namespace CE
 						vertex.numWeights++;
 					}
 				}
+
 				/*
 				for (int i = 0; i < scene->GetSrcObjectCount<FbxAnimStack>(); i++)
 				{
 					FbxAnimStack* lAnimStack = scene->GetSrcObject<FbxAnimStack>(i);
 
-					int nbAnimLayers = lAnimStack->GetMemberCount<FbxAnimLayer>();
-					for (int l = 0; l < nbAnimLayers; l++)
+					std::set<int> keyFrameNums;
+
+					for (int l = 0; l < lAnimStack->GetMemberCount<FbxAnimLayer>(); l++)
 					{
 						FbxAnimLayer* lAnimLayer = lAnimStack->GetMember<FbxAnimLayer>(l);
 
 						std::map<int, KeyFrame> keyFrames;
 
 						FbxAnimCurve* lAnimCurve = NULL;
+
 						lAnimCurve = currCluster->GetLink()->LclTranslation.GetCurve(lAnimLayer, FBXSDK_CURVENODE_COMPONENT_X);
 						if (lAnimCurve)
 						{
@@ -454,11 +458,13 @@ namespace CE
 								float lKeyValue = lAnimCurve->KeyGetValue(k);
 								FbxTime lKeyTime = lAnimCurve->KeyGetTime(k);
 
-								int frameNum = lKeyTime.GetFrameCount();
+								int frameNum = lKeyTime.GetFrameCount(FbxTime::eFrames24);
 
 								KeyFrame& keyFrame = keyFrames[frameNum];
 								keyFrame.frameNum = frameNum;
 								keyFrame.translation.x = lKeyValue;
+
+								keyFrameNums.insert(frameNum);
 							}
 						}
 						lAnimCurve = currCluster->GetLink()->LclTranslation.GetCurve(lAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
@@ -471,11 +477,13 @@ namespace CE
 								float lKeyValue = lAnimCurve->KeyGetValue(k);
 								FbxTime lKeyTime = lAnimCurve->KeyGetTime(k);
 
-								int frameNum = lKeyTime.GetFrameCount();
+								int frameNum = lKeyTime.GetFrameCount(FbxTime::eFrames24);
 
 								KeyFrame& keyFrame = keyFrames[frameNum];
 								keyFrame.frameNum = frameNum;
 								keyFrame.translation.y = lKeyValue;
+
+								keyFrameNums.insert(frameNum);
 							}
 						}
 						lAnimCurve = currCluster->GetLink()->LclTranslation.GetCurve(lAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
@@ -488,11 +496,13 @@ namespace CE
 								float lKeyValue = lAnimCurve->KeyGetValue(k);
 								FbxTime lKeyTime = lAnimCurve->KeyGetTime(k);
 
-								int frameNum = lKeyTime.GetFrameCount();
+								int frameNum = lKeyTime.GetFrameCount(FbxTime::eFrames24);
 
 								KeyFrame& keyFrame = keyFrames[frameNum];
 								keyFrame.frameNum = frameNum;
 								keyFrame.translation.z = lKeyValue;
+
+								keyFrameNums.insert(frameNum);
 							}
 						}
 
@@ -507,11 +517,13 @@ namespace CE
 								float lKeyValue = lAnimCurve->KeyGetValue(k);
 								FbxTime lKeyTime = lAnimCurve->KeyGetTime(k);
 
-								int frameNum = lKeyTime.GetFrameCount();
+								int frameNum = lKeyTime.GetFrameCount(FbxTime::eFrames24);
 
 								KeyFrame& keyFrame = keyFrames[frameNum];
 								keyFrame.frameNum = frameNum;
 								keyFrame.rotation.x = lKeyValue;
+
+								keyFrameNums.insert(frameNum);
 							}
 						}
 						lAnimCurve = currCluster->GetLink()->LclRotation.GetCurve(lAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
@@ -524,11 +536,13 @@ namespace CE
 								float lKeyValue = lAnimCurve->KeyGetValue(k);
 								FbxTime lKeyTime = lAnimCurve->KeyGetTime(k);
 
-								int frameNum = lKeyTime.GetFrameCount();
+								int frameNum = lKeyTime.GetFrameCount(FbxTime::eFrames24);
 
 								KeyFrame& keyFrame = keyFrames[frameNum];
 								keyFrame.frameNum = frameNum;
 								keyFrame.rotation.y = lKeyValue;
+
+								keyFrameNums.insert(frameNum);
 							}
 						}
 						lAnimCurve = currCluster->GetLink()->LclRotation.GetCurve(lAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
@@ -541,11 +555,13 @@ namespace CE
 								float lKeyValue = lAnimCurve->KeyGetValue(k);
 								FbxTime lKeyTime = lAnimCurve->KeyGetTime(k);
 
-								int frameNum = lKeyTime.GetFrameCount();
+								int frameNum = lKeyTime.GetFrameCount(FbxTime::eFrames24);
 
 								KeyFrame& keyFrame = keyFrames[frameNum];
 								keyFrame.frameNum = frameNum;
 								keyFrame.rotation.z = lKeyValue;
+
+								keyFrameNums.insert(frameNum);
 							}
 						}
 
@@ -559,11 +575,13 @@ namespace CE
 								float lKeyValue = lAnimCurve->KeyGetValue(k);
 								FbxTime lKeyTime = lAnimCurve->KeyGetTime(k);
 
-								int frameNum = lKeyTime.GetFrameCount();
+								int frameNum = lKeyTime.GetFrameCount(FbxTime::eFrames24);
 
 								KeyFrame& keyFrame = keyFrames[frameNum];
 								keyFrame.frameNum = frameNum;
 								keyFrame.scale.x = lKeyValue;
+
+								keyFrameNums.insert(frameNum);
 							}
 						}
 						lAnimCurve = currCluster->GetLink()->LclScaling.GetCurve(lAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y);
@@ -576,11 +594,13 @@ namespace CE
 								float lKeyValue = lAnimCurve->KeyGetValue(k);
 								FbxTime lKeyTime = lAnimCurve->KeyGetTime(k);
 
-								int frameNum = lKeyTime.GetFrameCount();
+								int frameNum = lKeyTime.GetFrameCount(FbxTime::eFrames24);
 
 								KeyFrame& keyFrame = keyFrames[frameNum];
 								keyFrame.frameNum = frameNum;
 								keyFrame.scale.y = lKeyValue;
+
+								keyFrameNums.insert(frameNum);
 							}
 						}
 						lAnimCurve = currCluster->GetLink()->LclScaling.GetCurve(lAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z);
@@ -593,11 +613,13 @@ namespace CE
 								float lKeyValue = lAnimCurve->KeyGetValue(k);
 								FbxTime lKeyTime = lAnimCurve->KeyGetTime(k);
 
-								int frameNum = lKeyTime.GetFrameCount();
+								int frameNum = lKeyTime.GetFrameCount(FbxTime::eFrames24);
 
 								KeyFrame& keyFrame = keyFrames[frameNum];
 								keyFrame.frameNum = frameNum;
 								keyFrame.scale.z = lKeyValue;
+
+								keyFrameNums.insert(frameNum);
 							}
 						}
 
@@ -608,6 +630,7 @@ namespace CE
 					}
 				}
 				*/
+
 				// Single-take animation information.
 				FbxAnimStack* currAnimStack = scene->GetSrcObject<FbxAnimStack>(0);
 				scene->SetCurrentAnimationStack(currAnimStack);
