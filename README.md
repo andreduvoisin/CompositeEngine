@@ -94,7 +94,8 @@ GAME ENGINE BADASSERY
 	* http://www.ayxia.com/gitea/john/engine67
 
 * Lang's FBX SDK Guide: https://www.gamedev.net/articles/programming/graphics/how-to-work-with-fbx-sdk-r3582/
-* C++ Skeletal Animation Library: https://github.com/guillaumeblanc/ozz-animation
+* C++ Skeletal Animation Library: http://guillaumeblanc.github.io/ozz-animation/
+	* https://github.com/guillaumeblanc/ozz-animation
 
 * Models and Animations: https://www.mixamo.com/
 
