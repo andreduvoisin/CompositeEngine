@@ -75,13 +75,13 @@ namespace CE
 		glm::quat rotation;
 		glm::vec3 scale;
 
-		int frameNum;
+		float time;
 
 		KeyFrame()
 			: translation(glm::vec3())
 			, rotation(glm::vec3())
 			, scale(glm::vec3())
-			, frameNum(-1)
+			, time(0.f)
 		{
 
 		}
@@ -91,9 +91,8 @@ namespace CE
 	{
 		std::string name;
 		std::vector<std::vector<KeyFrame>> keyFrames;
-		int currFrame;
-		int numFrames;
-		float time;
+		float currTime;
+		float animationTime;
 	};
 
 	struct MeshData
@@ -121,6 +120,11 @@ namespace CE
 		void ProcessSkeletonHierarchyRecursively(fbxsdk::FbxNode* inNode, int inDepth, int myIndex, int inParentIndex);
 
 		glm::mat4 ToAffineMatrix(const glm::vec3& translation, const glm::quat& rotation, const glm::vec3& scale);
+		glm::mat4 GetLocalPose(const KeyFrame& low, const KeyFrame& high, float alpha);
+		glm::vec3 LerpTranslation(const glm::vec3& low, const glm::vec3& high, float alpha);
+		glm::quat LerpRotation(const glm::quat& low, const glm::quat& high, float alpha);
+		glm::vec3 LerpScale(const glm::vec3& low, const glm::vec3& high, float alpha);
+		glm::vec3 Vec3Lerp(const glm::vec3& a, const glm::vec3& b, float alpha);
 
 	//private:
 	public:
