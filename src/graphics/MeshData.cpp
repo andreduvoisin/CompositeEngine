@@ -650,15 +650,33 @@ namespace CE
 				for (FbxLongLong i = start.GetFrameCount(FbxTime::eFrames24); i <= end.GetFrameCount(FbxTime::eFrames24); ++i)
 				{
 					KeyFrame keyFrame;
+					keyFrame.frameNum = i;
+
 					FbxTime currTime;
 					currTime.SetFrame(i, FbxTime::eFrames24);
+
 					FbxAMatrix currentTransformOffset = evaluator->GetNodeGlobalTransform(node, currTime) * geometryTransform;
-					keyFrame.frameNum = i;
 					FbxAMatrix localPose = currentTransformOffset.Inverse() * evaluator->GetNodeLocalTransform(currCluster->GetLink(), currTime);
-					for (unsigned i = 0; i < 16; ++i)
-					{
-						keyFrame.localPose[i / 4][i % 4] = localPose.Get(i / 4, i % 4);
-					}
+
+					// Translation.
+					FbxVector4 translation = localPose.GetT();
+					keyFrame.translation[0] = translation[0];
+					keyFrame.translation[1] = translation[1];
+					keyFrame.translation[2] = translation[2];
+
+					// Rotation.
+					FbxQuaternion quaternion = localPose.GetQ();
+					keyFrame.rotation[0] = quaternion[0];
+					keyFrame.rotation[1] = quaternion[1];
+					keyFrame.rotation[2] = quaternion[2];
+					keyFrame.rotation[3] = quaternion[3];
+
+					// Scale.
+					FbxVector4 scale = localPose.GetS();
+					keyFrame.scale[0] = scale[0];
+					keyFrame.scale[1] = scale[1];
+					keyFrame.scale[2] = scale[2];
+
 					m_animation.keyFrames[currJointIndex].push_back(keyFrame);
 				}
 			}
@@ -724,6 +742,26 @@ namespace CE
 		}
 	}
 
+	// TODO: Move this.
+	glm::mat4 MeshData::ToAffineMatrix(const glm::vec3& translation, const glm::quat& rotation, const glm::vec3& scale)
+	{
+		const float xx = rotation.x * rotation.x;
+		const float xy = rotation.x * rotation.y;
+		const float xz = rotation.x * rotation.z;
+		const float xw = rotation.x * rotation.w;
+		const float yy = rotation.y * rotation.y;
+		const float yz = rotation.y * rotation.z;
+		const float yw = rotation.y * rotation.w;
+		const float zz = rotation.z * rotation.z;
+		const float zw = rotation.z * rotation.w;
+
+		return glm::mat4(
+			scale.x * (1.f - 2.f * (yy + zz)), scale.x * 2.f * (xy + zw), scale.x * 2.f * (xz - yw), 0.f,
+			scale.y * 2.f * (xy - zw), scale.y * (1.f - 2.f * (xx + zz)), scale.y * 2.f * (yz + xw), 0.f,
+			scale.z * 2.f * (xz + yw), scale.z * 2.f * (yz - xw), scale.z * (1.f - 2.f * (xx + yy)), 0.f,
+			translation.x, translation.y, translation.z, 1.f);
+	}
+
 	void MeshData::Update(float deltaTime)
 	{
 		m_animation.time += deltaTime * .001f;
@@ -740,7 +778,8 @@ namespace CE
 			glm::mat4 localPose;
 			if (!m_animation.keyFrames[i].empty())
 			{
-				localPose = m_animation.keyFrames[i][m_animation.currFrame].localPose;
+				const KeyFrame& keyFrame = m_animation.keyFrames[i][m_animation.currFrame];
+				localPose = ToAffineMatrix(keyFrame.translation, keyFrame.rotation, keyFrame.scale);
 			}
 			else
 			{
