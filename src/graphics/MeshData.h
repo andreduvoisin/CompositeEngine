@@ -72,17 +72,15 @@ namespace CE
 	struct KeyFrame
 	{
 		glm::vec3 translation;
-		glm::vec3 rotation;
+		glm::quat rotation;
 		glm::vec3 scale;
 
-		glm::mat4 localPose;
 		int frameNum;
 
 		KeyFrame()
 			: translation(glm::vec3())
 			, rotation(glm::vec3())
 			, scale(glm::vec3())
-			, localPose(glm::mat4())
 			, frameNum(-1)
 		{
 
@@ -121,6 +119,8 @@ namespace CE
 		void ProcessAnimation(fbxsdk::FbxNode* node, fbxsdk::FbxScene* scene);
 		void ProcessSkeletonHierarchy(fbxsdk::FbxNode* inRootNode);
 		void ProcessSkeletonHierarchyRecursively(fbxsdk::FbxNode* inNode, int inDepth, int myIndex, int inParentIndex);
+
+		glm::mat4 ToAffineMatrix(const glm::vec3& translation, const glm::quat& rotation, const glm::vec3& scale);
 
 	//private:
 	public:
