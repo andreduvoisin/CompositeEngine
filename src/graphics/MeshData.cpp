@@ -640,17 +640,17 @@ namespace CE
 				FbxTime end = currAnimStack->GetLocalTimeSpan().GetStop();
 				FbxLongLong animationLength = end.GetFrameCount(FbxTime::eFrames24) - start.GetFrameCount(FbxTime::eFrames24) + 1;
 
+				// TODO: lots of frame -> time -> frame math here, make it all time if possible
 				m_animation.name = animationName;
-				m_animation.numFrames = animationLength;
-				m_animation.currFrame = 0;
-				m_animation.time = 0;
+				m_animation.currTime = 0;
+				m_animation.animationTime = (float)(animationLength - 1) / 24.f;
 
 				FbxAnimEvaluator* evaluator = scene->GetAnimationEvaluator();
 
 				for (FbxLongLong i = start.GetFrameCount(FbxTime::eFrames24); i <= end.GetFrameCount(FbxTime::eFrames24); ++i)
 				{
 					KeyFrame keyFrame;
-					keyFrame.frameNum = i;
+					keyFrame.time = (float)i / 24.f;
 
 					FbxTime currTime;
 					currTime.SetFrame(i, FbxTime::eFrames24);
@@ -762,24 +762,65 @@ namespace CE
 			translation.x, translation.y, translation.z, 1.f);
 	}
 
+	// TODO: Move this.
+	glm::mat4 MeshData::GetLocalPose(const KeyFrame& low, const KeyFrame& high, float alpha)
+	{
+		const glm::vec3 translation = LerpTranslation(low.translation, high.translation, alpha);
+		const glm::quat rotation = LerpRotation(low.rotation, high.rotation, alpha);
+		const glm::vec3 scale = LerpScale(low.scale, high.scale, alpha);
+
+		return ToAffineMatrix(translation, rotation, scale);
+	}
+
+	// TODO: Move this.
+	glm::vec3 MeshData::LerpTranslation(const glm::vec3& low, const glm::vec3& high, float alpha)
+	{
+		return Vec3Lerp(low, high, alpha);
+	}
+
+	// TODO: Move this.
+	glm::quat MeshData::LerpRotation(const glm::quat& low, const glm::quat& high, float alpha)
+	{
+		// TODO: slerp is easy, but nlerp causes issues -- look into
+		//return glm::normalize(glm::lerp(low, high, alpha));
+		return glm::slerp(low, high, alpha);
+	}
+
+	// TODO: Move this.
+	glm::vec3 MeshData::LerpScale(const glm::vec3& low, const glm::vec3& high, float alpha)
+	{
+		return Vec3Lerp(low, high, alpha);
+	}
+
+	// TODO: Move this.
+	glm::vec3 MeshData::Vec3Lerp(const glm::vec3& a, const glm::vec3& b, float alpha)
+	{
+		return glm::vec3(
+			(b.x - a.x) * alpha + a.x,
+			(b.y - a.y) * alpha + a.y,
+			(b.z - a.z) * alpha + a.z);
+	}
+
 	void MeshData::Update(float deltaTime)
 	{
-		m_animation.time += deltaTime * .001f;
-		m_animation.currFrame = int(24.0f * m_animation.time);
+		m_animation.currTime += deltaTime * .001f;
 
-		if (m_animation.currFrame >= m_animation.numFrames)
+		if (m_animation.currTime >= m_animation.animationTime)
 		{
-			m_animation.currFrame %= m_animation.numFrames;
-			m_animation.time = fmod(m_animation.time, float(m_animation.numFrames) / 24.0f);
+			m_animation.currTime = fmod(m_animation.currTime, m_animation.animationTime);
 		}
+
+		int lowFrameNum = int(m_animation.currTime * 24.f);
+		int highFrameNum = int(m_animation.currTime * 24.f) + 1;
 
 		for (int i = 0; i < m_skeleton.joints.size(); ++i)
 		{
 			glm::mat4 localPose;
 			if (!m_animation.keyFrames[i].empty())
 			{
-				const KeyFrame& keyFrame = m_animation.keyFrames[i][m_animation.currFrame];
-				localPose = ToAffineMatrix(keyFrame.translation, keyFrame.rotation, keyFrame.scale);
+				const KeyFrame& lowFrame = m_animation.keyFrames[i][lowFrameNum];
+				const KeyFrame& highFrame = m_animation.keyFrames[i][highFrameNum];
+				localPose = GetLocalPose(lowFrame, highFrame, (m_animation.currTime - lowFrame.time) / (highFrame.time - lowFrame.time));
 			}
 			else
 			{
