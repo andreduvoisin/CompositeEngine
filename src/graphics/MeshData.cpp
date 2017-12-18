@@ -781,9 +781,11 @@ namespace CE
 	// TODO: Move this.
 	glm::quat MeshData::LerpRotation(const glm::quat& low, const glm::quat& high, float alpha)
 	{
-		// TODO: slerp is easy, but nlerp causes issues -- look into
-		//return glm::normalize(glm::lerp(low, high, alpha));
-		return glm::slerp(low, high, alpha);
+		// shortest path; -high and high are same rotation
+		// TODO: This could be done at import.
+		const float dot = glm::dot(low, high);
+		return glm::normalize(glm::lerp(low, dot < 0.f ? -high : high, alpha));
+		//return glm::slerp(low, high, alpha);
 	}
 
 	// TODO: Move this.
