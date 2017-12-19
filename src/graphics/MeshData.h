@@ -69,30 +69,36 @@ namespace CE
 		std::vector<Joint> joints;
 	};
 
-	struct KeyFrame
+	struct TranslationKey
 	{
 		glm::vec3 translation;
-		glm::quat rotation;
-		glm::vec3 scale;
-
 		float time;
+	};
 
-		KeyFrame()
-			: translation(glm::vec3())
-			, rotation(glm::vec3())
-			, scale(glm::vec3())
-			, time(0.f)
-		{
+	struct RotationKey
+	{
+		glm::quat rotation;
+		float time;
+	};
 
-		}
+	struct ScaleKey
+	{
+		glm::vec3 scale;
+		float time;
 	};
 
 	struct Animation
 	{
 		std::string name;
-		std::vector<std::vector<KeyFrame>> keyFrames;
+		// TODO: Would be more cache coherent stored by time then by joint, as opposed to by joint then by time.
+		std::vector<std::vector<TranslationKey>> translations;
+		std::vector<std::vector<RotationKey>> rotations;
+		std::vector<std::vector<ScaleKey>> scales;
 		float currTime;
-		float animationTime;
+		float duration;
+		std::vector<int> currTranslations;
+		std::vector<int> currRotations;
+		std::vector<int> currScales;
 	};
 
 	struct MeshData
@@ -120,11 +126,12 @@ namespace CE
 		void ProcessSkeletonHierarchyRecursively(fbxsdk::FbxNode* inNode, int inDepth, int myIndex, int inParentIndex);
 
 		glm::mat4 ToAffineMatrix(const glm::vec3& translation, const glm::quat& rotation, const glm::vec3& scale);
-		glm::mat4 GetLocalPose(const KeyFrame& low, const KeyFrame& high, float alpha);
 		glm::vec3 LerpTranslation(const glm::vec3& low, const glm::vec3& high, float alpha);
 		glm::quat LerpRotation(const glm::quat& low, const glm::quat& high, float alpha);
 		glm::vec3 LerpScale(const glm::vec3& low, const glm::vec3& high, float alpha);
 		glm::vec3 Vec3Lerp(const glm::vec3& a, const glm::vec3& b, float alpha);
+
+		void FindInterpolationKeys(int currentJoint);
 
 	//private:
 	public:
@@ -142,6 +149,8 @@ namespace CE
 		Skeleton m_skeleton;
 		Animation m_animation;
 		std::vector<glm::mat4> m_palette;
+
+		bool m_useUnoptimized;
 	};
 }
 
