@@ -752,7 +752,7 @@ namespace CE
 				}
 			}
 			m_animation.translations[i] = newTranslations;
-			/*
+
 			// Rotation.
 			// TODO: can these be done in place? is it even worth it?
 			// TODO: remove duplication between s/r/t
@@ -778,14 +778,22 @@ namespace CE
 
 				const float alpha = (currentRotations[j].time - first.time) / (currentRotations[j + 1].time - first.time);
 				glm::quat interpolated = LerpRotation(first.rotation, currentRotations[j + 1].rotation, alpha);
-				// todo: use glm::length2
-				if (std::abs(glm::length(currentRotations[j].rotation) - glm::length(interpolated)) > rotationTolerance)
+
+				// TODO: HOW DOES THIS WORK?
+				// Compute the shortest unsigned angle between the 2 quaternions.
+				// diff_w is w component of a-1 * b.
+				const float diff_w = interpolated.x * first.rotation.x
+					+ interpolated.y * first.rotation.y
+					+ interpolated.z * first.rotation.z
+					+ interpolated.w * first.rotation.w;
+				const float angle = 2.f * std::acos(std::min(std::abs(diff_w), 1.f));
+				if (std::abs(angle) > rotationTolerance)
 				{
 					newRotations.push_back(currentRotations[j]);
 				}
 			}
 			m_animation.rotations[i] = newRotations;
-			*/
+
 			// Scale.
 			// TODO: can these be done in place? is it even worth it?
 			// TODO: remove duplication between s/r/t
