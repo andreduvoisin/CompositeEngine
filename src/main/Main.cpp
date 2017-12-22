@@ -355,6 +355,7 @@ bool Initialize()
 	const GLubyte* version = glGetString(GL_VERSION); // version as a string
 	printf("GL_RENDERER: %s\n", renderer);
 	printf("GL_VERSION: %s\n", version);
+	// TODO: Doesn't work on my laptop's Intel HD Graphics 4000, which only supports up to OpenGL 4.0.
 
 	GLint components;
 	glGetIntegerv(GL_MAX_VERTEX_UNIFORM_COMPONENTS, &components);
