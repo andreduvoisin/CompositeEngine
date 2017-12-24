@@ -147,10 +147,11 @@ namespace CE
 
 		// what even is an animation component lol
 		Skeleton m_skeleton;
-		Animation m_animation;
+		std::vector<Animation> m_animations;
 		std::vector<glm::mat4> m_palette;
 
 		bool m_useUnoptimized;
+		int m_currentAnimation;
 	};
 }
 

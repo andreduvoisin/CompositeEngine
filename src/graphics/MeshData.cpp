@@ -14,6 +14,7 @@
 #include <iostream>
 
 #include <glm\gtx\transform.hpp>
+#include <glm/gtx/matrix_decompose.hpp>
 
 /* Tab character ("\t") counter */
 int numTabs = 0;
@@ -105,6 +106,7 @@ namespace CE
 	MeshData::MeshData()
 	{
 		m_useUnoptimized = false;
+		m_currentAnimation = 0;
 	}
 
 	MeshData::~MeshData()
@@ -403,12 +405,13 @@ namespace CE
 					}
 				}
 
+				// TODO: Swap to ozz-animation way of doing this?
 				if (currJointIndex == -1)
 				{
 					printf("Couldn't find joint index.\n");
 					continue; // should this break? or return even?
 				}
-
+				/*
 				FbxAMatrix transformMatrix; // The transformation of the mesh at binding time
 				currCluster->GetTransformMatrix(transformMatrix);
 				FbxAMatrix transformLinkMatrix; // The transformation of the cluster(joint) at binding time from joint space to world space
@@ -418,7 +421,7 @@ namespace CE
 				{
 					m_skeleton.joints[currJointIndex].inverseBindPose[i / 4][i % 4] = globalBindposeInverseMatrix.Get(i / 4, i % 4);
 				}
-
+				*/
 				unsigned int numOfIndices = currCluster->GetControlPointIndicesCount();
 				for (unsigned controlPointIndex = 0; controlPointIndex < numOfIndices; ++controlPointIndex)
 				{
@@ -637,198 +640,270 @@ namespace CE
 					}
 				}
 				*/
+			}
 
-				// Single-take animation information.
-				FbxAnimStack* currAnimStack = scene->GetSrcObject<FbxAnimStack>(0);
-				scene->SetCurrentAnimationStack(currAnimStack);
-				FbxString animStackName = currAnimStack->GetName();
-				std::string animationName = animStackName.Buffer();
-				FbxTime start = currAnimStack->GetLocalTimeSpan().GetStart();
-				FbxTime end = currAnimStack->GetLocalTimeSpan().GetStop();
-				FbxLongLong animationLength = end.GetFrameCount(FbxTime::eFrames24) - start.GetFrameCount(FbxTime::eFrames24) + 1;
-
-				// TODO: lots of frame -> time -> frame math here, make it all time if possible
-				m_animation.name = animationName;
-				m_animation.currTime = 0;
-				m_animation.duration = (float)(animationLength - 1) / 24.f;
-
-				FbxAnimEvaluator* evaluator = scene->GetAnimationEvaluator();
-
-				for (FbxLongLong i = start.GetFrameCount(FbxTime::eFrames24); i <= end.GetFrameCount(FbxTime::eFrames24); ++i)
+			// ensure we have 4 joints per vertex
+			for (auto it = m_vertices.begin(); it != m_vertices.end(); ++it)
+			{
+				while (it->numWeights < 4)
 				{
-					float time = (float)i / 24.f;
+					it->jointIndices[it->numWeights] = 0;
+					it->jointWeights[it->numWeights] = 0;
+					it->numWeights++;
+				}
+			}
+		}
 
-					FbxTime currTime;
-					currTime.SetFrame(i, FbxTime::eFrames24);
+		for (int i = 0; i < scene->GetSrcObjectCount<FbxAnimStack>(); ++i)
+		{
+			m_animations.push_back(Animation());
+			Animation& animation = m_animations.back();
 
+			for (int j = 0; j < m_skeleton.joints.size(); ++j)
+			{
+				animation.translations.push_back(std::vector<TranslationKey>());
+				animation.rotations.push_back(std::vector<RotationKey>());
+				animation.scales.push_back(std::vector<ScaleKey>());
+				animation.currTranslations.push_back(0);
+				animation.currRotations.push_back(0);
+				animation.currScales.push_back(0);
+			}
+
+			animation.currTime = 0;
+
+			// Single-take animation information.
+			FbxAnimStack* currAnimStack = scene->GetSrcObject<FbxAnimStack>(i);
+			scene->SetCurrentAnimationStack(currAnimStack);
+			FbxString animStackName = currAnimStack->GetName();
+			std::string animationName = animStackName.Buffer();
+			double start = currAnimStack->GetLocalTimeSpan().GetStart().GetSecondDouble();
+			double end = currAnimStack->GetLocalTimeSpan().GetStop().GetSecondDouble();
+
+			animation.name = animationName;
+			animation.duration = end > start ? end - start : 1.f;
+
+			FbxAnimEvaluator* evaluator = scene->GetAnimationEvaluator();
+
+			double period = 1.f / 24.f; // todo: make variable, it's all over this file
+
+			for (int j = 0; j < m_skeleton.joints.size(); ++j)
+			{
+				FbxNode* joint = scene->FindNodeByName(m_skeleton.joints[j].name.c_str());
+
+				// didn't find it, add bind pose
+				if (!joint)
+				{
+					// todo: bad
+					glm::vec3 scale;
+					glm::quat orientation;
+					glm::vec3 translation;
+					glm::vec3 skew;
+					glm::vec4 perspective;
+					glm::decompose(
+						glm::inverse(m_skeleton.joints[j].inverseBindPose),
+						scale,
+						orientation,
+						translation,
+						skew,
+						perspective);
+
+					// Translation.
+					TranslationKey translationKey;
+					translationKey.time = 0.f;
+					translationKey.translation = translation;
+					animation.translations[j].push_back(translationKey);
+
+					// Rotation.
+					RotationKey rotationKey;
+					rotationKey.time = 0.f;
+					rotationKey.rotation = orientation;
+					animation.rotations[j].push_back(rotationKey);
+
+					// Scale.
+					ScaleKey scaleKey;
+					scaleKey.time = 0.f;
+					scaleKey.scale = scale;
+					animation.scales[j].push_back(scaleKey);
+
+					continue;
+				}
+
+				bool loop = true;
+				for (double time = start; loop; time += period)
+				{
+					if (time >= end)
+					{
+						loop = false;
+						time = end;
+					}
+
+					FbxTime currTime = FbxTimeSeconds(time);
 					FbxAMatrix currentTransformOffset = evaluator->GetNodeGlobalTransform(node, currTime) * geometryTransform;
-					FbxAMatrix localPose = currentTransformOffset.Inverse() * evaluator->GetNodeLocalTransform(currCluster->GetLink(), currTime);
+					FbxAMatrix localPose = currentTransformOffset.Inverse() * evaluator->GetNodeLocalTransform(joint, currTime);
+					
+					// TODO: Why doesn't this work, instead of the above?
+					// Works for some animations, not for others?
+					// Works if always local transform?
+					// I think something weird is going on with the bind pose and how it interacts with this.
+					//FbxAMatrix localPose = 
+					//	m_skeleton.joints[i].parentIndex == -1 ? 
+					//		evaluator->GetNodeGlobalTransform(joint, currTime) :
+					//		evaluator->GetNodeLocalTransform(joint, currTime);
+
+					double frameTime = time - start;
 
 					// Translation.
 					FbxVector4 translation = localPose.GetT();
 					TranslationKey translationKey;
-					translationKey.time = time;
+					translationKey.time = frameTime;
 					translationKey.translation[0] = translation[0];
 					translationKey.translation[1] = translation[1];
 					translationKey.translation[2] = translation[2];
-					m_animation.translations[currJointIndex].push_back(translationKey);
+					animation.translations[j].push_back(translationKey);
 
 					// Rotation.
 					FbxQuaternion quaternion = localPose.GetQ();
 					RotationKey rotationKey;
-					rotationKey.time = time;
+					rotationKey.time = frameTime;
 					rotationKey.rotation[0] = quaternion[0];
 					rotationKey.rotation[1] = quaternion[1];
 					rotationKey.rotation[2] = quaternion[2];
 					rotationKey.rotation[3] = quaternion[3];
-					m_animation.rotations[currJointIndex].push_back(rotationKey);
+					animation.rotations[j].push_back(rotationKey);
 
 					// Scale.
 					FbxVector4 scale = localPose.GetS();
 					ScaleKey scaleKey;
-					scaleKey.time = time;
+					scaleKey.time = frameTime;
 					scaleKey.scale[0] = scale[0];
 					scaleKey.scale[1] = scale[1];
 					scaleKey.scale[2] = scale[2];
-					m_animation.scales[currJointIndex].push_back(scaleKey);
+					animation.scales[j].push_back(scaleKey);
 				}
+			}
+
+			if (m_useUnoptimized)
+			{
+				continue;
+			}
+
+			// Prune animation.
+			// TODO: This also needs to take into account how much it moves the entire heirarchy.
+			float translationTolerance = 1e-3f; // 1 mm
+			float rotationTolerance = .1f * M_PI / 180.f; // 0.1 degree
+			float scaleTolerance = 1e-3f; // 0.1%
+			//float hierarchicalTolerance = 1e-3f; // 1 mm
+
+			for (size_t i = 0; i < m_skeleton.joints.size(); ++i)
+			{
+				// Translation.
+				// TODO: can these be done in place? is it even worth it?
+				// TODO: remove duplication between s/r/t
+				const std::vector<TranslationKey>& currentTranslations = animation.translations[i];
+				std::vector<TranslationKey> newTranslations;
+				for (size_t j = 0; j < currentTranslations.size(); ++j)
+				{
+					// Keep first always.
+					if (j == 0)
+					{
+						newTranslations.push_back(currentTranslations[j]);
+						continue;
+					}
+
+					// Keep last always.
+					if (j == currentTranslations.size() - 1)
+					{
+						newTranslations.push_back(currentTranslations[j]);
+						break;
+					}
+
+					const TranslationKey& first = newTranslations[newTranslations.size() - 1];
+
+					const float alpha = (currentTranslations[j].time - first.time) / (currentTranslations[j + 1].time - first.time);
+					glm::vec3 interpolated = LerpTranslation(first.translation, currentTranslations[j + 1].translation, alpha);
+					// todo: use glm::length2
+					if (std::abs(glm::length(currentTranslations[j].translation) - glm::length(interpolated)) > translationTolerance)
+					{
+						newTranslations.push_back(currentTranslations[j]);
+					}
+				}
+				animation.translations[i] = newTranslations;
+
+				// Rotation.
+				// TODO: can these be done in place? is it even worth it?
+				// TODO: remove duplication between s/r/t
+				const std::vector<RotationKey>& currentRotations = animation.rotations[i];
+				std::vector<RotationKey> newRotations;
+				for (size_t j = 0; j < currentRotations.size(); ++j)
+				{
+					// Keep first always.
+					if (j == 0)
+					{
+						newRotations.push_back(currentRotations[j]);
+						continue;
+					}
+
+					// Keep last always.
+					if (j == currentRotations.size() - 1)
+					{
+						newRotations.push_back(currentRotations[j]);
+						break;
+					}
+
+					const RotationKey& first = newRotations[newRotations.size() - 1];
+
+					const float alpha = (currentRotations[j].time - first.time) / (currentRotations[j + 1].time - first.time);
+					glm::quat interpolated = LerpRotation(first.rotation, currentRotations[j + 1].rotation, alpha);
+
+					// TODO: HOW DOES THIS WORK?
+					// Compute the shortest unsigned angle between the 2 quaternions.
+					// diff_w is w component of a-1 * b.
+					const float diff_w = interpolated.x * first.rotation.x
+						+ interpolated.y * first.rotation.y
+						+ interpolated.z * first.rotation.z
+						+ interpolated.w * first.rotation.w;
+					const float angle = 2.f * std::acos(std::min(std::abs(diff_w), 1.f));
+					if (std::abs(angle) > rotationTolerance)
+					{
+						newRotations.push_back(currentRotations[j]);
+					}
+				}
+				animation.rotations[i] = newRotations;
+
+				// Scale.
+				// TODO: can these be done in place? is it even worth it?
+				// TODO: remove duplication between s/r/t
+				const std::vector<ScaleKey>& currentScales = animation.scales[i];
+				std::vector<ScaleKey> newScales;
+				for (size_t j = 0; j < currentScales.size(); ++j)
+				{
+					// Keep first always.
+					if (j == 0)
+					{
+						newScales.push_back(currentScales[j]);
+						continue;
+					}
+
+					// Keep last always.
+					if (j == currentScales.size() - 1)
+					{
+						newScales.push_back(currentScales[j]);
+						break;
+					}
+
+					const ScaleKey& first = newScales[newScales.size() - 1];
+
+					const float alpha = (currentScales[j].time - first.time) / (currentScales[j + 1].time - first.time);
+					glm::vec3 interpolated = LerpScale(first.scale, currentScales[j + 1].scale, alpha);
+					// todo: use glm::length2
+					if (std::abs(glm::length(currentScales[j].scale) - glm::length(interpolated)) > scaleTolerance)
+					{
+						newScales.push_back(currentScales[j]);
+					}
+				}
+				animation.scales[i] = newScales;
 			}
 		}
-
-		// ensure we have 4 joints per vertex
-		for (auto it = m_vertices.begin(); it != m_vertices.end(); ++it)
-		{
-			while (it->numWeights < 4)
-			{
-				it->jointIndices[it->numWeights] = 0;
-				it->jointWeights[it->numWeights] = 0;
-				it->numWeights++;
-			}
-		}
-
-		if (m_useUnoptimized)
-		{
-			return;
-		}
-
-		// Prune animation.
-		// TODO: This also needs to take into account how much it moves the entire heirarchy.
-		float translationTolerance = 1e-3f; // 1 mm
-		float rotationTolerance = .1f * M_PI / 180.f; // 0.1 degree
-		float scaleTolerance = 1e-3f; // 0.1%
-		//float hierarchicalTolerance = 1e-3f; // 1 mm
-
-		for (size_t i = 0; i < m_skeleton.joints.size(); ++i)
-		{
-			// Translation.
-			// TODO: can these be done in place? is it even worth it?
-			// TODO: remove duplication between s/r/t
-			const std::vector<TranslationKey>& currentTranslations = m_animation.translations[i];
-			std::vector<TranslationKey> newTranslations;
-			for (size_t j = 0; j < currentTranslations.size(); ++j)
-			{
-				// Keep first always.
-				if (j == 0)
-				{
-					newTranslations.push_back(currentTranslations[j]);
-					continue;
-				}
-
-				// Keep last always.
-				if (j == currentTranslations.size() - 1)
-				{
-					newTranslations.push_back(currentTranslations[j]);
-					break;
-				}
-
-				const TranslationKey& first = newTranslations[newTranslations.size() - 1];
-
-				const float alpha = (currentTranslations[j].time - first.time) / (currentTranslations[j + 1].time - first.time);
-				glm::vec3 interpolated = LerpTranslation(first.translation, currentTranslations[j + 1].translation, alpha);
-				// todo: use glm::length2
-				if (std::abs(glm::length(currentTranslations[j].translation) - glm::length(interpolated)) > translationTolerance)
-				{
-					newTranslations.push_back(currentTranslations[j]);
-				}
-			}
-			m_animation.translations[i] = newTranslations;
-
-			// Rotation.
-			// TODO: can these be done in place? is it even worth it?
-			// TODO: remove duplication between s/r/t
-			const std::vector<RotationKey>& currentRotations = m_animation.rotations[i];
-			std::vector<RotationKey> newRotations;
-			for (size_t j = 0; j < currentRotations.size(); ++j)
-			{
-				// Keep first always.
-				if (j == 0)
-				{
-					newRotations.push_back(currentRotations[j]);
-					continue;
-				}
-
-				// Keep last always.
-				if (j == currentRotations.size() - 1)
-				{
-					newRotations.push_back(currentRotations[j]);
-					break;
-				}
-
-				const RotationKey& first = newRotations[newRotations.size() - 1];
-
-				const float alpha = (currentRotations[j].time - first.time) / (currentRotations[j + 1].time - first.time);
-				glm::quat interpolated = LerpRotation(first.rotation, currentRotations[j + 1].rotation, alpha);
-
-				// TODO: HOW DOES THIS WORK?
-				// Compute the shortest unsigned angle between the 2 quaternions.
-				// diff_w is w component of a-1 * b.
-				const float diff_w = interpolated.x * first.rotation.x
-					+ interpolated.y * first.rotation.y
-					+ interpolated.z * first.rotation.z
-					+ interpolated.w * first.rotation.w;
-				const float angle = 2.f * std::acos(std::min(std::abs(diff_w), 1.f));
-				if (std::abs(angle) > rotationTolerance)
-				{
-					newRotations.push_back(currentRotations[j]);
-				}
-			}
-			m_animation.rotations[i] = newRotations;
-
-			// Scale.
-			// TODO: can these be done in place? is it even worth it?
-			// TODO: remove duplication between s/r/t
-			const std::vector<ScaleKey>& currentScales = m_animation.scales[i];
-			std::vector<ScaleKey> newScales;
-			for (size_t j = 0; j < currentScales.size(); ++j)
-			{
-				// Keep first always.
-				if (j == 0)
-				{
-					newScales.push_back(currentScales[j]);
-					continue;
-				}
-
-				// Keep last always.
-				if (j == currentScales.size() - 1)
-				{
-					newScales.push_back(currentScales[j]);
-					break;
-				}
-
-				const ScaleKey& first = newScales[newScales.size() - 1];
-
-				const float alpha = (currentScales[j].time - first.time) / (currentScales[j + 1].time - first.time);
-				glm::vec3 interpolated = LerpScale(first.scale, currentScales[j + 1].scale, alpha);
-				// todo: use glm::length2
-				if (std::abs(glm::length(currentScales[j].scale) - glm::length(interpolated)) > scaleTolerance)
-				{
-					newScales.push_back(currentScales[j]);
-				}
-			}
-			m_animation.scales[i] = newScales;
-		}
-
-		std::cout << "here" << std::endl;
 	}
 
 	void MeshData::ProcessSkeletonHierarchy(FbxNode* inRootNode)
@@ -849,14 +924,15 @@ namespace CE
 			Joint currJoint;
 			currJoint.parentIndex = inParentIndex;
 			currJoint.name = inNode->GetName();
-			m_skeleton.joints.push_back(currJoint);
 
-			m_animation.translations.push_back(std::vector<TranslationKey>());
-			m_animation.rotations.push_back(std::vector<RotationKey>());
-			m_animation.scales.push_back(std::vector<ScaleKey>());
-			m_animation.currTranslations.push_back(0);
-			m_animation.currRotations.push_back(0);
-			m_animation.currScales.push_back(0);
+			FbxAMatrix bindPose = inParentIndex == -1 ? inNode->EvaluateLocalTransform() : inNode->EvaluateGlobalTransform();
+			bindPose = bindPose.Inverse();
+			for (unsigned i = 0; i < 16; ++i)
+			{
+				currJoint.inverseBindPose[i / 4][i % 4] = bindPose.Get(i / 4, i % 4);
+			}
+
+			m_skeleton.joints.push_back(currJoint);
 		}
 		for (int i = 0; i < inNode->GetChildCount(); i++)
 		{
@@ -937,19 +1013,27 @@ namespace CE
 
 	void MeshData::FindInterpolationKeys(int currentJoint)
 	{
+		Animation& animation = m_animations[m_currentAnimation];
+
 		// TODO: this can definitely be one function for all three.
-		int& currTranslations = m_animation.currTranslations[currentJoint];
-		const std::vector<TranslationKey>& translations = m_animation.translations[currentJoint];
+		int& currTranslations = animation.currTranslations[currentJoint];
+		const std::vector<TranslationKey>& translations = animation.translations[currentJoint];
 		while (true)
 		{
-			if (translations[currTranslations].time > m_animation.currTime)
+			if (translations.size() == 1)
+			{
+				currTranslations = 0;
+				break;
+			}
+
+			if (translations[currTranslations].time > animation.currTime)
 			{
 				currTranslations = 0;
 				continue;
 			}
 
-			if (translations[currTranslations].time <= m_animation.currTime
-				&& translations[currTranslations + 1].time >= m_animation.currTime)
+			if (translations[currTranslations].time <= animation.currTime
+				&& translations[currTranslations + 1].time >= animation.currTime)
 			{
 				break;
 			}
@@ -958,18 +1042,24 @@ namespace CE
 		}
 
 		// TODO: this can definitely be one function for all three.
-		int& currRotations = m_animation.currRotations[currentJoint];
-		const std::vector<RotationKey>& rotations = m_animation.rotations[currentJoint];
+		int& currRotations = animation.currRotations[currentJoint];
+		const std::vector<RotationKey>& rotations = animation.rotations[currentJoint];
 		while (true)
 		{
-			if (rotations[currRotations].time > m_animation.currTime)
+			if (rotations.size() == 1)
+			{
+				currRotations = 0;
+				break;
+			}
+
+			if (rotations[currRotations].time > animation.currTime)
 			{
 				currRotations = 0;
 				continue;
 			}
 
-			if (rotations[currRotations].time <= m_animation.currTime
-				&& rotations[currRotations + 1].time >= m_animation.currTime)
+			if (rotations[currRotations].time <= animation.currTime
+				&& rotations[currRotations + 1].time >= animation.currTime)
 			{
 				break;
 			}
@@ -978,18 +1068,24 @@ namespace CE
 		}
 
 		// TODO: this can definitely be one function for all three.
-		int& currScales = m_animation.currScales[currentJoint];
-		const std::vector<ScaleKey>& scales = m_animation.scales[currentJoint];
+		int& currScales = animation.currScales[currentJoint];
+		const std::vector<ScaleKey>& scales = animation.scales[currentJoint];
 		while (true)
 		{
-			if (scales[currScales].time > m_animation.currTime)
+			if (scales.size() == 1)
+			{
+				currScales = 0;
+				break;
+			}
+
+			if (scales[currScales].time > animation.currTime)
 			{
 				currScales = 0;
 				continue;
 			}
 
-			if (scales[currScales].time <= m_animation.currTime
-				&& scales[currScales + 1].time >= m_animation.currTime)
+			if (scales[currScales].time <= animation.currTime
+				&& scales[currScales + 1].time >= animation.currTime)
 			{
 				break;
 			}
@@ -1000,11 +1096,19 @@ namespace CE
 
 	void MeshData::Update(float deltaTime)
 	{
-		m_animation.currTime += deltaTime * .001f;
+		Animation& animation = m_animations[m_currentAnimation];
 
-		if (m_animation.currTime > m_animation.duration)
+		animation.currTime += deltaTime * .001f;
+
+		if (animation.currTime > animation.duration)
 		{
-			m_animation.currTime = fmod(m_animation.currTime, m_animation.duration);
+			// use this to loop one animation
+			//animation.currTime = fmod(animation.currTime, animation.duration);
+
+			// use this to loop all animations
+			animation.currTime = 0;
+			m_currentAnimation = ++m_currentAnimation % m_animations.size();
+			animation = m_animations[m_currentAnimation];
 		}
 
 		for (int i = 0; i < m_skeleton.joints.size(); ++i)
@@ -1014,26 +1118,29 @@ namespace CE
 			{
 				FindInterpolationKeys(i);
 
-				const TranslationKey& lowTranslationKey = m_animation.translations[i][m_animation.currTranslations[i]];
-				const TranslationKey& highTranslationKey = m_animation.translations[i][std::min(m_animation.currTranslations[i] + 1, (int)m_animation.translations[i].size() - 1)];
+				const TranslationKey& lowTranslationKey = animation.translations[i][animation.currTranslations[i]];
+				const TranslationKey& highTranslationKey = animation.translations[i][std::min(animation.currTranslations[i] + 1, (int)animation.translations[i].size() - 1)];
+				const float translationAlpha = (animation.currTime - lowTranslationKey.time) / (highTranslationKey.time - lowTranslationKey.time);
 				const glm::vec3 translation = LerpTranslation(
 					lowTranslationKey.translation,
 					highTranslationKey.translation,
-					(m_animation.currTime - lowTranslationKey.time) / (highTranslationKey.time - lowTranslationKey.time));
+					highTranslationKey.time == lowTranslationKey.time ? 0.f : translationAlpha);
 
-				const RotationKey& lowRotationKey = m_animation.rotations[i][m_animation.currRotations[i]];
-				const RotationKey& highRotationKey = m_animation.rotations[i][std::min(m_animation.currRotations[i] + 1, (int)m_animation.rotations[i].size() - 1)];
+				const RotationKey& lowRotationKey = animation.rotations[i][animation.currRotations[i]];
+				const RotationKey& highRotationKey = animation.rotations[i][std::min(animation.currRotations[i] + 1, (int)animation.rotations[i].size() - 1)];
+				const float rotationAlpha = (animation.currTime - lowRotationKey.time) / (highRotationKey.time - lowRotationKey.time);
 				const glm::quat rotation = LerpRotation(
 					lowRotationKey.rotation,
 					highRotationKey.rotation,
-					(m_animation.currTime - lowRotationKey.time) / (highRotationKey.time - lowRotationKey.time));
+					highRotationKey.time == lowRotationKey.time ? 0.f : rotationAlpha);
 
-				const ScaleKey& lowScaleKey = m_animation.scales[i][m_animation.currScales[i]];
-				const ScaleKey& highScaleKey = m_animation.scales[i][std::min(m_animation.currScales[i] + 1, (int)m_animation.scales[i].size() - 1)];
+				const ScaleKey& lowScaleKey = animation.scales[i][animation.currScales[i]];
+				const ScaleKey& highScaleKey = animation.scales[i][std::min(animation.currScales[i] + 1, (int)animation.scales[i].size() - 1)];
+				const float scaleAlpha = (animation.currTime - lowScaleKey.time) / (highScaleKey.time - lowScaleKey.time);
 				const glm::vec3 scale = LerpScale(
 					lowScaleKey.scale,
 					highScaleKey.scale,
-					(m_animation.currTime - lowScaleKey.time) / (highScaleKey.time - lowScaleKey.time));
+					highScaleKey.time == lowScaleKey.time ? 0.f : scaleAlpha);
 
 				localPose = ToAffineMatrix(translation, rotation, scale);
 			}
