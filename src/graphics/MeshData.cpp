@@ -372,8 +372,6 @@ namespace CE
 
 	void MeshData::ProcessAnimation(FbxNode* node, FbxScene* scene)
 	{
-		ProcessSkeletonHierarchy(node);
-
 		FbxMesh* currMesh = node->GetMesh();
 		unsigned int numOfDeformers = currMesh->GetDeformerCount();
 		FbxAMatrix geometryTransform = FbxAMatrix(
@@ -738,17 +736,13 @@ namespace CE
 					}
 
 					FbxTime currTime = FbxTimeSeconds(time);
-					FbxAMatrix currentTransformOffset = evaluator->GetNodeGlobalTransform(node, currTime) * geometryTransform;
-					FbxAMatrix localPose = currentTransformOffset.Inverse() * evaluator->GetNodeLocalTransform(joint, currTime);
+					//FbxAMatrix currentTransformOffset = evaluator->GetNodeGlobalTransform(node, currTime) * geometryTransform;
+					//FbxAMatrix localPose = currentTransformOffset.Inverse() * evaluator->GetNodeLocalTransform(joint, currTime);
 					
-					// TODO: Why doesn't this work, instead of the above?
-					// Works for some animations, not for others?
-					// Works if always local transform?
-					// I think something weird is going on with the bind pose and how it interacts with this.
-					//FbxAMatrix localPose = 
-					//	m_skeleton.joints[i].parentIndex == -1 ? 
-					//		evaluator->GetNodeGlobalTransform(joint, currTime) :
-					//		evaluator->GetNodeLocalTransform(joint, currTime);
+					FbxAMatrix localPose = 
+						m_skeleton.joints[j].parentIndex == -1 ? 
+							evaluator->GetNodeGlobalTransform(joint, currTime) :
+							evaluator->GetNodeLocalTransform(joint, currTime);
 
 					double frameTime = time - start;
 
@@ -913,6 +907,18 @@ namespace CE
 			FbxNode* currNode = inRootNode->GetChild(childIndex);
 			ProcessSkeletonHierarchyRecursively(currNode, 0, 0, -1);
 		}
+
+
+		for (int i = 1; i < m_skeleton.joints.size(); ++i)
+		{
+			m_skeleton.joints[i].inverseBindPose = m_skeleton.joints[m_skeleton.joints[i].parentIndex].inverseBindPose * m_skeleton.joints[i].inverseBindPose;
+		}
+
+		for (int i = 0; i < m_skeleton.joints.size(); ++i)
+		{
+			// TODO: there's a faster but less precise matrix inverse for affine matricies, if this is going to be done at runtime (but i don't think it will)
+			m_skeleton.joints[i].inverseBindPose = glm::inverse(m_skeleton.joints[i].inverseBindPose);
+		}
 	}
 
 	void MeshData::ProcessSkeletonHierarchyRecursively(FbxNode* inNode, int inDepth, int myIndex, int inParentIndex)
@@ -925,8 +931,7 @@ namespace CE
 			currJoint.parentIndex = inParentIndex;
 			currJoint.name = inNode->GetName();
 
-			FbxAMatrix bindPose = inParentIndex == -1 ? inNode->EvaluateLocalTransform() : inNode->EvaluateGlobalTransform();
-			bindPose = bindPose.Inverse();
+			FbxAMatrix bindPose = inParentIndex == -1 ? inNode->EvaluateGlobalTransform() : inNode->EvaluateLocalTransform();
 			for (unsigned i = 0; i < 16; ++i)
 			{
 				currJoint.inverseBindPose[i / 4][i % 4] = bindPose.Get(i / 4, i % 4);
@@ -942,17 +947,6 @@ namespace CE
 
 	void MeshData::InitializeAnimationData()
 	{
-		/*
-		for (int i = 1; i < m_skeleton.joints.size(); ++i)
-		{
-			m_skeleton.joints[i].inverseBindPose = m_skeleton.joints[m_skeleton.joints[i].parentIndex].inverseBindPose * m_skeleton.joints[i].inverseBindPose;
-		}
-
-		for (int i = 0; i < m_skeleton.joints.size(); ++i)
-		{
-			m_skeleton.joints[i].inverseBindPose = glm::inverse(m_skeleton.joints[i].inverseBindPose);
-		}
-		*/
 		m_palette.reserve(m_skeleton.joints.size());
 		for (int i = 0; i < m_skeleton.joints.size(); ++i)
 		{
