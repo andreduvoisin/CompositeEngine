@@ -122,6 +122,8 @@ namespace CE
 		void LoadInformation(fbxsdk::FbxMesh* pMesh);
 		void ProcessMaterialTexture(fbxsdk::FbxSurfaceMaterial* inMaterial);
 		void ProcessAnimation(fbxsdk::FbxNode* node, fbxsdk::FbxScene* scene);
+		void OptimizeAnimation(Animation& animation);
+		void ProcessSkinnedMesh(fbxsdk::FbxNode* node, fbxsdk::FbxScene* scene);
 		void ProcessSkeletonHierarchy(fbxsdk::FbxNode* inRootNode);
 		void ProcessSkeletonHierarchyRecursively(fbxsdk::FbxNode* inNode, int inDepth, int myIndex, int inParentIndex);
 
