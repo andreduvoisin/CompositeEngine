@@ -4,26 +4,26 @@
 #include "common\Singleton.h"
 
 #include <unordered_map>
-
-
-namespace fbxsdk { class FbxManager; }
+#include <vector>
 
 namespace CE
 {
-	struct MeshData;
+	struct Skeleton;
+	struct Mesh;
+	typedef std::vector<Mesh> Meshes;
+	class File3DImporter;
 
 	class MeshManager : public Singleton<MeshManager>
 	{
 	public:
-		void Initialize();
+		void Initialize(File3DImporter* importer);
 		void Destroy();
 
-		MeshData* GetMeshData(const char* szMeshFile);
+		Meshes* GetMeshes(const char* szMeshFile, const Skeleton& skeleton);
 
 	private:
-		std::unordered_map<std::string, MeshData*> m_meshMap;
-		
-		fbxsdk::FbxManager* g_pFbxSdkManager;
+		File3DImporter* m_importer;
+		std::unordered_map<std::string, Meshes*> m_meshesMap;
 	};
 }
 

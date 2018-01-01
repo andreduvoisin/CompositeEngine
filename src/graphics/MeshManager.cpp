@@ -1,52 +1,45 @@
 #include "MeshManager.h"
 
-#include "MeshData.h"
+#include "Mesh.h"
+#include "File3DImporter.h"
 
-#include <fbxsdk.h>
-
-#include <string.h>
-
+#include <string>
 
 namespace CE
 {
-	void MeshManager::Initialize()
+	void MeshManager::Initialize(File3DImporter* importer)
 	{
-		g_pFbxSdkManager = fbxsdk::FbxManager::Create();
-
-		FbxIOSettings* pIOsettings = FbxIOSettings::Create(g_pFbxSdkManager, IOSROOT);
-		g_pFbxSdkManager->SetIOSettings(pIOsettings);
+		m_importer = importer;
 	}
 
 	void MeshManager::Destroy()
 	{
-		for (auto it = m_meshMap.begin(); it != m_meshMap.end(); ++it)
+		for (auto it = m_meshesMap.begin(); it != m_meshesMap.end(); ++it)
 		{
 			delete it->second;
 		}
-		m_meshMap.clear();
-
-		g_pFbxSdkManager->Destroy();
+		m_meshesMap.clear();
 	}
 
-	MeshData* MeshManager::GetMeshData(const char* szMeshFile)
+	Meshes* MeshManager::GetMeshes(const char* szMeshFile, const Skeleton& skeleton)
 	{
 		// Try to find the mesh.
-		auto it = m_meshMap.find(szMeshFile);
+		auto it = m_meshesMap.find(szMeshFile);
 
 		// If it exists, return it.
-		if (it != m_meshMap.end())
+		if (it != m_meshesMap.end())
 		{
 			return it->second;
 		}
 
 		// Otherwise, attempt to load it.
-		MeshData* meshData = new MeshData();
-		if (!meshData->LoadMesh(g_pFbxSdkManager, szMeshFile))
+		Meshes* meshes = new Meshes();
+		if (!m_importer->ExtractMeshes(szMeshFile, skeleton, meshes))
 		{
-			delete meshData;
+			delete meshes;
 			return nullptr;
 		}
-		m_meshMap[szMeshFile] = meshData;
-		return meshData;
+		m_meshesMap[szMeshFile] = meshes;
+		return meshes;
 	}
 }

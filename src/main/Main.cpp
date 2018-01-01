@@ -3,7 +3,7 @@
 #include <SDL_opengl.h>
 #include <gl\GLU.h>
 #include <glm\glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
+#include <glm\gtc\matrix_transform.hpp>
 
 #include <string>
 #include <cstdio>
@@ -11,10 +11,18 @@
 #include <sstream>
 
 #include "graphics\MeshManager.h"
-#include "graphics\MeshData.h"
+#include "graphics\AnimationManager.h"
+#include "graphics\SkeletonManager.h"
+#include "graphics\TextureManager.h"
+#include "graphics\Mesh.h"
+#include "graphics\Texture.h"
+#include "graphics\Vertex.h"
 
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
+#include "graphics\fbx\FBXImporter.h"
+#include "graphics\STBImageImporter.h"
+
+#include "graphics\MeshComponent.h"
+#include "graphics\AnimationComponent.h"
 
 const int SCREEN_WIDTH = 1280;
 const int SCREEN_HEIGHT = 720;
@@ -34,12 +42,19 @@ GLuint g_projectionViewModelMatrixID = -1;
 GLuint g_paletteID = -1;
 GLuint g_paletteTextureUnit = -1;
 GLuint g_paletteGenTex = -1;
-GLuint g_diffuseTextureID = -1;
+GLuint g_diffuseTextureLocation = -1;
 GLuint g_diffuseTextureUnit = -1;
+GLuint g_diffuseTextureID = -1;
 
 //const char* g_fbxName = "..\\..\\..\\assets\\Stand Up.fbx";
 //const char* g_fbxName = "..\\..\\..\\assets\\Soldier_animated_jump.fbx";
 const char* g_fbxName = "..\\..\\..\\assets\\Thriller Part 2.fbx";
+
+CE::FBXImporter* g_fbxImporter;
+CE::STBImageImporter* g_stbiImporter;
+
+CE::MeshComponent* g_meshComponent;
+CE::AnimationComponent* g_animationComponent;
 
 void printProgramLog(GLuint program)
 {
@@ -133,22 +148,17 @@ void Render()
 	glm::mat4 projectionViewModel = projection * view * model;
 	glUniformMatrix4fv(g_projectionViewModelMatrixID, 1, GL_FALSE, &projectionViewModel[0][0]);
 
-	CE::MeshData* meshData = CE::MeshManager::Get().GetMeshData(g_fbxName);
-	if (!meshData->m_palette.empty())
-	{
-		glActiveTexture(GL_TEXTURE0 + g_paletteTextureUnit);
-		glBindTexture(GL_TEXTURE_BUFFER, g_paletteGenTex);
-		glTexBuffer(GL_TEXTURE_BUFFER, GL_RGBA32F, g_tbo);
-		glBindBuffer(GL_TEXTURE_BUFFER, g_tbo);
-		glBufferData(GL_TEXTURE_BUFFER, meshData->m_palette.size() * sizeof(glm::mat4), meshData->m_palette.data(), GL_DYNAMIC_DRAW);
-		glUniform1i(g_paletteID, g_paletteTextureUnit);
-	}
-
-	int vertexSize = sizeof(float) * 3 + sizeof(float) * 2 + sizeof(int) * 4 + sizeof(float) * 4 + sizeof(unsigned) * 1;
-	glBindBuffer(GL_ARRAY_BUFFER, g_vbo);
-	glBufferData(GL_ARRAY_BUFFER, meshData->m_vertices.size() * vertexSize, meshData->m_vertices.data(), GL_STATIC_DRAW);
-
-	glDrawElements(GL_TRIANGLES, meshData->m_indices.size(), GL_UNSIGNED_INT, NULL);
+	g_animationComponent->BindMatrixPalette(
+		g_paletteTextureUnit, 
+		g_paletteGenTex,
+		g_tbo,
+		g_paletteID);
+	g_meshComponent->Draw(
+		g_vbo,
+		g_ibo,
+		g_diffuseTextureID,
+		g_diffuseTextureLocation,
+		g_diffuseTextureUnit);
 }
 
 std::string ReadFile(const char* file)
@@ -218,57 +228,47 @@ bool InitializeOpenGL()
 
 	g_projectionViewModelMatrixID = glGetUniformLocation(g_programID, "projectionViewModel");
 	g_paletteID = glGetUniformLocation(g_programID, "palette");
-	g_diffuseTextureID = glGetUniformLocation(g_programID, "diffuseTexture");
+	g_diffuseTextureLocation = glGetUniformLocation(g_programID, "diffuseTexture");
 
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
-	CE::MeshData* meshData = CE::MeshManager::Get().GetMeshData(g_fbxName);
+	CE::Skeleton* skeleton = CE::SkeletonManager::Get().GetSkeleton(g_fbxName);
+	CE::Meshes* meshes = CE::MeshManager::Get().GetMeshes(g_fbxName, *skeleton);
+	CE::Animations* animations = CE::AnimationManager::Get().GetAnimations(g_fbxName, *skeleton);
+	
+	for (int i = 0; i < meshes->size(); ++i)
+	{
+		CE::TextureManager::Get().GetTexture(meshes->at(i).m_diffuseMapName.c_str());
+	}
 
-	int vertexSize = sizeof(float) * 3 + sizeof(float) * 2 + sizeof(int) * 4 +  sizeof(float) * 4 + sizeof(unsigned) * 1;
+	g_meshComponent = new CE::MeshComponent(meshes);
+	g_animationComponent = new CE::AnimationComponent(skeleton, animations);
 
 	glGenVertexArrays(1, &g_vao);
 	glBindVertexArray(g_vao);
 
+	// TODO: Why do I need to bind the buffer immediately after generating it?
 	glGenBuffers(1, &g_vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, g_vbo);
-	glBufferData(GL_ARRAY_BUFFER, meshData->m_vertices.size() * vertexSize, meshData->m_vertices.data(), GL_STATIC_DRAW);
 
 	glGenBuffers(1, &g_ibo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_ibo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, meshData->m_indices.size() * sizeof(unsigned int), meshData->m_indices.data(), GL_STATIC_DRAW);
-
-	stbi_set_flip_vertically_on_load(true);
-	int width, height, channels;
-	unsigned char* data = stbi_load(meshData->m_diffuseMapName.c_str(), &width, &height, &channels, 0);
-
-	unsigned texture;
 
 	g_diffuseTextureUnit = 0;
 	glActiveTexture(GL_TEXTURE0 + g_diffuseTextureUnit);
-	glGenTextures(1, &texture);
-	glBindTexture(GL_TEXTURE_2D, texture);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	unsigned int glChannels = channels == 3 ? GL_RGB : GL_RGBA;
-	glTexImage2D(GL_TEXTURE_2D, 0, glChannels, width, height, 0, glChannels, GL_UNSIGNED_BYTE, data);
-	glGenerateMipmap(GL_TEXTURE_2D);
-	glUniform1i(g_diffuseTextureID, g_diffuseTextureUnit);
+	glGenTextures(1, &g_diffuseTextureID);
+	glBindTexture(GL_TEXTURE_2D, g_diffuseTextureID);
 
-	stbi_image_free(data);
+	// TODO: How much of this do I need to do here, versus every call?
+	g_paletteTextureUnit = 1;
+	glGenBuffers(1, &g_tbo);
+	glBindBuffer(GL_TEXTURE_BUFFER, g_tbo);
+	glActiveTexture(GL_TEXTURE0 + g_paletteTextureUnit);
+	glGenTextures(1, &g_paletteGenTex);
+	glBindTexture(GL_TEXTURE_BUFFER, g_paletteGenTex);
+	glTexBuffer(GL_TEXTURE_BUFFER, GL_RGBA32F, g_tbo);
 
-	if (!meshData->m_palette.empty())
-	{
-		g_paletteTextureUnit = 1;
-		glGenBuffers(1, &g_tbo);
-		glBindBuffer(GL_TEXTURE_BUFFER, g_tbo);
-		glBufferData(GL_TEXTURE_BUFFER, meshData->m_palette.size() * sizeof(glm::mat4), meshData->m_palette.data(), GL_DYNAMIC_DRAW);
-		glActiveTexture(GL_TEXTURE0 + g_paletteTextureUnit);
-		glGenTextures(1, &g_paletteGenTex);
-	}
-
-	unsigned int stride = vertexSize;
+	unsigned int stride = sizeof(CE::Vertex);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, NULL);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride, (void*)sizeof(CE::Position));
 	glVertexAttribIPointer(2, 1, GL_INT, stride, (void*)(sizeof(CE::Position) + sizeof(CE::TextureCoordinate)));
@@ -344,7 +344,13 @@ bool Initialize()
 		printf("Warning: Unable to set VSync! SDL_Error: %s\n", SDL_GetError());
 	}
 
-	CE::MeshManager::Get().Initialize();
+	g_fbxImporter = new CE::FBXImporter();
+	g_stbiImporter = new CE::STBImageImporter();
+
+	CE::MeshManager::Get().Initialize(g_fbxImporter);
+	CE::AnimationManager::Get().Initialize(g_fbxImporter);
+	CE::SkeletonManager::Get().Initialize(g_fbxImporter);
+	CE::TextureManager::Get().Initialize(g_stbiImporter);
 
 	if (!InitializeOpenGL())
 	{
@@ -372,6 +378,9 @@ bool Initialize()
 void Destroy()
 {
 	CE::MeshManager::Get().Destroy();
+	CE::AnimationManager::Get().Destroy();
+	CE::SkeletonManager::Get().Destroy();
+	CE::TextureManager::Get().Destroy();
 
 	SDL_DestroyWindow(g_window);
 	g_window = NULL;
@@ -437,8 +446,7 @@ int main(int argc, char* argv[])
 			}
 		}
 
-		CE::MeshData* meshData = CE::MeshManager::Get().GetMeshData(g_fbxName);
-		meshData->Update(deltaTime);
+		g_animationComponent->Update(deltaTime);
 
 		Render();
 		SDL_GL_SwapWindow(g_window);

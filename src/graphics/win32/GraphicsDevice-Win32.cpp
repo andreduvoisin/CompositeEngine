@@ -1,3 +1,4 @@
+/*
 #include "GraphicsDevice-Win32.h"
 
 #include "graphics\MeshData.h"
@@ -785,3 +786,4 @@ namespace CE
 		}
 	}
 }
+*/
