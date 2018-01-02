@@ -24,6 +24,8 @@
 #include "graphics\MeshComponent.h"
 #include "graphics\AnimationComponent.h"
 
+#include "graphics\AnimationOptimizer.h"
+
 const int SCREEN_WIDTH = 1280;
 const int SCREEN_HEIGHT = 720;
 
@@ -240,6 +242,9 @@ bool InitializeOpenGL()
 	{
 		CE::TextureManager::Get().GetTexture(meshes->at(i).m_diffuseMapName.c_str());
 	}
+
+	CE::AnimationOptimizer optimizer = CE::AnimationOptimizer(animations);
+	optimizer.OptimizeAnimations();
 
 	g_meshComponent = new CE::MeshComponent(meshes);
 	g_animationComponent = new CE::AnimationComponent(skeleton, animations);
