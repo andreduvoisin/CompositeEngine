@@ -28,25 +28,11 @@ namespace CE
 		for (size_t i = 0; i < m_animations->size(); ++i)
 		{
 			AnimationCache animationCache;
+
 			animationCache.currTime = 0;
-			
-			animationCache.currTranslations.reserve(m_animations->at(i).translations.size());
-			for (size_t j = 0; j < m_animations->at(i).translations.size(); ++j)
-			{
-				animationCache.currTranslations.push_back(0);
-			}
-
-			animationCache.currRotations.reserve(m_animations->at(i).rotations.size());
-			for (size_t j = 0; j < m_animations->at(i).rotations.size(); ++j)
-			{
-				animationCache.currRotations.push_back(0);
-			}
-
-			animationCache.currScales.reserve(m_animations->at(i).scales.size());
-			for (size_t j = 0; j < m_animations->at(i).scales.size(); ++j)
-			{
-				animationCache.currScales.push_back(0);
-			}
+			animationCache.currTranslations.resize(m_animations->at(i).translations.size(), 0);
+			animationCache.currRotations.resize(m_animations->at(i).rotations.size(), 0);
+			animationCache.currScales.resize(m_animations->at(i).scales.size(), 0);
 
 			m_animationCaches.push_back(animationCache);
 		}
@@ -147,6 +133,11 @@ namespace CE
 
 	void AnimationComponent::Update(float deltaTime)
 	{
+		if (m_animations->empty())
+		{
+			return;
+		}
+
 		Animation& animation = m_animations->at(m_currentAnimation);
 		AnimationCache& animationCache = m_animationCaches[m_currentAnimation];
 
@@ -166,41 +157,33 @@ namespace CE
 
 		for (int i = 0; i < m_skeleton->joints.size(); ++i)
 		{
-			glm::mat4 localPose;
-			if (!m_skeleton->joints.empty())
-			{
-				FindInterpolationKeys(i);
+			FindInterpolationKeys(i);
 
-				const TranslationKey& lowTranslationKey = animation.translations[i][animationCache.currTranslations[i]];
-				const TranslationKey& highTranslationKey = animation.translations[i][std::min(animationCache.currTranslations[i] + 1, (int)animation.translations[i].size() - 1)];
-				const float translationAlpha = (animationCache.currTime - lowTranslationKey.time) / (highTranslationKey.time - lowTranslationKey.time);
-				const glm::vec3 translation = LerpTranslation(
-					lowTranslationKey.translation,
-					highTranslationKey.translation,
-					highTranslationKey.time == lowTranslationKey.time ? 0.f : translationAlpha);
+			const TranslationKey& lowTranslationKey = animation.translations[i][animationCache.currTranslations[i]];
+			const TranslationKey& highTranslationKey = animation.translations[i][std::min(animationCache.currTranslations[i] + 1, (int)animation.translations[i].size() - 1)];
+			const float translationAlpha = (animationCache.currTime - lowTranslationKey.time) / (highTranslationKey.time - lowTranslationKey.time);
+			const glm::vec3 translation = LerpTranslation(
+				lowTranslationKey.translation,
+				highTranslationKey.translation,
+				highTranslationKey.time == lowTranslationKey.time ? 0.f : translationAlpha);
 
-				const RotationKey& lowRotationKey = animation.rotations[i][animationCache.currRotations[i]];
-				const RotationKey& highRotationKey = animation.rotations[i][std::min(animationCache.currRotations[i] + 1, (int)animation.rotations[i].size() - 1)];
-				const float rotationAlpha = (animationCache.currTime - lowRotationKey.time) / (highRotationKey.time - lowRotationKey.time);
-				const glm::quat rotation = LerpRotation(
-					lowRotationKey.rotation,
-					highRotationKey.rotation,
-					highRotationKey.time == lowRotationKey.time ? 0.f : rotationAlpha);
+			const RotationKey& lowRotationKey = animation.rotations[i][animationCache.currRotations[i]];
+			const RotationKey& highRotationKey = animation.rotations[i][std::min(animationCache.currRotations[i] + 1, (int)animation.rotations[i].size() - 1)];
+			const float rotationAlpha = (animationCache.currTime - lowRotationKey.time) / (highRotationKey.time - lowRotationKey.time);
+			const glm::quat rotation = LerpRotation(
+				lowRotationKey.rotation,
+				highRotationKey.rotation,
+				highRotationKey.time == lowRotationKey.time ? 0.f : rotationAlpha);
 
-				const ScaleKey& lowScaleKey = animation.scales[i][animationCache.currScales[i]];
-				const ScaleKey& highScaleKey = animation.scales[i][std::min(animationCache.currScales[i] + 1, (int)animation.scales[i].size() - 1)];
-				const float scaleAlpha = (animationCache.currTime - lowScaleKey.time) / (highScaleKey.time - lowScaleKey.time);
-				const glm::vec3 scale = LerpScale(
-					lowScaleKey.scale,
-					highScaleKey.scale,
-					highScaleKey.time == lowScaleKey.time ? 0.f : scaleAlpha);
+			const ScaleKey& lowScaleKey = animation.scales[i][animationCache.currScales[i]];
+			const ScaleKey& highScaleKey = animation.scales[i][std::min(animationCache.currScales[i] + 1, (int)animation.scales[i].size() - 1)];
+			const float scaleAlpha = (animationCache.currTime - lowScaleKey.time) / (highScaleKey.time - lowScaleKey.time);
+			const glm::vec3 scale = LerpScale(
+				lowScaleKey.scale,
+				highScaleKey.scale,
+				highScaleKey.time == lowScaleKey.time ? 0.f : scaleAlpha);
 
-				localPose = ToAffineMatrix(translation, rotation, scale);
-			}
-			else
-			{
-				localPose = glm::mat4(1.0f);
-			}
+			glm::mat4 localPose = ToAffineMatrix(translation, rotation, scale);
 
 			if (m_skeleton->joints[i].parentIndex == -1)
 			{

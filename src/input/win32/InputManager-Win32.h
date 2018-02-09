@@ -1,5 +1,5 @@
-#ifndef _CE_INPUTMANAGER_WIN32_H_
-#define _CE_INPUTMANAGER_WIN32_H_
+#ifndef _CE_INPUT_MANAGER_WIN32_H_
+#define _CE_INPUT_MANAGER_WIN32_H_
 
 #include "common\Singleton.h"
 
@@ -27,4 +27,4 @@ namespace CE
 	class InputManager : public InputManagerWin32 {};
 }
 
-#endif  // _CE_INPUTMANAGER_WIN32_H_
+#endif  // _CE_INPUT_MANAGER_WIN32_H_

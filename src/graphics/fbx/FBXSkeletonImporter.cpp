@@ -50,7 +50,7 @@ namespace CE
 		for (int childIndex = 0; childIndex < inRootNode->GetChildCount(); ++childIndex)
 		{
 			FbxNode* currNode = inRootNode->GetChild(childIndex);
-			ProcessSkeletonHierarchyRecursively(currNode, 0, 0, -1);
+			ProcessSkeletonHierarchyRecursively(currNode, 0, -1);
 		}
 
 
@@ -66,7 +66,7 @@ namespace CE
 		}
 	}
 
-	void FBXSkeletonImporter::ProcessSkeletonHierarchyRecursively(FbxNode* inNode, int inDepth, int myIndex, int inParentIndex)
+	void FBXSkeletonImporter::ProcessSkeletonHierarchyRecursively(FbxNode* inNode, int myIndex, int inParentIndex)
 	{
 		if (inNode->GetNodeAttribute()
 			&& inNode->GetNodeAttribute()->GetAttributeType()
@@ -86,7 +86,7 @@ namespace CE
 		}
 		for (int i = 0; i < inNode->GetChildCount(); i++)
 		{
-			ProcessSkeletonHierarchyRecursively(inNode->GetChild(i), inDepth + 1, m_outSkeleton->joints.size(), myIndex);
+			ProcessSkeletonHierarchyRecursively(inNode->GetChild(i), m_outSkeleton->joints.size(), myIndex);
 		}
 	}
 }
