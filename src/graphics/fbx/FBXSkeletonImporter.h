@@ -23,7 +23,7 @@ namespace CE
 
 	private:
 		void ProcessSkeletonHierarchy(fbxsdk::FbxNode* inRootNode);
-		void ProcessSkeletonHierarchyRecursively(fbxsdk::FbxNode* inNode, int inDepth, int myIndex, int inParentIndex);
+		void ProcessSkeletonHierarchyRecursively(fbxsdk::FbxNode* inNode, int myIndex, int inParentIndex);
 
 	private:
 		fbxsdk::FbxManager* m_fbxManager;

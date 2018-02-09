@@ -64,13 +64,6 @@ namespace CE
 			Mesh& currentMesh = m_outMeshes->at(i);
 			m_controlPointToVertices.clear();
 
-			//soldier_Military_Male_Lod_1
-			//Paladin_J_Nordstrom
-			//if (strcmp(pFbxChildNode->GetName(), "Paladin_J_Nordstrom") != 0)
-			//{
-			//	continue;
-			//}
-
 			unsigned int materialCount = pNode->GetMaterialCount();
 			for (unsigned int i = 0; i < materialCount; ++i)
 			{
@@ -328,16 +321,16 @@ namespace CE
 					}
 				}
 			}
+		}
 
-			// ensure we have 4 joints per vertex
-			for (auto it = currentMesh.m_vertices.begin(); it != currentMesh.m_vertices.end(); ++it)
+		// ensure we have 4 joints per vertex
+		for (auto it = currentMesh.m_vertices.begin(); it != currentMesh.m_vertices.end(); ++it)
+		{
+			while (it->numWeights < 4)
 			{
-				while (it->numWeights < 4)
-				{
-					it->jointIndices[it->numWeights] = 0;
-					it->jointWeights[it->numWeights] = 0;
-					it->numWeights++;
-				}
+				it->jointIndices[it->numWeights] = 0;
+				it->jointWeights[it->numWeights] = 0;
+				it->numWeights++;
 			}
 		}
 	}
