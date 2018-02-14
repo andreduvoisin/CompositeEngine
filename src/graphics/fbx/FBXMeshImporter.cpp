@@ -129,6 +129,8 @@ namespace CE
 		//printf("lUVSetName: %s\n", lUVSetName);
 		printf("lPolyCount: %i\n", lPolyCount);
 
+		const FbxAMatrix geometryTransform = pMesh->GetNode()->EvaluateGlobalTransform();
+
 		int lPolyIndexCounter = 0;
 		for (int lPolyIndex = 0; lPolyIndex < lPolyCount; ++lPolyIndex)
 		{
@@ -154,12 +156,19 @@ namespace CE
 
 					//get the index of the current vertex in control points array
 					int lPolyVertIndex = pMesh->GetPolygonVertex(lPolyIndex, currentIndex);
+					
+					FbxVector4 vertexPosition(
+						pVertices[lPolyVertIndex][0],
+						pVertices[lPolyVertIndex][1],
+						pVertices[lPolyVertIndex][2],
+						1.f);
+					vertexPosition = geometryTransform.MultT(vertexPosition);
 
 					Vertex vertex;
 					vertex.numWeights = 0;
-					vertex.position.x = (float)pVertices[lPolyVertIndex][0];
-					vertex.position.y = (float)pVertices[lPolyVertIndex][1];
-					vertex.position.z = (float)pVertices[lPolyVertIndex][2];
+					vertex.position.x = (float)vertexPosition[0];
+					vertex.position.y = (float)vertexPosition[1];
+					vertex.position.z = (float)vertexPosition[2];
 
 					FbxVector2 lUVValue;
 
