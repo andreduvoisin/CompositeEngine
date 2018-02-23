@@ -11,7 +11,7 @@ namespace CE
 	FBXMeshImporter::FBXMeshImporter(
 			FbxManager* fbxManager,
 			const char* szFileName,
-			const Skeleton& skeleton,
+			Skeleton& skeleton,
 			Meshes* outMeshes)
 		: m_fbxManager(fbxManager)
 		, m_szFileName(szFileName)
@@ -93,7 +93,6 @@ namespace CE
 			printf("lUVSetName: %s\n", lUVSetName);
 		}
 
-		FbxVector4* pVertices = pMesh->GetControlPoints();
 		currentMesh.m_indices.reserve(pMesh->GetControlPointsCount());
 
 		int quadCount = 0, triCount = 0, unknownCount = 0;
@@ -130,6 +129,10 @@ namespace CE
 		printf("lPolyCount: %i\n", lPolyCount);
 
 		const FbxAMatrix geometryTransform = pMesh->GetNode()->EvaluateGlobalTransform();
+		const FbxAMatrix geometry_matrix(
+			pMesh->GetNode()->GetGeometricTranslation(FbxNode::eSourcePivot),
+			pMesh->GetNode()->GetGeometricRotation(FbxNode::eSourcePivot),
+			pMesh->GetNode()->GetGeometricScaling(FbxNode::eSourcePivot));
 
 		int lPolyIndexCounter = 0;
 		for (int lPolyIndex = 0; lPolyIndex < lPolyCount; ++lPolyIndex)
@@ -157,12 +160,10 @@ namespace CE
 					//get the index of the current vertex in control points array
 					int lPolyVertIndex = pMesh->GetPolygonVertex(lPolyIndex, currentIndex);
 					
-					FbxVector4 vertexPosition(
-						pVertices[lPolyVertIndex][0],
-						pVertices[lPolyVertIndex][1],
-						pVertices[lPolyVertIndex][2],
-						1.f);
+					FbxVector4 vertexPosition = pMesh->GetControlPointAt(lPolyVertIndex);
+					vertexPosition[3] = 1.f;
 					vertexPosition = geometryTransform.MultT(vertexPosition);
+					//vertexPosition = pMesh->GetControlPoints()[lPolyVertIndex];
 
 					Vertex vertex;
 					vertex.numWeights = 0;
@@ -273,10 +274,11 @@ namespace CE
 	{
 		FbxMesh* currMesh = node->GetMesh();
 		unsigned int numOfDeformers = currMesh->GetDeformerCount();
-		FbxAMatrix geometryTransform = FbxAMatrix(
-			node->GetGeometricTranslation(FbxNode::eSourcePivot),
-			node->GetGeometricRotation(FbxNode::eSourcePivot),
-			node->GetGeometricScaling(FbxNode::eSourcePivot));
+		//const FbxAMatrix geometryTransform = node->EvaluateGlobalTransform();
+		//const FbxAMatrix geometry_matrix(
+		//	node->GetGeometricTranslation(FbxNode::eSourcePivot),
+		//	node->GetGeometricRotation(FbxNode::eSourcePivot),
+		//	node->GetGeometricScaling(FbxNode::eSourcePivot));
 
 		for (unsigned deformerIndex = 0; deformerIndex < numOfDeformers; ++deformerIndex)
 		{
@@ -308,6 +310,28 @@ namespace CE
 					printf("Couldn't find joint index.\n");
 					continue; // should this break? or return even?
 				}
+
+
+				// Computes joint's inverse bind-pose matrix.
+				//FbxAMatrix transform_matrix;
+				//currCluster->GetTransformMatrix(transform_matrix);
+				//transform_matrix *= geometry_matrix;
+
+				// http://help.autodesk.com/view/FBX/2018/ENU/
+				// FbxNode class, ctrl+f "Pivot Management"
+				// FbxCluster class, ctrl+f "Transformation matrices"
+				// if local transform is needed, will have to multiply up the chain with inverses.
+				FbxAMatrix transform_link_matrix;
+				currCluster->GetTransformLinkMatrix(transform_link_matrix);
+
+				const FbxAMatrix inverse_bind_pose =
+					transform_link_matrix.Inverse();// * transform_matrix;
+
+				for (unsigned i = 0; i < 16; ++i)
+				{
+					m_skeleton.joints[currJointIndex].inverseBindPose[i / 4][i % 4] = inverse_bind_pose.Get(i / 4, i % 4);
+				}
+
 
 				unsigned int numOfIndices = currCluster->GetControlPointIndicesCount();
 				for (unsigned controlPointIndex = 0; controlPointIndex < numOfIndices; ++controlPointIndex)

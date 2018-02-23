@@ -19,7 +19,7 @@ namespace CE
 		void Initialize(File3DImporter* importer);
 		void Destroy();
 
-		Meshes* GetMeshes(const char* szMeshFile, const Skeleton& skeleton);
+		Meshes* GetMeshes(const char* szMeshFile, Skeleton& skeleton);
 
 	private:
 		File3DImporter* m_importer;

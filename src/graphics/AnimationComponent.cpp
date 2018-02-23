@@ -138,46 +138,46 @@ namespace CE
 			return;
 		}
 
-		Animation& animation = m_animations->at(m_currentAnimation);
-		AnimationCache& animationCache = m_animationCaches[m_currentAnimation];
+		Animation* animation = &m_animations->at(m_currentAnimation);
+		AnimationCache* animationCache = &m_animationCaches[m_currentAnimation];
 
-		animationCache.currTime += deltaTime * .001f;
+		animationCache->currTime += deltaTime * .001f;
 
-		if (animationCache.currTime > animation.duration)
+		if (animationCache->currTime > animation->duration)
 		{
 			// use this to loop one animation
-			//animationCache.currTime = fmod(animationCache.currTime, animation.duration);
+			//animationCache->currTime = fmod(animationCache->currTime, animation->duration);
 
 			// use this to loop all animations
-			animationCache.currTime = 0;
+			animationCache->currTime = 0;
 			m_currentAnimation = ++m_currentAnimation % m_animations->size();
-			animation = m_animations->at(m_currentAnimation);
-			animationCache = m_animationCaches[m_currentAnimation];
+			animation = &m_animations->at(m_currentAnimation);
+			animationCache = &m_animationCaches[m_currentAnimation];
 		}
 
 		for (int i = 0; i < m_skeleton->joints.size(); ++i)
 		{
 			FindInterpolationKeys(i);
 
-			const TranslationKey& lowTranslationKey = animation.translations[i][animationCache.currTranslations[i]];
-			const TranslationKey& highTranslationKey = animation.translations[i][std::min(animationCache.currTranslations[i] + 1, (int)animation.translations[i].size() - 1)];
-			const float translationAlpha = (animationCache.currTime - lowTranslationKey.time) / (highTranslationKey.time - lowTranslationKey.time);
+			const TranslationKey& lowTranslationKey = animation->translations[i][animationCache->currTranslations[i]];
+			const TranslationKey& highTranslationKey = animation->translations[i][std::min(animationCache->currTranslations[i] + 1, (int)animation->translations[i].size() - 1)];
+			const float translationAlpha = (animationCache->currTime - lowTranslationKey.time) / (highTranslationKey.time - lowTranslationKey.time);
 			const glm::vec3 translation = LerpTranslation(
 				lowTranslationKey.translation,
 				highTranslationKey.translation,
 				highTranslationKey.time == lowTranslationKey.time ? 0.f : translationAlpha);
 
-			const RotationKey& lowRotationKey = animation.rotations[i][animationCache.currRotations[i]];
-			const RotationKey& highRotationKey = animation.rotations[i][std::min(animationCache.currRotations[i] + 1, (int)animation.rotations[i].size() - 1)];
-			const float rotationAlpha = (animationCache.currTime - lowRotationKey.time) / (highRotationKey.time - lowRotationKey.time);
+			const RotationKey& lowRotationKey = animation->rotations[i][animationCache->currRotations[i]];
+			const RotationKey& highRotationKey = animation->rotations[i][std::min(animationCache->currRotations[i] + 1, (int)animation->rotations[i].size() - 1)];
+			const float rotationAlpha = (animationCache->currTime - lowRotationKey.time) / (highRotationKey.time - lowRotationKey.time);
 			const glm::quat rotation = LerpRotation(
 				lowRotationKey.rotation,
 				highRotationKey.rotation,
 				highRotationKey.time == lowRotationKey.time ? 0.f : rotationAlpha);
 
-			const ScaleKey& lowScaleKey = animation.scales[i][animationCache.currScales[i]];
-			const ScaleKey& highScaleKey = animation.scales[i][std::min(animationCache.currScales[i] + 1, (int)animation.scales[i].size() - 1)];
-			const float scaleAlpha = (animationCache.currTime - lowScaleKey.time) / (highScaleKey.time - lowScaleKey.time);
+			const ScaleKey& lowScaleKey = animation->scales[i][animationCache->currScales[i]];
+			const ScaleKey& highScaleKey = animation->scales[i][std::min(animationCache->currScales[i] + 1, (int)animation->scales[i].size() - 1)];
+			const float scaleAlpha = (animationCache->currTime - lowScaleKey.time) / (highScaleKey.time - lowScaleKey.time);
 			const glm::vec3 scale = LerpScale(
 				lowScaleKey.scale,
 				highScaleKey.scale,
@@ -218,5 +218,13 @@ namespace CE
 		glBindBuffer(GL_TEXTURE_BUFFER, g_tbo);
 		glBufferData(GL_TEXTURE_BUFFER, m_palette.size() * sizeof(glm::mat4), m_palette.data(), GL_DYNAMIC_DRAW);
 		glUniform1i(g_paletteID, g_paletteTextureUnit);
+	}
+
+	void AnimationComponent::ResetMatrixPalette()
+	{
+		for (int i = 0; i < m_skeleton->joints.size(); ++i)
+		{
+			m_palette[i] = glm::mat4(1.f);
+		}
 	}
 }

@@ -15,7 +15,7 @@ namespace CE
 	{
 	public:
 		virtual bool ExtractSkeleton(const char* fileName, Skeleton* outSkeleton) = 0;
-		virtual bool ExtractMeshes(const char* fileName, const Skeleton& skeleton, Meshes* outMeshes) = 0;
+		virtual bool ExtractMeshes(const char* fileName, Skeleton& skeleton, Meshes* outMeshes) = 0;
 		virtual bool ExtractAnimations(const char* fileName, const Skeleton& skeleton, Animations* outAnimations) = 0;
 	};
 }

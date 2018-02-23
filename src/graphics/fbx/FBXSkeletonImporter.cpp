@@ -54,15 +54,21 @@ namespace CE
 		}
 
 
-		for (int i = 1; i < m_outSkeleton->joints.size(); ++i)
-		{
-			m_outSkeleton->joints[i].inverseBindPose = m_outSkeleton->joints[m_outSkeleton->joints[i].parentIndex].inverseBindPose * m_outSkeleton->joints[i].inverseBindPose;
-		}
+		//for (int i = 1; i < m_outSkeleton->joints.size(); ++i)
+		//{
+		//	m_outSkeleton->joints[i].inverseBindPose = m_outSkeleton->joints[m_outSkeleton->joints[i].parentIndex].inverseBindPose * m_outSkeleton->joints[i].inverseBindPose;
+		//}
 
-		for (int i = 0; i < m_outSkeleton->joints.size(); ++i)
+		//for (int i = 0; i < m_outSkeleton->joints.size(); ++i)
+		//{
+		//	// TODO: there's a faster but less precise matrix inverse for affine matricies, if this is going to be done at runtime (but i don't think it will)
+		//	m_outSkeleton->joints[i].inverseBindPose = glm::inverse(m_outSkeleton->joints[i].inverseBindPose);
+		//}
+
+
+		for (unsigned i = 0; i < m_outSkeleton->joints.size(); ++i)
 		{
-			// TODO: there's a faster but less precise matrix inverse for affine matricies, if this is going to be done at runtime (but i don't think it will)
-			m_outSkeleton->joints[i].inverseBindPose = glm::inverse(m_outSkeleton->joints[i].inverseBindPose);
+			m_outSkeleton->joints[i].inverseBindPose = glm::mat4(1.f);
 		}
 	}
 

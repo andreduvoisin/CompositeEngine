@@ -26,6 +26,9 @@
 
 #include "graphics\AnimationOptimizer.h"
 
+#include "graphics\Skeleton.h"
+#include <glm\gtx\matrix_decompose.hpp>
+
 const int SCREEN_WIDTH = 1280;
 const int SCREEN_HEIGHT = 720;
 
@@ -33,12 +36,15 @@ SDL_Window* g_window = NULL;
 SDL_GLContext g_context;
 
 bool g_renderQuad = true;
+bool g_renderBindPose = false;
 
 GLuint g_programID = 0;
 GLuint g_vbo = 0;
 GLuint g_ibo = 0;
 GLuint g_vao = 0;
 GLuint g_tbo = 0;
+
+GLuint g_programID2 = 0;
 
 GLuint g_projectionViewModelMatrixID = -1;
 GLuint g_paletteID = -1;
@@ -47,6 +53,9 @@ GLuint g_paletteGenTex = -1;
 GLuint g_diffuseTextureLocation = -1;
 GLuint g_diffuseTextureUnit = -1;
 GLuint g_diffuseTextureID = -1;
+
+GLuint g_projectionViewModelMatrixID2 = -1;
+GLuint g_paletteID2 = -1;
 
 //const char* g_fbxName = "..\\..\\..\\assets\\Stand Up.fbx";
 const char* g_fbxName = "..\\..\\..\\assets\\Soldier_animated_jump.fbx";
@@ -57,6 +66,8 @@ CE::STBImageImporter* g_stbiImporter;
 
 CE::MeshComponent* g_meshComponent;
 CE::AnimationComponent* g_animationComponent;
+
+int g_renderType = 0;
 
 void printProgramLog(GLuint program)
 {
@@ -125,6 +136,13 @@ void HandleKeys(unsigned char key, int x, int y)
 	if (key == 'q')
 	{
 		g_renderQuad = !g_renderQuad;
+		g_renderType += 1;
+		g_renderType %= 3;
+	}
+
+	if (key == 'w')
+	{
+		g_renderBindPose = !g_renderBindPose;
 	}
 }
 
@@ -141,26 +159,161 @@ void Render()
 	glUseProgram(g_programID);
 	glBindVertexArray(g_vao);
 
+	unsigned int stride = sizeof(CE::Vertex);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, NULL);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride, (void*)sizeof(CE::Position));
+	glVertexAttribIPointer(2, 1, GL_INT, stride, (void*)(sizeof(CE::Position) + sizeof(CE::TextureCoordinate)));
+	glVertexAttribIPointer(3, 1, GL_INT, stride, (void*)(sizeof(CE::Position) + sizeof(CE::TextureCoordinate) + sizeof(int) * 1));
+	glVertexAttribIPointer(4, 1, GL_INT, stride, (void*)(sizeof(CE::Position) + sizeof(CE::TextureCoordinate) + sizeof(int) * 2));
+	glVertexAttribIPointer(5, 1, GL_INT, stride, (void*)(sizeof(CE::Position) + sizeof(CE::TextureCoordinate) + sizeof(int) * 3));
+	glVertexAttribPointer(6, 1, GL_FLOAT, GL_FALSE, stride, (void*)(sizeof(CE::Position) + sizeof(CE::TextureCoordinate) + sizeof(int) * 4));
+	glVertexAttribPointer(7, 1, GL_FLOAT, GL_FALSE, stride, (void*)(sizeof(CE::Position) + sizeof(CE::TextureCoordinate) + sizeof(int) * 4 + sizeof(float) * 1));
+	glVertexAttribPointer(8, 1, GL_FLOAT, GL_FALSE, stride, (void*)(sizeof(CE::Position) + sizeof(CE::TextureCoordinate) + sizeof(int) * 4 + sizeof(float) * 2));
+	glVertexAttribPointer(9, 1, GL_FLOAT, GL_FALSE, stride, (void*)(sizeof(CE::Position) + sizeof(CE::TextureCoordinate) + sizeof(int) * 4 + sizeof(float) * 3));
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+	glEnableVertexAttribArray(2);
+	glEnableVertexAttribArray(3);
+	glEnableVertexAttribArray(4);
+	glEnableVertexAttribArray(5);
+	glEnableVertexAttribArray(6);
+	glEnableVertexAttribArray(7);
+	glEnableVertexAttribArray(8);
+	glEnableVertexAttribArray(9);
+
 	glm::mat4 projection = glm::perspective(glm::pi<float>() * 0.25f, (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 1000.0f);
 	//glm::mat4 view = glm::lookAt(glm::vec3(0, 100, 400), glm::vec3(0, 100, 0), glm::vec3(0, 1, 0)); // paladin
 	glm::mat4 view = glm::lookAt(glm::vec3(0, 200, 400), glm::vec3(0, 100, 0), glm::vec3(0, 1, 0)); // solider
 	//glm::mat4 view = glm::lookAt(glm::vec3(0, 200, 700), glm::vec3(0, 50, 0), glm::vec3(0, 1, 0)); // thriller
 	//glm::mat4 view = glm::lookAt(glm::vec3(0, 2, 8), glm::vec3(0, 2, 0), glm::vec3(0, 1, 0)); // wonder woman
+	//glm::mat4 view = glm::lookAt(glm::vec3(0, 0, 1), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 	glm::mat4 model = glm::mat4(1.0f);
 	glm::mat4 projectionViewModel = projection * view * model;
 	glUniformMatrix4fv(g_projectionViewModelMatrixID, 1, GL_FALSE, &projectionViewModel[0][0]);
+
+	if (g_renderBindPose)
+	{
+		g_animationComponent->ResetMatrixPalette();
+	}
 
 	g_animationComponent->BindMatrixPalette(
 		g_paletteTextureUnit, 
 		g_paletteGenTex,
 		g_tbo,
 		g_paletteID);
-	g_meshComponent->Draw(
-		g_vbo,
-		g_ibo,
-		g_diffuseTextureID,
-		g_diffuseTextureLocation,
-		g_diffuseTextureUnit);
+
+	if (g_renderType == 0 || g_renderType == 2)
+	{
+		g_meshComponent->Draw(
+			g_vbo,
+			g_ibo,
+			g_diffuseTextureID,
+			g_diffuseTextureLocation,
+			g_diffuseTextureUnit);
+	}
+
+	glDisableVertexAttribArray(0);
+	glDisableVertexAttribArray(1);
+	glDisableVertexAttribArray(2);
+	glDisableVertexAttribArray(3);
+	glDisableVertexAttribArray(4);
+	glDisableVertexAttribArray(5);
+	glDisableVertexAttribArray(6);
+	glDisableVertexAttribArray(7);
+	glDisableVertexAttribArray(8);
+	glDisableVertexAttribArray(9);
+
+
+	glUseProgram(g_programID2);
+
+	stride = 28;
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, NULL);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride, (void*)(12));
+	glVertexAttribIPointer(2, 1, GL_INT, stride, (void*)(24));
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+	glEnableVertexAttribArray(2);
+
+	glUniformMatrix4fv(g_projectionViewModelMatrixID2, 1, GL_FALSE, &projectionViewModel[0][0]);
+	g_animationComponent->BindMatrixPalette(
+		g_paletteTextureUnit,
+		g_paletteGenTex,
+		g_tbo,
+		g_paletteID2);
+
+	struct DebugSkeletonVertex
+	{
+		glm::vec3 position;
+		glm::vec3 color;
+		int jointIndex;
+	};
+
+	CE::Skeleton* skeleton = CE::SkeletonManager::Get().GetSkeleton(g_fbxName);
+
+	std::vector<DebugSkeletonVertex> debugVertices;
+	std::vector<unsigned> debugJointIndices;
+	std::vector<unsigned> debugLineIndices;
+
+	for (unsigned i = 0; i < skeleton->joints.size(); ++i)
+	{
+		glm::mat4 bindPose = glm::inverse(skeleton->joints[i].inverseBindPose);
+
+		// todo: bad
+		glm::vec3 scale;
+		glm::quat orientation;
+		glm::vec3 translation;
+		glm::vec3 skew;
+		glm::vec4 perspective;
+		glm::decompose(
+			bindPose,
+			scale,
+			orientation,
+			translation,
+			skew,
+			perspective);
+
+		DebugSkeletonVertex vertex;
+		vertex.position = translation;
+		vertex.color = glm::vec3(1.f, 0.f, 0.f);
+		vertex.jointIndex = i;
+
+		debugVertices.push_back(vertex);
+
+		debugJointIndices.push_back(i);
+
+		if (skeleton->joints[i].parentIndex != -1)
+		{
+			debugLineIndices.push_back(skeleton->joints[i].parentIndex);
+			debugLineIndices.push_back(i);
+		}
+	}
+
+	if (g_renderType == 1 || g_renderType == 2)
+	{
+		glBindBuffer(GL_ARRAY_BUFFER, g_vbo);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(DebugSkeletonVertex) * debugVertices.size(), debugVertices.data(), GL_STATIC_DRAW);
+
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_ibo);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned) * debugJointIndices.size(), debugJointIndices.data(), GL_STATIC_DRAW);
+
+		glPointSize(5.f);
+		glDrawElements(GL_POINTS, debugJointIndices.size(), GL_UNSIGNED_INT, NULL);
+
+		for (unsigned i = 0; i < skeleton->joints.size(); ++i)
+		{
+			debugVertices[i].color = glm::vec3(1.f, 1.f, 0.f);
+		}
+
+		glBufferData(GL_ARRAY_BUFFER, sizeof(DebugSkeletonVertex) * debugVertices.size(), debugVertices.data(), GL_STATIC_DRAW);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned) * debugLineIndices.size(), debugLineIndices.data(), GL_STATIC_DRAW);
+
+		glLineWidth(1.f);
+		glDrawElements(GL_LINES, debugLineIndices.size(), GL_UNSIGNED_INT, NULL);
+	}
+
+	glDisableVertexAttribArray(0);
+	glDisableVertexAttribArray(1);
+	glDisableVertexAttribArray(2);
 }
 
 std::string ReadFile(const char* file)
@@ -176,6 +329,59 @@ std::string ReadFile(const char* file)
 	std::stringstream buffer;
 	buffer << stream.rdbuf();
 	return buffer.str();
+}
+
+bool CreateProgram2()
+{
+	g_programID2 = glCreateProgram();
+
+	// TODO: Copy shaders in CMAKE to .exe dir (or subdir next to .exe).
+
+	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+	std::string vertexShaderSource = ReadFile("..\\..\\..\\src\\shaders\\SkeletonShader.vert");
+	const char* vertexShaderSourceStr = vertexShaderSource.c_str();
+	glShaderSource(vertexShader, 1, &vertexShaderSourceStr, NULL);
+	glCompileShader(vertexShader);
+	GLint vShaderCompiled = GL_FALSE;
+	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &vShaderCompiled);
+	printShaderLog(vertexShader);
+	if (vShaderCompiled != GL_TRUE)
+	{
+		printf("Unable to compile vertex shader %d!\n", vertexShader);
+		return false;
+	}
+	glAttachShader(g_programID2, vertexShader);
+
+	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+	//const GLchar* fragmentShaderSource[] =
+	//{
+	//	"#version 410\nout vec4 LFragment; void main() { LFragment = vec4(1.0, 1.0, 1.0, 1.0); }"
+	//};
+	std::string fragmentShaderSource = ReadFile("..\\..\\..\\src\\shaders\\FragmentShader.frag");
+	const char* fragmentShaderSourceStr = fragmentShaderSource.c_str();
+	glShaderSource(fragmentShader, 1, &fragmentShaderSourceStr, NULL);
+	glCompileShader(fragmentShader);
+	GLint fShaderCompiled = GL_FALSE;
+	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &fShaderCompiled);
+	printShaderLog(fragmentShader);
+	if (fShaderCompiled != GL_TRUE)
+	{
+		printf("Unable to compile fragment shader %d!\n", fragmentShader);
+		return false;
+	}
+	glAttachShader(g_programID2, fragmentShader);
+
+	glLinkProgram(g_programID2);
+	GLint programSuccess = GL_TRUE;
+	glGetProgramiv(g_programID2, GL_LINK_STATUS, &programSuccess);
+	printProgramLog(g_programID2);
+	if (programSuccess != GL_TRUE)
+	{
+		printf("Error linking program %d!\n", g_programID2);
+		return false;
+	}
+
+	return true;
 }
 
 bool InitializeOpenGL()
@@ -228,6 +434,14 @@ bool InitializeOpenGL()
 		return false;
 	}
 
+	if (!CreateProgram2())
+	{
+		return false;
+	}
+
+	g_projectionViewModelMatrixID2 = glGetUniformLocation(g_programID2, "projectionViewModel");
+	g_paletteID2 = glGetUniformLocation(g_programID2, "palette");
+
 	g_projectionViewModelMatrixID = glGetUniformLocation(g_programID, "projectionViewModel");
 	g_paletteID = glGetUniformLocation(g_programID, "palette");
 	g_diffuseTextureLocation = glGetUniformLocation(g_programID, "diffuseTexture");
@@ -237,7 +451,7 @@ bool InitializeOpenGL()
 	CE::Skeleton* skeleton = CE::SkeletonManager::Get().GetSkeleton(g_fbxName);
 	CE::Meshes* meshes = CE::MeshManager::Get().GetMeshes(g_fbxName, *skeleton);
 	CE::Animations* animations = CE::AnimationManager::Get().GetAnimations(g_fbxName, *skeleton);
-	
+
 	for (int i = 0; i < meshes->size(); ++i)
 	{
 		CE::TextureManager::Get().GetTexture(meshes->at(i).m_diffuseMapName.c_str());
@@ -272,28 +486,6 @@ bool InitializeOpenGL()
 	glGenTextures(1, &g_paletteGenTex);
 	glBindTexture(GL_TEXTURE_BUFFER, g_paletteGenTex);
 	glTexBuffer(GL_TEXTURE_BUFFER, GL_RGBA32F, g_tbo);
-
-	unsigned int stride = sizeof(CE::Vertex);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, NULL);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride, (void*)sizeof(CE::Position));
-	glVertexAttribIPointer(2, 1, GL_INT, stride, (void*)(sizeof(CE::Position) + sizeof(CE::TextureCoordinate)));
-	glVertexAttribIPointer(3, 1, GL_INT, stride, (void*)(sizeof(CE::Position) + sizeof(CE::TextureCoordinate) + sizeof(int) * 1));
-	glVertexAttribIPointer(4, 1, GL_INT, stride, (void*)(sizeof(CE::Position) + sizeof(CE::TextureCoordinate) + sizeof(int) * 2));
-	glVertexAttribIPointer(5, 1, GL_INT, stride, (void*)(sizeof(CE::Position) + sizeof(CE::TextureCoordinate) + sizeof(int) * 3));
-	glVertexAttribPointer(6, 1, GL_FLOAT, GL_FALSE, stride, (void*)(sizeof(CE::Position) + sizeof(CE::TextureCoordinate) + sizeof(int) * 4));
-	glVertexAttribPointer(7, 1, GL_FLOAT, GL_FALSE, stride, (void*)(sizeof(CE::Position) + sizeof(CE::TextureCoordinate) + sizeof(int) * 4 + sizeof(float) * 1));
-	glVertexAttribPointer(8, 1, GL_FLOAT, GL_FALSE, stride, (void*)(sizeof(CE::Position) + sizeof(CE::TextureCoordinate) + sizeof(int) * 4 + sizeof(float) * 2));
-	glVertexAttribPointer(9, 1, GL_FLOAT, GL_FALSE, stride, (void*)(sizeof(CE::Position) + sizeof(CE::TextureCoordinate) + sizeof(int) * 4 + sizeof(float) * 3));
-	glEnableVertexAttribArray(0);
-	glEnableVertexAttribArray(1);
-	glEnableVertexAttribArray(2);
-	glEnableVertexAttribArray(3);
-	glEnableVertexAttribArray(4);
-	glEnableVertexAttribArray(5);
-	glEnableVertexAttribArray(6);
-	glEnableVertexAttribArray(7);
-	glEnableVertexAttribArray(8);
-	glEnableVertexAttribArray(9);
 
 	return true;
 }

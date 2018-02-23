@@ -21,7 +21,7 @@ namespace CE
 		m_meshesMap.clear();
 	}
 
-	Meshes* MeshManager::GetMeshes(const char* szMeshFile, const Skeleton& skeleton)
+	Meshes* MeshManager::GetMeshes(const char* szMeshFile, Skeleton& skeleton)
 	{
 		// Try to find the mesh.
 		auto it = m_meshesMap.find(szMeshFile);

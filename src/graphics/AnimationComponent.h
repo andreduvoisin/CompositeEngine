@@ -33,6 +33,8 @@ namespace CE
 			GLuint g_tbo,
 			GLuint g_paletteID);
 
+		void ResetMatrixPalette();
+
 	private:
 		void InitializeAnimationCache();
 		void InitializePalette();
