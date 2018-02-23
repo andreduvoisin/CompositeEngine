@@ -17,7 +17,7 @@ namespace CE
 		~FBXImporter();
 
 		bool ExtractSkeleton(const char* fileName, Skeleton* outSkeleton);
-		bool ExtractMeshes(const char* fileName, const Skeleton& skeleton, Meshes* outMeshes);
+		bool ExtractMeshes(const char* fileName, Skeleton& skeleton, Meshes* outMeshes);
 		bool ExtractAnimations(const char* fileName, const Skeleton& skeleton, Animations* outAnimations);
 
 	private:

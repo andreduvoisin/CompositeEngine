@@ -61,6 +61,7 @@ namespace CE
 	void PrintNode(FbxNode* pNode) {
 		PrintTabs();
 		const char* nodeName = pNode->GetName();
+
 		FbxDouble3 translation = pNode->LclTranslation.Get();
 		FbxDouble3 rotation = pNode->LclRotation.Get();
 		FbxDouble3 scaling = pNode->LclScaling.Get();
