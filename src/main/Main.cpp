@@ -58,8 +58,8 @@ GLuint g_projectionViewModelMatrixID2 = -1;
 GLuint g_paletteID2 = -1;
 
 //const char* g_fbxName = "..\\..\\..\\assets\\Stand Up.fbx";
-const char* g_fbxName = "..\\..\\..\\assets\\Soldier_animated_jump.fbx";
-//const char* g_fbxName = "..\\..\\..\\assets\\Thriller Part 2.fbx";
+//const char* g_fbxName = "..\\..\\..\\assets\\Soldier_animated_jump.fbx";
+const char* g_fbxName = "..\\..\\..\\assets\\Thriller Part 2.fbx";
 
 CE::FBXImporter* g_fbxImporter;
 CE::STBImageImporter* g_stbiImporter;
@@ -183,8 +183,8 @@ void Render()
 
 	glm::mat4 projection = glm::perspective(glm::pi<float>() * 0.25f, (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 1000.0f);
 	//glm::mat4 view = glm::lookAt(glm::vec3(0, 100, 400), glm::vec3(0, 100, 0), glm::vec3(0, 1, 0)); // paladin
-	glm::mat4 view = glm::lookAt(glm::vec3(0, 200, 400), glm::vec3(0, 100, 0), glm::vec3(0, 1, 0)); // solider
-	//glm::mat4 view = glm::lookAt(glm::vec3(0, 200, 700), glm::vec3(0, 50, 0), glm::vec3(0, 1, 0)); // thriller
+	//glm::mat4 view = glm::lookAt(glm::vec3(0, 200, 400), glm::vec3(0, 100, 0), glm::vec3(0, 1, 0)); // solider
+	glm::mat4 view = glm::lookAt(glm::vec3(0, 200, 700), glm::vec3(0, 50, 0), glm::vec3(0, 1, 0)); // thriller
 	//glm::mat4 view = glm::lookAt(glm::vec3(0, 2, 8), glm::vec3(0, 2, 0), glm::vec3(0, 1, 0)); // wonder woman
 	//glm::mat4 view = glm::lookAt(glm::vec3(0, 0, 1), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 	glm::mat4 model = glm::mat4(1.0f);

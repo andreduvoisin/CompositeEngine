@@ -1,5 +1,6 @@
 #include "FBXSkeletonImporter.h"
 
+#include "FBXValidator.h"
 #include "graphics\Skeleton.h"
 
 #include <fbxsdk.h>
@@ -19,6 +20,12 @@ namespace CE
 
 	bool FBXSkeletonImporter::LoadSkeleton()
 	{
+		FBXValidator validator(m_fbxManager, m_szFileName);
+		if (!validator.Validate())
+		{
+			return false;
+		}
+
 		FbxImporter* pImporter = FbxImporter::Create(m_fbxManager, "");
 		FbxScene* pFbxScene = FbxScene::Create(m_fbxManager, "");
 

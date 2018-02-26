@@ -1,6 +1,7 @@
 #include "FBXMeshImporter.h"
 
 #include "FBXUtilities.h"
+#include "FBXValidator.h"
 #include "graphics\Mesh.h"
 #include "graphics\Skeleton.h"
 
@@ -23,6 +24,12 @@ namespace CE
 
 	bool FBXMeshImporter::LoadMeshes()
 	{
+		FBXValidator validator(m_fbxManager, m_szFileName);
+		if (!validator.Validate())
+		{
+			return false;
+		}
+
 		FbxImporter* pImporter = FbxImporter::Create(m_fbxManager, "");
 		FbxScene* pFbxScene = FbxScene::Create(m_fbxManager, "");
 
@@ -128,11 +135,7 @@ namespace CE
 		//printf("lUVSetName: %s\n", lUVSetName);
 		printf("lPolyCount: %i\n", lPolyCount);
 
-		const FbxAMatrix geometryTransform = pMesh->GetNode()->EvaluateGlobalTransform();
-		const FbxAMatrix geometry_matrix(
-			pMesh->GetNode()->GetGeometricTranslation(FbxNode::eSourcePivot),
-			pMesh->GetNode()->GetGeometricRotation(FbxNode::eSourcePivot),
-			pMesh->GetNode()->GetGeometricScaling(FbxNode::eSourcePivot));
+		const FbxAMatrix globalTransform = pMesh->GetNode()->EvaluateGlobalTransform();
 
 		int lPolyIndexCounter = 0;
 		for (int lPolyIndex = 0; lPolyIndex < lPolyCount; ++lPolyIndex)
@@ -162,8 +165,7 @@ namespace CE
 					
 					FbxVector4 vertexPosition = pMesh->GetControlPointAt(lPolyVertIndex);
 					vertexPosition[3] = 1.f;
-					vertexPosition = geometryTransform.MultT(vertexPosition);
-					//vertexPosition = pMesh->GetControlPoints()[lPolyVertIndex];
+					vertexPosition = globalTransform.MultT(vertexPosition);
 
 					Vertex vertex;
 					vertex.numWeights = 0;
@@ -274,11 +276,6 @@ namespace CE
 	{
 		FbxMesh* currMesh = node->GetMesh();
 		unsigned int numOfDeformers = currMesh->GetDeformerCount();
-		//const FbxAMatrix geometryTransform = node->EvaluateGlobalTransform();
-		//const FbxAMatrix geometry_matrix(
-		//	node->GetGeometricTranslation(FbxNode::eSourcePivot),
-		//	node->GetGeometricRotation(FbxNode::eSourcePivot),
-		//	node->GetGeometricScaling(FbxNode::eSourcePivot));
 
 		for (unsigned deformerIndex = 0; deformerIndex < numOfDeformers; ++deformerIndex)
 		{
