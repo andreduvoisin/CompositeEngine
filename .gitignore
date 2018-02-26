@@ -9,6 +9,9 @@ build/*
 # Shader Generated Header Files
 src/shaders/*.h
 
+# Extracted FBX Media
+*.fbm
+
 # SDL
 extern/SDL2-2.0.5/VisualC/Win32
 extern/SDL2-2.0.5/VisualC/x64
