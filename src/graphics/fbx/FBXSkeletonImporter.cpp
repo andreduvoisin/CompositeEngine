@@ -47,12 +47,12 @@ namespace CE
 			return false;
 		}
 
-		ProcessSkeletonHierarchy(pFbxRootNode);
+		ProcessSkeletonHierarchy(pFbxRootNode, pFbxScene);
 
 		return true;
 	}
 
-	void FBXSkeletonImporter::ProcessSkeletonHierarchy(FbxNode* inRootNode)
+	void FBXSkeletonImporter::ProcessSkeletonHierarchy(FbxNode* inRootNode, FbxScene* pFbxScene)
 	{
 		for (int childIndex = 0; childIndex < inRootNode->GetChildCount(); ++childIndex)
 		{
@@ -61,21 +61,103 @@ namespace CE
 		}
 
 
-		//for (int i = 1; i < m_outSkeleton->joints.size(); ++i)
-		//{
-		//	m_outSkeleton->joints[i].inverseBindPose = m_outSkeleton->joints[m_outSkeleton->joints[i].parentIndex].inverseBindPose * m_outSkeleton->joints[i].inverseBindPose;
-		//}
+		std::vector<bool> isJointUsed;
+		isJointUsed.resize(m_outSkeleton->joints.size(), false);
 
-		//for (int i = 0; i < m_outSkeleton->joints.size(); ++i)
-		//{
-		//	// TODO: there's a faster but less precise matrix inverse for affine matricies, if this is going to be done at runtime (but i don't think it will)
-		//	m_outSkeleton->joints[i].inverseBindPose = glm::inverse(m_outSkeleton->joints[i].inverseBindPose);
-		//}
-
-
-		for (unsigned i = 0; i < m_outSkeleton->joints.size(); ++i)
+		const int meshCount = pFbxScene->GetSrcObjectCount<FbxMesh>();
+		for (int meshIndex = 0; meshIndex < meshCount; meshIndex++)
 		{
-			m_outSkeleton->joints[i].inverseBindPose = glm::mat4(1.f);
+			FbxMesh* currMesh = pFbxScene->GetSrcObject<FbxMesh>(meshIndex);
+
+			unsigned int numOfDeformers = currMesh->GetDeformerCount();
+
+			for (unsigned deformerIndex = 0; deformerIndex < numOfDeformers; ++deformerIndex)
+			{
+				FbxSkin* currSkin = reinterpret_cast<FbxSkin*>(currMesh->GetDeformer(deformerIndex, FbxDeformer::eSkin));
+				if (!currSkin)
+				{
+					continue;
+				}
+
+				unsigned numOfClusters = currSkin->GetClusterCount();
+				for (unsigned clusterIndex = 0; clusterIndex < numOfClusters; ++clusterIndex)
+				{
+					FbxCluster* currCluster = currSkin->GetCluster(clusterIndex);
+					std::string currJointName = currCluster->GetLink()->GetName();
+
+					unsigned int currJointIndex = -1;
+					for (unsigned i = 0; i < m_outSkeleton->joints.size(); ++i)
+					{
+						if (m_outSkeleton->joints[i].name == currJointName)
+						{
+							currJointIndex = i;
+							break;
+						}
+					}
+
+					// TODO: Swap to ozz-animation way of doing this?
+					if (currJointIndex == -1)
+					{
+						printf("Couldn't find joint index.\n");
+						continue; // should this break? or return even?
+					}
+
+					// TransformLink refers to global initial transform of the link node.
+					// TransformLink is the global transform of the bone(link) at the binding moment.
+					// In the future, if local transform is needed (instead of global), you must multiply up the chain with inverses.
+					FbxAMatrix transform_link_matrix;
+					transform_link_matrix = currCluster->GetTransformLinkMatrix(transform_link_matrix);
+
+					const FbxAMatrix inverse_bind_pose = transform_link_matrix.Inverse();
+
+					for (unsigned i = 0; i < 16; ++i)
+					{
+						m_outSkeleton->joints[currJointIndex].inverseBindPose[i / 4][i % 4] = inverse_bind_pose.Get(i / 4, i % 4);
+					}
+
+					unsigned int numOfIndices = currCluster->GetControlPointIndicesCount();
+					if (numOfIndices > 0)
+					{
+						isJointUsed[currJointIndex] = true;
+					}
+				}
+			}
+		}
+
+		int numJointsRemoved = 0;
+		for (size_t i = 0; i < isJointUsed.size(); ++i)
+		{
+			if (!isJointUsed[i] && !JointHasChild(i - numJointsRemoved))
+			{
+				RemoveJoint(i - numJointsRemoved);
+				++numJointsRemoved;
+			}
+		}
+	}
+
+	bool FBXSkeletonImporter::JointHasChild(int index)
+	{
+		for (int i = 0; i < m_outSkeleton->joints.size(); ++i)
+		{
+			if (m_outSkeleton->joints[i].parentIndex == index)
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	void FBXSkeletonImporter::RemoveJoint(int index)
+	{
+		m_outSkeleton->joints.erase(m_outSkeleton->joints.begin() + index);
+
+		for (int i = index; i < m_outSkeleton->joints.size(); ++i)
+		{
+			if (m_outSkeleton->joints[i].parentIndex > index)
+			{
+				--m_outSkeleton->joints[i].parentIndex;
+			}
 		}
 	}
 
@@ -88,12 +170,7 @@ namespace CE
 			Joint currJoint;
 			currJoint.parentIndex = inParentIndex;
 			currJoint.name = inNode->GetName();
-
-			FbxAMatrix bindPose = inParentIndex == -1 ? inNode->EvaluateGlobalTransform() : inNode->EvaluateLocalTransform();
-			for (unsigned i = 0; i < 16; ++i)
-			{
-				currJoint.inverseBindPose[i / 4][i % 4] = bindPose.Get(i / 4, i % 4);
-			}
+			currJoint.inverseBindPose = glm::mat4(1.f);
 
 			m_outSkeleton->joints.push_back(currJoint);
 		}

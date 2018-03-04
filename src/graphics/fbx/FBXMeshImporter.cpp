@@ -12,7 +12,7 @@ namespace CE
 	FBXMeshImporter::FBXMeshImporter(
 			FbxManager* fbxManager,
 			const char* szFileName,
-			Skeleton& skeleton,
+			const Skeleton& skeleton,
 			Meshes* outMeshes)
 		: m_fbxManager(fbxManager)
 		, m_szFileName(szFileName)
@@ -307,28 +307,6 @@ namespace CE
 					printf("Couldn't find joint index.\n");
 					continue; // should this break? or return even?
 				}
-
-
-				// Computes joint's inverse bind-pose matrix.
-				//FbxAMatrix transform_matrix;
-				//currCluster->GetTransformMatrix(transform_matrix);
-				//transform_matrix *= geometry_matrix;
-
-				// http://help.autodesk.com/view/FBX/2018/ENU/
-				// FbxNode class, ctrl+f "Pivot Management"
-				// FbxCluster class, ctrl+f "Transformation matrices"
-				// if local transform is needed, will have to multiply up the chain with inverses.
-				FbxAMatrix transform_link_matrix;
-				currCluster->GetTransformLinkMatrix(transform_link_matrix);
-
-				const FbxAMatrix inverse_bind_pose =
-					transform_link_matrix.Inverse();// * transform_matrix;
-
-				for (unsigned i = 0; i < 16; ++i)
-				{
-					m_skeleton.joints[currJointIndex].inverseBindPose[i / 4][i % 4] = inverse_bind_pose.Get(i / 4, i % 4);
-				}
-
 
 				unsigned int numOfIndices = currCluster->GetControlPointIndicesCount();
 				for (unsigned controlPointIndex = 0; controlPointIndex < numOfIndices; ++controlPointIndex)

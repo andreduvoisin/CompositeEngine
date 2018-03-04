@@ -5,6 +5,7 @@ namespace fbxsdk
 {
 	class FbxManager;
 	class FbxNode;
+	class FbxScene;
 }
 
 namespace CE
@@ -22,8 +23,10 @@ namespace CE
 		bool LoadSkeleton();
 
 	private:
-		void ProcessSkeletonHierarchy(fbxsdk::FbxNode* inRootNode);
+		void ProcessSkeletonHierarchy(fbxsdk::FbxNode* inRootNode, fbxsdk::FbxScene* pFbxScene);
 		void ProcessSkeletonHierarchyRecursively(fbxsdk::FbxNode* inNode, int myIndex, int inParentIndex);
+		bool JointHasChild(int index);
+		void RemoveJoint(int index);
 
 	private:
 		fbxsdk::FbxManager* m_fbxManager;
