@@ -25,7 +25,7 @@ namespace CE
 		FBXMeshImporter(
 			fbxsdk::FbxManager* fbxManager,
 			const char* szFileName,
-			Skeleton& skeleton,
+			const Skeleton& skeleton,
 			Meshes* outMeshes);
 
 		bool LoadMeshes();
@@ -39,7 +39,7 @@ namespace CE
 	private:
 		fbxsdk::FbxManager* m_fbxManager;
 		const char* m_szFileName;
-		Skeleton& m_skeleton;
+		const Skeleton& m_skeleton;
 		Meshes* m_outMeshes;
 
 		std::unordered_map<int, std::vector<int>> m_controlPointToVertices;

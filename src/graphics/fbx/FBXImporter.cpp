@@ -27,7 +27,7 @@ namespace CE
 		return skeletonImporter.LoadSkeleton();
 	}
 
-	bool FBXImporter::ExtractMeshes(const char* fileName, Skeleton& skeleton, Meshes* outMeshes)
+	bool FBXImporter::ExtractMeshes(const char* fileName, const Skeleton& skeleton, Meshes* outMeshes)
 	{
 		FBXMeshImporter meshImporter = FBXMeshImporter(m_fbxManager, fileName, skeleton, outMeshes);
 		return meshImporter.LoadMeshes();
