@@ -160,16 +160,16 @@ void Render()
 	glBindVertexArray(g_vao);
 
 	unsigned int stride = sizeof(CE::Vertex);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, NULL);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride, (void*)sizeof(CE::Position));
-	glVertexAttribIPointer(2, 1, GL_INT, stride, (void*)(sizeof(CE::Position) + sizeof(CE::TextureCoordinate)));
-	glVertexAttribIPointer(3, 1, GL_INT, stride, (void*)(sizeof(CE::Position) + sizeof(CE::TextureCoordinate) + sizeof(int) * 1));
-	glVertexAttribIPointer(4, 1, GL_INT, stride, (void*)(sizeof(CE::Position) + sizeof(CE::TextureCoordinate) + sizeof(int) * 2));
-	glVertexAttribIPointer(5, 1, GL_INT, stride, (void*)(sizeof(CE::Position) + sizeof(CE::TextureCoordinate) + sizeof(int) * 3));
-	glVertexAttribPointer(6, 1, GL_FLOAT, GL_FALSE, stride, (void*)(sizeof(CE::Position) + sizeof(CE::TextureCoordinate) + sizeof(int) * 4));
-	glVertexAttribPointer(7, 1, GL_FLOAT, GL_FALSE, stride, (void*)(sizeof(CE::Position) + sizeof(CE::TextureCoordinate) + sizeof(int) * 4 + sizeof(float) * 1));
-	glVertexAttribPointer(8, 1, GL_FLOAT, GL_FALSE, stride, (void*)(sizeof(CE::Position) + sizeof(CE::TextureCoordinate) + sizeof(int) * 4 + sizeof(float) * 2));
-	glVertexAttribPointer(9, 1, GL_FLOAT, GL_FALSE, stride, (void*)(sizeof(CE::Position) + sizeof(CE::TextureCoordinate) + sizeof(int) * 4 + sizeof(float) * 3));
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(offsetof(CE::Vertex, position)));
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(offsetof(CE::Vertex, textureCoordinate)));
+	glVertexAttribIPointer(2, 1, GL_INT, stride, reinterpret_cast<void*>(offsetof(CE::Vertex, jointIndices)));
+	glVertexAttribIPointer(3, 1, GL_INT, stride, reinterpret_cast<void*>(offsetof(CE::Vertex, jointIndices) + sizeof(int)));
+	glVertexAttribIPointer(4, 1, GL_INT, stride, reinterpret_cast<void*>(offsetof(CE::Vertex, jointIndices) + sizeof(int) * 2));
+	glVertexAttribIPointer(5, 1, GL_INT, stride, reinterpret_cast<void*>(offsetof(CE::Vertex, jointIndices) + sizeof(int) * 3));
+	glVertexAttribPointer(6, 1, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(offsetof(CE::Vertex, jointWeights)));
+	glVertexAttribPointer(7, 1, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(offsetof(CE::Vertex, jointWeights) + sizeof(float)));
+	glVertexAttribPointer(8, 1, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(offsetof(CE::Vertex, jointWeights) + sizeof(float) * 2));
+	glVertexAttribPointer(9, 1, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(offsetof(CE::Vertex, jointWeights) + sizeof(float) * 3));
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
 	glEnableVertexAttribArray(2);

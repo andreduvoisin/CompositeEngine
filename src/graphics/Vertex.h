@@ -32,7 +32,7 @@ namespace CE
 		TextureCoordinate textureCoordinate;
 		int jointIndices[4];
 		float jointWeights[4];
-		unsigned numWeights;
+		unsigned numWeights; // TODO: Remove
 	};
 
 	inline bool operator==(const Vertex& lhs, const Vertex& rhs)
