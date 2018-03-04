@@ -226,10 +226,17 @@ void Render()
 
 	glUseProgram(g_programID2);
 
-	stride = 28;
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, NULL);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride, (void*)(12));
-	glVertexAttribIPointer(2, 1, GL_INT, stride, (void*)(24));
+	struct DebugSkeletonVertex
+	{
+		glm::vec3 position;
+		glm::vec3 color;
+		int jointIndex;
+	};
+
+	stride = sizeof(DebugSkeletonVertex);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(offsetof(DebugSkeletonVertex, position)));
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(offsetof(DebugSkeletonVertex, color)));
+	glVertexAttribIPointer(2, 1, GL_INT, stride, reinterpret_cast<void*>(offsetof(DebugSkeletonVertex, jointIndex)));
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
 	glEnableVertexAttribArray(2);
@@ -240,13 +247,6 @@ void Render()
 		g_paletteGenTex,
 		g_tbo,
 		g_paletteID2);
-
-	struct DebugSkeletonVertex
-	{
-		glm::vec3 position;
-		glm::vec3 color;
-		int jointIndex;
-	};
 
 	CE::Skeleton* skeleton = CE::SkeletonManager::Get().GetSkeleton(g_fbxName);
 
