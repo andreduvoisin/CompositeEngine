@@ -7,47 +7,13 @@ set(EXTERN_DIR "${CMAKE_CURRENT_LIST_DIR}/extern")
 
 file(GLOB_RECURSE SRC_FILES "${SRC_DIR}/*.cpp")
 
-# DirectX Shaders
-if(WIN32)
-	set(PIXEL_SHADERS "${SRC_DIR}/shaders/SimplePixelShader.hlsl")
-	set(VERTEX_SHADERS "${SRC_DIR}/shaders/SimpleVertexShader.hlsl")
-
-	list(APPEND SRC_FILES ${PIXEL_SHADERS} ${VERTEX_SHADERS})
-
-	set_source_files_properties(
-		${PIXEL_SHADERS}
-		PROPERTIES
-			VS_SHADER_TYPE Pixel
-			VS_SHADER_MODEL 4.0_level_9_3
-			VS_SHADER_ENTRYPOINT main
-	)
-
-	set_source_files_properties(
-		${VERTEX_SHADERS}
-		PROPERTIES
-			VS_SHADER_TYPE Vertex
-			VS_SHADER_MODEL 4.0_level_9_3
-			VS_SHADER_ENTRYPOINT main
-	)
-endif()
-
 add_executable(CompositeEngine ${SRC_FILES})
 
 include_directories(${SRC_DIR})
 
-# freeglut
-# TODO: Remove these dependencies.
-include_directories(
-	"${EXTERN_DIR}/freeglut-2.8.1/include"
-)
-target_link_libraries(
-	CompositeEngine
-		"${EXTERN_DIR}/freeglut-2.8.1/lib/x86/Debug/freeglut_static.lib"
-)
-
-# DirectX
+# OpenGL
 if(WIN32)
-	target_link_libraries(CompositeEngine d3d11 d3dcompiler)
+	target_link_libraries(CompositeEngine opengl32) # glu32 gdi32 winmm user32 glut32
 endif()
 
 # SDL
@@ -139,7 +105,7 @@ if(WIN32)
 	include_directories("${FBXSDK_ROOT_DIR}/include")
 
 	# FBX SDK can be linked statically (with either /MD or /MT) or dynamically.
-	# opengl32.lib and glu32.lib link with /MD, so we can't link with /MT.
+	# opengl32.lib (and glu32.lib) link with /MD, so we can't link with /MT.
 	# /MD[d] is included in CMAKE_CXX_FLAGS[_*] by default.
 
 	# Statically-Linked Library (/MD)
