@@ -158,27 +158,15 @@ void Render()
 	glUseProgram(g_programID);
 	glBindVertexArray(g_vao);
 
-	unsigned int stride = sizeof(CE::Vertex);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(offsetof(CE::Vertex, position)));
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(offsetof(CE::Vertex, textureCoordinate)));
-	glVertexAttribIPointer(2, 1, GL_INT, stride, reinterpret_cast<void*>(offsetof(CE::Vertex, jointIndices)));
-	glVertexAttribIPointer(3, 1, GL_INT, stride, reinterpret_cast<void*>(offsetof(CE::Vertex, jointIndices) + sizeof(int)));
-	glVertexAttribIPointer(4, 1, GL_INT, stride, reinterpret_cast<void*>(offsetof(CE::Vertex, jointIndices) + sizeof(int) * 2));
-	glVertexAttribIPointer(5, 1, GL_INT, stride, reinterpret_cast<void*>(offsetof(CE::Vertex, jointIndices) + sizeof(int) * 3));
-	glVertexAttribPointer(6, 1, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(offsetof(CE::Vertex, jointWeights)));
-	glVertexAttribPointer(7, 1, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(offsetof(CE::Vertex, jointWeights) + sizeof(float)));
-	glVertexAttribPointer(8, 1, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(offsetof(CE::Vertex, jointWeights) + sizeof(float) * 2));
-	glVertexAttribPointer(9, 1, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(offsetof(CE::Vertex, jointWeights) + sizeof(float) * 3));
+	unsigned int stride = sizeof(CE::Vertex1P1UV4J);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(offsetof(CE::Vertex1P1UV4J, position)));
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(offsetof(CE::Vertex1P1UV4J, uv)));
+	glVertexAttribIPointer(2, 4, GL_UNSIGNED_BYTE, stride, reinterpret_cast<void*>(offsetof(CE::Vertex1P1UV4J, jointIndices)));
+	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(offsetof(CE::Vertex1P1UV4J, jointWeights)));
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
 	glEnableVertexAttribArray(2);
 	glEnableVertexAttribArray(3);
-	glEnableVertexAttribArray(4);
-	glEnableVertexAttribArray(5);
-	glEnableVertexAttribArray(6);
-	glEnableVertexAttribArray(7);
-	glEnableVertexAttribArray(8);
-	glEnableVertexAttribArray(9);
 
 	glm::mat4 projection = glm::perspective(glm::pi<float>() * 0.25f, (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 1000.0f);
 	//glm::mat4 view = glm::lookAt(glm::vec3(0, 100, 400), glm::vec3(0, 100, 0), glm::vec3(0, 1, 0)); // paladin
@@ -215,12 +203,6 @@ void Render()
 	glDisableVertexAttribArray(1);
 	glDisableVertexAttribArray(2);
 	glDisableVertexAttribArray(3);
-	glDisableVertexAttribArray(4);
-	glDisableVertexAttribArray(5);
-	glDisableVertexAttribArray(6);
-	glDisableVertexAttribArray(7);
-	glDisableVertexAttribArray(8);
-	glDisableVertexAttribArray(9);
 
 
 	glUseProgram(g_programID2);

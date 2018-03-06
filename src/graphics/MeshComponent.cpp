@@ -42,7 +42,7 @@ namespace CE
 		GLuint g_diffuseTextureUnit)
 	{
 		glBindBuffer(GL_ARRAY_BUFFER, g_vbo);
-		glBufferData(GL_ARRAY_BUFFER, mesh.m_vertices.size() * sizeof(CE::Vertex), mesh.m_vertices.data(), GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, mesh.m_vertices.size() * sizeof(CE::Vertex1P1UV4J), mesh.m_vertices.data(), GL_STATIC_DRAW);
 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_ibo);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh.m_indices.size() * sizeof(unsigned int), mesh.m_indices.data(), GL_STATIC_DRAW);

@@ -9,7 +9,7 @@ namespace CE
 {
 	struct Mesh
 	{
-		std::vector<Vertex> m_vertices;
+		std::vector<Vertex1P1UV4J> m_vertices;
 		std::vector<unsigned int> m_indices;
 
 		std::string m_diffuseMapName;
