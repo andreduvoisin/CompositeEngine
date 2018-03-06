@@ -21,6 +21,7 @@ namespace CE
 	private:
 		bool ValidateNode(fbxsdk::FbxNode* node);
 		bool ValidateGeometry(fbxsdk::FbxNode* node);
+		bool ValidateCluster(fbxsdk::FbxNode* node);
 		bool ValidateChildren(fbxsdk::FbxNode* node);
 
 	private:

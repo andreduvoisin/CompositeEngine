@@ -6,6 +6,7 @@
 #include "graphics\Skeleton.h"
 
 #include <fbxsdk.h>
+#include <algorithm>
 
 namespace CE
 {
@@ -167,11 +168,10 @@ namespace CE
 					vertexPosition[3] = 1.f;
 					vertexPosition = globalTransform.MultT(vertexPosition);
 
-					Vertex vertex;
-					vertex.numWeights = 0;
-					vertex.position.x = (float)vertexPosition[0];
-					vertex.position.y = (float)vertexPosition[1];
-					vertex.position.z = (float)vertexPosition[2];
+					Vertex1P1UV4J vertex;
+					vertex.position.x = static_cast<float>(vertexPosition[0]);
+					vertex.position.y = static_cast<float>(vertexPosition[1]);
+					vertex.position.z = static_cast<float>(vertexPosition[2]);
 
 					FbxVector2 lUVValue;
 
@@ -193,8 +193,8 @@ namespace CE
 
 					lUVValue = lUVElement->GetDirectArray().GetAt(lUVIndex);
 
-					vertex.textureCoordinate.u = lUVValue[0];
-					vertex.textureCoordinate.v = lUVValue[1];
+					vertex.uv[0] = lUVValue[0];
+					vertex.uv[1] = lUVValue[1];
 
 					unsigned int index;
 					for (index = 0; index < currentMesh.m_vertices.size(); ++index)
@@ -277,6 +277,14 @@ namespace CE
 		FbxMesh* currMesh = node->GetMesh();
 		unsigned int numOfDeformers = currMesh->GetDeformerCount();
 
+		struct JointIndexWeightPair
+		{
+			unsigned index;
+			float weight;
+		};
+		std::vector<std::vector<JointIndexWeightPair>> jointIndexWeightPairs;
+		jointIndexWeightPairs.resize(currentMesh.m_vertices.size());
+
 		for (unsigned deformerIndex = 0; deformerIndex < numOfDeformers; ++deformerIndex)
 		{
 			FbxSkin* currSkin = reinterpret_cast<FbxSkin*>(currMesh->GetDeformer(deformerIndex, FbxDeformer::eSkin));
@@ -301,11 +309,9 @@ namespace CE
 					}
 				}
 
-				// TODO: Swap to ozz-animation way of doing this?
 				if (currJointIndex == -1)
 				{
-					printf("Couldn't find joint index.\n");
-					continue; // should this break? or return even?
+					continue;
 				}
 
 				unsigned int numOfIndices = currCluster->GetControlPointIndicesCount();
@@ -314,31 +320,59 @@ namespace CE
 					const auto& verticesForControlPoint = m_controlPointToVertices[currCluster->GetControlPointIndices()[controlPointIndex]];
 					for (unsigned vertexIndex = 0; vertexIndex < verticesForControlPoint.size(); ++vertexIndex)
 					{
-						Vertex& vertex = currentMesh.m_vertices[verticesForControlPoint[vertexIndex]];
-
-						if (vertex.numWeights >= 4)
-						{
-							// TODO: either take all weights, or take the 4 most weighted, or something better than just the first 4
-							printf("too many weights!\n");
-							continue;
-						}
-
-						vertex.jointIndices[vertex.numWeights] = currJointIndex;
-						vertex.jointWeights[vertex.numWeights] = currCluster->GetControlPointWeights()[controlPointIndex];
-						vertex.numWeights++;
+						JointIndexWeightPair jointIndexWeightPair;
+						jointIndexWeightPair.index = currJointIndex;
+						jointIndexWeightPair.weight = currCluster->GetControlPointWeights()[controlPointIndex];
+						jointIndexWeightPairs[verticesForControlPoint[vertexIndex]].push_back(jointIndexWeightPair);
 					}
 				}
 			}
 		}
 
-		// ensure we have 4 joints per vertex
-		for (auto it = currentMesh.m_vertices.begin(); it != currentMesh.m_vertices.end(); ++it)
+		for (size_t i = 0; i < currentMesh.m_vertices.size(); ++i)
 		{
-			while (it->numWeights < 4)
+			std::sort(jointIndexWeightPairs[i].begin(), jointIndexWeightPairs[i].end(), 
+				[](const JointIndexWeightPair& lhs, const JointIndexWeightPair& rhs) -> bool {
+					return lhs.weight > rhs.weight;
+				});
+
+			const unsigned maxWeights = 4;
+			unsigned numWeights = jointIndexWeightPairs[i].size();
+
+			if (numWeights > maxWeights)
 			{
-				it->jointIndices[it->numWeights] = 0;
-				it->jointWeights[it->numWeights] = 0;
-				it->numWeights++;
+				printf("WARNING: %u Weights, %u Max\n", numWeights, maxWeights);
+				numWeights = maxWeights;
+			}
+
+			float sum = 0.f;
+			for (size_t j = 0; j < numWeights; ++j)
+			{
+				sum += jointIndexWeightPairs[i][j].weight;
+			}
+			const float inverseSum = 1.f / (sum == 0.f ? 1.f : sum);
+			for (size_t j = 0; j < numWeights; ++j)
+			{
+				jointIndexWeightPairs[i][j].weight *= inverseSum;
+			}
+
+			size_t currentWeight;
+			for (currentWeight = 0; currentWeight < numWeights; ++currentWeight)
+			{
+				currentMesh.m_vertices[i].jointIndices[currentWeight] = jointIndexWeightPairs[i][currentWeight].index;
+				if (currentWeight != maxWeights - 1)
+				{
+					currentMesh.m_vertices[i].jointWeights[currentWeight] = jointIndexWeightPairs[i][currentWeight].weight;
+				}
+			}
+
+			for (; currentWeight < maxWeights; ++currentWeight)
+			{
+				currentMesh.m_vertices[i].jointIndices[currentWeight] = 0;
+				if (currentWeight != maxWeights - 1)
+				{
+					currentMesh.m_vertices[i].jointWeights[currentWeight] = 0.f;
+				}
 			}
 		}
 	}
