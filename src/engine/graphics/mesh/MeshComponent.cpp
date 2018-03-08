@@ -1,8 +1,8 @@
 #include "MeshComponent.h"
 
 #include "Mesh.h"
-#include "Texture.h"
-#include "TextureManager.h"
+#include "graphics\texture\Texture.h"
+#include "graphics\texture\TextureManager.h"
 
 #include <GL\glew.h>
 

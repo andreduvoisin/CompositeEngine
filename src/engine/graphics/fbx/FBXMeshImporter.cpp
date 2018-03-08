@@ -2,8 +2,8 @@
 
 #include "FBXUtilities.h"
 #include "FBXValidator.h"
-#include "graphics\Mesh.h"
-#include "graphics\Skeleton.h"
+#include "graphics\mesh\Mesh.h"
+#include "graphics\skeleton\Skeleton.h"
 
 #include <fbxsdk.h>
 #include <algorithm>

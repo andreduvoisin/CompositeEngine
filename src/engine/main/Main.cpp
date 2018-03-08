@@ -9,23 +9,20 @@
 #include <fstream>
 #include <sstream>
 
-#include "graphics\MeshManager.h"
-#include "graphics\AnimationManager.h"
-#include "graphics\SkeletonManager.h"
-#include "graphics\TextureManager.h"
-#include "graphics\Mesh.h"
-#include "graphics\Texture.h"
-#include "graphics\Vertex.h"
+#include "graphics\animation\AnimationComponent.h"
+#include "graphics\animation\AnimationOptimizer.h"
+#include "graphics\animation\AnimationManager.h"
+#include "graphics\mesh\Mesh.h"
+#include "graphics\mesh\Vertex.h"
+#include "graphics\mesh\MeshManager.h"
+#include "graphics\mesh\MeshComponent.h"
+#include "graphics\skeleton\Skeleton.h"
+#include "graphics\skeleton\SkeletonManager.h"
+#include "graphics\texture\TextureManager.h"
+#include "graphics\texture\STBImageImporter.h"
 
 #include "graphics\fbx\FBXImporter.h"
-#include "graphics\STBImageImporter.h"
 
-#include "graphics\MeshComponent.h"
-#include "graphics\AnimationComponent.h"
-
-#include "graphics\AnimationOptimizer.h"
-
-#include "graphics\Skeleton.h"
 #include <glm\gtx\matrix_decompose.hpp>
 
 const int SCREEN_WIDTH = 1280;
@@ -319,7 +316,7 @@ bool CreateProgram2()
 	// TODO: Copy shaders in CMAKE to .exe dir (or subdir next to .exe).
 
 	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	std::string vertexShaderSource = ReadFile("..\\..\\..\\src\\shaders\\SkeletonShader.vert");
+	std::string vertexShaderSource = ReadFile("..\\..\\..\\src\\engine\\graphics\\shaders\\SkeletonShader.vert");
 	const char* vertexShaderSourceStr = vertexShaderSource.c_str();
 	glShaderSource(vertexShader, 1, &vertexShaderSourceStr, NULL);
 	glCompileShader(vertexShader);
@@ -338,7 +335,7 @@ bool CreateProgram2()
 	//{
 	//	"#version 410\nout vec4 LFragment; void main() { LFragment = vec4(1.0, 1.0, 1.0, 1.0); }"
 	//};
-	std::string fragmentShaderSource = ReadFile("..\\..\\..\\src\\shaders\\FragmentShader.frag");
+	std::string fragmentShaderSource = ReadFile("..\\..\\..\\src\\engine\\graphics\\shaders\\FragmentShader.frag");
 	const char* fragmentShaderSourceStr = fragmentShaderSource.c_str();
 	glShaderSource(fragmentShader, 1, &fragmentShaderSourceStr, NULL);
 	glCompileShader(fragmentShader);
@@ -372,7 +369,7 @@ bool InitializeOpenGL()
 	// TODO: Copy shaders in CMAKE to .exe dir (or subdir next to .exe).
 
 	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	std::string vertexShaderSource = ReadFile("..\\..\\..\\src\\shaders\\SkinnedMeshShader.vert");
+	std::string vertexShaderSource = ReadFile("..\\..\\..\\src\\engine\\graphics\\shaders\\SkinnedMeshShader.vert");
 	const char* vertexShaderSourceStr = vertexShaderSource.c_str();
 	glShaderSource(vertexShader, 1, &vertexShaderSourceStr, NULL);
 	glCompileShader(vertexShader);
@@ -391,7 +388,7 @@ bool InitializeOpenGL()
 	//{
 	//	"#version 410\nout vec4 LFragment; void main() { LFragment = vec4(1.0, 1.0, 1.0, 1.0); }"
 	//};
-	std::string fragmentShaderSource = ReadFile("..\\..\\..\\src\\shaders\\DiffuseTextureShader.frag");
+	std::string fragmentShaderSource = ReadFile("..\\..\\..\\src\\engine\\graphics\\shaders\\DiffuseTextureShader.frag");
 	const char* fragmentShaderSourceStr = fragmentShaderSource.c_str();
 	glShaderSource(fragmentShader, 1, &fragmentShaderSourceStr, NULL);
 	glCompileShader(fragmentShader);

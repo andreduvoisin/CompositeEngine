@@ -1,7 +1,7 @@
 #include "SkeletonManager.h"
 
 #include "Skeleton.h"
-#include "File3DImporter.h"
+#include "graphics\File3DImporter.h"
 
 #include <string>
 

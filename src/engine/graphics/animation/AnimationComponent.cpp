@@ -1,7 +1,7 @@
 #include "AnimationComponent.h"
 
 #include "Animation.h"
-#include "Skeleton.h"
+#include "graphics\skeleton\Skeleton.h"
 
 #include "common\Math.h"
 
