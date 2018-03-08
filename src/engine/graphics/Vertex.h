@@ -5,6 +5,19 @@
 
 namespace CE
 {
+	struct Vertex1P1UV
+	{
+		glm::vec3 position;
+		float uv[2];
+	};
+
+	inline bool operator==(const Vertex1P1UV& lhs, const Vertex1P1UV& rhs)
+	{
+		return lhs.position == rhs.position
+			&& lhs.uv[0] == rhs.uv[0]
+			&& lhs.uv[1] == rhs.uv[1];
+	}
+
 	struct Vertex1P1UV4J
 	{
 		glm::vec3 position;
