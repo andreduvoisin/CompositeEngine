@@ -5,11 +5,13 @@ project(CompositeEngine)
 set(SRC_DIR "${CMAKE_CURRENT_LIST_DIR}/src")
 set(EXTERN_DIR "${CMAKE_CURRENT_LIST_DIR}/extern")
 
-file(GLOB_RECURSE SRC_FILES "${SRC_DIR}/*.cpp")
+set(ENGINE_SRC_DIR "${SRC_DIR}/engine")
 
-add_executable(CompositeEngine ${SRC_FILES})
+file(GLOB_RECURSE ENGINE_SRC_FILES "${SRC_DIR}/*.cpp")
 
-include_directories(${SRC_DIR})
+add_executable(CompositeEngine ${ENGINE_SRC_FILES})
+
+include_directories(${ENGINE_SRC_DIR})
 
 # OpenGL
 if(WIN32)
