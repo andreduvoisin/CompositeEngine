@@ -1,8 +1,8 @@
 #include "FBXAnimationImporter.h"
 
 #include "FBXValidator.h"
-#include "graphics\Animation.h"
-#include "graphics\Skeleton.h"
+#include "graphics\animation\Animation.h"
+#include "graphics\skeleton\Skeleton.h"
 
 #include <fbxsdk.h>
 
