@@ -29,7 +29,6 @@ namespace CE
 	struct Animation
 	{
 		std::string name;
-		// TODO: Would be more cache coherent stored by time then by joint, as opposed to by joint then by time.
 		std::vector<std::vector<TranslationKey>> translations;
 		std::vector<std::vector<RotationKey>> rotations;
 		std::vector<std::vector<ScaleKey>> scales;

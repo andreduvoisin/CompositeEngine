@@ -1,14 +1,12 @@
 #include "AssetImporter.h"
 
 #include "AssetTraits.h"
+#include "InputFileStream.h"
 
 #include "graphics\skeleton\Skeleton.h"
 #include "graphics\mesh\Mesh.h"
 #include "graphics\animation\Animation.h"
 #include "graphics\texture\Texture.h"
-
-#include <fstream>
-#include <string>
 
 namespace CE
 {
@@ -19,16 +17,15 @@ namespace CE
 		Animations& outAnimations, 
 		Texture& outTexture)
 	{
-		std::ifstream stream;
-		stream.open(fileName, std::ios::in | std::ios::binary);
+		InputFileStream stream(fileName);
 
-		if (!stream.is_open())
+		if (!stream.IsValid())
 		{
 			return false;
 		}
 
 		char header[8];
-		stream.read(header, 8);
+		stream.Read(header, 8);
 		if (!(header[0] == 'C'
 			&& header[1] == 'E'
 			&& header[2] == 'A'
@@ -41,26 +38,22 @@ namespace CE
 			return false;
 		}
 
-		AssetType assetType;
-		stream.read(reinterpret_cast<char*>(&assetType), sizeof(assetType));
-
-		while (!stream.eof())
+		while (stream.HasData())
 		{
+			const auto assetType = stream.Read<AssetType>();
+
 			switch (assetType)
 			{
 				case AssetType::SKELETON:
 				{
-					unsigned jointCount;
-					stream.read(reinterpret_cast<char*>(&jointCount), sizeof(jointCount));
-
+					const auto jointCount = stream.Read<unsigned>();
 					outSkeleton.joints.resize(jointCount);
-
 					for (unsigned jointIndex = 0; jointIndex < jointCount; ++jointIndex)
 					{
 						Joint& joint = outSkeleton.joints[jointIndex];
-						stream.read(reinterpret_cast<char*>(&joint.inverseBindPose), sizeof(joint.inverseBindPose));
-						std::getline(stream, joint.name, '\0');
-						stream.read(reinterpret_cast<char*>(&joint.parentIndex), sizeof(joint.parentIndex));
+						stream.Read(joint.inverseBindPose);
+						stream.Read(joint.name);
+						stream.Read(joint.parentIndex);
 					}
 
 					break;
@@ -71,19 +64,17 @@ namespace CE
 					outMeshes.push_back(Mesh());
 					Mesh& mesh = outMeshes.back();
 
-					unsigned verticesCount;
-					stream.read(reinterpret_cast<char*>(&verticesCount), sizeof(verticesCount));
+					const auto verticesCount = stream.Read<unsigned>();
 					mesh.m_vertices.resize(verticesCount);
-					stream.read(reinterpret_cast<char*>(mesh.m_vertices.data()), sizeof(Vertex1P1UV4J) * verticesCount);
+					stream.Read(mesh.m_vertices.data(), verticesCount);
 
-					unsigned indicesCount;
-					stream.read(reinterpret_cast<char*>(&indicesCount), sizeof(indicesCount));
+					const auto indicesCount = stream.Read<unsigned>();
 					mesh.m_indices.resize(indicesCount);
-					stream.read(reinterpret_cast<char*>(mesh.m_indices.data()), sizeof(unsigned int) * indicesCount);
+					stream.Read(mesh.m_indices.data(), indicesCount);
 
-					std::getline(stream, mesh.m_diffuseMapName, '\0');
-					std::getline(stream, mesh.m_specularMapName, '\0');
-					std::getline(stream, mesh.m_normalMapName, '\0');
+					stream.Read(mesh.m_diffuseMapName);
+					stream.Read(mesh.m_specularMapName);
+					stream.Read(mesh.m_normalMapName);
 
 					break;
 				}
@@ -92,58 +83,61 @@ namespace CE
 				{
 					outAnimations.push_back(Animation());
 					Animation& animation = outAnimations.back();
-					animation.translations.resize(outSkeleton.joints.size());
 					animation.rotations.resize(outSkeleton.joints.size());
 					animation.scales.resize(outSkeleton.joints.size());
 
-					std::getline(stream, animation.name, '\0');
+					stream.Read(animation.name);
 
-					for (unsigned translationsIndex = 0; translationsIndex < outSkeleton.joints.size(); ++translationsIndex)
+					const auto translationsCount = stream.Read<unsigned>();
+					animation.translations.resize(translationsCount);
+					for (unsigned translationsIndex = 0; translationsIndex < translationsCount; ++translationsIndex)
 					{
-						unsigned translationsCount;
-						stream.read(reinterpret_cast<char*>(&translationsCount), sizeof(translationsCount));
-						animation.translations[translationsIndex].resize(translationsCount);
-						stream.read(reinterpret_cast<char*>(animation.translations[translationsIndex].data()), sizeof(TranslationKey) * translationsCount);
+						auto& translations = animation.translations[translationsIndex];
+						const auto keyCount = stream.Read<unsigned>();
+						translations.resize(keyCount);
+						stream.Read(translations.data(), keyCount);
 					}
 
-					for (unsigned rotationsIndex = 0; rotationsIndex < outSkeleton.joints.size(); ++rotationsIndex)
+					const auto rotationsCount = stream.Read<unsigned>();
+					animation.rotations.resize(rotationsCount);
+					for (unsigned rotationsIndex = 0; rotationsIndex < rotationsCount; ++rotationsIndex)
 					{
-						unsigned rotationsCount;
-						stream.read(reinterpret_cast<char*>(&rotationsCount), sizeof(rotationsCount));
-						animation.rotations[rotationsIndex].resize(rotationsCount);
-						stream.read(reinterpret_cast<char*>(animation.rotations[rotationsIndex].data()), sizeof(RotationKey) * rotationsCount);
+						auto& rotations = animation.rotations[rotationsIndex];
+						const auto keyCount = stream.Read<unsigned>();
+						rotations.resize(keyCount);
+						stream.Read(rotations.data(), keyCount);
 					}
 
-					for (unsigned scalesIndex = 0; scalesIndex < outSkeleton.joints.size(); ++scalesIndex)
+					const auto scalesCount = stream.Read<unsigned>();
+					animation.scales.resize(scalesCount);
+					for (unsigned scalesIndex = 0; scalesIndex < scalesCount; ++scalesIndex)
 					{
-						unsigned scalesCount;
-						stream.read(reinterpret_cast<char*>(&scalesCount), sizeof(scalesCount));
-						animation.scales[scalesIndex].resize(scalesCount);
-						stream.read(reinterpret_cast<char*>(animation.scales[scalesIndex].data()), sizeof(ScaleKey) * scalesCount);
+						auto& scales = animation.scales[scalesIndex];
+						const auto keyCount = stream.Read<unsigned>();
+						scales.resize(keyCount);
+						stream.Read(scales.data(), keyCount);
 					}
 
-					stream.read(reinterpret_cast<char*>(&animation.duration), sizeof(animation.duration));
+					stream.Read(animation.duration);
 
 					break;
 				}
 
 				case AssetType::TEXTURE:
 				{
-					stream.read(reinterpret_cast<char*>(&outTexture.width), sizeof(outTexture.width));
-					stream.read(reinterpret_cast<char*>(&outTexture.height), sizeof(outTexture.height));
-					stream.read(reinterpret_cast<char*>(&outTexture.channels), sizeof(outTexture.channels));
+					stream.Read(outTexture.width);
+					stream.Read(outTexture.height);
+					stream.Read(outTexture.channels);
+
 					// todo: delete. also probs shouldn't be here anyways
 					outTexture.data = new unsigned char[outTexture.width * outTexture.height * outTexture.channels];
-					stream.read(reinterpret_cast<char*>(outTexture.data), outTexture.width * outTexture.height * outTexture.channels);
+					stream.Read(outTexture.data, outTexture.width * outTexture.height * outTexture.channels);
 
 					break;
 				}
 			}
-
-			stream.read(reinterpret_cast<char*>(&assetType), sizeof(assetType));
 		}
 
-		stream.close();
-		return true;
+		return stream.IsValid();
 	}
 }
