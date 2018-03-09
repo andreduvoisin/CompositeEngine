@@ -1,0 +1,60 @@
+#ifndef _CE_INPUT_FILE_STREAM_H_
+#define _CE_INPUT_FILE_STREAM_H_
+
+#include <fstream>
+#include <string>
+
+namespace CE
+{
+	class InputFileStream
+	{
+	public:
+		InputFileStream(const char* fileName);
+		~InputFileStream();
+
+		bool IsValid();
+		bool HasData();
+
+		template<typename T>
+		T Read();
+
+		template<typename T>
+		void Read(T& data);
+		template<>
+		void Read(std::string& data);
+
+		template<typename T>
+		void Read(T* data, size_t count);
+
+	private:
+		std::ifstream stream;
+	};
+
+	template<typename T>
+	T InputFileStream::Read()
+	{
+		T data;
+		Read(data);
+		return data;
+	}
+
+	template<typename T>
+	void InputFileStream::Read(T& data)
+	{
+		stream.read(reinterpret_cast<char*>(&data), sizeof(T));
+	}
+
+	template<>
+	void InputFileStream::Read(std::string& data)
+	{
+		std::getline(stream, data, '\0');
+	}
+
+	template<typename T>
+	void InputFileStream::Read(T* data, size_t count)
+	{
+		stream.read(reinterpret_cast<char*>(data), sizeof(T) * count);
+	}
+}
+
+#endif // _CE_INPUT_FILE_STREAM_H_
