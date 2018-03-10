@@ -55,6 +55,13 @@ namespace CE
 	{
 		stream.read(reinterpret_cast<char*>(data), sizeof(T) * count);
 	}
+
+	template<typename T>
+	InputFileStream& operator>>(InputFileStream& stream, T& data)
+	{
+		stream.Read(data);
+		return stream;
+	}
 }
 
 #endif // _CE_INPUT_FILE_STREAM_H_
