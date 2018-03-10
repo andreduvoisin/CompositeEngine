@@ -3,6 +3,9 @@
 
 namespace CE
 {
+	extern const char* const ASSET_FILE_HEADER;
+	extern const size_t ASSET_FILE_HEADER_LENGTH;
+
 	enum AssetType
 	{
 		SKELETON = 0,

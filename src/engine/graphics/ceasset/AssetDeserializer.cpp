@@ -20,14 +20,7 @@ namespace CE
 	{
 		char header[8];
 		stream.Read(header, 8);
-		return header[0] == 'C'
-			&& header[1] == 'E'
-			&& header[2] == 'A'
-			&& header[3] == 'S'
-			&& header[4] == 'S'
-			&& header[5] == 'E'
-			&& header[6] == 'T'
-			&& header[7] == '\0';
+		return memcmp(header, ASSET_FILE_HEADER, ASSET_FILE_HEADER_LENGTH) == 0;
 	}
 
 	AssetType AssetDeserializer::ReadAssetType()
