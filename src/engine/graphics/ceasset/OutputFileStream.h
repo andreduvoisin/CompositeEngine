@@ -14,23 +14,23 @@ namespace CE
 		bool IsValid();
 
 		template<typename T>
-		void Write(T data);
+		void Write(const T& data);
 
 		template<typename T>
-		void Write(T* data, size_t count);
+		void Write(const T* data, size_t count);
 
 	private:
 		std::ofstream stream;
 	};
 
 	template <typename T>
-	void OutputFileStream::Write(T data)
+	void OutputFileStream::Write(const T& data)
 	{
 		stream.write(reinterpret_cast<const char*>(&data), sizeof(T));
 	}
 
 	template <typename T>
-	void OutputFileStream::Write(T* data, size_t count)
+	void OutputFileStream::Write(const T* data, size_t count)
 	{
 		stream.write(reinterpret_cast<const char*>(data), sizeof(T) * count);
 	}
