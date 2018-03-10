@@ -36,7 +36,7 @@ namespace CE
 	}
 
 	template <typename T>
-	OutputFileStream& operator<<(OutputFileStream& stream, T data)
+	OutputFileStream& operator<<(OutputFileStream& stream, const T& data)
 	{
 		stream.Write(data);
 		return stream;
