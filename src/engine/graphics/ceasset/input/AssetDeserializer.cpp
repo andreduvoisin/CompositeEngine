@@ -1,6 +1,6 @@
 #include "AssetDeserializer.h"
 
-#include "AssetTraits.h"
+#include "graphics\ceasset\AssetTraits.h"
 #include "InputFileStream.h"
 
 #include "graphics\skeleton\Skeleton.h"
