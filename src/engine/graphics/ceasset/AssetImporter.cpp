@@ -48,12 +48,11 @@ namespace CE
 				{
 					const auto jointCount = stream.Read<unsigned>();
 					outSkeleton.joints.resize(jointCount);
-					for (unsigned jointIndex = 0; jointIndex < jointCount; ++jointIndex)
+					for (auto& joint : outSkeleton.joints)
 					{
-						Joint& joint = outSkeleton.joints[jointIndex];
-						stream.Read(joint.inverseBindPose);
-						stream.Read(joint.name);
-						stream.Read(joint.parentIndex);
+						stream >> joint.inverseBindPose;
+						stream >> joint.name;
+						stream >> joint.parentIndex;
 					}
 
 					break;
@@ -72,9 +71,9 @@ namespace CE
 					mesh.m_indices.resize(indicesCount);
 					stream.Read(mesh.m_indices.data(), indicesCount);
 
-					stream.Read(mesh.m_diffuseMapName);
-					stream.Read(mesh.m_specularMapName);
-					stream.Read(mesh.m_normalMapName);
+					stream >> mesh.m_diffuseMapName;
+					stream >> mesh.m_specularMapName;
+					stream >> mesh.m_normalMapName;
 
 					break;
 				}
@@ -83,10 +82,8 @@ namespace CE
 				{
 					outAnimations.push_back(Animation());
 					Animation& animation = outAnimations.back();
-					animation.rotations.resize(outSkeleton.joints.size());
-					animation.scales.resize(outSkeleton.joints.size());
 
-					stream.Read(animation.name);
+					stream >> animation.name;
 
 					const auto translationsCount = stream.Read<unsigned>();
 					animation.translations.resize(translationsCount);
@@ -115,16 +112,16 @@ namespace CE
 						stream.Read(scales.data(), keyCount);
 					}
 
-					stream.Read(animation.duration);
+					stream >> animation.duration;
 
 					break;
 				}
 
 				case AssetType::TEXTURE:
 				{
-					stream.Read(outTexture.width);
-					stream.Read(outTexture.height);
-					stream.Read(outTexture.channels);
+					stream >> outTexture.width;
+					stream >> outTexture.height;
+					stream >> outTexture.channels;
 
 					// todo: delete. also probs shouldn't be here anyways
 					outTexture.data = new unsigned char[outTexture.width * outTexture.height * outTexture.channels];

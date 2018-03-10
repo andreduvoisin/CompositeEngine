@@ -23,19 +23,19 @@ namespace CE
 		std::ofstream stream;
 	};
 
-	template <typename T>
+	template<typename T>
 	void OutputFileStream::Write(const T& data)
 	{
 		stream.write(reinterpret_cast<const char*>(&data), sizeof(T));
 	}
 
-	template <typename T>
+	template<typename T>
 	void OutputFileStream::Write(const T* data, size_t count)
 	{
 		stream.write(reinterpret_cast<const char*>(data), sizeof(T) * count);
 	}
 
-	template <typename T>
+	template<typename T>
 	OutputFileStream& operator<<(OutputFileStream& stream, const T& data)
 	{
 		stream.Write(data);
