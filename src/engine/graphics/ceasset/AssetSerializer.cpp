@@ -18,7 +18,7 @@ namespace CE
 
 	void AssetSerializer::WriteHeader()
 	{
-		stream << 'C' << 'E' << 'A' << 'S' << 'S' << 'E' << 'T' << '\0';
+		stream.Write(ASSET_FILE_HEADER, ASSET_FILE_HEADER_LENGTH);
 	}
 
 	void AssetSerializer::WriteSkeleton(const Skeleton& skeleton)
