@@ -1,7 +1,7 @@
 #ifndef _CE_ASSET_DESERIALIZER_H_
 #define _CE_ASSET_DESERIALIZER_H_
 
-#include "AssetTraits.h"
+#include "graphics\ceasset\AssetTraits.h"
 
 #include <vector>
 

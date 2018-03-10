@@ -1,8 +1,8 @@
 #include "AssetSerializer.h"
 
-#include "AssetTraits.h"
 #include "OutputFileStream.h"
 
+#include "graphics\ceasset\AssetTraits.h"
 #include "graphics\skeleton\Skeleton.h"
 #include "graphics\mesh\Mesh.h"
 #include "graphics\animation\Animation.h"
