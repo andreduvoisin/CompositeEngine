@@ -90,9 +90,8 @@ namespace CE
 
 					const auto translationsCount = stream.Read<unsigned>();
 					animation.translations.resize(translationsCount);
-					for (unsigned translationsIndex = 0; translationsIndex < translationsCount; ++translationsIndex)
+					for (auto& translations : animation.translations)
 					{
-						auto& translations = animation.translations[translationsIndex];
 						const auto keyCount = stream.Read<unsigned>();
 						translations.resize(keyCount);
 						stream.Read(translations.data(), keyCount);
@@ -100,9 +99,8 @@ namespace CE
 
 					const auto rotationsCount = stream.Read<unsigned>();
 					animation.rotations.resize(rotationsCount);
-					for (unsigned rotationsIndex = 0; rotationsIndex < rotationsCount; ++rotationsIndex)
+					for (auto& rotations : animation.rotations)
 					{
-						auto& rotations = animation.rotations[rotationsIndex];
 						const auto keyCount = stream.Read<unsigned>();
 						rotations.resize(keyCount);
 						stream.Read(rotations.data(), keyCount);
@@ -110,9 +108,8 @@ namespace CE
 
 					const auto scalesCount = stream.Read<unsigned>();
 					animation.scales.resize(scalesCount);
-					for (unsigned scalesIndex = 0; scalesIndex < scalesCount; ++scalesIndex)
+					for (auto& scales : animation.scales)
 					{
-						auto& scales = animation.scales[scalesIndex];
 						const auto keyCount = stream.Read<unsigned>();
 						scales.resize(keyCount);
 						stream.Read(scales.data(), keyCount);
