@@ -8,8 +8,9 @@
 
 namespace CE
 {
-	MeshComponent::MeshComponent(Meshes* meshes)
+	MeshComponent::MeshComponent(Meshes* meshes, Texture* texture)
 		: m_meshes(meshes)
+		, m_testTexture(texture)
 	{
 
 	}
@@ -47,7 +48,7 @@ namespace CE
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_ibo);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh.m_indices.size() * sizeof(unsigned int), mesh.m_indices.data(), GL_STATIC_DRAW);
 
-		Texture* texture = TextureManager::Get().GetTexture(mesh.m_diffuseMapName.c_str());
+		Texture* texture = m_testTexture;// TextureManager::Get().GetTexture(mesh.m_diffuseMapName.c_str());
 
 		// TODO: How much of this has to be done every Draw() call?
 		glBindTexture(GL_TEXTURE_2D, g_diffuseTextureID);
