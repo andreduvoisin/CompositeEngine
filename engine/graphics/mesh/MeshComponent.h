@@ -9,11 +9,12 @@ namespace CE
 {
 	struct Mesh;
 	typedef std::vector<Mesh> Meshes;
+	struct Texture;
 
 	class MeshComponent
 	{
 	public:
-		MeshComponent(Meshes* meshes);
+		MeshComponent(Meshes* meshes, Texture* texture);
 
 		void Draw(
 			GLuint g_vbo,
@@ -33,6 +34,8 @@ namespace CE
 
 	private:
 		Meshes* m_meshes;
+		// TODO: Remove.
+		Texture* m_testTexture;
 	};
 }
 

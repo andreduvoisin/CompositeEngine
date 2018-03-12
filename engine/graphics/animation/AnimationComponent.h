@@ -35,6 +35,9 @@ namespace CE
 
 		void ResetMatrixPalette();
 
+		// TODO: Remove.
+		const Skeleton* GetSkeleton() const { return m_skeleton; }
+
 	private:
 		void InitializeAnimationCache();
 		void InitializePalette();

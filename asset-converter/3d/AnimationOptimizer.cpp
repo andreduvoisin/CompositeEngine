@@ -1,6 +1,6 @@
 #include "AnimationOptimizer.h"
 
-#include "Animation.h"
+#include "graphics\animation\Animation.h"
 #include "common\Math.h"
 
 #include <algorithm>

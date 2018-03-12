@@ -10,7 +10,6 @@
 #include <sstream>
 
 #include "graphics\animation\AnimationComponent.h"
-#include "graphics\animation\AnimationOptimizer.h"
 #include "graphics\animation\AnimationManager.h"
 #include "graphics\mesh\Mesh.h"
 #include "graphics\mesh\Vertex.h"
@@ -19,9 +18,9 @@
 #include "graphics\skeleton\Skeleton.h"
 #include "graphics\skeleton\SkeletonManager.h"
 #include "graphics\texture\TextureManager.h"
-#include "graphics\texture\STBImageImporter.h"
+#include "graphics\texture\Texture.h"
 
-#include "graphics\fbx\FBXImporter.h"
+#include "graphics\ceasset\input\AssetImporter.h"
 
 #include <glm\gtx\matrix_decompose.hpp>
 
@@ -41,6 +40,7 @@ GLuint g_vao = 0;
 GLuint g_tbo = 0;
 
 GLuint g_programID2 = 0;
+GLuint g_programID3 = 0;
 
 GLuint g_projectionViewModelMatrixID = -1;
 GLuint g_paletteID = -1;
@@ -53,12 +53,16 @@ GLuint g_diffuseTextureID = -1;
 GLuint g_projectionViewModelMatrixID2 = -1;
 GLuint g_paletteID2 = -1;
 
-//const char* g_fbxName = "..\\..\\..\\assets\\Stand Up.fbx";
-//const char* g_fbxName = "..\\..\\..\\assets\\Soldier_animated_jump.fbx";
-const char* g_fbxName = "..\\..\\..\\assets\\Thriller Part 2.fbx";
+GLuint g_projectionViewModelMatrixID3 = -1;
+GLuint g_diffuseTextureLocation3 = -1;
 
-CE::FBXImporter* g_fbxImporter;
-CE::STBImageImporter* g_stbiImporter;
+//const char* g_assetName = "..\\..\\..\\..\\assets\\Stand Up.ceasset";
+//const char* g_assetName = "..\\..\\..\\..\\assets\\Thriller Part 2.ceasset";
+//const char* g_assetName = "..\\..\\..\\..\\assets\\jla_wonder_woman.ceasset";
+const char* g_assetName = "..\\..\\..\\..\\assets\\Quarterback Pass.ceasset";
+//const char* g_fbxName = "..\\..\\..\\..\\assets\\Soldier_animated_jump.fbx";
+
+CE::AssetImporter* g_assetImporter;
 
 CE::MeshComponent* g_meshComponent;
 CE::AnimationComponent* g_animationComponent;
@@ -226,7 +230,7 @@ void Render()
 		g_tbo,
 		g_paletteID2);
 
-	CE::Skeleton* skeleton = CE::SkeletonManager::Get().GetSkeleton(g_fbxName);
+	const CE::Skeleton* skeleton = g_animationComponent->GetSkeleton();// CE::SkeletonManager::Get().GetSkeleton(g_fbxName);
 
 	std::vector<DebugSkeletonVertex> debugVertices;
 	std::vector<unsigned> debugJointIndices;
@@ -316,7 +320,7 @@ bool CreateProgram2()
 	// TODO: Copy shaders in CMAKE to .exe dir (or subdir next to .exe).
 
 	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	std::string vertexShaderSource = ReadFile("..\\..\\..\\src\\engine\\graphics\\shaders\\SkeletonShader.vert");
+	std::string vertexShaderSource = ReadFile("..\\..\\..\\..\\engine\\graphics\\shaders\\SkeletonShader.vert");
 	const char* vertexShaderSourceStr = vertexShaderSource.c_str();
 	glShaderSource(vertexShader, 1, &vertexShaderSourceStr, NULL);
 	glCompileShader(vertexShader);
@@ -335,7 +339,7 @@ bool CreateProgram2()
 	//{
 	//	"#version 410\nout vec4 LFragment; void main() { LFragment = vec4(1.0, 1.0, 1.0, 1.0); }"
 	//};
-	std::string fragmentShaderSource = ReadFile("..\\..\\..\\src\\engine\\graphics\\shaders\\FragmentShader.frag");
+	std::string fragmentShaderSource = ReadFile("..\\..\\..\\..\\engine\\graphics\\shaders\\FragmentShader.frag");
 	const char* fragmentShaderSourceStr = fragmentShaderSource.c_str();
 	glShaderSource(fragmentShader, 1, &fragmentShaderSourceStr, NULL);
 	glCompileShader(fragmentShader);
@@ -362,6 +366,59 @@ bool CreateProgram2()
 	return true;
 }
 
+bool CreateProgram3()
+{
+	g_programID3 = glCreateProgram();
+
+	// TODO: Copy shaders in CMAKE to .exe dir (or subdir next to .exe).
+
+	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+	std::string vertexShaderSource = ReadFile("..\\..\\..\\..\\engine\\graphics\\shaders\\MeshShader.vert");
+	const char* vertexShaderSourceStr = vertexShaderSource.c_str();
+	glShaderSource(vertexShader, 1, &vertexShaderSourceStr, NULL);
+	glCompileShader(vertexShader);
+	GLint vShaderCompiled = GL_FALSE;
+	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &vShaderCompiled);
+	printShaderLog(vertexShader);
+	if (vShaderCompiled != GL_TRUE)
+	{
+		printf("Unable to compile vertex shader %d!\n", vertexShader);
+		return false;
+	}
+	glAttachShader(g_programID3, vertexShader);
+
+	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+	//const GLchar* fragmentShaderSource[] =
+	//{
+	//	"#version 410\nout vec4 LFragment; void main() { LFragment = vec4(1.0, 1.0, 1.0, 1.0); }"
+	//};
+	std::string fragmentShaderSource = ReadFile("..\\..\\..\\..\\engine\\graphics\\shaders\\DiffuseTextureShader.frag");
+	const char* fragmentShaderSourceStr = fragmentShaderSource.c_str();
+	glShaderSource(fragmentShader, 1, &fragmentShaderSourceStr, NULL);
+	glCompileShader(fragmentShader);
+	GLint fShaderCompiled = GL_FALSE;
+	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &fShaderCompiled);
+	printShaderLog(fragmentShader);
+	if (fShaderCompiled != GL_TRUE)
+	{
+		printf("Unable to compile fragment shader %d!\n", fragmentShader);
+		return false;
+	}
+	glAttachShader(g_programID3, fragmentShader);
+
+	glLinkProgram(g_programID3);
+	GLint programSuccess = GL_TRUE;
+	glGetProgramiv(g_programID3, GL_LINK_STATUS, &programSuccess);
+	printProgramLog(g_programID3);
+	if (programSuccess != GL_TRUE)
+	{
+		printf("Error linking program %d!\n", g_programID3);
+		return false;
+	}
+
+	return true;
+}
+
 bool InitializeOpenGL()
 {
 	g_programID = glCreateProgram();
@@ -369,7 +426,7 @@ bool InitializeOpenGL()
 	// TODO: Copy shaders in CMAKE to .exe dir (or subdir next to .exe).
 
 	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	std::string vertexShaderSource = ReadFile("..\\..\\..\\src\\engine\\graphics\\shaders\\SkinnedMeshShader.vert");
+	std::string vertexShaderSource = ReadFile("..\\..\\..\\..\\engine\\graphics\\shaders\\SkinnedMeshShader.vert");
 	const char* vertexShaderSourceStr = vertexShaderSource.c_str();
 	glShaderSource(vertexShader, 1, &vertexShaderSourceStr, NULL);
 	glCompileShader(vertexShader);
@@ -388,7 +445,7 @@ bool InitializeOpenGL()
 	//{
 	//	"#version 410\nout vec4 LFragment; void main() { LFragment = vec4(1.0, 1.0, 1.0, 1.0); }"
 	//};
-	std::string fragmentShaderSource = ReadFile("..\\..\\..\\src\\engine\\graphics\\shaders\\DiffuseTextureShader.frag");
+	std::string fragmentShaderSource = ReadFile("..\\..\\..\\..\\engine\\graphics\\shaders\\DiffuseTextureShader.frag");
 	const char* fragmentShaderSourceStr = fragmentShaderSource.c_str();
 	glShaderSource(fragmentShader, 1, &fragmentShaderSourceStr, NULL);
 	glCompileShader(fragmentShader);
@@ -417,6 +474,14 @@ bool InitializeOpenGL()
 		return false;
 	}
 
+	if (!CreateProgram3())
+	{
+		return false;
+	}
+
+	g_projectionViewModelMatrixID3 = glGetUniformLocation(g_programID3, "projectionViewModel");
+	g_diffuseTextureLocation3 = glGetUniformLocation(g_programID3, "diffuseTexture");
+
 	g_projectionViewModelMatrixID2 = glGetUniformLocation(g_programID2, "projectionViewModel");
 	g_paletteID2 = glGetUniformLocation(g_programID2, "palette");
 
@@ -426,19 +491,20 @@ bool InitializeOpenGL()
 
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
-	CE::Skeleton* skeleton = CE::SkeletonManager::Get().GetSkeleton(g_fbxName);
-	CE::Meshes* meshes = CE::MeshManager::Get().GetMeshes(g_fbxName, *skeleton);
-	CE::Animations* animations = CE::AnimationManager::Get().GetAnimations(g_fbxName, *skeleton);
+	// TODO: bad
+	CE::Skeleton* skeleton = new CE::Skeleton();
+	CE::Meshes* meshes = new CE::Meshes();
+	CE::Animations* animations = new CE::Animations();
+	CE::Texture* texture = new CE::Texture();
 
-	for (int i = 0; i < meshes->size(); ++i)
-	{
-		CE::TextureManager::Get().GetTexture(meshes->at(i).m_diffuseMapName.c_str());
-	}
+	CE::AssetImporter::ImportSkeletonMeshesAnimationsTexture(
+		g_assetName,
+		*skeleton,
+		*meshes,
+		*animations,
+		*texture);
 
-	CE::AnimationOptimizer optimizer = CE::AnimationOptimizer(animations);
-	optimizer.OptimizeAnimations();
-
-	g_meshComponent = new CE::MeshComponent(meshes);
+	g_meshComponent = new CE::MeshComponent(meshes, texture);
 	g_animationComponent = new CE::AnimationComponent(skeleton, animations);
 
 	glGenVertexArrays(1, &g_vao);
@@ -519,13 +585,10 @@ bool Initialize()
 		printf("Warning: Unable to set VSync! SDL_Error: %s\n", SDL_GetError());
 	}
 
-	g_fbxImporter = new CE::FBXImporter();
-	g_stbiImporter = new CE::STBImageImporter();
-
-	CE::MeshManager::Get().Initialize(g_fbxImporter);
-	CE::AnimationManager::Get().Initialize(g_fbxImporter);
-	CE::SkeletonManager::Get().Initialize(g_fbxImporter);
-	CE::TextureManager::Get().Initialize(g_stbiImporter);
+	//CE::MeshManager::Get().Initialize(g_fbxImporter);
+	//CE::AnimationManager::Get().Initialize(g_fbxImporter);
+	//CE::SkeletonManager::Get().Initialize(g_fbxImporter);
+	//CE::TextureManager::Get().Initialize(g_stbiImporter);
 
 	if (!InitializeOpenGL())
 	{
