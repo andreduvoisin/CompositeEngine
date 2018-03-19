@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 3.7.2)
 
-project(AssetConverter)
-
 add_executable(AssetConverter ${ASSET_CONVERTER_SRC_FILES}
 	"${ENGINE_SRC_DIR}/common/Math.cpp"
 	"${ENGINE_SRC_DIR}/graphics/ceasset/AssetTraits.cpp"
@@ -49,7 +47,7 @@ if(WIN32)
 	#target_link_libraries(AssetConverter "${FBXSDK_MSVC_DIR}/${FBXSDK_PLATFORM}/${FBXSDK_CONFIGURATION}/libfbxsdk.lib")
 	#configure_file(
 	#	"${FBXSDK_MSVC_DIR}/${FBXSDK_PLATFORM}/${FBXSDK_CONFIGURATION}/libfbxsdk.dll"
-	#	"${PROJECT_BINARY_DIR}/${CE_CONFIGURATION}/libfbxsdk.dll"
+	#	"${PROJECT_BINARY_DIR}/asset-converter/${CE_CONFIGURATION}/libfbxsdk.dll"
 	#	COPYONLY
 	#)
 endif()
