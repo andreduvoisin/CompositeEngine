@@ -13,7 +13,7 @@ GAME ENGINE BADASSERY
 * Install VS2017.
 	* VS2017: https://www.visualstudio.com/downloads/
 		* Include "Visual C++ tools for CMake" under "Desktop development with C++".
-	* Add MSBuild.exe to PATH.
+	* If necessary, add MSBuild.exe to PATH.
 		* C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\MSBuild\15.0\Bin
 
 #### All Platforms ####
