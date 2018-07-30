@@ -10,6 +10,7 @@ if(WIN32)
 		COMMAND
 			MSBuild
 			"${SDL_MSVC_DIR}/SDL.sln"
+			/p:PlatformToolset=v141
 			/p:Configuration=${CE_CONFIGURATION}
 			/p:Platform=${CE_PLATFORM}
 			/m
@@ -26,6 +27,7 @@ if(WIN32)
 		COMMAND
 			MSBuild
 			"${GLEW_MSVC_DIR}/glew.sln"
+			/p:PlatformToolset=v141
 			/p:Configuration=${CE_CONFIGURATION}
 			/p:Platform=${CE_PLATFORM}
 			/m
