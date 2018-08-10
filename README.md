@@ -50,6 +50,10 @@ GAME ENGINE BADASSERY
 	* 2.16: https://github.com/nothings/stb/blob/9d9f75eb682dd98b34de08bb5c489c6c561c9fa6/stb_image.h
 	* Reference: See File
 
+* Chromium Embedded Framework: https://bitbucket.org/chromiumembedded/cef/src/master/
+	* CEF 3.3440.1805.gbe070f9 / Chromium 68.0.3440.84: http://opensource.spotify.com/cefbuilds/index.html
+	* Reference: https://bitbucket.org/chromiumembedded/cef/wiki/Home
+
 ### Resources ###
 
 * DirectX:
