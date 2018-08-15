@@ -11,7 +11,7 @@ endif()
 
 # SDL
 if(WIN32)
-	set(SDL_ROOT_DIR "${EXTERN_DIR}/SDL2-2.0.5")
+	set(SDL_ROOT_DIR "${EXTERN_DIR}/SDL2-2.0.8")
 	set(SDL_MSVC_DIR "${SDL_ROOT_DIR}/VisualC")
 
 	include_directories("${SDL_ROOT_DIR}/include")
