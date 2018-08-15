@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.7.2)
 
 # SDL
 if(WIN32)
-	set(SDL_ROOT_DIR "${EXTERN_DIR}/SDL2-2.0.5")
+	set(SDL_ROOT_DIR "${EXTERN_DIR}/SDL2-2.0.8")
 	set(SDL_MSVC_DIR "${SDL_ROOT_DIR}/VisualC")
 	
 	# TODO: Uses v100. What happens if v100 isn't installed?
