@@ -24,6 +24,18 @@
 
 #include <glm\gtx\matrix_decompose.hpp>
 
+//#include "ui/simple_app.h"
+//#include "ui/simple_handler.h"
+//#include "include/cef_sandbox_win.h"
+//#include "include/internal/cef_win.h"
+//#include "include/internal/cef_types_wrappers.h"
+//#include "include/internal/cef_ptr.h"
+//#include "SDL_syswm.h"
+
+#include "include/cef_app.h"
+#include "ui/BasicHandler.h"
+#include "SDL_syswm.h"
+
 const int SCREEN_WIDTH = 1280;
 const int SCREEN_HEIGHT = 720;
 
@@ -68,6 +80,8 @@ CE::MeshComponent* g_meshComponent;
 CE::AnimationComponent* g_animationComponent;
 
 int g_renderType = 0;
+
+CefRefPtr<BasicHandler> g_cefHandler;
 
 void printProgramLog(GLuint program)
 {
@@ -534,8 +548,190 @@ bool InitializeOpenGL()
 	return true;
 }
 
+//bool InitializeCEF()
+//{
+//	CoUninitialize();
+//
+//	// Enable High-DPI support on Windows 7 or newer.
+//	CefEnableHighDPISupport();
+//
+//	void* sandbox_info = NULL;
+//
+//#ifdef CEF_USE_SANDBOX
+//	// Manage the life span of the sandbox information object. This is necessary
+//	// for sandbox support on Windows. See cef_sandbox_win.h for complete details.
+//	CefScopedSandboxInfo scoped_sandbox;
+//	sandbox_info = scoped_sandbox.sandbox_info();
+//#endif
+//
+//	//SDL_SysWMinfo info;
+//	//SDL_VERSION(&info.version);
+//	//if (!SDL_GetWindowWMInfo(g_window, &info))
+//	//{
+//	//	return false;
+//	//}
+//
+//	// Provide CEF with command-line arguments.
+//	//CefMainArgs main_args(info.info.win.hinstance);
+//	HINSTANCE hInstance = GetModuleHandle(NULL);
+//	CefMainArgs main_args(hInstance);
+//
+//	// CEF applications have multiple sub-processes (render, plugin, GPU, etc)
+//	// that share the same executable. This function checks the command-line and,
+//	// if this is a sub-process, executes the appropriate logic.
+//	int exit_code = CefExecuteProcess(main_args, NULL, sandbox_info);
+//	if (exit_code >= 0) {
+//		// The sub-process has completed so return here.
+//		return exit_code;
+//	}
+//
+//	// Specify CEF global settings here.
+//	CefSettings settings;
+//
+//#ifndef CEF_USE_SANDBOX
+//	settings.no_sandbox = true;
+//#endif
+//
+//	// SimpleApp implements application-level callbacks for the browser process.
+//	// It will create the first browser instance in OnContextInitialized() after
+//	// CEF has initialized.
+//	//CefRefPtr<SimpleApp> app(new SimpleApp);
+//
+//	// Initialize CEF.
+//	CefInitialize(main_args, settings, nullptr, sandbox_info);
+//
+//	//CefRunMessageLoop();
+//
+//	return true;
+//}
+//
+//bool StartCef()
+//{
+//	CefRefPtr<CefCommandLine> command_line =
+//		CefCommandLine::GetGlobalCommandLine();
+//
+//#if defined(OS_WIN) || defined(OS_LINUX)
+//	// Create the browser using the Views framework if "--use-views" is specified
+//	// via the command-line. Otherwise, create the browser using the native
+//	// platform framework. The Views framework is currently only supported on
+//	// Windows and Linux.
+//	const bool use_views = command_line->HasSwitch("use-views");
+//#else
+//	const bool use_views = false;
+//#endif
+//
+//	// SimpleHandler implements browser-level callbacks.
+//	CefRefPtr<SimpleHandler> handler(new SimpleHandler(use_views));
+//
+//	// Specify CEF browser settings here.
+//	CefBrowserSettings browser_settings;
+//
+//	std::string url;
+//
+//	// Check if a "--url=" value was provided via the command-line. If so, use
+//	// that instead of the default URL.
+//	url = command_line->GetSwitchValue("url");
+//	if (url.empty())
+//		url = "http://www.google.com";
+//
+//	SDL_SysWMinfo info;
+//	SDL_VERSION(&info.version);
+//	if (!SDL_GetWindowWMInfo(g_window, &info))
+//	{
+//		return false;
+//	}
+//
+//	// Information used when creating the native window.
+//	CefWindowInfo window_info;
+//	// On Windows we need to specify certain flags that will be passed to
+//	// CreateWindowEx().
+//	//window_info.SetAsPopup(NULL, "cefsimple");
+//	window_info.parent_window = info.info.win.window;
+//
+//	// Create the first browser window.
+//	CefBrowserHost::CreateBrowser(window_info, handler, url, browser_settings,
+//		NULL);
+//
+//	return true;
+//}
+
+bool InitializeCef()
+{
+	HINSTANCE hInstance = GetModuleHandle(NULL);
+	CefMainArgs main_args(hInstance);
+
+	int exitCode = CefExecuteProcess(main_args, NULL, NULL);
+	if (exitCode >= 0)
+	{
+		printf("EXITING, WE A SUBPROCESS\n");
+		return false;
+		//return exitCode;
+	}
+
+	CefSettings settings;
+	CefInitialize(main_args, settings, NULL, NULL);
+
+	return true;
+}
+
+bool RunCef()
+{
+	CefBrowserSettings browserSettings;
+	//browserSettings.background_color = CefColorSetARGB(0, 0, 0, 0);
+
+	CefWindowInfo windowInfo;
+	//windowInfo.windowless_rendering_enabled = true;
+
+	g_cefHandler = new BasicHandler();
+
+	SDL_SysWMinfo sysInfo;
+	SDL_VERSION(&sysInfo.version);
+	if (!SDL_GetWindowWMInfo(g_window, &sysInfo))
+	{
+		return false;
+	}
+
+	RECT rect;
+	rect.left = SCREEN_WIDTH / 2;
+	rect.top = SCREEN_HEIGHT / 2;
+	rect.right = SCREEN_WIDTH;
+	rect.bottom = SCREEN_HEIGHT;
+
+	//windowInfo.SetAsChild(sysInfo.info.win.window, rect);
+	//CefBrowserHost::CreateBrowserSync(windowInfo, g_cefHandler.get(), "http://code.google.com", browserSettings, NULL);
+	//CefBrowserHost::CreateBrowserSync(windowInfo, g_cefHandler.get(), "http://www.github.com", browserSettings, NULL);
+
+	//windowInfo.SetAsWindowless(sysInfo.info.win.window);
+	windowInfo.SetAsChild(sysInfo.info.win.window, rect);
+	CefRefPtr<CefBrowser> browser = CefBrowserHost::CreateBrowserSync(
+		windowInfo,
+		g_cefHandler,
+		"about:blank",
+		browserSettings,
+		NULL);
+	CefRefPtr<CefFrame> frame = browser->GetMainFrame();
+	std::string source = ReadFile("..\\..\\..\\..\\engine\\ui\\KevinReactThingy.html");
+	frame->LoadString(source, "about:blank");
+	//frame->LoadString("<head></head><body></body>", "about:blank");//<button type=\"button\">SICK NASTY</button>
+
+	//std::string source = ReadFile("..\\..\\..\\..\\engine\\ui\\KevinsABitch.js");
+	//frame->ExecuteJavaScript(
+	//	source.c_str(),
+	//	frame->GetURL(),
+	//	0);
+
+	return true;
+}
+
 bool Initialize()
 {
+	// This must come first.
+	if (!InitializeCef())
+	{
+		printf("Unable to initialize CEF!\n");
+		return false;
+	}
+
 	if (SDL_Init(SDL_INIT_VIDEO) < 0)
 	{
 		printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
@@ -609,6 +805,12 @@ bool Initialize()
 	// tell GL to only draw onto a pixel if the shape is closer to the viewer
 	glEnable(GL_DEPTH_TEST); // enable depth-testing
 	glDepthFunc(GL_LESS); // depth-testing interprets a smaller value as "closer"
+
+	if (!RunCef())
+	{
+		printf("CEF failed to start!\n");
+		return false;
+	}
 
 	return true;
 }
@@ -688,6 +890,8 @@ int main(int argc, char* argv[])
 
 		Render();
 		SDL_GL_SwapWindow(g_window);
+
+		CefDoMessageLoopWork();
 	}
 
 	SDL_StopTextInput();
