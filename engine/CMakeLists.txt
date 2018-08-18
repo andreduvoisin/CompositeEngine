@@ -53,3 +53,27 @@ endif()
 
 # GLM
 include_directories("${EXTERN_DIR}/glm-0.9.8.5")
+
+# CEF
+if(WIN32)
+	set(CEF_ROOT_DIR "${EXTERN_DIR}/cef_binary_3.3440.1805.gbe070f9")
+	set(CEF_PLATFORM_DIR "${CEF_ROOT_DIR}/windows64")
+
+	include_directories("${CEF_PLATFORM_DIR}")
+	
+	#target_link_libraries(CompositeEngine comctl32)
+	#target_link_libraries(CompositeEngine shlwapi)
+	#target_link_libraries(CompositeEngine rcprt4)
+	target_link_libraries(CompositeEngine "D:/Development/CompositeEngine/build/x64-Debug/engine/Debug/libcef_dll_wrapper.lib")
+	target_link_libraries(CompositeEngine "D:/Development/CompositeEngine/extern/cef_binary_3.3440.1805.gbe070f9/windows64/Debug/libcef.lib")
+	#target_link_libraries(CompositeEngine "D:/Development/CompositeEngine/extern/cef_binary_3.3440.1805.gbe070f9/windows64/Debug/cef_sandbox.lib")
+	#file(
+	#	COPY "${CEF_PLATFORM_DIR}/Debug"
+	#	DESTINATION "${PROJECT_BINARY_DIR}/engine/${CE_CONFIGURATION}"
+	#)
+	#configure_file(
+	#	"${CEF_PLATFORM_DIR}/Debug"
+	#	"${PROJECT_BINARY_DIR}/engine/${CE_CONFIGURATION}"
+	#	COPYONLY
+	#)
+endif()
