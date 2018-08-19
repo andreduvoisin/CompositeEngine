@@ -33,7 +33,8 @@
 //#include "SDL_syswm.h"
 
 #include "include/cef_app.h"
-#include "ui/BasicHandler.h"
+#include "ui/UIClient.h"
+#include "ui/UIRenderHandler.h"
 #include "SDL_syswm.h"
 
 const int SCREEN_WIDTH = 1280;
@@ -52,7 +53,7 @@ GLuint g_vao = 0;
 GLuint g_tbo = 0;
 
 GLuint g_programID2 = 0;
-GLuint g_programID3 = 0;
+GLuint g_programID4 = 0;
 
 GLuint g_projectionViewModelMatrixID = -1;
 GLuint g_paletteID = -1;
@@ -65,8 +66,10 @@ GLuint g_diffuseTextureID = -1;
 GLuint g_projectionViewModelMatrixID2 = -1;
 GLuint g_paletteID2 = -1;
 
-GLuint g_projectionViewModelMatrixID3 = -1;
-GLuint g_diffuseTextureLocation3 = -1;
+GLuint g_viewportID = -1;
+GLuint g_uiTextureLocation = -1;
+GLuint g_uiTextureUnit = -1;
+GLuint g_uiTextureID = -1;
 
 //const char* g_assetName = "..\\..\\..\\..\\assets\\Stand Up.ceasset";
 //const char* g_assetName = "..\\..\\..\\..\\assets\\Thriller Part 2.ceasset";
@@ -81,7 +84,7 @@ CE::AnimationComponent* g_animationComponent;
 
 int g_renderType = 0;
 
-CefRefPtr<BasicHandler> g_cefHandler;
+CefRefPtr<UIClient> g_uiClient;
 
 void printProgramLog(GLuint program)
 {
@@ -163,6 +166,19 @@ void HandleKeys(unsigned char key, int x, int y)
 void Update()
 {
 	(void)0;
+}
+
+std::vector<unsigned char> red;
+void MakeRed()
+{
+	red.reserve(SCREEN_WIDTH * SCREEN_HEIGHT * 4);
+	for (int i = 0; i < SCREEN_WIDTH * SCREEN_HEIGHT; ++i)
+	{
+		red.push_back((unsigned char)0);
+		red.push_back((unsigned char)0);
+		red.push_back((unsigned char)255);
+		red.push_back((unsigned char)0);
+	}
 }
 
 void Render()
@@ -310,6 +326,79 @@ void Render()
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
 	glDisableVertexAttribArray(2);
+
+
+	glUseProgram(g_programID4);
+
+	struct UIVertex
+	{
+		glm::vec2 position;
+		float uv[2];
+	};
+
+	stride = sizeof(UIVertex);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(offsetof(UIVertex, position)));
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(offsetof(UIVertex, uv)));
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+
+	//glm::mat4 ortho = glm::ortho(0.f, (float)SCREEN_WIDTH, (float)SCREEN_HEIGHT, 0.f, 0.f, 1000.f);
+	//glm::mat4 orthoViewModel = ortho * view * model;
+	glm::vec2 viewport(SCREEN_WIDTH, SCREEN_HEIGHT);
+	glUniform2fv(g_viewportID, 1, &viewport[0]);
+
+	std::vector<UIVertex> uiVertices;
+	UIVertex uiVertex;
+
+	uiVertex.position = glm::vec2(0.f, 0.f);
+	uiVertex.uv[0] = 0.f;
+	uiVertex.uv[1] = 0.f;
+	uiVertices.push_back(uiVertex);
+
+	uiVertex.position = glm::vec2((float)SCREEN_WIDTH, 0.f);
+	uiVertex.uv[0] = 1.f;
+	uiVertex.uv[1] = 0.f;
+	uiVertices.push_back(uiVertex);
+
+	uiVertex.position = glm::vec2(0.f, (float)SCREEN_HEIGHT);
+	uiVertex.uv[0] = 0.f;
+	uiVertex.uv[1] = 1.f;
+	uiVertices.push_back(uiVertex);
+
+	uiVertex.position = glm::vec2((float)SCREEN_WIDTH, (float)SCREEN_HEIGHT);
+	uiVertex.uv[0] = 1.f;
+	uiVertex.uv[1] = 1.f;
+	uiVertices.push_back(uiVertex);
+
+	std::vector<unsigned> uiIndices;
+	uiIndices.push_back(0);
+	uiIndices.push_back(1);
+	uiIndices.push_back(2);
+	uiIndices.push_back(1);
+	uiIndices.push_back(3);
+	uiIndices.push_back(2);
+
+	glBindBuffer(GL_ARRAY_BUFFER, g_vbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(UIVertex) * uiVertices.size(), uiVertices.data(), GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_ibo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned) * uiIndices.size(), uiIndices.data(), GL_STATIC_DRAW);
+
+	// TODO: How much of this has to be done every Draw() call?
+	// TODO: double check these for UI
+	glBindTexture(GL_TEXTURE_2D, g_uiTextureID);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, SCREEN_WIDTH, SCREEN_HEIGHT, 0, GL_BGRA, GL_UNSIGNED_BYTE, ((UIRenderHandler*)(g_uiClient->GetRenderHandler().get()))->getBuffer());
+	glGenerateMipmap(GL_TEXTURE_2D);
+	glUniform1i(g_uiTextureLocation, g_uiTextureUnit);
+
+	glDrawElements(GL_TRIANGLES, uiIndices.size(), GL_UNSIGNED_INT, NULL);
+
+	glDisableVertexAttribArray(0);
+	glDisableVertexAttribArray(1);
 }
 
 std::string ReadFile(const char* file)
@@ -380,14 +469,14 @@ bool CreateProgram2()
 	return true;
 }
 
-bool CreateProgram3()
+bool CreateProgram4()
 {
-	g_programID3 = glCreateProgram();
+	g_programID4 = glCreateProgram();
 
 	// TODO: Copy shaders in CMAKE to .exe dir (or subdir next to .exe).
 
 	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	std::string vertexShaderSource = ReadFile("..\\..\\..\\..\\engine\\graphics\\shaders\\MeshShader.vert");
+	std::string vertexShaderSource = ReadFile("..\\..\\..\\..\\engine\\graphics\\shaders\\UIShader.vert");
 	const char* vertexShaderSourceStr = vertexShaderSource.c_str();
 	glShaderSource(vertexShader, 1, &vertexShaderSourceStr, NULL);
 	glCompileShader(vertexShader);
@@ -399,14 +488,14 @@ bool CreateProgram3()
 		printf("Unable to compile vertex shader %d!\n", vertexShader);
 		return false;
 	}
-	glAttachShader(g_programID3, vertexShader);
+	glAttachShader(g_programID4, vertexShader);
 
 	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 	//const GLchar* fragmentShaderSource[] =
 	//{
 	//	"#version 410\nout vec4 LFragment; void main() { LFragment = vec4(1.0, 1.0, 1.0, 1.0); }"
 	//};
-	std::string fragmentShaderSource = ReadFile("..\\..\\..\\..\\engine\\graphics\\shaders\\DiffuseTextureShader.frag");
+	std::string fragmentShaderSource = ReadFile("..\\..\\..\\..\\engine\\graphics\\shaders\\UIShader.frag");
 	const char* fragmentShaderSourceStr = fragmentShaderSource.c_str();
 	glShaderSource(fragmentShader, 1, &fragmentShaderSourceStr, NULL);
 	glCompileShader(fragmentShader);
@@ -418,15 +507,15 @@ bool CreateProgram3()
 		printf("Unable to compile fragment shader %d!\n", fragmentShader);
 		return false;
 	}
-	glAttachShader(g_programID3, fragmentShader);
+	glAttachShader(g_programID4, fragmentShader);
 
-	glLinkProgram(g_programID3);
+	glLinkProgram(g_programID4);
 	GLint programSuccess = GL_TRUE;
-	glGetProgramiv(g_programID3, GL_LINK_STATUS, &programSuccess);
-	printProgramLog(g_programID3);
+	glGetProgramiv(g_programID4, GL_LINK_STATUS, &programSuccess);
+	printProgramLog(g_programID4);
 	if (programSuccess != GL_TRUE)
 	{
-		printf("Error linking program %d!\n", g_programID3);
+		printf("Error linking program %d!\n", g_programID4);
 		return false;
 	}
 
@@ -488,13 +577,13 @@ bool InitializeOpenGL()
 		return false;
 	}
 
-	if (!CreateProgram3())
+	if (!CreateProgram4())
 	{
 		return false;
 	}
 
-	g_projectionViewModelMatrixID3 = glGetUniformLocation(g_programID3, "projectionViewModel");
-	g_diffuseTextureLocation3 = glGetUniformLocation(g_programID3, "diffuseTexture");
+	g_viewportID = glGetUniformLocation(g_programID4, "viewport");
+	g_uiTextureLocation = glGetUniformLocation(g_programID4, "uiTexture");
 
 	g_projectionViewModelMatrixID2 = glGetUniformLocation(g_programID2, "projectionViewModel");
 	g_paletteID2 = glGetUniformLocation(g_programID2, "palette");
@@ -545,117 +634,15 @@ bool InitializeOpenGL()
 	glBindTexture(GL_TEXTURE_BUFFER, g_paletteGenTex);
 	glTexBuffer(GL_TEXTURE_BUFFER, GL_RGBA32F, g_tbo);
 
+	g_uiTextureUnit = 2;
+	glActiveTexture(GL_TEXTURE0 + g_uiTextureUnit);
+	glGenTextures(1, &g_uiTextureID);
+	glBindTexture(GL_TEXTURE_2D, g_uiTextureID);
+
 	return true;
 }
 
-//bool InitializeCEF()
-//{
-//	CoUninitialize();
-//
-//	// Enable High-DPI support on Windows 7 or newer.
-//	CefEnableHighDPISupport();
-//
-//	void* sandbox_info = NULL;
-//
-//#ifdef CEF_USE_SANDBOX
-//	// Manage the life span of the sandbox information object. This is necessary
-//	// for sandbox support on Windows. See cef_sandbox_win.h for complete details.
-//	CefScopedSandboxInfo scoped_sandbox;
-//	sandbox_info = scoped_sandbox.sandbox_info();
-//#endif
-//
-//	//SDL_SysWMinfo info;
-//	//SDL_VERSION(&info.version);
-//	//if (!SDL_GetWindowWMInfo(g_window, &info))
-//	//{
-//	//	return false;
-//	//}
-//
-//	// Provide CEF with command-line arguments.
-//	//CefMainArgs main_args(info.info.win.hinstance);
-//	HINSTANCE hInstance = GetModuleHandle(NULL);
-//	CefMainArgs main_args(hInstance);
-//
-//	// CEF applications have multiple sub-processes (render, plugin, GPU, etc)
-//	// that share the same executable. This function checks the command-line and,
-//	// if this is a sub-process, executes the appropriate logic.
-//	int exit_code = CefExecuteProcess(main_args, NULL, sandbox_info);
-//	if (exit_code >= 0) {
-//		// The sub-process has completed so return here.
-//		return exit_code;
-//	}
-//
-//	// Specify CEF global settings here.
-//	CefSettings settings;
-//
-//#ifndef CEF_USE_SANDBOX
-//	settings.no_sandbox = true;
-//#endif
-//
-//	// SimpleApp implements application-level callbacks for the browser process.
-//	// It will create the first browser instance in OnContextInitialized() after
-//	// CEF has initialized.
-//	//CefRefPtr<SimpleApp> app(new SimpleApp);
-//
-//	// Initialize CEF.
-//	CefInitialize(main_args, settings, nullptr, sandbox_info);
-//
-//	//CefRunMessageLoop();
-//
-//	return true;
-//}
-//
-//bool StartCef()
-//{
-//	CefRefPtr<CefCommandLine> command_line =
-//		CefCommandLine::GetGlobalCommandLine();
-//
-//#if defined(OS_WIN) || defined(OS_LINUX)
-//	// Create the browser using the Views framework if "--use-views" is specified
-//	// via the command-line. Otherwise, create the browser using the native
-//	// platform framework. The Views framework is currently only supported on
-//	// Windows and Linux.
-//	const bool use_views = command_line->HasSwitch("use-views");
-//#else
-//	const bool use_views = false;
-//#endif
-//
-//	// SimpleHandler implements browser-level callbacks.
-//	CefRefPtr<SimpleHandler> handler(new SimpleHandler(use_views));
-//
-//	// Specify CEF browser settings here.
-//	CefBrowserSettings browser_settings;
-//
-//	std::string url;
-//
-//	// Check if a "--url=" value was provided via the command-line. If so, use
-//	// that instead of the default URL.
-//	url = command_line->GetSwitchValue("url");
-//	if (url.empty())
-//		url = "http://www.google.com";
-//
-//	SDL_SysWMinfo info;
-//	SDL_VERSION(&info.version);
-//	if (!SDL_GetWindowWMInfo(g_window, &info))
-//	{
-//		return false;
-//	}
-//
-//	// Information used when creating the native window.
-//	CefWindowInfo window_info;
-//	// On Windows we need to specify certain flags that will be passed to
-//	// CreateWindowEx().
-//	//window_info.SetAsPopup(NULL, "cefsimple");
-//	window_info.parent_window = info.info.win.window;
-//
-//	// Create the first browser window.
-//	CefBrowserHost::CreateBrowser(window_info, handler, url, browser_settings,
-//		NULL);
-//
-//	return true;
-//}
-
-bool InitializeCef()
+int InitializeCef()
 {
 	HINSTANCE hInstance = GetModuleHandle(NULL);
 	CefMainArgs main_args(hInstance);
@@ -663,26 +650,27 @@ bool InitializeCef()
 	int exitCode = CefExecuteProcess(main_args, NULL, NULL);
 	if (exitCode >= 0)
 	{
-		printf("EXITING, WE A SUBPROCESS\n");
-		return false;
-		//return exitCode;
+		printf("CEF subprocess has exited. Exit code: %i\n", exitCode);
+		return exitCode;
 	}
 
 	CefSettings settings;
-	CefInitialize(main_args, settings, NULL, NULL);
+	if (!CefInitialize(main_args, settings, NULL, NULL))
+	{
+		printf("CEF failed to initialize.\n");
+		return 0;
+	}
 
-	return true;
+	return -1;
 }
 
-bool RunCef()
+bool StartCef()
 {
 	CefBrowserSettings browserSettings;
-	//browserSettings.background_color = CefColorSetARGB(0, 0, 0, 0);
-
 	CefWindowInfo windowInfo;
-	//windowInfo.windowless_rendering_enabled = true;
 
-	g_cefHandler = new BasicHandler();
+	CefRefPtr<UIRenderHandler> renderHandler = new UIRenderHandler(SCREEN_WIDTH, SCREEN_HEIGHT);
+	g_uiClient = new UIClient(renderHandler);
 
 	SDL_SysWMinfo sysInfo;
 	SDL_VERSION(&sysInfo.version);
@@ -691,27 +679,37 @@ bool RunCef()
 		return false;
 	}
 
-	RECT rect;
-	rect.left = SCREEN_WIDTH / 2;
-	rect.top = SCREEN_HEIGHT / 2;
-	rect.right = SCREEN_WIDTH;
-	rect.bottom = SCREEN_HEIGHT;
+	//RECT rect;
+	//rect.left = SCREEN_WIDTH / 2;
+	//rect.top = SCREEN_HEIGHT / 2;
+	//rect.right = SCREEN_WIDTH;
+	//rect.bottom = SCREEN_HEIGHT;
 
 	//windowInfo.SetAsChild(sysInfo.info.win.window, rect);
 	//CefBrowserHost::CreateBrowserSync(windowInfo, g_cefHandler.get(), "http://code.google.com", browserSettings, NULL);
 	//CefBrowserHost::CreateBrowserSync(windowInfo, g_cefHandler.get(), "http://www.github.com", browserSettings, NULL);
 
-	//windowInfo.SetAsWindowless(sysInfo.info.win.window);
-	windowInfo.SetAsChild(sysInfo.info.win.window, rect);
+	windowInfo.SetAsWindowless(sysInfo.info.win.window);
 	CefRefPtr<CefBrowser> browser = CefBrowserHost::CreateBrowserSync(
 		windowInfo,
-		g_cefHandler,
+		g_uiClient,
 		"about:blank",
 		browserSettings,
-		NULL);
+		nullptr);
 	CefRefPtr<CefFrame> frame = browser->GetMainFrame();
-	std::string source = ReadFile("..\\..\\..\\..\\engine\\ui\\KevinReactThingy.html");
+	std::string source = ReadFile("..\\..\\..\\..\\engine\\ui\\KevinsABitch.html");
 	frame->LoadString(source, "about:blank");
+
+	//windowInfo.SetAsChild(sysInfo.info.win.window, rect);
+	//CefRefPtr<CefBrowser> browser = CefBrowserHost::CreateBrowserSync(
+	//	windowInfo,
+	//	g_uiClient,
+	//	"about:blank",
+	//	browserSettings,
+	//	NULL);
+	//CefRefPtr<CefFrame> frame = browser->GetMainFrame();
+	//std::string source = ReadFile("..\\..\\..\\..\\engine\\ui\\KevinReactThingy.html");
+	//frame->LoadString(source, "about:blank");
 	//frame->LoadString("<head></head><body></body>", "about:blank");//<button type=\"button\">SICK NASTY</button>
 
 	//std::string source = ReadFile("..\\..\\..\\..\\engine\\ui\\KevinsABitch.js");
@@ -725,13 +723,6 @@ bool RunCef()
 
 bool Initialize()
 {
-	// This must come first.
-	if (!InitializeCef())
-	{
-		printf("Unable to initialize CEF!\n");
-		return false;
-	}
-
 	if (SDL_Init(SDL_INIT_VIDEO) < 0)
 	{
 		printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
@@ -806,7 +797,7 @@ bool Initialize()
 	glEnable(GL_DEPTH_TEST); // enable depth-testing
 	glDepthFunc(GL_LESS); // depth-testing interprets a smaller value as "closer"
 
-	if (!RunCef())
+	if (!StartCef())
 	{
 		printf("CEF failed to start!\n");
 		return false;
@@ -822,6 +813,8 @@ void Destroy()
 	CE::SkeletonManager::Get().Destroy();
 	CE::TextureManager::Get().Destroy();
 
+	CefShutdown();
+
 	SDL_DestroyWindow(g_window);
 	g_window = NULL;
 
@@ -830,12 +823,22 @@ void Destroy()
 
 int main(int argc, char* argv[])
 {
+	// For now, this must come first because of the CEF subprocess architecture.
+	// TODO: Look into spawning subprocesses via a separate executable. Do we need this?
+	int exitCode = InitializeCef();
+	if (exitCode >= 0)
+	{
+		return exitCode;
+	}
+
 	if (!Initialize())
 	{
 		printf("Failed to initialize.\n");
 		getchar();
 		return -1;
 	}
+
+	MakeRed();
 
 	bool quit = false;
 	SDL_Event event;
@@ -888,10 +891,11 @@ int main(int argc, char* argv[])
 
 		g_animationComponent->Update(deltaTime);
 
-		Render();
-		SDL_GL_SwapWindow(g_window);
-
 		CefDoMessageLoopWork();
+
+		Render();
+
+		SDL_GL_SwapWindow(g_window);
 	}
 
 	SDL_StopTextInput();
