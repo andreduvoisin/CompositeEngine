@@ -66,7 +66,6 @@ GLuint g_diffuseTextureID = -1;
 GLuint g_projectionViewModelMatrixID2 = -1;
 GLuint g_paletteID2 = -1;
 
-GLuint g_viewportID = -1;
 GLuint g_uiTextureLocation = -1;
 GLuint g_uiTextureUnit = -1;
 GLuint g_uiTextureID = -1;
@@ -342,32 +341,27 @@ void Render()
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
 
-	//glm::mat4 ortho = glm::ortho(0.f, (float)SCREEN_WIDTH, (float)SCREEN_HEIGHT, 0.f, 0.f, 1000.f);
-	//glm::mat4 orthoViewModel = ortho * view * model;
-	glm::vec2 viewport(SCREEN_WIDTH, SCREEN_HEIGHT);
-	glUniform2fv(g_viewportID, 1, &viewport[0]);
-
 	std::vector<UIVertex> uiVertices;
 	UIVertex uiVertex;
 
-	uiVertex.position = glm::vec2(0.f, 0.f);
-	uiVertex.uv[0] = 0.f;
-	uiVertex.uv[1] = 0.f;
-	uiVertices.push_back(uiVertex);
-
-	uiVertex.position = glm::vec2((float)SCREEN_WIDTH, 0.f);
-	uiVertex.uv[0] = 1.f;
-	uiVertex.uv[1] = 0.f;
-	uiVertices.push_back(uiVertex);
-
-	uiVertex.position = glm::vec2(0.f, (float)SCREEN_HEIGHT);
+	uiVertex.position = glm::vec2(-1.f, -1.f);
 	uiVertex.uv[0] = 0.f;
 	uiVertex.uv[1] = 1.f;
 	uiVertices.push_back(uiVertex);
 
-	uiVertex.position = glm::vec2((float)SCREEN_WIDTH, (float)SCREEN_HEIGHT);
+	uiVertex.position = glm::vec2(1.f, -1.f);
 	uiVertex.uv[0] = 1.f;
 	uiVertex.uv[1] = 1.f;
+	uiVertices.push_back(uiVertex);
+
+	uiVertex.position = glm::vec2(-1.f, 1.f);
+	uiVertex.uv[0] = 0.f;
+	uiVertex.uv[1] = 0.f;
+	uiVertices.push_back(uiVertex);
+
+	uiVertex.position = glm::vec2(1.f, 1.f);
+	uiVertex.uv[0] = 1.f;
+	uiVertex.uv[1] = 0.f;
 	uiVertices.push_back(uiVertex);
 
 	std::vector<unsigned> uiIndices;
@@ -391,7 +385,8 @@ void Render()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, SCREEN_WIDTH, SCREEN_HEIGHT, 0, GL_BGRA, GL_UNSIGNED_BYTE, ((UIRenderHandler*)(g_uiClient->GetRenderHandler().get()))->getBuffer());
+	char* buffer = ((UIRenderHandler*)(g_uiClient->GetRenderHandler().get()))->getBuffer();// red.data();
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, SCREEN_WIDTH, SCREEN_HEIGHT, 0, GL_BGRA, GL_UNSIGNED_BYTE, buffer);
 	glGenerateMipmap(GL_TEXTURE_2D);
 	glUniform1i(g_uiTextureLocation, g_uiTextureUnit);
 
@@ -582,7 +577,6 @@ bool InitializeOpenGL()
 		return false;
 	}
 
-	g_viewportID = glGetUniformLocation(g_programID4, "viewport");
 	g_uiTextureLocation = glGetUniformLocation(g_programID4, "uiTexture");
 
 	g_projectionViewModelMatrixID2 = glGetUniformLocation(g_programID2, "projectionViewModel");
