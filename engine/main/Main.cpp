@@ -326,7 +326,6 @@ void Render()
 	glDisableVertexAttribArray(1);
 	glDisableVertexAttribArray(2);
 
-
 	glUseProgram(g_programID4);
 
 	struct UIVertex
@@ -649,6 +648,7 @@ int InitializeCef()
 	}
 
 	CefSettings settings;
+	settings.remote_debugging_port = 3469;
 	if (!CefInitialize(main_args, settings, NULL, NULL))
 	{
 		printf("CEF failed to initialize.\n");
@@ -790,6 +790,12 @@ bool Initialize()
 	// tell GL to only draw onto a pixel if the shape is closer to the viewer
 	glEnable(GL_DEPTH_TEST); // enable depth-testing
 	glDepthFunc(GL_LESS); // depth-testing interprets a smaller value as "closer"
+
+	// enable alpha blending (allows transparent textures)
+	// https://gamedev.stackexchange.com/questions/29492/opengl-blending-gui-textures
+	// https://www.opengl.org/archives/resources/faq/technical/transparency.htm
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	if (!StartCef())
 	{
