@@ -84,6 +84,7 @@ CE::AnimationComponent* g_animationComponent;
 int g_renderType = 0;
 
 CefRefPtr<UIClient> g_uiClient;
+CefRefPtr<CefBrowser> g_browser;
 
 void printProgramLog(GLuint program)
 {
@@ -684,13 +685,13 @@ bool StartCef()
 	//CefBrowserHost::CreateBrowserSync(windowInfo, g_cefHandler.get(), "http://www.github.com", browserSettings, NULL);
 
 	windowInfo.SetAsWindowless(sysInfo.info.win.window);
-	CefRefPtr<CefBrowser> browser = CefBrowserHost::CreateBrowserSync(
+	g_browser = CefBrowserHost::CreateBrowserSync(
 		windowInfo,
 		g_uiClient,
 		"about:blank",
 		browserSettings,
 		nullptr);
-	CefRefPtr<CefFrame> frame = browser->GetMainFrame();
+	CefRefPtr<CefFrame> frame = g_browser->GetMainFrame();
 	std::string source = ReadFile("..\\..\\..\\..\\engine\\ui\\KevinsABitch.html");
 	frame->LoadString(source, "about:blank");
 
@@ -813,6 +814,8 @@ void Destroy()
 	CE::SkeletonManager::Get().Destroy();
 	CE::TextureManager::Get().Destroy();
 
+	g_browser = nullptr;
+	g_uiClient = nullptr;
 	CefShutdown();
 
 	SDL_DestroyWindow(g_window);
