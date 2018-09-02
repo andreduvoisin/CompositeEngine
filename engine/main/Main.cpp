@@ -807,6 +807,16 @@ bool Initialize()
 	return true;
 }
 
+void StopCef()
+{
+	g_browser->GetHost()->CloseBrowser(true);
+
+	g_browser = nullptr;
+	g_uiClient = nullptr;
+
+	CefShutdown();
+}
+
 void Destroy()
 {
 	CE::MeshManager::Get().Destroy();
@@ -814,14 +824,120 @@ void Destroy()
 	CE::SkeletonManager::Get().Destroy();
 	CE::TextureManager::Get().Destroy();
 
-	g_browser = nullptr;
-	g_uiClient = nullptr;
-	CefShutdown();
+	StopCef();
 
 	SDL_DestroyWindow(g_window);
 	g_window = NULL;
 
 	SDL_Quit();
+}
+
+// osr_window_win.cc
+unsigned GetCefMouseModifiers(const SDL_Event& event)
+{
+	unsigned modifiers = 0;
+
+	SDL_Keymod keymod = SDL_GetModState();
+
+	if (keymod & KMOD_CTRL)
+	{
+		modifiers |= EVENTFLAG_CONTROL_DOWN;
+	}
+
+	if (keymod & KMOD_SHIFT)
+	{
+		modifiers |= EVENTFLAG_SHIFT_DOWN;
+	}
+
+	if (keymod & KMOD_ALT)
+	{
+		modifiers |= EVENTFLAG_ALT_DOWN;
+	}
+
+	if (keymod & KMOD_NUM)
+	{
+		modifiers |= EVENTFLAG_NUM_LOCK_ON;
+	}
+
+	if (keymod & KMOD_CAPS)
+	{
+		modifiers |= EVENTFLAG_CAPS_LOCK_ON;
+	}
+
+#ifdef __APPLE__
+	if (keymod & KMOD_GUI)
+	{
+		modifiers |= EVENTFLAG_COMMAND_DOWN;
+	}
+#endif
+
+	switch (event.type)
+	{
+		case SDL_MOUSEMOTION:
+		{
+			if (event.motion.state & SDL_BUTTON_LMASK)
+			{
+				modifiers |= EVENTFLAG_LEFT_MOUSE_BUTTON;
+			}
+
+			if (event.motion.state & SDL_BUTTON_MMASK)
+			{
+				modifiers |= EVENTFLAG_MIDDLE_MOUSE_BUTTON;
+			}
+
+			if (event.motion.state & SDL_BUTTON_RMASK)
+			{
+				modifiers |= EVENTFLAG_RIGHT_MOUSE_BUTTON;
+			}
+
+			break;
+		}
+
+		case SDL_MOUSEBUTTONDOWN:
+		case SDL_MOUSEBUTTONUP:
+		{
+			if (event.button.button == SDL_BUTTON_LEFT)
+			{
+				modifiers |= EVENTFLAG_LEFT_MOUSE_BUTTON;
+			}
+
+			if (event.button.button == SDL_BUTTON_MIDDLE)
+			{
+				modifiers |= EVENTFLAG_MIDDLE_MOUSE_BUTTON;
+			}
+
+			if (event.button.button == SDL_BUTTON_RIGHT)
+			{
+				modifiers |= EVENTFLAG_RIGHT_MOUSE_BUTTON;
+			}
+
+			break;
+		}
+
+		case SDL_MOUSEWHEEL:
+		{
+			unsigned state = SDL_GetMouseState(NULL, NULL);
+
+			if (event.motion.state & SDL_BUTTON_LMASK)
+			{
+				modifiers |= EVENTFLAG_LEFT_MOUSE_BUTTON;
+			}
+
+			if (event.motion.state & SDL_BUTTON_MMASK)
+			{
+				modifiers |= EVENTFLAG_MIDDLE_MOUSE_BUTTON;
+			}
+
+			if (event.motion.state & SDL_BUTTON_RMASK)
+			{
+				modifiers |= EVENTFLAG_RIGHT_MOUSE_BUTTON;
+			}
+
+			break;
+		}
+	}
+
+	return modifiers;
 }
 
 int main(int argc, char* argv[])
@@ -863,6 +979,7 @@ int main(int argc, char* argv[])
 			switch (event.type)
 			{
 				case SDL_KEYDOWN:
+				{
 					//switch (event.key.keysym.sym)
 					//{
 					//	case SDLK_UP:
@@ -877,6 +994,7 @@ int main(int argc, char* argv[])
 					//		break;
 					//}
 					break;
+				}
 
 				case SDL_TEXTINPUT:
 				{
@@ -887,8 +1005,106 @@ int main(int argc, char* argv[])
 				}
 
 				case SDL_QUIT:
+				{
 					quit = true;
 					break;
+				}
+
+				// osr_window_win.cc
+				case SDL_MOUSEMOTION:
+				{
+					CefMouseEvent mouseEvent;
+					mouseEvent.x = event.motion.x;
+					mouseEvent.y = event.motion.y;
+					mouseEvent.modifiers = GetCefMouseModifiers(event);
+
+					g_browser->GetHost()->SendMouseMoveEvent(mouseEvent, false);
+
+					printf("SDL_MOUSEMOTION: %i, %i, 0x%08x\n", mouseEvent.x, mouseEvent.y, mouseEvent.modifiers);
+
+					break;
+				}
+
+				// osr_window_win.cc
+				case SDL_MOUSEBUTTONDOWN:
+				{
+					CefBrowserHost::MouseButtonType mouseButtonType;
+					if (event.button.button == SDL_BUTTON_LEFT)
+					{
+						mouseButtonType = MBT_LEFT;
+					}
+					else if (event.button.button == SDL_BUTTON_MIDDLE)
+					{
+						mouseButtonType = MBT_MIDDLE;
+					}
+					else if (event.button.button == SDL_BUTTON_RIGHT)
+					{
+						mouseButtonType = MBT_RIGHT;
+					}
+					else
+					{
+						break;
+					}
+
+					CefMouseEvent mouseEvent;
+					mouseEvent.x = event.button.x;
+					mouseEvent.y = event.button.y;
+					mouseEvent.modifiers = GetCefMouseModifiers(event);
+
+					g_browser->GetHost()->SendMouseClickEvent(mouseEvent, mouseButtonType, false, event.button.clicks);
+
+					printf("SDL_MOUSEBUTTONDOWN: %i, %i, 0x%08x, %i, %i\n", mouseEvent.x, mouseEvent.y, mouseEvent.modifiers, mouseButtonType, event.button.clicks);
+
+					break;
+				}
+
+				// osr_window_win.cc
+				case SDL_MOUSEBUTTONUP:
+				{
+					CefBrowserHost::MouseButtonType mouseButtonType;
+					if (event.button.button == SDL_BUTTON_LEFT)
+					{
+						mouseButtonType = MBT_LEFT;
+					}
+					else if (event.button.button == SDL_BUTTON_MIDDLE)
+					{
+						mouseButtonType = MBT_MIDDLE;
+					}
+					else if (event.button.button == SDL_BUTTON_RIGHT)
+					{
+						mouseButtonType = MBT_RIGHT;
+					}
+					else
+					{
+						break;
+					}
+
+					CefMouseEvent mouseEvent;
+					mouseEvent.x = event.button.x;
+					mouseEvent.y = event.button.y;
+					mouseEvent.modifiers = GetCefMouseModifiers(event);
+
+					g_browser->GetHost()->SendMouseClickEvent(mouseEvent, mouseButtonType, true, event.button.clicks);
+
+					printf("SDL_MOUSEBUTTONUP: %i, %i, 0x%08x, %i, %i\n", mouseEvent.x, mouseEvent.y, mouseEvent.modifiers, mouseButtonType, event.button.clicks);
+
+					break;
+				}
+
+				// osr_window_win.cc
+				case SDL_MOUSEWHEEL:
+				{
+					CefMouseEvent mouseEvent;
+					SDL_GetMouseState(&mouseEvent.x, &mouseEvent.y);
+					mouseEvent.modifiers = GetCefMouseModifiers(event);
+
+					// TODO: This crashes, but I don't know why. :(
+					//g_browser->GetHost()->SendMouseWheelEvent(mouseEvent, event.wheel.x, event.wheel.y);
+
+					printf("SDL_MOUSEWHEEL: %i, %i, 0x%08x, %i, %i\n", mouseEvent.x, mouseEvent.y, mouseEvent.modifiers, event.wheel.x, event.wheel.y);
+
+					break;
+				}
 			}
 		}
 
