@@ -918,19 +918,49 @@ unsigned GetCefMouseModifiers(const SDL_Event& event)
 		{
 			unsigned state = SDL_GetMouseState(NULL, NULL);
 
-			if (event.motion.state & SDL_BUTTON_LMASK)
+			if (state & SDL_BUTTON_LMASK)
 			{
 				modifiers |= EVENTFLAG_LEFT_MOUSE_BUTTON;
 			}
 
-			if (event.motion.state & SDL_BUTTON_MMASK)
+			if (state & SDL_BUTTON_MMASK)
 			{
 				modifiers |= EVENTFLAG_MIDDLE_MOUSE_BUTTON;
 			}
 
-			if (event.motion.state & SDL_BUTTON_RMASK)
+			if (state & SDL_BUTTON_RMASK)
 			{
 				modifiers |= EVENTFLAG_RIGHT_MOUSE_BUTTON;
+			}
+
+			break;
+		}
+
+		case SDL_WINDOWEVENT:
+		{
+			switch (event.window.event)
+			{
+				case SDL_WINDOWEVENT_LEAVE:
+				{
+					unsigned state = SDL_GetMouseState(NULL, NULL);
+
+					if (state & SDL_BUTTON_LMASK)
+					{
+						modifiers |= EVENTFLAG_LEFT_MOUSE_BUTTON;
+					}
+
+					if (state & SDL_BUTTON_MMASK)
+					{
+						modifiers |= EVENTFLAG_MIDDLE_MOUSE_BUTTON;
+					}
+
+					if (state & SDL_BUTTON_RMASK)
+					{
+						modifiers |= EVENTFLAG_RIGHT_MOUSE_BUTTON;
+					}
+
+					break;
+				}
 			}
 
 			break;
@@ -1102,6 +1132,28 @@ int main(int argc, char* argv[])
 					//g_browser->GetHost()->SendMouseWheelEvent(mouseEvent, event.wheel.x, event.wheel.y);
 
 					printf("SDL_MOUSEWHEEL: %i, %i, 0x%08x, %i, %i\n", mouseEvent.x, mouseEvent.y, mouseEvent.modifiers, event.wheel.x, event.wheel.y);
+
+					break;
+				}
+
+				// osr_window_win.cc
+				case SDL_WINDOWEVENT:
+				{
+					switch (event.window.event)
+					{
+						case SDL_WINDOWEVENT_LEAVE:
+						{
+							CefMouseEvent mouseEvent;
+							SDL_GetMouseState(&mouseEvent.x, &mouseEvent.y);
+							mouseEvent.modifiers = GetCefMouseModifiers(event);
+
+							g_browser->GetHost()->SendMouseMoveEvent(mouseEvent, true);
+
+							printf("SDL_WINDOWEVENT_LEAVE: %i, %i, 0x%08x\n", mouseEvent.x, mouseEvent.y, mouseEvent.modifiers);
+
+							break;
+						}
+					}
 
 					break;
 				}
