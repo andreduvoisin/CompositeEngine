@@ -61,6 +61,6 @@ namespace CE
 		glGenerateMipmap(GL_TEXTURE_2D);
 		glUniform1i(g_diffuseTextureLocation, g_diffuseTextureUnit);
 
-		glDrawElements(GL_TRIANGLES, mesh.m_indices.size(), GL_UNSIGNED_INT, NULL);
+		glDrawElements(GL_TRIANGLES, (GLsizei) mesh.m_indices.size(), GL_UNSIGNED_INT, NULL);
 	}
 }

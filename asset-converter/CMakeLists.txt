@@ -10,6 +10,10 @@ add_executable(AssetConverter ${ASSET_CONVERTER_SRC_FILES}
 include_directories(${ASSET_CONVERTER_SRC_DIR})
 include_directories(${ENGINE_SRC_DIR})
 
+if(WIN32)
+	target_compile_options(AssetConverter PRIVATE /W3 /WX)
+endif()
+
 # GLM
 include_directories("${EXTERN_DIR}/glm-0.9.8.5")
 

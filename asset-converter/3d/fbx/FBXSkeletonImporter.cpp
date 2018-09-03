@@ -112,7 +112,7 @@ namespace CE
 
 					for (unsigned i = 0; i < 16; ++i)
 					{
-						m_outSkeleton->joints[currJointIndex].inverseBindPose[i / 4][i % 4] = inverse_bind_pose.Get(i / 4, i % 4);
+						m_outSkeleton->joints[currJointIndex].inverseBindPose[i / 4][i % 4] = (float) inverse_bind_pose.Get(i / 4, i % 4);
 					}
 
 					unsigned int numOfIndices = currCluster->GetControlPointIndicesCount();
@@ -124,7 +124,7 @@ namespace CE
 			}
 		}
 
-		int numJointsRemoved = 0;
+		size_t numJointsRemoved = 0;
 		for (size_t i = 0; i < isJointUsed.size(); ++i)
 		{
 			if (!isJointUsed[i] && !JointHasChild(i - numJointsRemoved))
@@ -135,7 +135,7 @@ namespace CE
 		}
 	}
 
-	bool FBXSkeletonImporter::JointHasChild(int index)
+	bool FBXSkeletonImporter::JointHasChild(size_t index)
 	{
 		for (int i = 0; i < m_outSkeleton->joints.size(); ++i)
 		{
@@ -148,11 +148,11 @@ namespace CE
 		return false;
 	}
 
-	void FBXSkeletonImporter::RemoveJoint(int index)
+	void FBXSkeletonImporter::RemoveJoint(size_t index)
 	{
 		m_outSkeleton->joints.erase(m_outSkeleton->joints.begin() + index);
 
-		for (int i = index; i < m_outSkeleton->joints.size(); ++i)
+		for (size_t i = index; i < m_outSkeleton->joints.size(); ++i)
 		{
 			if (m_outSkeleton->joints[i].parentIndex > index)
 			{
@@ -161,14 +161,14 @@ namespace CE
 		}
 	}
 
-	void FBXSkeletonImporter::ProcessSkeletonHierarchyRecursively(FbxNode* inNode, int myIndex, int inParentIndex)
+	void FBXSkeletonImporter::ProcessSkeletonHierarchyRecursively(FbxNode* inNode, size_t myIndex, size_t inParentIndex)
 	{
 		if (inNode->GetNodeAttribute()
 			&& inNode->GetNodeAttribute()->GetAttributeType()
 			&& inNode->GetNodeAttribute()->GetAttributeType() == FbxNodeAttribute::eSkeleton)
 		{
 			Joint currJoint;
-			currJoint.parentIndex = inParentIndex;
+			currJoint.parentIndex = (short) inParentIndex;
 			currJoint.name = inNode->GetName();
 			currJoint.inverseBindPose = glm::mat4(1.f);
 

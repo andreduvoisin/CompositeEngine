@@ -309,7 +309,7 @@ void Render()
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned) * debugJointIndices.size(), debugJointIndices.data(), GL_STATIC_DRAW);
 
 		glPointSize(5.f);
-		glDrawElements(GL_POINTS, debugJointIndices.size(), GL_UNSIGNED_INT, NULL);
+		glDrawElements(GL_POINTS, (GLsizei) debugJointIndices.size(), GL_UNSIGNED_INT, NULL);
 
 		for (unsigned i = 0; i < skeleton->joints.size(); ++i)
 		{
@@ -320,7 +320,7 @@ void Render()
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned) * debugLineIndices.size(), debugLineIndices.data(), GL_STATIC_DRAW);
 
 		glLineWidth(1.f);
-		glDrawElements(GL_LINES, debugLineIndices.size(), GL_UNSIGNED_INT, NULL);
+		glDrawElements(GL_LINES, (GLsizei) debugLineIndices.size(), GL_UNSIGNED_INT, NULL);
 	}
 
 	glDisableVertexAttribArray(0);
@@ -390,7 +390,7 @@ void Render()
 	glGenerateMipmap(GL_TEXTURE_2D);
 	glUniform1i(g_uiTextureLocation, g_uiTextureUnit);
 
-	glDrawElements(GL_TRIANGLES, uiIndices.size(), GL_UNSIGNED_INT, NULL);
+	glDrawElements(GL_TRIANGLES, (GLsizei) uiIndices.size(), GL_UNSIGNED_INT, NULL);
 
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
@@ -1002,7 +1002,7 @@ int main(int argc, char* argv[])
 	{
 		last = now;
 		now = SDL_GetPerformanceCounter();
-		deltaTime = double((now - last) * 1000) / SDL_GetPerformanceFrequency();
+		deltaTime = float((now - last) * 1000) / SDL_GetPerformanceFrequency();
 
 		while (SDL_PollEvent(&event) != 0)
 		{
@@ -1050,7 +1050,10 @@ int main(int argc, char* argv[])
 
 					g_browser->GetHost()->SendMouseMoveEvent(mouseEvent, false);
 
-					printf("SDL_MOUSEMOTION: %i, %i, 0x%08x\n", mouseEvent.x, mouseEvent.y, mouseEvent.modifiers);
+					printf("SDL_MOUSEMOTION: %i, %i, 0x%08x\n",
+						mouseEvent.x,
+						mouseEvent.y,
+						mouseEvent.modifiers);
 
 					break;
 				}
@@ -1083,7 +1086,12 @@ int main(int argc, char* argv[])
 
 					g_browser->GetHost()->SendMouseClickEvent(mouseEvent, mouseButtonType, false, event.button.clicks);
 
-					printf("SDL_MOUSEBUTTONDOWN: %i, %i, 0x%08x, %i, %i\n", mouseEvent.x, mouseEvent.y, mouseEvent.modifiers, mouseButtonType, event.button.clicks);
+					printf("SDL_MOUSEBUTTONDOWN: %i, %i, 0x%08x, %i, %i\n",
+						mouseEvent.x,
+						mouseEvent.y,
+						mouseEvent.modifiers,
+						mouseButtonType,
+						event.button.clicks);
 
 					break;
 				}
@@ -1116,7 +1124,12 @@ int main(int argc, char* argv[])
 
 					g_browser->GetHost()->SendMouseClickEvent(mouseEvent, mouseButtonType, true, event.button.clicks);
 
-					printf("SDL_MOUSEBUTTONUP: %i, %i, 0x%08x, %i, %i\n", mouseEvent.x, mouseEvent.y, mouseEvent.modifiers, mouseButtonType, event.button.clicks);
+					printf("SDL_MOUSEBUTTONUP: %i, %i, 0x%08x, %i, %i\n",
+						mouseEvent.x,
+						mouseEvent.y,
+						mouseEvent.modifiers,
+						mouseButtonType,
+						event.button.clicks);
 
 					break;
 				}
@@ -1131,7 +1144,12 @@ int main(int argc, char* argv[])
 					// TODO: This crashes, but I don't know why. :(
 					//g_browser->GetHost()->SendMouseWheelEvent(mouseEvent, event.wheel.x, event.wheel.y);
 
-					printf("SDL_MOUSEWHEEL: %i, %i, 0x%08x, %i, %i\n", mouseEvent.x, mouseEvent.y, mouseEvent.modifiers, event.wheel.x, event.wheel.y);
+					printf("SDL_MOUSEWHEEL: %i, %i, 0x%08x, %i, %i\n",
+						mouseEvent.x,
+						mouseEvent.y,
+						mouseEvent.modifiers,
+						event.wheel.x,
+						event.wheel.y);
 
 					break;
 				}
@@ -1149,7 +1167,10 @@ int main(int argc, char* argv[])
 
 							g_browser->GetHost()->SendMouseMoveEvent(mouseEvent, true);
 
-							printf("SDL_WINDOWEVENT_LEAVE: %i, %i, 0x%08x\n", mouseEvent.x, mouseEvent.y, mouseEvent.modifiers);
+							printf("SDL_WINDOWEVENT_LEAVE: %i, %i, 0x%08x\n",
+								mouseEvent.x,
+								mouseEvent.y,
+								mouseEvent.modifiers);
 
 							break;
 						}
