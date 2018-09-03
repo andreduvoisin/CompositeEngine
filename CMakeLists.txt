@@ -12,3 +12,8 @@ file(GLOB_RECURSE ASSET_CONVERTER_SRC_FILES "${ASSET_CONVERTER_SRC_DIR}/*.cpp")
 add_subdirectory(${EXTERN_DIR})
 add_subdirectory(${ENGINE_SRC_DIR})
 add_subdirectory(${ASSET_CONVERTER_SRC_DIR})
+
+add_executable(CompositeServer ${ENGINE_SRC_DIR}/server/ServerMain.cpp)
+if(WIN32)
+  target_link_libraries(CompositeServer wsock32 ws2_32)
+endif()
