@@ -76,8 +76,8 @@ namespace CE
 			scene->SetCurrentAnimationStack(currAnimStack);
 			FbxString animStackName = currAnimStack->GetName();
 			std::string animationName = animStackName.Buffer();
-			double start = currAnimStack->GetLocalTimeSpan().GetStart().GetSecondDouble();
-			double end = currAnimStack->GetLocalTimeSpan().GetStop().GetSecondDouble();
+			float start = (float) currAnimStack->GetLocalTimeSpan().GetStart().GetSecondDouble();
+			float end = (float) currAnimStack->GetLocalTimeSpan().GetStop().GetSecondDouble();
 
 			animation.name = animationName;
 			animation.duration = end > start ? end - start : 1.f;
@@ -148,34 +148,34 @@ namespace CE
 						evaluator->GetNodeGlobalTransform(joint, currTime) :
 						evaluator->GetNodeLocalTransform(joint, currTime);
 
-					double frameTime = time - start;
+					float frameTime = float(time - start);
 
 					// Translation.
 					FbxVector4 translation = localPose.GetT();
 					TranslationKey translationKey;
 					translationKey.time = frameTime;
-					translationKey.translation[0] = translation[0];
-					translationKey.translation[1] = translation[1];
-					translationKey.translation[2] = translation[2];
+					translationKey.translation[0] = (float) translation[0];
+					translationKey.translation[1] = (float) translation[1];
+					translationKey.translation[2] = (float) translation[2];
 					animation.translations[j].push_back(translationKey);
 
 					// Rotation.
 					FbxQuaternion quaternion = localPose.GetQ();
 					RotationKey rotationKey;
 					rotationKey.time = frameTime;
-					rotationKey.rotation[0] = quaternion[0];
-					rotationKey.rotation[1] = quaternion[1];
-					rotationKey.rotation[2] = quaternion[2];
-					rotationKey.rotation[3] = quaternion[3];
+					rotationKey.rotation[0] = (float) quaternion[0];
+					rotationKey.rotation[1] = (float) quaternion[1];
+					rotationKey.rotation[2] = (float) quaternion[2];
+					rotationKey.rotation[3] = (float) quaternion[3];
 					animation.rotations[j].push_back(rotationKey);
 
 					// Scale.
 					FbxVector4 scale = localPose.GetS();
 					ScaleKey scaleKey;
 					scaleKey.time = frameTime;
-					scaleKey.scale[0] = scale[0];
-					scaleKey.scale[1] = scale[1];
-					scaleKey.scale[2] = scale[2];
+					scaleKey.scale[0] = (float) scale[0];
+					scaleKey.scale[1] = (float) scale[1];
+					scaleKey.scale[2] = (float) scale[2];
 					animation.scales[j].push_back(scaleKey);
 				}
 			}

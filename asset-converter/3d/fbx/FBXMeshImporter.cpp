@@ -193,8 +193,8 @@ namespace CE
 
 					lUVValue = lUVElement->GetDirectArray().GetAt(lUVIndex);
 
-					vertex.uv[0] = lUVValue[0];
-					vertex.uv[1] = lUVValue[1];
+					vertex.uv[0] = (float) lUVValue[0];
+					vertex.uv[1] = (float) lUVValue[1];
 
 					unsigned int index;
 					for (index = 0; index < currentMesh.m_vertices.size(); ++index)
@@ -208,7 +208,7 @@ namespace CE
 					if (index == currentMesh.m_vertices.size())
 					{
 						currentMesh.m_vertices.push_back(vertex);
-						m_controlPointToVertices[lPolyVertIndex].push_back(currentMesh.m_vertices.size() - 1);
+						m_controlPointToVertices[lPolyVertIndex].push_back((int) currentMesh.m_vertices.size() - 1);
 					}
 
 					currentMesh.m_indices.push_back(index);
@@ -243,7 +243,6 @@ namespace CE
 					else
 					{
 						fbxsdk::FbxTexture* texture = property.GetSrcObject<fbxsdk::FbxTexture>(i);
-						printf("userdataptr: %s\n", texture->GetUserDataPtr());
 						if (texture)
 						{
 							std::string textureType = property.GetNameAsCStr();
@@ -322,7 +321,7 @@ namespace CE
 					{
 						JointIndexWeightPair jointIndexWeightPair;
 						jointIndexWeightPair.index = currJointIndex;
-						jointIndexWeightPair.weight = currCluster->GetControlPointWeights()[controlPointIndex];
+						jointIndexWeightPair.weight = (float) currCluster->GetControlPointWeights()[controlPointIndex];
 						jointIndexWeightPairs[verticesForControlPoint[vertexIndex]].push_back(jointIndexWeightPair);
 					}
 				}
@@ -337,7 +336,7 @@ namespace CE
 				});
 
 			const unsigned maxWeights = 4;
-			unsigned numWeights = jointIndexWeightPairs[i].size();
+			unsigned numWeights = (unsigned) jointIndexWeightPairs[i].size();
 
 			if (numWeights > maxWeights)
 			{
