@@ -4,6 +4,10 @@ add_executable(CompositeEngine ${ENGINE_SRC_FILES})
 
 include_directories(${ENGINE_SRC_DIR})
 
+if(WIN32)
+	target_compile_options(CompositeEngine PRIVATE /W3 /WX)
+endif()
+
 # OpenGL
 if(WIN32)
 	target_link_libraries(CompositeEngine opengl32) # glu32 gdi32 winmm user32 glut32

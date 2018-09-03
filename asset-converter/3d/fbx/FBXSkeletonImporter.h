@@ -24,9 +24,9 @@ namespace CE
 
 	private:
 		void ProcessSkeletonHierarchy(fbxsdk::FbxNode* inRootNode, fbxsdk::FbxScene* pFbxScene);
-		void ProcessSkeletonHierarchyRecursively(fbxsdk::FbxNode* inNode, int myIndex, int inParentIndex);
-		bool JointHasChild(int index);
-		void RemoveJoint(int index);
+		void ProcessSkeletonHierarchyRecursively(fbxsdk::FbxNode* inNode, size_t myIndex, size_t inParentIndex);
+		bool JointHasChild(size_t index);
+		void RemoveJoint(size_t index);
 
 	private:
 		fbxsdk::FbxManager* m_fbxManager;
