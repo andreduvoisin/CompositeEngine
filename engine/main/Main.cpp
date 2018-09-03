@@ -1141,7 +1141,7 @@ int main(int argc, char* argv[])
 					SDL_GetMouseState(&mouseEvent.x, &mouseEvent.y);
 					mouseEvent.modifiers = GetCefMouseModifiers(event);
 
-					// TODO: This crashes, but I don't know why. :(
+					// TODO: This crashes in debug, but I don't know why. :(
 					//g_browser->GetHost()->SendMouseWheelEvent(mouseEvent, event.wheel.x, event.wheel.y);
 
 					printf("SDL_MOUSEWHEEL: %i, %i, 0x%08x, %i, %i\n",
