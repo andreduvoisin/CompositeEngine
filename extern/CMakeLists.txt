@@ -33,3 +33,13 @@ if(WIN32)
 			/m
 	)
 endif()
+
+# CEF
+if(WIN32)
+	set(CEF_ROOT_DIR "${EXTERN_DIR}/cef_binary_3.3440.1805.gbe070f9")
+	set(CEF_PLATFORM_DIR "${CEF_ROOT_DIR}/windows64")
+	
+	set(CEF_RUNTIME_LIBRARY_FLAG "/MD")
+
+	add_subdirectory(${CEF_PLATFORM_DIR})
+endif()
