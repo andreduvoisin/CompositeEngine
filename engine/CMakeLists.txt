@@ -119,3 +119,7 @@ if(WIN32)
 		DESTINATION "${PROJECT_BINARY_DIR}/engine/${CE_CONFIGURATION}"
 	)
 endif()
+
+if(WIN32)
+	target_link_libraries(CompositeEngine ws2_32)
+endif()

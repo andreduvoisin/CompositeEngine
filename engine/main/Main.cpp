@@ -20,6 +20,8 @@
 #include "graphics\texture\TextureManager.h"
 #include "graphics\texture\Texture.h"
 
+#include "network\ClientService.h"
+
 #include "graphics\ceasset\input\AssetImporter.h"
 
 #include <glm\gtx\matrix_decompose.hpp>
@@ -160,6 +162,21 @@ void HandleKeys(unsigned char key, int x, int y)
 	if (key == 'w')
 	{
 		g_renderBindPose = !g_renderBindPose;
+	}
+
+	if (key == 't')
+	{
+		CE::ClientService::MakeRequest("T");
+	}
+
+	if (key == 'e')
+	{
+		CE::ClientService::MakeRequest("E");
+	}
+
+	if (key == 's')
+	{
+		CE::ClientService::MakeRequest("S");
 	}
 }
 

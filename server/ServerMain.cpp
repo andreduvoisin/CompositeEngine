@@ -1,7 +1,7 @@
 #include <cstdio>
 #include <winsock2.h>
 
-#define SOCKET_BUFFER_SIZE sizeof(wchar_t) //max UDP datagram size
+#include "..\engine\common\NetworkConfig.h"
 
 bool init()
 {
@@ -31,7 +31,7 @@ void main()
 		printf("socket failed: %d\n", WSAGetLastError());
 		return;
 	}
-	printf("socket is: %i\n", sock);
+	printf("socket is: %llu\n", sock);
 
 
 	SOCKADDR_IN local_address;
@@ -41,30 +41,36 @@ void main()
 
 	if (bind(sock, (SOCKADDR*)&local_address, sizeof(local_address)) == SOCKET_ERROR)
 	{
-		printf("bind failed: %d", WSAGetLastError());
+		printf("bind failed: %d\n", WSAGetLastError());
 		return;
 	}
-	printf("bind worked!");
+	printf("bind worked!\n");
 
-	char buffer[SOCKET_BUFFER_SIZE];
+	char buffer[CE::NetworkConfig::socketBufferSize];
 	int flags = 0;
 	SOCKADDR_IN from;
 	int from_size = sizeof(from);
-	int bytes_received = recvfrom(sock, buffer, SOCKET_BUFFER_SIZE, flags, (SOCKADDR*)&from, &from_size);
 
-	if (bytes_received == SOCKET_ERROR)
+	while (*buffer != '#')
 	{
-		printf("recvfrom returned SOCKET_ERROR, WSAGetLastError() %d\n", WSAGetLastError());
+		const int bytes_received = recvfrom(sock, buffer, CE::NetworkConfig::socketBufferSize, flags, (SOCKADDR*)&from, &from_size);
+
+		if (bytes_received == SOCKET_ERROR)
+		{
+			printf("recvfrom returned SOCKET_ERROR, WSAGetLastError() %d\n", WSAGetLastError());
+		}
+		else
+		{
+			printf("%d.%d.%d.%d:%d - %s",
+				from.sin_addr.S_un.S_un_b.s_b1,
+				from.sin_addr.S_un.S_un_b.s_b2,
+				from.sin_addr.S_un.S_un_b.s_b3,
+				from.sin_addr.S_un.S_un_b.s_b4,
+				from.sin_port,
+				buffer);
+			printf("\n");
+		}
 	}
-	else
-	{
-		buffer[bytes_received] = 0;
-		printf("%d.%d.%d.%d:%d - %s",
-			from.sin_addr.S_un.S_un_b.s_b1,
-			from.sin_addr.S_un.S_un_b.s_b2,
-			from.sin_addr.S_un.S_un_b.s_b3,
-			from.sin_addr.S_un.S_un_b.s_b4,
-			from.sin_port,
-			buffer);
-	}
+
+	printf("Closing Server!");
 }
