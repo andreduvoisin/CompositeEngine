@@ -41,10 +41,10 @@ void main()
 
 	if (bind(sock, (SOCKADDR*)&local_address, sizeof(local_address)) == SOCKET_ERROR)
 	{
-		printf("bind failed: %d\n", WSAGetLastError());
+		printf("server bind failed: %d\n", WSAGetLastError());
 		return;
 	}
-	printf("bind worked!\n");
+	printf("server bind worked!\n");
 
 	char buffer[CE::NetworkConfig::socketBufferSize];
 	int flags = 0;
@@ -66,7 +66,7 @@ void main()
 				from.sin_addr.S_un.S_un_b.s_b2,
 				from.sin_addr.S_un.S_un_b.s_b3,
 				from.sin_addr.S_un.S_un_b.s_b4,
-				from.sin_port,
+				ntohs(from.sin_port),
 				buffer);
 			printf("\n");
 		}

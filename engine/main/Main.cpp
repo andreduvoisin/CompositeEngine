@@ -88,6 +88,9 @@ int g_renderType = 0;
 CefRefPtr<UIClient> g_uiClient;
 CefRefPtr<CefBrowser> g_browser;
 
+// The socket that the client binds to;
+SOCKET client_socket;
+
 void printProgramLog(GLuint program)
 {
 	//Make sure name is shader
@@ -166,17 +169,8 @@ void HandleKeys(unsigned char key, int x, int y)
 
 	if (key == 't')
 	{
-		CE::ClientService::MakeRequest("T");
-	}
-
-	if (key == 'e')
-	{
-		CE::ClientService::MakeRequest("E");
-	}
-
-	if (key == 's')
-	{
-		CE::ClientService::MakeRequest("S");
+		
+		CE::ClientService::MakeRequest("T", client_socket);
 	}
 }
 
@@ -818,6 +812,14 @@ bool Initialize()
 	if (!StartCef())
 	{
 		printf("CEF failed to start!\n");
+		return false;
+	}
+
+	client_socket = CE::ClientService::InitClient();
+
+	if (client_socket == NULL)
+	{
+		printf("Client failed to bind socket");
 		return false;
 	}
 
