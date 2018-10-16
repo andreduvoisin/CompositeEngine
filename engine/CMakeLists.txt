@@ -80,7 +80,7 @@ include_directories("${EXTERN_DIR}/glm-0.9.8.5")
 
 # CEF
 if(WIN32)
-	set(CEF_VERSION_DIR_NAME "cef_binary_3.3440.1805.gbe070f9")
+	set(CEF_VERSION_DIR_NAME "cef_binary_3.3497.1840.gcd24143")
 	set(CEF_PLATFORM_DIR_NAME "windows64")
 
 	set(CEF_ROOT_DIR "${EXTERN_DIR}/${CEF_VERSION_DIR_NAME}")

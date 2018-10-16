@@ -36,7 +36,7 @@ endif()
 
 # CEF
 if(WIN32)
-	set(CEF_ROOT_DIR "${EXTERN_DIR}/cef_binary_3.3440.1805.gbe070f9")
+	set(CEF_ROOT_DIR "${EXTERN_DIR}/cef_binary_3.3497.1840.gcd24143")
 	set(CEF_PLATFORM_DIR "${CEF_ROOT_DIR}/windows64")
 	
 	set(CEF_RUNTIME_LIBRARY_FLAG "/MD")
