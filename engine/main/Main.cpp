@@ -1138,6 +1138,7 @@ int main(int argc, char* argv[])
 
 		while (SDL_PollEvent(&event) != 0)
 		{
+			// TODO: Haven't done focus events for Cef (see CefBrowserHost). Do I need these?
 			switch (event.type)
 			{
 				case SDL_USEREVENT:
