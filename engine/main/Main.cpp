@@ -1083,6 +1083,7 @@ const int64 kMaxTimerDelay = 1000 / 30;  // 30fps
 // TODO: This needs to look more like the external message pump in cefclient.
 Uint32 TimerCallback(Uint32 interval, void *param)
 {
+	// TODO: Duplicates UIBrowserProcessHandler::OnScheduleMessagePumpWork code.
 	SDL_Event event;
 	SDL_UserEvent userEvent;
 	userEvent.type = SDL_USEREVENT;
