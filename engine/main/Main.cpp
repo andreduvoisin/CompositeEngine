@@ -1103,7 +1103,7 @@ void SetTimer()
 int main(int argc, char* argv[])
 {
 	// For now, this must come first because of the CEF subprocess architecture.
-	// TODO: Look into spawning subprocesses via a separate executable. Do we need this?
+	// TODO: Look into spawning subprocesses via a separate executable. We need this for MacOS.
 	int exitCode = InitializeCef();
 	if (exitCode >= 0)
 	{
