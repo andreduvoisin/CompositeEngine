@@ -688,8 +688,9 @@ bool StartCef()
 		browserSettings,
 		nullptr);
 
-	std::string source = ReadFile("..\\..\\..\\..\\engine\\ui\\KevinsABitch.html");
-	g_browser->GetMainFrame()->LoadString(source, "about:blank");
+	// std::string source = ReadFile("..\\..\\..\\..\\engine\\ui\\KevinsABitch.html");
+	// g_browser->GetMainFrame()->LoadString(source, "about:blank");
+	g_browser->GetMainFrame()->LoadURL("http://localhost:3000");
 
 	return true;
 }
