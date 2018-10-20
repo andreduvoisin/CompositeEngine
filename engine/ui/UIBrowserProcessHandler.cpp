@@ -6,6 +6,7 @@
 
 void UIBrowserProcessHandler::OnScheduleMessagePumpWork(int64 delay_ms)
 {
+	// TODO: Duplicates timer code.
 	SDL_Event event;
 	SDL_UserEvent userEvent;
 	userEvent.type = SDL_USEREVENT;
