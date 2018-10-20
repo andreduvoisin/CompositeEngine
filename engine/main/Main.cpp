@@ -36,6 +36,8 @@
 #include "ui/UIClient.h"
 #include "ui/UIRenderHandler.h"
 #include "SDL_syswm.h"
+#include "ui/UIApp.h"
+#include "ui/UIBrowserProcessHandler.h"
 
 const int SCREEN_WIDTH = 1280;
 const int SCREEN_HEIGHT = 720;
@@ -648,9 +650,13 @@ int InitializeCef()
 		return exitCode;
 	}
 
+	CefRefPtr<UIBrowserProcessHandler> browserProcessHandler = new UIBrowserProcessHandler();
+	CefRefPtr<UIApp> app = new UIApp(browserProcessHandler);
+
 	CefSettings settings;
+	settings.external_message_pump = true;
 	settings.remote_debugging_port = 3469;
-	if (!CefInitialize(main_args, settings, NULL, NULL))
+	if (!CefInitialize(main_args, settings, app, NULL))
 	{
 		printf("CEF failed to initialize.\n");
 		return 0;
@@ -661,9 +667,6 @@ int InitializeCef()
 
 bool StartCef()
 {
-	CefBrowserSettings browserSettings;
-	CefWindowInfo windowInfo;
-
 	CefRefPtr<UIRenderHandler> renderHandler = new UIRenderHandler(SCREEN_WIDTH, SCREEN_HEIGHT);
 	g_uiClient = new UIClient(renderHandler);
 
@@ -674,51 +677,153 @@ bool StartCef()
 		return false;
 	}
 
-	//RECT rect;
-	//rect.left = SCREEN_WIDTH / 2;
-	//rect.top = SCREEN_HEIGHT / 2;
-	//rect.right = SCREEN_WIDTH;
-	//rect.bottom = SCREEN_HEIGHT;
-
-	//windowInfo.SetAsChild(sysInfo.info.win.window, rect);
-	//CefBrowserHost::CreateBrowserSync(windowInfo, g_cefHandler.get(), "http://code.google.com", browserSettings, NULL);
-	//CefBrowserHost::CreateBrowserSync(windowInfo, g_cefHandler.get(), "http://www.github.com", browserSettings, NULL);
-
+	CefBrowserSettings browserSettings;
+	CefWindowInfo windowInfo;
 	windowInfo.SetAsWindowless(sysInfo.info.win.window);
+
 	g_browser = CefBrowserHost::CreateBrowserSync(
 		windowInfo,
 		g_uiClient,
 		"about:blank",
 		browserSettings,
 		nullptr);
-	CefRefPtr<CefFrame> frame = g_browser->GetMainFrame();
+
 	std::string source = ReadFile("..\\..\\..\\..\\engine\\ui\\KevinsABitch.html");
-	frame->LoadString(source, "about:blank");
-
-	//windowInfo.SetAsChild(sysInfo.info.win.window, rect);
-	//CefRefPtr<CefBrowser> browser = CefBrowserHost::CreateBrowserSync(
-	//	windowInfo,
-	//	g_uiClient,
-	//	"about:blank",
-	//	browserSettings,
-	//	NULL);
-	//CefRefPtr<CefFrame> frame = browser->GetMainFrame();
-	//std::string source = ReadFile("..\\..\\..\\..\\engine\\ui\\KevinReactThingy.html");
-	//frame->LoadString(source, "about:blank");
-	//frame->LoadString("<head></head><body></body>", "about:blank");//<button type=\"button\">SICK NASTY</button>
-
-	//std::string source = ReadFile("..\\..\\..\\..\\engine\\ui\\KevinsABitch.js");
-	//frame->ExecuteJavaScript(
-	//	source.c_str(),
-	//	frame->GetURL(),
-	//	0);
+	g_browser->GetMainFrame()->LoadString(source, "about:blank");
 
 	return true;
 }
 
+bool IsKeyDown(WPARAM wparam) {
+	return (GetKeyState((int)wparam) & 0x8000) != 0;
+}
+
+// TODO: Either convert this to SDL or convert GetCefMouseModifiers to native.
+int GetCefKeyboardModifiers(WPARAM wparam, LPARAM lparam) {
+	int modifiers = 0;
+	if (IsKeyDown(VK_SHIFT))
+		modifiers |= EVENTFLAG_SHIFT_DOWN;
+	if (IsKeyDown(VK_CONTROL))
+		modifiers |= EVENTFLAG_CONTROL_DOWN;
+	if (IsKeyDown(VK_MENU))
+		modifiers |= EVENTFLAG_ALT_DOWN;
+
+	// Low bit set from GetKeyState indicates "toggled".
+	if (::GetKeyState(VK_NUMLOCK) & 1)
+		modifiers |= EVENTFLAG_NUM_LOCK_ON;
+	if (::GetKeyState(VK_CAPITAL) & 1)
+		modifiers |= EVENTFLAG_CAPS_LOCK_ON;
+
+	switch (wparam) {
+	case VK_RETURN:
+		if ((lparam >> 16) & KF_EXTENDED)
+			modifiers |= EVENTFLAG_IS_KEY_PAD;
+		break;
+	case VK_INSERT:
+	case VK_DELETE:
+	case VK_HOME:
+	case VK_END:
+	case VK_PRIOR:
+	case VK_NEXT:
+	case VK_UP:
+	case VK_DOWN:
+	case VK_LEFT:
+	case VK_RIGHT:
+		if (!((lparam >> 16) & KF_EXTENDED))
+			modifiers |= EVENTFLAG_IS_KEY_PAD;
+		break;
+	case VK_NUMLOCK:
+	case VK_NUMPAD0:
+	case VK_NUMPAD1:
+	case VK_NUMPAD2:
+	case VK_NUMPAD3:
+	case VK_NUMPAD4:
+	case VK_NUMPAD5:
+	case VK_NUMPAD6:
+	case VK_NUMPAD7:
+	case VK_NUMPAD8:
+	case VK_NUMPAD9:
+	case VK_DIVIDE:
+	case VK_MULTIPLY:
+	case VK_SUBTRACT:
+	case VK_ADD:
+	case VK_DECIMAL:
+	case VK_CLEAR:
+		modifiers |= EVENTFLAG_IS_KEY_PAD;
+		break;
+	case VK_SHIFT:
+		if (IsKeyDown(VK_LSHIFT))
+			modifiers |= EVENTFLAG_IS_LEFT;
+		else if (IsKeyDown(VK_RSHIFT))
+			modifiers |= EVENTFLAG_IS_RIGHT;
+		break;
+	case VK_CONTROL:
+		if (IsKeyDown(VK_LCONTROL))
+			modifiers |= EVENTFLAG_IS_LEFT;
+		else if (IsKeyDown(VK_RCONTROL))
+			modifiers |= EVENTFLAG_IS_RIGHT;
+		break;
+	case VK_MENU:
+		if (IsKeyDown(VK_LMENU))
+			modifiers |= EVENTFLAG_IS_LEFT;
+		else if (IsKeyDown(VK_RMENU))
+			modifiers |= EVENTFLAG_IS_RIGHT;
+		break;
+	case VK_LWIN:
+		modifiers |= EVENTFLAG_IS_LEFT;
+		break;
+	case VK_RWIN:
+		modifiers |= EVENTFLAG_IS_RIGHT;
+		break;
+	}
+	return modifiers;
+}
+
+void WindowsMessageHook(void* userdata,
+		void* hWnd,
+		unsigned int message,
+		Uint64 wParam,
+		Sint64 lParam)
+{
+	switch (message)
+	{
+		case WM_SYSCHAR:
+		case WM_SYSKEYDOWN:
+		case WM_SYSKEYUP:
+		case WM_KEYDOWN:
+		case WM_KEYUP:
+		case WM_CHAR:
+		{
+			CefKeyEvent keyEvent;
+			keyEvent.windows_key_code = (int)wParam;
+			keyEvent.native_key_code = (int)lParam;
+			keyEvent.is_system_key = message == WM_SYSCHAR
+				|| message == WM_SYSKEYDOWN
+				|| message == WM_SYSKEYUP;
+			if (message == WM_KEYDOWN || message == WM_SYSKEYDOWN)
+			{
+				keyEvent.type = KEYEVENT_RAWKEYDOWN;
+			}
+			else if (message == WM_KEYUP || message == WM_SYSKEYUP)
+			{
+				keyEvent.type = KEYEVENT_KEYUP;
+			}
+			else
+			{
+				keyEvent.type = KEYEVENT_CHAR;
+			}
+			keyEvent.modifiers = GetCefKeyboardModifiers(wParam, lParam);
+
+			g_browser->GetHost()->SendKeyEvent(keyEvent);
+
+			break;
+		}
+	}
+}
+
 bool Initialize()
 {
-	if (SDL_Init(SDL_INIT_VIDEO) < 0)
+	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) < 0)
 	{
 		printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
 		return false;
@@ -752,6 +857,8 @@ bool Initialize()
 		printf("OpenGL context could not be created! SDL_Error: %s\n", SDL_GetError());
 		return false;
 	}
+
+	SDL_SetWindowsMessageHook(&WindowsMessageHook, nullptr);
 
 	// Initialize GLEW
 	//glewExperimental = GL_TRUE;
@@ -832,6 +939,7 @@ void Destroy()
 	SDL_Quit();
 }
 
+// TODO: Either convert this to native or convert GetCefKeyboardModifiers to SDL.
 // osr_window_win.cc
 unsigned GetCefMouseModifiers(const SDL_Event& event)
 {
@@ -970,6 +1078,28 @@ unsigned GetCefMouseModifiers(const SDL_Event& event)
 	return modifiers;
 }
 
+const int64 kMaxTimerDelay = 1000 / 30;  // 30fps
+
+// TODO: This needs to look more like the external message pump in cefclient.
+Uint32 TimerCallback(Uint32 interval, void *param)
+{
+	SDL_Event event;
+	SDL_UserEvent userEvent;
+	userEvent.type = SDL_USEREVENT;
+	userEvent.code = 0;
+	userEvent.data1 = NULL;
+	userEvent.data2 = NULL;
+	event.type = SDL_USEREVENT;
+	event.user = userEvent;
+	SDL_PushEvent(&event);
+	return kMaxTimerDelay;
+}
+
+void SetTimer()
+{
+	SDL_AddTimer(kMaxTimerDelay, TimerCallback, NULL);
+}
+
 int main(int argc, char* argv[])
 {
 	// For now, this must come first because of the CEF subprocess architecture.
@@ -988,6 +1118,7 @@ int main(int argc, char* argv[])
 	}
 
 	MakeRed();
+	SetTimer();
 
 	bool quit = false;
 	SDL_Event event;
@@ -1008,29 +1139,9 @@ int main(int argc, char* argv[])
 		{
 			switch (event.type)
 			{
-				case SDL_KEYDOWN:
+				case SDL_USEREVENT:
 				{
-					//switch (event.key.keysym.sym)
-					//{
-					//	case SDLK_UP:
-					//		break;
-					//	case SDLK_DOWN:
-					//		break;
-					//	case SDLK_LEFT:
-					//		break;
-					//	case SDLK_RIGHT:
-					//		break;
-					//	default:
-					//		break;
-					//}
-					break;
-				}
-
-				case SDL_TEXTINPUT:
-				{
-					int x = 0, y = 0;
-					SDL_GetMouseState(&x, &y);
-					HandleKeys(event.text.text[0], x, y);
+					CefDoMessageLoopWork();
 					break;
 				}
 
@@ -1049,11 +1160,6 @@ int main(int argc, char* argv[])
 					mouseEvent.modifiers = GetCefMouseModifiers(event);
 
 					g_browser->GetHost()->SendMouseMoveEvent(mouseEvent, false);
-
-					printf("SDL_MOUSEMOTION: %i, %i, 0x%08x\n",
-						mouseEvent.x,
-						mouseEvent.y,
-						mouseEvent.modifiers);
 
 					break;
 				}
@@ -1086,13 +1192,6 @@ int main(int argc, char* argv[])
 
 					g_browser->GetHost()->SendMouseClickEvent(mouseEvent, mouseButtonType, false, event.button.clicks);
 
-					printf("SDL_MOUSEBUTTONDOWN: %i, %i, 0x%08x, %i, %i\n",
-						mouseEvent.x,
-						mouseEvent.y,
-						mouseEvent.modifiers,
-						mouseButtonType,
-						event.button.clicks);
-
 					break;
 				}
 
@@ -1124,13 +1223,6 @@ int main(int argc, char* argv[])
 
 					g_browser->GetHost()->SendMouseClickEvent(mouseEvent, mouseButtonType, true, event.button.clicks);
 
-					printf("SDL_MOUSEBUTTONUP: %i, %i, 0x%08x, %i, %i\n",
-						mouseEvent.x,
-						mouseEvent.y,
-						mouseEvent.modifiers,
-						mouseButtonType,
-						event.button.clicks);
-
 					break;
 				}
 
@@ -1142,13 +1234,6 @@ int main(int argc, char* argv[])
 					mouseEvent.modifiers = GetCefMouseModifiers(event);
 					
 					g_browser->GetHost()->SendMouseWheelEvent(mouseEvent, event.wheel.x, event.wheel.y);
-
-					printf("SDL_MOUSEWHEEL: %i, %i, 0x%08x, %i, %i\n",
-						mouseEvent.x,
-						mouseEvent.y,
-						mouseEvent.modifiers,
-						event.wheel.x,
-						event.wheel.y);
 
 					break;
 				}
@@ -1165,11 +1250,6 @@ int main(int argc, char* argv[])
 							mouseEvent.modifiers = GetCefMouseModifiers(event);
 
 							g_browser->GetHost()->SendMouseMoveEvent(mouseEvent, true);
-
-							printf("SDL_WINDOWEVENT_LEAVE: %i, %i, 0x%08x\n",
-								mouseEvent.x,
-								mouseEvent.y,
-								mouseEvent.modifiers);
 
 							break;
 						}
