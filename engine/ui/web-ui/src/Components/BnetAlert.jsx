@@ -34,16 +34,16 @@ const Body = styled.div`
 `;
 
 export default (props) => {
-    return (
-        <Container>
-            <InnerContainer>
-                <Title>
-                    <TitleIcon className="fa fa-exclamation-circle"></TitleIcon>
-                    {props.title}
-                </Title>
-                <Body>{props.body}</Body>
-                {props.children}
-            </InnerContainer>
-        </Container>
-    );
+  return (
+    <Container>
+      <InnerContainer>
+        <Title>
+          <TitleIcon className="fa fa-exclamation-circle"></TitleIcon>
+          {props.title}
+        </Title>
+        <Body>{props.body}</Body>
+        {props.children}
+      </InnerContainer>
+    </Container>
+  );
 };
