@@ -8,10 +8,29 @@ bool UIQueryHandler::OnQuery(
 		bool persistent,
 		CefRefPtr<Callback> callback)
 {
-	if (request == "my_request") {
+	auto iterator = registeredCallbacks.find(request);
+	if (iterator != registeredCallbacks.end())
+	{
+		std::vector<SubscriptionCallback>& handlers = iterator->second;
+		for (SubscriptionCallback& handler : handlers)
+		{
+			handler();
+		}
 		callback->Success("my_response");
 		return true;
 	}
 
 	return false;
+}
+
+void UIQueryHandler::Subscribe(std::string id, SubscriptionCallback handler)
+{
+	printf("registering subscriber for message id: %s\n", id.c_str());
+	if (registeredCallbacks.find(id) == registeredCallbacks.end())
+	{
+		printf("no existing handlers for message id, initializing new list: %s\n", id.c_str());
+		registeredCallbacks.insert(std::make_pair(id, std::vector<SubscriptionCallback>()));
+	}
+	std::vector<SubscriptionCallback> &existingHandlers = registeredCallbacks.at(id);
+	existingHandlers.push_back(handler);
 }

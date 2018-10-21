@@ -91,6 +91,7 @@ int g_renderType = 0;
 
 CefRefPtr<UIClient> g_uiClient;
 CefRefPtr<CefBrowser> g_browser;
+UIQueryHandler* queryHandler = new UIQueryHandler();
 
 void printProgramLog(GLuint program)
 {
@@ -675,7 +676,6 @@ int InitializeCef()
 
 bool StartCef()
 {
-	UIQueryHandler* queryHandler = new UIQueryHandler();
 	CefRefPtr<CefMessageRouterBrowserSide> messageRouterBrowserSide = CefMessageRouterBrowserSide::Create(messageRouterConfig);
 	messageRouterBrowserSide->AddHandler(queryHandler, true);
 
@@ -705,6 +705,10 @@ bool StartCef()
 	// std::string source = ReadFile("..\\..\\..\\..\\engine\\ui\\KevinsABitch.html");
 	// g_browser->GetMainFrame()->LoadString(source, "about:blank");
 	g_browser->GetMainFrame()->LoadURL("http://localhost:3000");
+
+	queryHandler->Subscribe("my_request", []() {
+		printf("titties yo\n");
+	});
 
 	return true;
 }
