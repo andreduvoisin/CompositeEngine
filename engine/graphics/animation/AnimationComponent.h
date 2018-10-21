@@ -34,6 +34,7 @@ namespace CE
 			GLuint g_paletteID);
 
 		void ResetMatrixPalette();
+		void ResetAnimation();
 
 		// TODO: Remove.
 		const Skeleton* GetSkeleton() const { return m_skeleton; }

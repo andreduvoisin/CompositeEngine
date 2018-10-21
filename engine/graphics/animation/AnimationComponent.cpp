@@ -227,4 +227,10 @@ namespace CE
 			m_palette[i] = glm::mat4(1.f);
 		}
 	}
+
+	void AnimationComponent::ResetAnimation()
+	{
+		m_animationCaches = std::vector<AnimationCache>();
+		InitializeAnimationCache();
+	}
 }

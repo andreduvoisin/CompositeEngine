@@ -77,9 +77,9 @@ GLuint g_uiTextureUnit = -1;
 GLuint g_uiTextureID = -1;
 
 //const char* g_assetName = "..\\..\\..\\..\\assets\\Stand Up.ceasset";
-//const char* g_assetName = "..\\..\\..\\..\\assets\\Thriller Part 2.ceasset";
+const char* g_assetName = "..\\..\\..\\..\\assets\\Thriller Part 2.ceasset";
 //const char* g_assetName = "..\\..\\..\\..\\assets\\jla_wonder_woman.ceasset";
-const char* g_assetName = "..\\..\\..\\..\\assets\\Quarterback Pass.ceasset";
+//const char* g_assetName = "..\\..\\..\\..\\assets\\Quarterback Pass.ceasset";
 //const char* g_fbxName = "..\\..\\..\\..\\assets\\Soldier_animated_jump.fbx";
 
 CE::AssetImporter* g_assetImporter;
@@ -155,7 +155,7 @@ void printShaderLog(GLuint shader)
 	delete[] infoLog;
 }
 
-void HandleKeys(unsigned char key, int x, int y)
+void HandleKeys(unsigned char key)
 {
 	if (key == 'q')
 	{
@@ -209,7 +209,7 @@ void Render()
 	glm::mat4 projection = glm::perspective(glm::pi<float>() * 0.25f, (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 1000.0f);
 	//glm::mat4 view = glm::lookAt(glm::vec3(0, 100, 400), glm::vec3(0, 100, 0), glm::vec3(0, 1, 0)); // paladin
 	//glm::mat4 view = glm::lookAt(glm::vec3(0, 200, 400), glm::vec3(0, 100, 0), glm::vec3(0, 1, 0)); // solider
-	glm::mat4 view = glm::lookAt(glm::vec3(0, 200, 700), glm::vec3(0, 50, 0), glm::vec3(0, 1, 0)); // thriller
+	glm::mat4 view = glm::lookAt(glm::vec3(0, 200, 700), glm::vec3(0, 50, 0), glm::vec3(0, 1, 0)); // thriller, quarterback
 	//glm::mat4 view = glm::lookAt(glm::vec3(0, 2, 8), glm::vec3(0, 2, 0), glm::vec3(0, 1, 0)); // wonder woman
 	//glm::mat4 view = glm::lookAt(glm::vec3(0, 0, 1), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 	glm::mat4 model = glm::mat4(1.0f);
@@ -674,6 +674,11 @@ int InitializeCef()
 	return -1;
 }
 
+void HandleMyRequest()
+{
+	g_animationComponent->ResetAnimation();
+}
+
 bool StartCef()
 {
 	CefRefPtr<CefMessageRouterBrowserSide> messageRouterBrowserSide = CefMessageRouterBrowserSide::Create(messageRouterConfig);
@@ -706,9 +711,7 @@ bool StartCef()
 	// g_browser->GetMainFrame()->LoadString(source, "about:blank");
 	g_browser->GetMainFrame()->LoadURL("http://localhost:3000");
 
-	queryHandler->Subscribe("my_request", []() {
-		printf("titties yo\n");
-	});
+	queryHandler->Subscribe("my_request", &HandleMyRequest);
 
 	return true;
 }
@@ -1160,6 +1163,12 @@ int main(int argc, char* argv[])
 			// TODO: Haven't done focus events for Cef (see CefBrowserHost). Do I need these?
 			switch (event.type)
 			{
+				case SDL_TEXTINPUT:
+				{
+					HandleKeys(event.text.text[0]);
+					break;
+				}
+
 				case SDL_USEREVENT:
 				{
 					CefDoMessageLoopWork();
