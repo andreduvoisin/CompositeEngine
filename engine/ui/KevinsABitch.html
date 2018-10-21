@@ -5,7 +5,21 @@
     <script type="text/javascript">
       function kevinsABitch() {
           alert("KEVINS A BITCH");
-      }
+          const onSuccess = (response) => {
+              console.log("tittiees!")
+              console.log(response)
+          };
+          const onFailure = () => {
+              console.log("shitballs")
+          };
+          window.cefQuery({
+              request: "my_request",
+              persistent: false,
+              onSuccess: onSuccess,
+              onFailure: onFailure
+          });
+        }
+        console.log(window.cefQuery);
     </script>
 </head>
 <body>
