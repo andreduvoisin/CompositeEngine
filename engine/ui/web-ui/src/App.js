@@ -20,7 +20,7 @@ class App extends Component {
           {(debugLayout) ? <DebugStyles /> : null}
           <GlobalStyles />
           <TaskBar>TaskBar</TaskBar>
-          <Layout.Container>
+          <Layout.FullHeightContainer>
             <Layout.Sidebar>
               <Sidebar>
                 <span>Sidebar</span>
@@ -35,7 +35,7 @@ class App extends Component {
             <BnetAlert title='attention'>
               <BnetButton>OK</BnetButton>
             </BnetAlert>
-          </Layout.Container>
+          </Layout.FullHeightContainer>
         </React.Fragment>
       </ThemeProvider>
     );

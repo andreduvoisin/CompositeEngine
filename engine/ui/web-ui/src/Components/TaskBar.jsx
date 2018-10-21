@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import Layout from './Layout';
 
 const Container = styled.div`
     background: ${props => props.theme.shared.background};
@@ -13,11 +14,29 @@ const InnerContainer = styled.div`
     padding: 16px;
 `;
 
+const PlayButton = styled.i`
+  cursor: pointer;
+  margin-right: auto;
+  margin-left: auto;
+  display: block;
+  width: 10px;
+`;
+
 export default (props) => {
   return (
     <Container>
       <InnerContainer>
-        {props.children}
+        <Layout.Container>
+          <Layout.Sidebar>
+
+          </Layout.Sidebar>
+          <Layout.Center>
+            <PlayButton className="fa fa-play"></PlayButton>
+          </Layout.Center>
+          <Layout.Sidebar>
+
+          </Layout.Sidebar>
+        </Layout.Container>
       </InnerContainer>
     </Container>
   );
