@@ -1,5 +1,9 @@
 import React from 'react';
+import { connect } from 'react-redux'
 import styled from 'styled-components';
+import { toggleAnimation } from "../redux/actions";
+import { AnimationPlayingStates } from "../redux/reducers/animationPlayingState";
+
 import Layout from './Layout';
 
 const Container = styled.div`
@@ -22,22 +26,39 @@ const PlayButton = styled.i`
   width: 10px;
 `;
 
-export default (props) => {
+const mapStateToProps = (state) => {
+  return state;
+};
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    toggleAnimation: () => {
+      dispatch(toggleAnimation())
+    }
+  };
+};
+
+const Taskbar = (props) => {
   return (
     <Container>
       <InnerContainer>
         <Layout.Container>
-          <Layout.Sidebar>
-
-          </Layout.Sidebar>
+          <Layout.Sidebar></Layout.Sidebar>
           <Layout.Center>
-            <PlayButton className="fa fa-play"></PlayButton>
+            {
+              (props.animationPlayingState === AnimationPlayingStates.PLAYING)
+                ? <PlayButton className="fa fa-play" onClick={props.toggleAnimation}></PlayButton>
+                : <PlayButton className="fa fa-pause" onClick={props.toggleAnimation}></PlayButton>
+            }
           </Layout.Center>
-          <Layout.Sidebar>
-
-          </Layout.Sidebar>
+          <Layout.Sidebar></Layout.Sidebar>
         </Layout.Container>
       </InnerContainer>
     </Container>
   );
 };
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Taskbar);
