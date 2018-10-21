@@ -1,26 +1,29 @@
 import React, { Component } from 'react';
-import './App.css';
 import 'font-awesome/css/font-awesome.min.css';
-import { ThemeProvider } from 'styled-components';
 import theme from './theme';
+import TaskBar from './Components/TaskBar';
+import BnetAlert from './Components/BnetAlert';
+import BnetButton from './Components/BnetButton';
 
-const sendMessage = (payload) => {
-  return new Promise((resolve, reject) => {
-    window.cefQuery({
-      request: payload,
-      persistent: false,
-      onSuccess: resolve,
-      onFailure: reject
-    });
-  });
-};
+import { createGlobalStyle, ThemeProvider } from 'styled-components'
+
+const GlobalStyle = createGlobalStyle`
+  body {
+    font-family: ${props => props.theme.fonts.family};
+    background-color: ${props => props.theme.colors.transparentBlack};
+  }
+`;
 
 class App extends Component {
   render() {
     return (
       <ThemeProvider theme={theme}>
         <div className='WebUi'>
-
+          <GlobalStyle />
+          <TaskBar />
+          <BnetAlert title='attention'>
+            <BnetButton>OK</BnetButton>
+          </BnetAlert>
         </div>
       </ThemeProvider>
     );

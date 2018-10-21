@@ -2,11 +2,10 @@ import React from 'react';
 import styled from 'styled-components';
 
 const Container = styled.div`
-    background: linear-gradient(#1c2534, #161a26);
+    background: ${props => props.theme.shared.background};
     border: 1px solid rgba(255, 255, 255, .15);
     box-shadow: 1px 2px rgba(0, 0, 0, .5);
     position: absolute;
-    font-family: 'Encode Sans', sans-serif;
     color: white;
     margin: 9px;
     bottom: 0;
