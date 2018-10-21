@@ -4,6 +4,8 @@ import Button from './Components/Button';
 import Alert from './Components/Alert';
 import 'font-awesome/css/font-awesome.min.css';
 
+console.log(window.cefQuery)
+
 class App extends Component {
   render() {
     return (
