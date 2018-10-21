@@ -38,6 +38,10 @@
 #include "SDL_syswm.h"
 #include "ui/UIApp.h"
 #include "ui/UIBrowserProcessHandler.h"
+#include "ui/UIRequestHandler.h"
+#include "ui/UILifeSpanHandler.h"
+#include "ui/UIRenderProcessHandler.h"
+#include "ui/UIQueryHandler.h"
 
 const int SCREEN_WIDTH = 1280;
 const int SCREEN_HEIGHT = 720;
@@ -638,20 +642,24 @@ bool InitializeOpenGL()
 	return true;
 }
 
+CefMessageRouterConfig messageRouterConfig;
+
 int InitializeCef()
 {
 	HINSTANCE hInstance = GetModuleHandle(NULL);
 	CefMainArgs main_args(hInstance);
 
-	int exitCode = CefExecuteProcess(main_args, NULL, NULL);
+	CefRefPtr<CefMessageRouterRendererSide> messageRouterRendererSide = CefMessageRouterRendererSide::Create(messageRouterConfig);
+	CefRefPtr<UIBrowserProcessHandler> browserProcessHandler = new UIBrowserProcessHandler();
+	CefRefPtr<UIRenderProcessHandler> renderProcessHandler = new UIRenderProcessHandler(messageRouterRendererSide);
+	CefRefPtr<UIApp> app = new UIApp(browserProcessHandler, renderProcessHandler);
+
+	int exitCode = CefExecuteProcess(main_args, app, NULL);
 	if (exitCode >= 0)
 	{
 		printf("CEF subprocess has exited. Exit code: %i\n", exitCode);
 		return exitCode;
 	}
-
-	CefRefPtr<UIBrowserProcessHandler> browserProcessHandler = new UIBrowserProcessHandler();
-	CefRefPtr<UIApp> app = new UIApp(browserProcessHandler);
 
 	CefSettings settings;
 	settings.external_message_pump = true;
@@ -667,8 +675,14 @@ int InitializeCef()
 
 bool StartCef()
 {
+	UIQueryHandler* queryHandler = new UIQueryHandler();
+	CefRefPtr<CefMessageRouterBrowserSide> messageRouterBrowserSide = CefMessageRouterBrowserSide::Create(messageRouterConfig);
+	messageRouterBrowserSide->AddHandler(queryHandler, true);
+
 	CefRefPtr<UIRenderHandler> renderHandler = new UIRenderHandler(SCREEN_WIDTH, SCREEN_HEIGHT);
-	g_uiClient = new UIClient(renderHandler);
+	CefRefPtr<UILifeSpanHandler> lifeSpanHandler = new UILifeSpanHandler(messageRouterBrowserSide);
+	CefRefPtr<UIRequestHandler> requestHandler = new UIRequestHandler(messageRouterBrowserSide);
+	g_uiClient = new UIClient(renderHandler, lifeSpanHandler, requestHandler, messageRouterBrowserSide);
 
 	SDL_SysWMinfo sysInfo;
 	SDL_VERSION(&sysInfo.version);
