@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux'
 import styled from 'styled-components';
-import { toggleAnimation } from "../redux/actions";
+import { toggleAnimation, pauseAnimation } from "../redux/actions";
 import { AnimationPlayingStates } from "../redux/reducers/animationPlayingState";
 
 import Layout from './Layout';
@@ -22,8 +22,19 @@ const PlayButton = styled.i`
   cursor: pointer;
   margin-right: auto;
   margin-left: auto;
-  display: block;
+  display: inline-block;
   width: 10px;
+  margin-right: 10px;
+`;
+
+const PlayControlsList = styled.ul`
+  text-align: center;
+  margin: 0;
+  padding: 0;
+`;
+
+const PlayControlsListItem = styled.li`
+  display: inline-block;
 `;
 
 const mapStateToProps = (state) => {
@@ -34,6 +45,9 @@ const mapDispatchToProps = (dispatch) => {
   return {
     toggleAnimation: () => {
       dispatch(toggleAnimation())
+    },
+    pauseAnimation: () => {
+      dispatch(pauseAnimation())
     }
   };
 };
@@ -45,16 +59,23 @@ const Taskbar = (props) => {
         <Layout.Container>
           <Layout.Sidebar></Layout.Sidebar>
           <Layout.Center>
-            {
-              (props.animationPlayingState === AnimationPlayingStates.PLAYING)
-                ? <PlayButton className="fa fa-play" onClick={props.toggleAnimation}></PlayButton>
-                : <PlayButton className="fa fa-pause" onClick={props.toggleAnimation}></PlayButton>
-            }
+            <PlayControlsList>
+              <PlayControlsListItem>
+                {
+                  (props.animationPlayingState === AnimationPlayingStates.PLAYING)
+                    ? <PlayButton className="fa fa-pause" onClick={props.toggleAnimation}></PlayButton>
+                    : <PlayButton className="fa fa-play" onClick={props.toggleAnimation}></PlayButton>
+                }
+              </PlayControlsListItem>
+              <PlayControlsListItem>
+                <PlayButton className="fa fa-stop" onClick={props.pauseAnimation}></PlayButton>
+              </PlayControlsListItem>
+            </PlayControlsList>
           </Layout.Center>
           <Layout.Sidebar></Layout.Sidebar>
         </Layout.Container>
-      </InnerContainer>
-    </Container>
+      </InnerContainer >
+    </Container >
   );
 };
 
