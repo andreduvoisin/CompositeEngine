@@ -3,22 +3,18 @@ import styled from 'styled-components';
 
 const Container = styled.div`
     background: ${props => props.theme.shared.background};
-    border: 1px solid rgba(255, 255, 255, .15);
+    border-right: 1px solid rgba(255, 255, 255, .15);
+    border-left: 1px solid rgba(255, 255, 255, .15);
     box-shadow: 1px 2px rgba(0, 0, 0, .5);
-    font-family: 'Encode Sans', sans-serif;
     color: white;
-`;
-
-const InnerContainer = styled.div`
-    padding: 16px;
+    flex: 1;
+    height: 100%;
 `;
 
 export default (props) => {
   return (
     <Container>
-      <InnerContainer>
-        {props.children}
-      </InnerContainer>
+      {props.children}
     </Container>
   );
 };
