@@ -1,7 +1,8 @@
 export const AnimationMutationTypes = {
   PLAY: 'PLAY_ANIMATION',
   PAUSE: 'PAUSE_ANIMATION',
-  TOGGLE: 'TOGGLE_ANIMATIOn'
+  TOGGLE: 'TOGGLE_ANIMATION',
+  RESET: 'RESET_ANIMATION',
 };
 
 export const pauseAnimation = () => {
@@ -19,5 +20,11 @@ export const playAnimation = () => {
 export const toggleAnimation = () => {
   return {
     type: AnimationMutationTypes.TOGGLE
+  };
+};
+
+export const resetAnimation = () => {
+  return {
+    type: AnimationMutationTypes.RESET
   };
 };

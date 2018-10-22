@@ -674,7 +674,7 @@ int InitializeCef()
 	return -1;
 }
 
-void HandleMyRequest()
+void HandleResetAnimationRequest()
 {
 	g_animationComponent->ResetAnimation();
 }
@@ -711,7 +711,7 @@ bool StartCef()
 	// g_browser->GetMainFrame()->LoadString(source, "about:blank");
 	g_browser->GetMainFrame()->LoadURL("http://localhost:3000");
 
-	queryHandler->Subscribe("my_request", &HandleMyRequest);
+	queryHandler->Subscribe("RESET_ANIMATION", &HandleResetAnimationRequest);
 
 	return true;
 }

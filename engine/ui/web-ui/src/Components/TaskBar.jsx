@@ -1,8 +1,12 @@
 import React from 'react';
 import { connect } from 'react-redux'
 import styled from 'styled-components';
-import { toggleAnimation, pauseAnimation } from "../redux/actions";
 import { AnimationPlayingStates } from "../redux/reducers/animationPlayingState";
+import {
+  toggleAnimation,
+  pauseAnimation,
+  resetAnimation
+} from "../redux/actions";
 
 import Layout from './Layout';
 
@@ -48,6 +52,9 @@ const mapDispatchToProps = (dispatch) => {
     },
     pauseAnimation: () => {
       dispatch(pauseAnimation())
+    },
+    resetAnimation: () => {
+      dispatch(resetAnimation())
     }
   };
 };
@@ -68,7 +75,7 @@ const Taskbar = (props) => {
                 }
               </PlayControlsListItem>
               <PlayControlsListItem>
-                <PlayButton className="fa fa-stop" onClick={props.pauseAnimation}></PlayButton>
+                <PlayButton className="fa fa-stop" onClick={props.resetAnimation}></PlayButton>
               </PlayControlsListItem>
             </PlayControlsList>
           </Layout.Center>
