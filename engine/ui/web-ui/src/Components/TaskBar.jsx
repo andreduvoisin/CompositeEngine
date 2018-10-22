@@ -4,7 +4,6 @@ import styled from 'styled-components';
 import { AnimationPlayingStates } from "../redux/reducers/animationPlayingState";
 import {
   toggleAnimation,
-  pauseAnimation,
   resetAnimation
 } from "../redux/actions";
 
@@ -22,7 +21,7 @@ const InnerContainer = styled.div`
     padding: 16px;
 `;
 
-const PlayButton = styled.i`
+const AnimationControlButton = styled.i`
   cursor: pointer;
   margin-right: auto;
   margin-left: auto;
@@ -50,9 +49,6 @@ const mapDispatchToProps = (dispatch) => {
     toggleAnimation: () => {
       dispatch(toggleAnimation())
     },
-    pauseAnimation: () => {
-      dispatch(pauseAnimation())
-    },
     resetAnimation: () => {
       dispatch(resetAnimation())
     }
@@ -70,12 +66,12 @@ const Taskbar = (props) => {
               <PlayControlsListItem>
                 {
                   (props.animationPlayingState === AnimationPlayingStates.PLAYING)
-                    ? <PlayButton className="fa fa-pause" onClick={props.toggleAnimation}></PlayButton>
-                    : <PlayButton className="fa fa-play" onClick={props.toggleAnimation}></PlayButton>
+                    ? <AnimationControlButton className="fa fa-pause" onClick={props.toggleAnimation}></AnimationControlButton>
+                    : <AnimationControlButton className="fa fa-play" onClick={props.toggleAnimation}></AnimationControlButton>
                 }
               </PlayControlsListItem>
               <PlayControlsListItem>
-                <PlayButton className="fa fa-stop" onClick={props.resetAnimation}></PlayButton>
+                <AnimationControlButton className="fa fa-refresh" onClick={props.resetAnimation}></AnimationControlButton>
               </PlayControlsListItem>
             </PlayControlsList>
           </Layout.Center>
