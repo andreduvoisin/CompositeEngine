@@ -6,7 +6,8 @@ const colors = {
 };
 
 const fonts = {
-  family: '"Encode Sans", sans-serif'
+  family: `"Encode Sans", sans-serif -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif`
 };
 
 const shared = {

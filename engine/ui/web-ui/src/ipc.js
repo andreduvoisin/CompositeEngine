@@ -1,12 +1,10 @@
-const sendMessage = (payload) => {
+export const sendMessage = (action) => {
   return new Promise((resolve, reject) => {
     window.cefQuery({
-      request: payload,
+      request: action,
       persistent: false,
       onSuccess: resolve,
       onFailure: reject
     });
   });
 };
-
-export default sendMessage;
