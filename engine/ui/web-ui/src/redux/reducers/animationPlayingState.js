@@ -12,16 +12,17 @@ export default (
 
   switch (action.type) {
 
-    case AnimationMutationTypes.PLAY:
-      return AnimationPlayingStates.PLAYING;
+    // case AnimationMutationTypes.TOGGLE_ANIMATION_REQUEST:
+    //   console.log(AnimationMutationTypes.TOGGLE_ANIMATION_REQUEST);
+    //   return state;
 
-    case AnimationMutationTypes.PAUSE:
-      return AnimationPlayingStates.PAUSED;
-
-    case AnimationMutationTypes.TOGGLE:
+    case AnimationMutationTypes.TOGGLE_ANIMATION_SUCCESS:
       return (state === AnimationPlayingStates.PLAYING)
         ? AnimationPlayingStates.PAUSED
         : AnimationPlayingStates.PLAYING;
+
+    // case AnimationMutationTypes.TOGGLE_ANIMATION_FAILURE:
+    //   console.log(AnimationMutationTypes.TOGGLE_ANIMATION_FAILURE);
 
     default:
       return state

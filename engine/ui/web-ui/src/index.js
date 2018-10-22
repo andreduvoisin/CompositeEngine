@@ -1,24 +1,26 @@
 import { default as React } from 'react';
 import ReactDOM from 'react-dom';
-import { applyMiddleware, createStore } from 'redux';
 import { Provider as ReduxProvider } from 'react-redux';
+import { applyMiddleware, createStore, compose } from 'redux';
+import { composeWithDevTools } from 'remote-redux-devtools';
+import logger from 'redux-logger';
 import createSagaMiddleware from 'redux-saga';
 import App from './App';
 import './index.css';
 import reducer from './redux/reducers/index';
-import sagas from './redux/sagas';
+import rootSaga from './redux/sagas';
 import * as serviceWorker from './serviceWorker';
 
 // create the saga middleware
 const sagaMiddleware = createSagaMiddleware()
 
 // create the redux store
-const store = createStore(
-  reducer,
-  applyMiddleware(sagaMiddleware)
+const enhancers = composeWithDevTools(
+  applyMiddleware(sagaMiddleware, logger),
 );
+const store = createStore(reducer, enhancers);
 
-sagaMiddleware.run(sagas);
+sagaMiddleware.run(rootSaga);
 
 ReactDOM.render(
   <ReduxProvider store={store}>
