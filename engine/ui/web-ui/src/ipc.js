@@ -11,37 +11,27 @@ export const sendMessage = (action) => {
 
 const cstruct = require('c-struct');
 
-const simpleMessageSchema = new cstruct.Schema({
+const togglePauseRequestSchema = new cstruct.Schema({
   id: cstruct.type.uint32,
-  dickSize: cstruct.type.uint8,
-  dickSize2: cstruct.type.uint8,
-  dickSize3: cstruct.type.uint8,
-  dickSize4: cstruct.type.uint8
+  _: cstruct.type.uint8
 });
 
-const simpleMessageAckSchema = new cstruct.Schema({
-  dickSize: cstruct.type.uint8,
-  dickSize2: cstruct.type.uint8,
-  dickSize3: cstruct.type.uint8,
-  dickSize4: cstruct.type.uint8
+const togglePauseResponseSchema = new cstruct.Schema({
+  isPaused: cstruct.type.uint8
 });
 
-cstruct.register('SimpleMessage', simpleMessageSchema);
-cstruct.register('SimpleMessageAck', simpleMessageAckSchema);
+cstruct.register('TogglePauseRequest', togglePauseRequestSchema);
+cstruct.register('TogglePauseResponse', togglePauseResponseSchema);
 
-const message = cstruct.packSync('SimpleMessage', {
-  id: 3,
-  dickSize: 69,
-  dickSize2: 69,
-  dickSize3: 69,
-  dickSize4: 69
+const message = cstruct.packSync('TogglePauseRequest', {
+  id: 0
 });
 
 sendMessage(message.toString())
   .then(success => {
     const buf = Buffer.from(success);
-    const ack = cstruct.unpackSync('SimpleMessageAck', buf);
-    console.log("ack: " + JSON.stringify(ack));
+    const ack = cstruct.unpackSync('TogglePauseResponse', buf);;;;
+    console.log("TogglePauseResponse: " + JSON.stringify(ack));
   })
   .catch(failure => {
     console.log(failure);

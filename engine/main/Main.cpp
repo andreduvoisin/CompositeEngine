@@ -42,6 +42,8 @@
 #include "ui/UILifeSpanHandler.h"
 #include "ui/UIRenderProcessHandler.h"
 #include "ui/UIQueryHandler.h"
+#include "ui/message/OutputBufferStream.h"
+#include "ui/message/TogglePauseMessage.h"
 
 const int SCREEN_WIDTH = 1280;
 const int SCREEN_HEIGHT = 720;
@@ -92,6 +94,8 @@ int g_renderType = 0;
 CefRefPtr<UIClient> g_uiClient;
 CefRefPtr<CefBrowser> g_browser;
 UIQueryHandler* queryHandler = new UIQueryHandler();
+
+bool g_isPaused = false;
 
 void printProgramLog(GLuint program)
 {
@@ -674,9 +678,16 @@ int InitializeCef()
 	return -1;
 }
 
-void HandleResetAnimationRequest()
+void HandleTogglePauseRequest(void* request, CefRefPtr<CefMessageRouterBrowserSide::Handler::Callback> callback)
 {
-	g_animationComponent->ResetAnimation();
+	g_isPaused = !g_isPaused;
+
+	TogglePauseResponse toggleAnimationResponse;
+	toggleAnimationResponse.isPaused = g_isPaused;
+
+	OutputBufferStream outputStream;
+	std::string buffer = TogglePauseResponse::Serialize(toggleAnimationResponse, outputStream);
+	callback->Success(buffer);
 }
 
 bool StartCef()
@@ -711,7 +722,7 @@ bool StartCef()
 	// g_browser->GetMainFrame()->LoadString(source, "about:blank");
 	g_browser->GetMainFrame()->LoadURL("http://localhost:3000");
 
-	queryHandler->Subscribe(MessageType::SAMPLE, &HandleResetAnimationRequest);
+	queryHandler->Subscribe(MessageType::TOGGLE_PAUSE, &HandleTogglePauseRequest);
 
 	return true;
 }
@@ -1156,7 +1167,15 @@ int main(int argc, char* argv[])
 	{
 		last = now;
 		now = SDL_GetPerformanceCounter();
-		deltaTime = float((now - last) * 1000) / SDL_GetPerformanceFrequency();
+
+		if (!g_isPaused)
+		{
+			deltaTime = float((now - last) * 1000) / SDL_GetPerformanceFrequency();
+		}
+		else
+		{
+			deltaTime = 0;
+		}
 
 		while (SDL_PollEvent(&event) != 0)
 		{
