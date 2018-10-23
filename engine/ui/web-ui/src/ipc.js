@@ -12,6 +12,21 @@ export const togglePauseResponseSchema = new cstruct.Schema({
 cstruct.register('TogglePauseRequest', togglePauseRequestSchema);
 cstruct.register('TogglePauseResponse', togglePauseResponseSchema);
 
+
+const animationStateRequestSchema = new cstruct.Schema({
+  id: cstruct.type.uint32,
+  _: cstruct.type.uint8
+});
+
+const animationStateResponseSchema = new cstruct.Schema({
+  currentTime: cstruct.type.uint32,
+  duration: cstruct.type.uint32
+});
+
+cstruct.register('AnimationStateRequest', animationStateRequestSchema);
+cstruct.register('AnimationStateResponse', animationStateResponseSchema);
+
+
 export const sendMessage = (action) => {
   return new Promise((resolve, reject) => {
     window.cefQuery({
@@ -34,16 +49,21 @@ export const sendToggleAnimationRequest = () => {
   });
 };
 
-// const message = cstruct.packSync('TogglePauseRequest', {
-//   id: 0
-// });
-// sendMessage(message.toString())
-//   .then(success => {
-//     const buf = Buffer.from(success);
-//     const ack = cstruct.unpackSync('TogglePauseResponse', buf);;;;
-//     console.log("TogglePauseResponse: " + JSON.stringify(ack));
-//   })
-//   .catch(failure => {
-//     console.log(failure);
-//   });
 
+// POC
+const message = cstruct.packSync('AnimationStateRequest', {
+  id: 1
+});
+
+window.cefQuery({
+  request: message.toString(),
+  persistent: true,
+  onSuccess: (success) => {
+    const buf = Buffer.from(success);
+    const ack = cstruct.unpackSync('AnimationStateResponse', buf);
+    console.log("AnimationStateResponse: " + JSON.stringify(ack));
+  },
+  onFailure: (failure) => {
+    console.log(failure);
+  }
+});
