@@ -6,6 +6,19 @@
 
 #include "include/wrapper/cef_message_router.h"
 
+enum MessageType : unsigned
+{
+	SAMPLE = 3
+};
+
+struct SampleMessage
+{
+	uint8_t dickSize;
+	uint8_t dickSize2;
+	uint8_t dickSize3;
+	uint8_t dickSize4;
+};
+
 class UIQueryHandler : public CefMessageRouterBrowserSide::Handler
 {
 public:
@@ -20,11 +33,11 @@ public:
 		CefRefPtr<Callback> callback) override;
 
 	void Subscribe(
-		std::string id,
+		MessageType type,
 		SubscriptionCallback handler);
 
 private:
-	std::unordered_map<std::string, std::vector<SubscriptionCallback>> registeredCallbacks;
+	std::unordered_map<MessageType, std::vector<SubscriptionCallback>> registeredCallbacks;
 };
 
 #endif //_CE_UI_QUERY_HANDLER_H_
