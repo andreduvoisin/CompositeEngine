@@ -9,16 +9,30 @@ bool UIQueryHandler::OnQuery(
 		CefRefPtr<Callback> callback)
 {
 	printf("handling message with request: %s\n", request.ToString().c_str());
-	auto iterator = registeredCallbacks.find(request);
+
+	// TODO: defaults to utf-16. should we default to utf-8?
+	std::istringstream stream(request.ToString());
+
+	MessageType messageType;
+	stream.read(reinterpret_cast<char*>(&messageType), sizeof(MessageType));
+
+	auto iterator = registeredCallbacks.find(messageType);
 	if (iterator != registeredCallbacks.end())
 	{
 		printf("found handlers for request: %s\n", request.ToString().c_str());
+
+		SampleMessage sampleMessage;
+		stream.read(reinterpret_cast<char*>(&sampleMessage), sizeof(SampleMessage));
+
 		std::vector<SubscriptionCallback>& handlers = iterator->second;
 		for (SubscriptionCallback& handler : handlers)
 		{
 			handler();
 		}
-		callback->Success("REQUEST_SUCCESS");
+
+		std::ostringstream outputStream;
+		outputStream.write(reinterpret_cast<const char*>(&sampleMessage), sizeof(SampleMessage));
+		callback->Success(outputStream.str());
 		return true;
 	}
 
@@ -27,15 +41,16 @@ bool UIQueryHandler::OnQuery(
 }
 
 void UIQueryHandler::Subscribe(
-	std::string id,
+	MessageType type,
 	SubscriptionCallback handler)
 {
-	printf("registering subscriber for message id: %s\n", id.c_str());
-	if (registeredCallbacks.find(id) == registeredCallbacks.end())
+	printf("registering subscriber for message id: %u\n", type);
+	auto iterator = registeredCallbacks.find(type);
+	if (iterator == registeredCallbacks.end())
 	{
-		printf("no existing handlers for message id, initializing new list: %s\n", id.c_str());
-		registeredCallbacks.insert(std::make_pair(id, std::vector<SubscriptionCallback>()));
+		printf("no existing handlers for message id, initializing new list: %u\n", type);
+		iterator = registeredCallbacks.insert(std::make_pair(type, std::vector<SubscriptionCallback>())).first;
 	}
-	std::vector<SubscriptionCallback> &existingHandlers = registeredCallbacks.at(id);
+	std::vector<SubscriptionCallback>& existingHandlers = iterator->second;
 	existingHandlers.push_back(handler);
 }
