@@ -711,7 +711,7 @@ bool StartCef()
 	// g_browser->GetMainFrame()->LoadString(source, "about:blank");
 	g_browser->GetMainFrame()->LoadURL("http://localhost:3000");
 
-	queryHandler->Subscribe("RESET_ANIMATION", &HandleResetAnimationRequest);
+	queryHandler->Subscribe(MessageType::SAMPLE, &HandleResetAnimationRequest);
 
 	return true;
 }
