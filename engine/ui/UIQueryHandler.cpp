@@ -2,6 +2,7 @@
 
 #include "message/InputBufferStream.h"
 #include "message/TogglePauseMessage.h"
+#include "message/AnimationStateMessage.h"
 
 bool UIQueryHandler::OnQuery(
 		CefRefPtr<CefBrowser> browser,
@@ -27,12 +28,25 @@ bool UIQueryHandler::OnQuery(
 		{
 			case MessageType::TOGGLE_PAUSE:
 			{
-				TogglePauseRequest toggleAnimationRequest = TogglePauseRequest::Deserialize(inputStream);
+				TogglePauseRequest togglePauseRequest = TogglePauseRequest::Deserialize(inputStream);
 
 				std::vector<SubscriptionCallback>& handlers = iterator->second;
 				for (SubscriptionCallback& handler : handlers)
 				{
-					handler(&toggleAnimationRequest, callback);
+					handler(&togglePauseRequest, callback);
+				}
+
+				return true;
+			}
+
+			case MessageType::ANIMATION_STATE:
+			{
+				AnimationStateRequest animationStateRequest = AnimationStateRequest::Deserialize(inputStream);
+
+				std::vector<SubscriptionCallback>& handlers = iterator->second;
+				for (SubscriptionCallback& handler : handlers)
+				{
+					handler(&animationStateRequest, callback);
 				}
 
 				return true;
