@@ -1,5 +1,5 @@
 import { all, fork, put, takeEvery } from 'redux-saga/effects';
-import { sendMessage, sendToggleAnimationRequest } from "../ipc";
+import { sendToggleAnimationRequest } from "../ipc";
 import { AnimationMutationTypes, toggleAnimationFailure, toggleAnimationSuccess } from "./actions";
 
 const {

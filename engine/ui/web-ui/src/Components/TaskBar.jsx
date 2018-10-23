@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
-import { resetAnimation, toggleAnimation } from "../redux/actions";
+import { toggleAnimation } from "../redux/actions";
 import { AnimationPlayingStates } from "../redux/reducers/animationPlayingState";
 import Layout from './Layout';
 
