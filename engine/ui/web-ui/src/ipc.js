@@ -65,5 +65,5 @@ export const subscribeToAnimationState = (handler) => {
 };
 
 subscribeToAnimationState((state) => {
-  console.log("AnimationStateResponse: " + state);
+  console.log("AnimationStateResponse: " + JSON.stringify(state));
 });
