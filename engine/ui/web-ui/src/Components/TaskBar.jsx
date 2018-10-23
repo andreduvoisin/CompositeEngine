@@ -1,13 +1,10 @@
 import React from 'react';
-import { connect } from 'react-redux'
+import { connect } from 'react-redux';
 import styled from 'styled-components';
+import { resetAnimation, toggleAnimation } from "../redux/actions";
 import { AnimationPlayingStates } from "../redux/reducers/animationPlayingState";
-import {
-  toggleAnimation,
-  resetAnimation
-} from "../redux/actions";
-
 import Layout from './Layout';
+
 
 const Container = styled.div`
     background: ${props => props.theme.shared.background};
@@ -48,9 +45,6 @@ const mapDispatchToProps = (dispatch) => {
   return {
     toggleAnimation: () => {
       dispatch(toggleAnimation())
-    },
-    resetAnimation: () => {
-      dispatch(resetAnimation())
     }
   };
 };
@@ -69,9 +63,6 @@ const Taskbar = (props) => {
                     ? <AnimationControlButton className="fa fa-pause" onClick={props.toggleAnimation}></AnimationControlButton>
                     : <AnimationControlButton className="fa fa-play" onClick={props.toggleAnimation}></AnimationControlButton>
                 }
-              </PlayControlsListItem>
-              <PlayControlsListItem>
-                <AnimationControlButton className="fa fa-refresh" onClick={props.resetAnimation}></AnimationControlButton>
               </PlayControlsListItem>
             </PlayControlsList>
           </Layout.Center>
