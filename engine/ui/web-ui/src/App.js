@@ -6,7 +6,7 @@ import BnetButton from './Components/BnetButton';
 import DebugStyles from './Components/DebugStyles';
 import GlobalStyles from './Components/GlobalStyles';
 import Layout from './Components/Layout';
-import TaskBar from './Components/TaskBar';
+import Taskbar from './Components/Taskbar';
 import theme from './theme';
 
 const debugLayout = false;
@@ -18,7 +18,7 @@ class App extends Component {
         <React.Fragment>
           {(debugLayout) ? <DebugStyles /> : null}
           <GlobalStyles />
-          <TaskBar />
+          <Taskbar />
           <Layout.FullHeightContainer>
             {/* <Layout.Sidebar>
                 <Sidebar>
@@ -31,9 +31,6 @@ class App extends Component {
                   <span>Sidebar</span>
                 </Sidebar>
               </Layout.Sidebar> */}
-            <BnetAlert title='attention'>
-              <BnetButton>OK</BnetButton>
-            </BnetAlert>
           </Layout.FullHeightContainer>
         </React.Fragment>
       </ThemeProvider>

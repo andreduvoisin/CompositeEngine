@@ -3,10 +3,6 @@ export const AnimationMutationTypes = {
   TOGGLE_ANIMATION_REQUEST: 'TOGGLE_ANIMATION_REQUEST',
   TOGGLE_ANIMATION_SUCCESS: 'TOGGLE_ANIMATION_SUCCESS',
   TOGGLE_ANIMATION_FAILURE: 'TOGGLE_ANIMATION_FAILURE',
-  // reset types
-  RESET_ANIMATION_REQUEST: 'RESET_ANIMATION_REQUEST',
-  RESET_ANIMATION_SUCCESS: 'RESET_ANIMATION_SUCCESS',
-  RESET_ANIMATION_FAILURE: 'RESET_ANIMATION_FAILURE',
 };
 
 export const toggleAnimation = () => {
@@ -15,32 +11,15 @@ export const toggleAnimation = () => {
   }
 };
 
-export const toggleAnimationSuccess = () => {
+export const toggleAnimationSuccess = (animationState) => {
   return {
-    type: AnimationMutationTypes.TOGGLE_ANIMATION_SUCCESS
+    type: AnimationMutationTypes.TOGGLE_ANIMATION_SUCCESS,
+    payload: animationState
   };
 };
 
 export const toggleAnimationFailure = () => {
   return {
     type: AnimationMutationTypes.TOGGLE_ANIMATION_FAILURE
-  };
-};
-
-export const resetAnimation = () => {
-  return {
-    type: AnimationMutationTypes.RESET_ANIMATION_REQUEST
-  };
-};
-
-export const resetAnimationSuccess = () => {
-  return {
-    type: AnimationMutationTypes.RESET_ANIMATION_SUCCESS
-  };
-};
-
-export const resetAnimationFailure = () => {
-  return {
-    type: AnimationMutationTypes.RESET_ANIMATION_FAILURE
   };
 };

@@ -17,9 +17,9 @@ export default (
     //   return state;
 
     case AnimationMutationTypes.TOGGLE_ANIMATION_SUCCESS:
-      return (state === AnimationPlayingStates.PLAYING)
-        ? AnimationPlayingStates.PAUSED
-        : AnimationPlayingStates.PLAYING;
+      return (action.payload.isPaused === 0)
+        ? AnimationPlayingStates.PLAYING
+        : AnimationPlayingStates.PAUSED;
 
     // case AnimationMutationTypes.TOGGLE_ANIMATION_FAILURE:
     //   console.log(AnimationMutationTypes.TOGGLE_ANIMATION_FAILURE);
