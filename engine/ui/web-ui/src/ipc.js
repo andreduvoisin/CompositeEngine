@@ -55,8 +55,7 @@ export const subscribeToAnimationState = (handler) => {
     persistent: true,
     onSuccess: (success) => {
       const buf = Buffer.from(success);
-      const ack = cstruct.unpackSync('AnimationStateResponse', buf);
-      const data = JSON.stringify(ack);
+      const data = cstruct.unpackSync('AnimationStateResponse', buf);
       handler(data);
     },
     onFailure: (failure) => {
