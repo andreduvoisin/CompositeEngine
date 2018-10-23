@@ -68,17 +68,3 @@ export const subscribeToAnimationState = (handler) => {
 subscribeToAnimationState((state) => {
   console.log("AnimationStateResponse: " + state);
 });
-
-// const message = cstruct.packSync('TogglePauseRequest', {
-//   id: 0
-// });
-// sendMessage(message.toString())
-//   .then(success => {
-//     const buf = Buffer.from(success);
-//     const ack = cstruct.unpackSync('TogglePauseResponse', buf);;;;
-//     console.log("TogglePauseResponse: " + JSON.stringify(ack));
-//   })
-//   .catch(failure => {
-//     console.log(failure);
-//   });
-
