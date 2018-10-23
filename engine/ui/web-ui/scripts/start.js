@@ -98,11 +98,12 @@ checkBrowsers(paths.appPath, isInteractive)
         clearConsole();
       }
       console.log(chalk.cyan('Starting the development server...\n'));
-      openBrowser(urls.localUrlForBrowser);
+      // don't open a broswer, because its annoying and we are a GAME ENGINE
+      // openBrowser(urls.localUrlForBrowser);
     });
 
-    ['SIGINT', 'SIGTERM'].forEach(function(sig) {
-      process.on(sig, function() {
+    ['SIGINT', 'SIGTERM'].forEach(function (sig) {
+      process.on(sig, function () {
         devServer.close();
         process.exit();
       });
