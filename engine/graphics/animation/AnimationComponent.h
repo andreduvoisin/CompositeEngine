@@ -4,6 +4,7 @@
 #include <glm\glm.hpp>
 
 #include <vector>
+#include "ui/message/AnimationStateMessage.h"
 
 typedef unsigned int GLuint;
 
@@ -34,7 +35,8 @@ namespace CE
 			GLuint g_paletteID);
 
 		void ResetMatrixPalette();
-		void ResetAnimation();
+		// TODO: Move out of this file.
+		void FillAnimationStateResponse(AnimationStateResponse& animationStateResponse);
 
 		// TODO: Remove.
 		const Skeleton* GetSkeleton() const { return m_skeleton; }

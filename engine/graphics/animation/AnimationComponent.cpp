@@ -8,6 +8,7 @@
 #include <GL\glew.h>
 
 #include <algorithm>
+#include "ui/message/AnimationStateMessage.h"
 
 namespace CE
 {
@@ -228,9 +229,13 @@ namespace CE
 		}
 	}
 
-	void AnimationComponent::ResetAnimation()
+	// TODO: Move out of this file.
+	void AnimationComponent::FillAnimationStateResponse(AnimationStateResponse& animationStateResponse)
 	{
-		m_animationCaches = std::vector<AnimationCache>();
-		InitializeAnimationCache();
+		Animation* animation = &m_animations->at(m_currentAnimation);
+		AnimationCache* animationCache = &m_animationCaches[m_currentAnimation];
+
+		animationStateResponse.currentTime = (unsigned) animationCache->currTime;
+		animationStateResponse.duration = (unsigned) animation->duration;
 	}
 }
