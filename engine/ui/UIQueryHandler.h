@@ -1,28 +1,17 @@
 #ifndef _CE_UI_QUERY_HANDLER_H_
 #define _CE_UI_QUERY_HANDLER_H_
 
-#include <functional>
-#include <unordered_map>
+#include "message/MessageType.h"
 
 #include "include/wrapper/cef_message_router.h"
 
-enum MessageType : unsigned
-{
-	SAMPLE = 3
-};
-
-struct SampleMessage
-{
-	uint8_t dickSize;
-	uint8_t dickSize2;
-	uint8_t dickSize3;
-	uint8_t dickSize4;
-};
+#include <functional>
+#include <unordered_map>
 
 class UIQueryHandler : public CefMessageRouterBrowserSide::Handler
 {
 public:
-	typedef std::function<void()> SubscriptionCallback;
+	typedef std::function<void(void* request, CefRefPtr<Callback> callback)> SubscriptionCallback;
 
 	bool OnQuery(
 		CefRefPtr<CefBrowser> browser,
