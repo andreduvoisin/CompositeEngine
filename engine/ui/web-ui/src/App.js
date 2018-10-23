@@ -1,8 +1,6 @@
 import 'font-awesome/css/font-awesome.min.css';
 import React, { Component } from 'react';
 import { ThemeProvider } from 'styled-components';
-import BnetAlert from './Components/BnetAlert';
-import BnetButton from './Components/BnetButton';
 import DebugStyles from './Components/DebugStyles';
 import GlobalStyles from './Components/GlobalStyles';
 import Layout from './Components/Layout';
