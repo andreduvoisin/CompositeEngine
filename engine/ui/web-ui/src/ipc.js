@@ -16,8 +16,8 @@ const animationStateRequestSchema = new cstruct.Schema({
 });
 
 const animationStateResponseSchema = new cstruct.Schema({
-  currentTime: cstruct.type.int32,
-  duration: cstruct.type.int32
+  currentTime: cstruct.type.uint32,
+  duration: cstruct.type.uint32
 });
 
 cstruct.register('TogglePauseRequest', togglePauseRequestSchema);
