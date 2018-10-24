@@ -2,7 +2,15 @@
 const colors = {
   white: '#fff',
   black: '#000',
-  transparentBlack: 'rgba(0, 0, 0, 0.5)'
+  green: '#3cb45c',
+  blue: '#3c88b0',
+  red: '#c75450',
+  transparentBlack: 'rgba(0, 0, 0, 0.5)',
+  borders: {
+    top: '#555555',
+    bottom: '#282828',
+  },
+  text: '#bbbbbb'
 };
 
 const fonts = {
@@ -14,10 +22,16 @@ const shared = {
   background: 'linear-gradient(#1c2534, #161a26)'
 };
 
+const backgrounds = {
+  default: '#3c3f41',
+};
+
 const theme = {
+  name: 'default',
   colors,
   fonts,
-  shared
+  shared,
+  backgrounds
 };
 
 export default theme;
