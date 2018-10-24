@@ -28,12 +28,21 @@ storiesOf('Taskbar', module)
   })
   .add('With Animation Controls', () => {
     return (
-      <Taskbar>
-        <Layout.Container>
-          <Layout.Center>
-            <AnimationControls toggleAnimation={action('toggleAnimation')} />
-          </Layout.Center>
-        </Layout.Container>
-      </Taskbar>
+      <React.Fragment>
+        <Taskbar>
+          <Layout.Container>
+            <Layout.Center>
+              <AnimationControls isPlaying={false} toggleAnimation={action('toggleAnimation')} />
+            </Layout.Center>
+          </Layout.Container>
+        </Taskbar>
+        <Taskbar>
+          <Layout.Container>
+            <Layout.Center>
+              <AnimationControls isPlaying={true} toggleAnimation={action('toggleAnimation')} />
+            </Layout.Center>
+          </Layout.Container>
+        </Taskbar>
+      </React.Fragment>
     );
   });

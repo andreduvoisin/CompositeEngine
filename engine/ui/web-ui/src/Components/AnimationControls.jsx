@@ -1,8 +1,19 @@
 import React from 'react';
 import styled from 'styled-components';
 import classNames from 'classnames';
+import './AnimationControls.less';
 
-const AnimationControlButton = styled.i`
+const AnimationControls = styled.ul`
+  text-align: center;
+  margin: 0;
+  padding: 0;
+`;
+
+const AnimationControlsItem = styled.li`
+  display: inline-block;
+`;
+
+const AnimationControlsButton = styled.i`
   cursor: pointer;
   margin-right: auto;
   margin-left: auto;
@@ -11,29 +22,22 @@ const AnimationControlButton = styled.i`
   margin-right: 10px;
 `;
 
-const PlayControlsList = styled.ul`
-  text-align: center;
-  margin: 0;
-  padding: 0;
-`;
-
-const PlayControlsListItem = styled.li`
-  display: inline-block;
-`;
-
 export default (props) => {
-  const playButtonClasses = classNames('fa', {
-    'fa-pause': !props.isPlaying,
-    'fa-play': props.isPlaying
+  const playButtonClasses = classNames('AnimationControls-playButton fa', {
+    'fa-stop': props.isPlaying,
+    'fa-play': !props.isPlaying
   });
   return (
-    <PlayControlsList>
-      <PlayControlsListItem>
-        <AnimationControlButton
+    <AnimationControls className={classNames('AnimationControls', {
+      'is-playing': props.isPlaying,
+      'is-paused': !props.isPlaying
+    })}>
+      <AnimationControlsItem>
+        <AnimationControlsButton
           className={playButtonClasses}
           onClick={props.toggleAnimation}
         />
-      </PlayControlsListItem>
-    </PlayControlsList>
+      </AnimationControlsItem>
+    </AnimationControls>
   );
 };
