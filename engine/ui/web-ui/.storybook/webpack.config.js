@@ -4,7 +4,8 @@
 
 // IMPORTANT
 // When you add this file, we won't add the default configurations which is similar
-// to "React Create App". This only has babel loader to load JavaScript.
+// to 'React Create App'. This only has babel loader to load JavaScript.
+const path = require('path');
 
 module.exports = {
   plugins: [
@@ -13,9 +14,20 @@ module.exports = {
   module: {
     rules: [
       {
+        test: /\.less$/,
+        loaders: ['style-loader', 'css-loader', 'less-loader'],
+        include: path.resolve(__dirname, '../')
+      },
+      {
         test: /\.css$/,
-        loaders: ["style-loader", "css-loader"],
-        // include: path.resolve(__dirname, "../")
+        use: [
+          {
+            loader: 'style-loader' // creates style nodes from JS strings
+          },
+          {
+            loader: 'css-loader' // translates CSS into CommonJS
+          }
+        ]
       },
       {
         test: /\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,

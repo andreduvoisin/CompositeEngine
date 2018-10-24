@@ -125,6 +125,8 @@
     "@storybook/addons": "^4.0.0-rc.3",
     "@storybook/react": "^4.0.0-rc.3",
     "classnames": "^2.2.6",
+    "less": "^3.8.1",
+    "less-loader": "^4.1.0",
     "redux-devtools-extension": "^2.13.5",
     "remote-redux-devtools": "^0.5.13",
     "storybook-addon-styled-component-theme": "^1.0.7",

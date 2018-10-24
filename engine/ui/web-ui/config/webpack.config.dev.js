@@ -29,6 +29,7 @@ const env = getClientEnvironment(publicUrl);
 const cssRegex = /\.css$/;
 const cssModuleRegex = /\.module\.css$/;
 const sassRegex = /\.(scss|sass)$/;
+const lessRegex = /\.less$/;
 const sassModuleRegex = /\.module\.(scss|sass)$/;
 
 // common function to get style loaders
@@ -280,6 +281,13 @@ module.exports = {
               modules: true,
               getLocalIdent: getCSSModuleLocalIdent,
             }),
+          },
+          // Opt-in support for less stylesheets.
+          // Chains the less-loader with the css-loader and the style-loader
+          // to immediately apply all styles to the DOM.
+          {
+            test: lessRegex,
+            use: getStyleLoaders({ importLoaders: 2 }, 'less-loader'),
           },
           // Opt-in support for SASS (using .scss or .sass extensions).
           // Chains the sass-loader with the css-loader and the style-loader
