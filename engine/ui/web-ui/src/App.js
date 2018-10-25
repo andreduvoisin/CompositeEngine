@@ -1,5 +1,8 @@
 import 'font-awesome/css/font-awesome.min.css';
+import 'react-toastify/dist/ReactToastify.css';
+import './Components/Toast.less';
 import React, { Component } from 'react';
+import { ToastContainer } from 'react-toastify';
 import { ThemeProvider } from 'styled-components';
 import DebugStyles from './Components/DebugStyles';
 import GlobalStyles from './Components/GlobalStyles';
@@ -36,6 +39,7 @@ class App extends Component {
                 </Sidebar>
               </Layout.Sidebar> */}
           </Layout.FullHeightContainer>
+          <ToastContainer toastClassName="Toast" />
         </React.Fragment>
       </ThemeProvider>
     );
