@@ -7,19 +7,26 @@ const AnimationControls = styled.ul`
   text-align: center;
   margin: 0;
   padding: 0;
+    cursor: pointer;
 `;
 
 const AnimationControlsItem = styled.li`
   display: inline-block;
+  border: solid 1px ${props => props.theme.colors.borders.button};
+  border-radius: 3px;
+  padding: 3px;
+  width: 20px;
+  &:hover {
+    background-color: #464a4d;
+    border-color: #757b80;
+  }
 `;
 
-const AnimationControlsButton = styled.i`
-  cursor: pointer;
+const AnimationControlsIcon = styled.i`
   margin-right: auto;
   margin-left: auto;
   display: inline-block;
-  width: 10px;
-  margin-right: 10px;
+  text-shadow: 1px 1px 3px ${props => props.theme.colors.transparentBlack};
 `;
 
 export default (props) => {
@@ -32,10 +39,9 @@ export default (props) => {
       'is-playing': props.isPlaying,
       'is-paused': !props.isPlaying
     })}>
-      <AnimationControlsItem>
-        <AnimationControlsButton
+      <AnimationControlsItem onClick={props.toggleAnimation}>
+        <AnimationControlsIcon
           className={playButtonClasses}
-          onClick={props.toggleAnimation}
         />
       </AnimationControlsItem>
     </AnimationControls>
