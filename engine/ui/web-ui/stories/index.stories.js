@@ -1,6 +1,7 @@
 import { action } from '@storybook/addon-actions';
 import { linkTo } from '@storybook/addon-links';
 import { storiesOf } from '@storybook/react';
+import { State, Store } from "@sambego/storybook-state";
 import { Welcome } from '@storybook/react/demo';
 import 'font-awesome/css/font-awesome.css';
 import React from 'react';
@@ -27,19 +28,24 @@ storiesOf('Taskbar', module)
     );
   })
   .add('With Animation Controls', () => {
+    const store = new Store({
+      isPlaying: true
+    });
+    const togglePlaying = () => {
+      const toggled = !store.get('isPlaying');
+      store.set({ isPlaying: toggled })
+    };
     return (
       <React.Fragment>
         <Taskbar>
           <Layout.Container>
             <Layout.Center>
-              <AnimationControls isPlaying={false} toggleAnimation={action('toggleAnimation')} />
-            </Layout.Center>
-          </Layout.Container>
-        </Taskbar>
-        <Taskbar>
-          <Layout.Container>
-            <Layout.Center>
-              <AnimationControls isPlaying={true} toggleAnimation={action('toggleAnimation')} />
+              <State store={store}>
+                <AnimationControls
+                  isPlaying={false}
+                  toggleAnimation={togglePlaying}
+                />
+              </State>
             </Layout.Center>
           </Layout.Container>
         </Taskbar>
