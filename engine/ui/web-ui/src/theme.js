@@ -9,6 +9,7 @@ const colors = {
   borders: {
     top: '#555555',
     bottom: '#282828',
+    button: '#5f5f5f'
   },
   text: '#bbbbbb'
 };
