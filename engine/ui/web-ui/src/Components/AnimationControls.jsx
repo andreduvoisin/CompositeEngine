@@ -3,18 +3,19 @@ import styled from 'styled-components';
 import classNames from 'classnames';
 import './AnimationControls.less';
 
-const AnimationControls = styled.ul`
+const AnimationControlsList = styled.ul`
   text-align: center;
   margin: 0;
   padding: 0;
     cursor: pointer;
 `;
 
-const AnimationControlsItem = styled.li`
+const AnimationControlsListItem = styled.li`
   display: inline-block;
   border: solid 1px ${props => props.theme.colors.borders.button};
   border-radius: 3px;
   padding: 3px;
+  margin-right: 3px;
   width: 20px;
   &:hover {
     background-color: #464a4d;
@@ -29,21 +30,50 @@ const AnimationControlsIcon = styled.i`
   text-shadow: 1px 1px 3px ${props => props.theme.colors.transparentBlack};
 `;
 
-export default (props) => {
-  const playButtonClasses = classNames('AnimationControls-playButton fa', {
-    'fa-stop': props.isPlaying,
-    'fa-play': !props.isPlaying
-  });
-  return (
-    <AnimationControls className={classNames('AnimationControls', {
-      'is-playing': props.isPlaying,
-      'is-paused': !props.isPlaying
-    })}>
-      <AnimationControlsItem onClick={props.toggleAnimation}>
+export default class AnimationControls extends React.Component {
+
+  renderPlayButton() {
+    const { props } = this;
+    return (
+      <AnimationControlsListItem
+        onClick={(props.isPlaying) ? null : props.toggleAnimation}
+        className={classNames("AnimationControlsListItem-play", {
+          "is-active": props.isPlaying
+        })}
+      >
         <AnimationControlsIcon
-          className={playButtonClasses}
+          className={classNames('fa fa-play')}
         />
-      </AnimationControlsItem>
-    </AnimationControls>
-  );
-};
+      </AnimationControlsListItem>
+    );
+  }
+
+  renderStopButton() {
+    const { props } = this;
+    return (
+      <AnimationControlsListItem
+        onClick={(props.isPlaying) ? props.toggleAnimation : null}
+        className={classNames("AnimationControlsListItem-stop", {
+          "is-active": !props.isPlaying
+        })}
+      >
+        <AnimationControlsIcon
+          className={classNames('fa fa-stop')}
+        />
+      </AnimationControlsListItem>
+    );
+  }
+
+  render() {
+    const { props } = this;
+    return (
+      <AnimationControlsList className={classNames('AnimationControls', {
+        'is-playing': props.isPlaying,
+        'is-paused': !props.isPlaying
+      })}>
+        {this.renderPlayButton()}
+        {this.renderStopButton()}
+      </AnimationControlsList>
+    );
+  }
+}
