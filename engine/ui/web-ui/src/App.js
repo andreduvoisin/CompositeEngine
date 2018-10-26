@@ -22,11 +22,7 @@ class App extends Component {
           {(debugLayout) ? <DebugStyles /> : null}
           <GlobalStyles />
           <Taskbar>
-            <Layout.Container>
-              <Layout.Center>
-                <AnimationControls />
-              </Layout.Center>
-            </Layout.Container>
+            <AnimationControls />
           </Taskbar>
           <Layout.FullHeightContainer>
             <Layout.Sidebar width={26}>

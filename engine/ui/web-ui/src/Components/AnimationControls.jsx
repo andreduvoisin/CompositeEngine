@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import classNames from 'classnames';
 import './AnimationControls.less';
+import Slider from "./Slider";
 
 const AnimationControlsList = styled.ul`
   text-align: center;
@@ -12,6 +13,9 @@ const AnimationControlsList = styled.ul`
 
 const AnimationControlsListItem = styled.li`
   display: inline-block;
+`;
+
+const AnimationControlsButton = styled.div`
   border: solid 1px ${props => props.theme.colors.borders.button};
   border-radius: 3px;
   padding: 3px;
@@ -35,7 +39,7 @@ export default class AnimationControls extends React.Component {
   renderPlayButton() {
     const { props } = this;
     return (
-      <AnimationControlsListItem
+      <AnimationControlsButton
         onClick={(props.isPlaying) ? null : props.toggleAnimation}
         className={classNames("AnimationControlsListItem-play", {
           "is-active": props.isPlaying
@@ -44,14 +48,14 @@ export default class AnimationControls extends React.Component {
         <AnimationControlsIcon
           className={classNames('fa fa-play')}
         />
-      </AnimationControlsListItem>
+      </AnimationControlsButton>
     );
   }
 
   renderStopButton() {
     const { props } = this;
     return (
-      <AnimationControlsListItem
+      <AnimationControlsButton
         onClick={(props.isPlaying) ? props.toggleAnimation : null}
         className={classNames("AnimationControlsListItem-stop", {
           "is-active": !props.isPlaying
@@ -60,7 +64,7 @@ export default class AnimationControls extends React.Component {
         <AnimationControlsIcon
           className={classNames('fa fa-stop')}
         />
-      </AnimationControlsListItem>
+      </AnimationControlsButton>
     );
   }
 
@@ -71,8 +75,15 @@ export default class AnimationControls extends React.Component {
         'is-playing': props.isPlaying,
         'is-paused': !props.isPlaying
       })}>
-        {this.renderPlayButton()}
-        {this.renderStopButton()}
+        <AnimationControlsListItem>
+          {this.renderPlayButton()}
+        </AnimationControlsListItem>
+        <AnimationControlsListItem>
+          {this.renderStopButton()}
+        </AnimationControlsListItem>
+        <AnimationControlsListItem>
+          <Slider />
+        </AnimationControlsListItem>
       </AnimationControlsList>
     );
   }
