@@ -19,18 +19,18 @@ function* requestToggleAnimationStateAsync() {
 
 function* watchToggleAnimationSuccess() {
   yield takeEvery(TOGGLE_ANIMATION_SUCCESS, (action) => {
-    const { payload } = action;
-    if (payload.isPaused === 1) {
-      toast.success("Animation Paused", {
-        position: toast.POSITION.BOTTOM_RIGHT,
-        autoClose: 2000
-      });
-    } else if (payload.isPaused === 0) {
-      toast.success("Animation Resumed", {
-        position: toast.POSITION.BOTTOM_RIGHT,
-        autoClose: 2000
-      });
-    }
+    // const { payload } = action;
+    // if (payload.isPaused === 1) {
+    //   toast.success("Animation Paused", {
+    //     position: toast.POSITION.BOTTOM_RIGHT,
+    //     autoClose: 2000
+    //   });
+    // } else if (payload.isPaused === 0) {
+    //   toast.success("Animation Resumed", {
+    //     position: toast.POSITION.BOTTOM_RIGHT,
+    //     autoClose: 2000
+    //   });
+    // }
   });
 };
 

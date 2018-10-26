@@ -7,6 +7,7 @@ import 'font-awesome/css/font-awesome.css';
 import React from 'react';
 import AnimationControls from '../src/Components/AnimationControls';
 import BnetAlert from '../src/Components/BnetAlert';
+import Slider from '../src/Components/Slider';
 import Taskbar from '../src/Components/Taskbar';
 import Layout from '../src/Components/Layout';
 
@@ -50,5 +51,37 @@ storiesOf('Taskbar', module)
           </Layout.Container>
         </Taskbar>
       </React.Fragment>
+    );
+  });
+
+storiesOf('Slider', module)
+  .add('Default', () => {
+    return (
+      <Taskbar>
+        <Slider></Slider>
+      </Taskbar>
+    );
+  })
+  .add('With Step', () => {
+    return (
+      <Taskbar>
+        <Slider
+          min={0}
+          max={100}
+          step={25} />
+      </Taskbar>
+    );
+  })
+  .add('With change handler', () => {
+    return (
+      <Taskbar>
+        <Slider
+          min={0}
+          max={100}
+          onChange={() => {
+            action('slider change');
+          }}
+        />
+      </Taskbar>
     );
   });
