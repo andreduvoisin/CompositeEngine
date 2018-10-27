@@ -3,6 +3,7 @@ export const AnimationMutationTypes = {
   TOGGLE_ANIMATION_REQUEST: 'TOGGLE_ANIMATION_REQUEST',
   TOGGLE_ANIMATION_SUCCESS: 'TOGGLE_ANIMATION_SUCCESS',
   TOGGLE_ANIMATION_FAILURE: 'TOGGLE_ANIMATION_FAILURE',
+  ANIMATION_STATE_UPDATE: 'ANIMATION_STATE_UPDATE',
 };
 
 export const toggleAnimation = () => {
@@ -21,5 +22,12 @@ export const toggleAnimationSuccess = (animationState) => {
 export const toggleAnimationFailure = () => {
   return {
     type: AnimationMutationTypes.TOGGLE_ANIMATION_FAILURE
+  };
+};
+
+export const updateAnimationState = (animationState) => {
+  return {
+    type: AnimationMutationTypes.ANIMATION_STATE_UPDATE,
+    payload: animationState
   };
 };

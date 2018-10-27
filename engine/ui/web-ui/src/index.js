@@ -8,19 +8,28 @@ import createSagaMiddleware from 'redux-saga';
 import App from './App';
 import './index.css';
 import reducer from './redux/reducers/index';
+import { updateAnimationState } from './redux/actions';
 import rootSaga from './redux/sagas';
 import * as serviceWorker from './serviceWorker';
+import { subscribeToAnimationState } from './ipc';
 
 // create the saga middleware
 const sagaMiddleware = createSagaMiddleware()
 
 // create the redux store
 const enhancers = composeWithDevTools(
-  applyMiddleware(sagaMiddleware, logger),
+  applyMiddleware(
+    sagaMiddleware,
+    // logger
+  ),
 );
 const store = createStore(reducer, enhancers);
 
 sagaMiddleware.run(rootSaga);
+
+subscribeToAnimationState((state) => {
+  store.dispatch(updateAnimationState(state));
+});
 
 ReactDOM.render(
   <ReduxProvider store={store}>
