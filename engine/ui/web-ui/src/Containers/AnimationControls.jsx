@@ -2,7 +2,6 @@ import React from 'react';
 import { connect } from 'react-redux';
 import AnimationControls from '../Components/AnimationControls';
 import { toggleAnimation } from "../redux/actions";
-import { AnimationPlayingStates } from "../redux/reducers/animationPlayingState";
 
 const mapStateToProps = (state) => {
   return state;
@@ -20,9 +19,12 @@ export default connect(
   mapStateToProps,
   mapDispatchToProps
 )((props) => {
+  console.log(JSON.stringify(props))
   return (
     <AnimationControls
-      isPlaying={props.animationPlayingState === AnimationPlayingStates.PLAYING}
+      isPlaying={props.animationState.isPlaying}
+      currentTime={props.animationState.currentTime}
+      duration={props.animationState.duration}
       {...props}
     />
   );

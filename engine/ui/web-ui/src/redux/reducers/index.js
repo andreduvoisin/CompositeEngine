@@ -1,6 +1,6 @@
 import { combineReducers } from 'redux'
-import animationPlayingState from './animationPlayingState'
+import animationState from './animationState'
 
 export default combineReducers({
-  animationPlayingState
+  animationState
 });
