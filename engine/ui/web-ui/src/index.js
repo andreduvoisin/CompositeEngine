@@ -8,10 +8,10 @@ import createSagaMiddleware from 'redux-saga';
 import App from './App';
 import './index.css';
 import reducer from './redux/reducers/index';
-import { updateAnimationState } from './redux/actions';
+import { updatePauseState, updateAnimationState } from './redux/actions';
 import rootSaga from './redux/sagas';
 import * as serviceWorker from './serviceWorker';
-import { subscribeToAnimationState } from './ipc';
+import { subscribeToPauseState, subscribeToAnimationState } from './ipc';
 
 // create the saga middleware
 const sagaMiddleware = createSagaMiddleware()
@@ -27,6 +27,9 @@ const store = createStore(reducer, enhancers);
 
 sagaMiddleware.run(rootSaga);
 
+subscribeToPauseState((state) => {
+  store.dispatch(updatePauseState(state));
+});
 subscribeToAnimationState((state) => {
   store.dispatch(updateAnimationState(state));
 });

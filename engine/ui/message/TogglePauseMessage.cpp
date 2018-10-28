@@ -1,7 +1,7 @@
 #include "TogglePauseMessage.h"
 
 TogglePauseRequest::TogglePauseRequest()
-	: UIMessageRequest(UIMessageId::TOGGLE_PAUSE)
+	: UIMessageRequest(UIMessageId::REQUEST_TOGGLE_PAUSE)
 {
 
 }
@@ -9,16 +9,4 @@ TogglePauseRequest::TogglePauseRequest()
 void TogglePauseRequest::DeserializeInternal(const JsonDeserializer& deserializer)
 {
 
-}
-
-TogglePauseResponse::TogglePauseResponse(bool isPaused)
-	: UIMessageResponse(UIMessageId::TOGGLE_PAUSE)
-	, isPaused(isPaused)
-{
-
-}
-
-void TogglePauseResponse::SerializeInternal(JsonSerializer& serializer) const
-{
-	serializer.WriteBool("isPaused", isPaused);
 }

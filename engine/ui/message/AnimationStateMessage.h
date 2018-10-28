@@ -1,29 +1,29 @@
 #ifndef _CE_ANIMATION_STATE_MESSAGE_H_
 #define _CE_ANIMATION_STATE_MESSAGE_H_
 
-#include "JsonSerializer.h"
+#include "UIMessage.h"
 #include "JsonDeserializer.h"
 
-struct AnimationStateRequest
+class AnimationStateSubscription : public UIMessageRequest
 {
-	static AnimationStateRequest Deserialize(const JsonDeserializer& deserializer)
-	{
-		return AnimationStateRequest();
-	}
+public:
+	AnimationStateSubscription();
+
+protected:
+	void DeserializeInternal(const JsonDeserializer& deserializer) override;
 };
 
-struct AnimationStateResponse
+class AnimationStateStatus : public UIMessageResponse
 {
+public:
+	AnimationStateStatus(float currentTime, float duration);
+
+protected:
+	void SerializeInternal(JsonSerializer& serializer) const override;
+
+private:
 	float currentTime;
 	float duration;
-
-	static std::string Serialize(const AnimationStateResponse& message)
-	{
-		JsonSerializer serializer;
-		serializer.WriteFloat("currentTime", message.currentTime);
-		serializer.WriteFloat("duration", message.duration);
-		return serializer.ToString();
-	}
 };
 
 #endif // _CE_ANIMATION_STATE_MESSAGE_H_

@@ -2,6 +2,7 @@
 
 #include "message/TogglePauseMessage.h"
 #include "message/AnimationStateMessage.h"
+#include "message/PauseStateMessage.h"
 
 bool UIQueryHandler::OnQuery(
 		CefRefPtr<CefBrowser> browser,
@@ -25,7 +26,7 @@ bool UIQueryHandler::OnQuery(
 
 		switch (id)
 		{
-			case UIMessageId::TOGGLE_PAUSE:
+			case UIMessageId::REQUEST_TOGGLE_PAUSE:
 			{
 				TogglePauseRequest togglePauseRequest;
 				togglePauseRequest.Deserialize(deserializer);
@@ -39,17 +40,37 @@ bool UIQueryHandler::OnQuery(
 				return true;
 			}
 
-			case UIMessageId::ANIMATION_STATE:
+			case UIMessageId::SUBSCRIPTION_PAUSE_STATE:
 			{
-				AnimationStateRequest animationStateRequest = AnimationStateRequest::Deserialize(deserializer);
+				PauseStateSubscription pauseStateSubscription;
+				pauseStateSubscription.Deserialize(deserializer);
 
 				std::vector<SubscriptionCallback>& handlers = iterator->second;
 				for (SubscriptionCallback& handler : handlers)
 				{
-					handler(&animationStateRequest, callback);
+					handler(&pauseStateSubscription, callback);
 				}
 
 				return true;
+			}
+
+			case UIMessageId::SUBSCRIPTION_ANIMATION_STATE:
+			{
+				AnimationStateSubscription animationStateSubscription;
+				animationStateSubscription.Deserialize(deserializer);
+
+				std::vector<SubscriptionCallback>& handlers = iterator->second;
+				for (SubscriptionCallback& handler : handlers)
+				{
+					handler(&animationStateSubscription, callback);
+				}
+
+				return true;
+			}
+
+			default:
+			{
+				printf("unsupported message id: %u\n", id);
 			}
 		}
 	}
