@@ -1,29 +1,4 @@
 import eventemitter3 from "eventemitter3";
-import cstruct from "c-struct";
-
-export const togglePauseRequestSchema = new cstruct.Schema({
-  id: cstruct.type.uint32,
-  _: cstruct.type.uint8
-});
-
-export const togglePauseResponseSchema = new cstruct.Schema({
-  isPaused: cstruct.type.uint8
-});
-
-const animationStateRequestSchema = new cstruct.Schema({
-  id: cstruct.type.uint32,
-  _: cstruct.type.uint8
-});
-
-const animationStateResponseSchema = new cstruct.Schema({
-  currentTime: cstruct.type.uint32,
-  duration: cstruct.type.uint32
-});
-
-cstruct.register('TogglePauseRequest', togglePauseRequestSchema);
-cstruct.register('TogglePauseResponse', togglePauseResponseSchema);
-cstruct.register('AnimationStateRequest', animationStateRequestSchema);
-cstruct.register('AnimationStateResponse', animationStateResponseSchema);
 
 export const sendMessage = (action) => {
   return new Promise((resolve, reject) => {
@@ -37,29 +12,26 @@ export const sendMessage = (action) => {
 };
 
 export const sendToggleAnimationRequest = () => {
-  const message = cstruct.packSync('TogglePauseRequest', {
+  const message = {
     id: 0
-  });
-  return sendMessage(message.toString()).then((data) => {
-    const buf = Buffer.from(data);
-    return cstruct.unpackSync('TogglePauseResponse', buf);
+  };
+  return sendMessage(JSON.stringify(message)).then((data) => {
+    return JSON.parse(data);
   });
 };
 
 export const subscribeToAnimationState = (handler) => {
-  const message = cstruct.packSync('AnimationStateRequest', {
+  const message = {
     id: 1
-  });
+  };
   window.cefQuery({
-    request: message.toString(),
+    request: JSON.stringify(message),
     persistent: true,
-    onSuccess: (success) => {
-      const buf = Buffer.from(success);
-      const data = cstruct.unpackSync('AnimationStateResponse', buf);
-      handler(data);
+    onSuccess: (data) => {
+      handler(JSON.parse(data));
     },
-    onFailure: (failure) => {
-      console.log(failure);
+    onFailure: (data) => {
+      console.log(data);
     }
   });
 };

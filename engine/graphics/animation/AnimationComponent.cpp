@@ -235,7 +235,7 @@ namespace CE
 		Animation* animation = &m_animations->at(m_currentAnimation);
 		AnimationCache* animationCache = &m_animationCaches[m_currentAnimation];
 
-		animationStateResponse.currentTime = (unsigned) animationCache->currTime;
-		animationStateResponse.duration = (unsigned) animation->duration;
+		animationStateResponse.currentTime = animationCache->currTime;
+		animationStateResponse.duration = animation->duration;
 	}
 }

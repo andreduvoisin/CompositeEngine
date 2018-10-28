@@ -1,4 +1,5 @@
 #include <SDL.h>
+#include <SDL_syswm.h>
 #include <GL\glew.h>
 #include <SDL_opengl.h>
 #include <glm\glm.hpp>
@@ -35,14 +36,12 @@
 #include "include/cef_app.h"
 #include "ui/UIClient.h"
 #include "ui/UIRenderHandler.h"
-#include "SDL_syswm.h"
 #include "ui/UIApp.h"
 #include "ui/UIBrowserProcessHandler.h"
 #include "ui/UIRequestHandler.h"
 #include "ui/UILifeSpanHandler.h"
 #include "ui/UIRenderProcessHandler.h"
 #include "ui/UIQueryHandler.h"
-#include "ui/message/OutputBufferStream.h"
 #include "ui/message/TogglePauseMessage.h"
 #include "ui/message/AnimationStateMessage.h"
 
@@ -686,8 +685,7 @@ void HandleTogglePauseRequest(void* request, CefRefPtr<CefMessageRouterBrowserSi
 	TogglePauseResponse toggleAnimationResponse;
 	toggleAnimationResponse.isPaused = g_isPaused;
 
-	OutputBufferStream outputStream;
-	std::string buffer = TogglePauseResponse::Serialize(toggleAnimationResponse, outputStream);
+	std::string buffer = TogglePauseResponse::Serialize(toggleAnimationResponse);
 	callback->Success(buffer);
 }
 
@@ -707,8 +705,7 @@ void SendAnimationState()
 	AnimationStateResponse animationStateResponse;
 	g_animationComponent->FillAnimationStateResponse(animationStateResponse);
 
-	OutputBufferStream outputStream;
-	std::string buffer = AnimationStateResponse::Serialize(animationStateResponse, outputStream);
+	std::string buffer = AnimationStateResponse::Serialize(animationStateResponse);
 	g_animationStateCallback->Success(buffer);
 }
 

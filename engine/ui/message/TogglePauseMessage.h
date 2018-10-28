@@ -1,20 +1,14 @@
 #ifndef _CE_TOGGLE_PAUSE_MESSAGE_H_
 #define _CE_TOGGLE_PAUSE_MESSAGE_H_
 
-#include "InputBufferStream.h"
-#include "OutputBufferStream.h"
+#include "JsonSerializer.h"
+#include "JsonDeserializer.h"
 
 struct TogglePauseRequest
 {
-	static std::string Serialize(const TogglePauseRequest& message, OutputBufferStream& stream)
+	static TogglePauseRequest Deserialize(const JsonDeserializer& deserializer)
 	{
-		stream.Write(message);
-		return stream.ToString();
-	}
-
-	static TogglePauseRequest Deserialize(InputBufferStream& stream)
-	{
-		return stream.Read<TogglePauseRequest>();
+		return TogglePauseRequest();
 	}
 };
 
@@ -22,15 +16,11 @@ struct TogglePauseResponse
 {
 	bool isPaused;
 
-	static std::string Serialize(const TogglePauseResponse& message, OutputBufferStream& stream)
+	static std::string Serialize(const TogglePauseResponse& message)
 	{
-		stream.Write(message);
-		return stream.ToString();
-	}
-
-	static TogglePauseResponse Deserialize(InputBufferStream& stream)
-	{
-		return stream.Read<TogglePauseResponse>();
+		JsonSerializer serializer;
+		serializer.WriteBool("isPaused", message.isPaused);
+		return serializer.ToString();
 	}
 };
 
