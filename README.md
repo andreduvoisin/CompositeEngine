@@ -55,7 +55,7 @@ GAME ENGINE BADASSERY
 	* Reference: https://bitbucket.org/chromiumembedded/cef/wiki/Home
 
 * RapidJSON: https://github.com/Tencent/rapidjson
-	* 1.1.0: https://github.com/Tencent/rapidjson/releases/tag/v1.1.0
+	* 67fac85 (master): https://github.com/Tencent/rapidjson/tree/67fac85e96220f69076121d569abd15471abb6bf
 	* Reference: http://rapidjson.org/
 
 ### Resources ###

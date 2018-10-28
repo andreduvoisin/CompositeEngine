@@ -121,4 +121,4 @@ if(WIN32)
 endif()
 
 # RapidJSON
-include_directories("${EXTERN_DIR}/rapidjson-1.1.0/include")
+include_directories("${EXTERN_DIR}/rapidjson-67fac85/include")
