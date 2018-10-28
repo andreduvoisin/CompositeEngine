@@ -1,27 +1,28 @@
 #ifndef _CE_TOGGLE_PAUSE_MESSAGE_H_
 #define _CE_TOGGLE_PAUSE_MESSAGE_H_
 
-#include "JsonSerializer.h"
+#include "UIMessage.h"
 #include "JsonDeserializer.h"
 
-struct TogglePauseRequest
+class TogglePauseRequest : public UIMessageRequest
 {
-	static TogglePauseRequest Deserialize(const JsonDeserializer& deserializer)
-	{
-		return TogglePauseRequest();
-	}
+public:
+	TogglePauseRequest();
+
+protected:
+	void DeserializeInternal(const JsonDeserializer& deserializer) override;
 };
 
-struct TogglePauseResponse
+class TogglePauseResponse : public UIMessageResponse
 {
-	bool isPaused;
+public:
+	TogglePauseResponse(bool isPaused);
 
-	static std::string Serialize(const TogglePauseResponse& message)
-	{
-		JsonSerializer serializer;
-		serializer.WriteBool("isPaused", message.isPaused);
-		return serializer.ToString();
-	}
+protected:
+	void SerializeInternal(JsonSerializer& serializer) const override;
+
+private:
+	bool isPaused;
 };
 
 #endif // _CE_TOGGLE_PAUSE_MESSAGE_H_

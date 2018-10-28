@@ -682,10 +682,8 @@ void HandleTogglePauseRequest(void* request, CefRefPtr<CefMessageRouterBrowserSi
 {
 	g_isPaused = !g_isPaused;
 
-	TogglePauseResponse toggleAnimationResponse;
-	toggleAnimationResponse.isPaused = g_isPaused;
-
-	std::string buffer = TogglePauseResponse::Serialize(toggleAnimationResponse);
+	TogglePauseResponse togglePauseResponse(g_isPaused);
+	std::string buffer = togglePauseResponse.Serialize();
 	callback->Success(buffer);
 }
 
@@ -741,8 +739,8 @@ bool StartCef()
 	// g_browser->GetMainFrame()->LoadString(source, "about:blank");
 	g_browser->GetMainFrame()->LoadURL("http://localhost:3000");
 
-	queryHandler->Subscribe(MessageType::TOGGLE_PAUSE, &HandleTogglePauseRequest);
-	queryHandler->Subscribe(MessageType::ANIMATION_STATE, &HandleAnimationStateRequest);
+	queryHandler->Subscribe(UIMessageId::TOGGLE_PAUSE, &HandleTogglePauseRequest);
+	queryHandler->Subscribe(UIMessageId::ANIMATION_STATE, &HandleAnimationStateRequest);
 
 	return true;
 }

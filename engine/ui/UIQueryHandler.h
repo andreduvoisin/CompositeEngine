@@ -1,7 +1,7 @@
 #ifndef _CE_UI_QUERY_HANDLER_H_
 #define _CE_UI_QUERY_HANDLER_H_
 
-#include "message/MessageType.h"
+#include "message/UIMessageId.h"
 
 #include "include/wrapper/cef_message_router.h"
 
@@ -26,11 +26,11 @@ public:
 		int64 query_id) override;
 
 	void Subscribe(
-		MessageType type,
+		UIMessageId type,
 		SubscriptionCallback handler);
 
 private:
-	std::unordered_map<MessageType, std::vector<SubscriptionCallback>> registeredCallbacks;
+	std::unordered_map<UIMessageId, std::vector<SubscriptionCallback>> registeredCallbacks;
 };
 
 #endif //_CE_UI_QUERY_HANDLER_H_

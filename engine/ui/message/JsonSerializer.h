@@ -11,6 +11,7 @@ public:
 
 	void WriteBool(const char* key, bool value);
 	void WriteFloat(const char* key, float value);
+	void WriteUint32(const char* key, uint32_t value);
 
 	const char* ToString();
 
