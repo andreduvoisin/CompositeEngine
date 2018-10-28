@@ -18,6 +18,12 @@ void JsonSerializer::WriteFloat(const char* key, float value)
 	writer.Double(value);
 }
 
+void JsonSerializer::WriteUint32(const char* key, uint32_t value)
+{
+	writer.Key(key);
+	writer.Uint(value);
+}
+
 const char* JsonSerializer::ToString()
 {
 	writer.EndObject();

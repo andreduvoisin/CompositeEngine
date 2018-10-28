@@ -1,6 +1,5 @@
 #include "UIQueryHandler.h"
 
-#include "message/JsonSerializer.h"
 #include "message/TogglePauseMessage.h"
 #include "message/AnimationStateMessage.h"
 
@@ -17,18 +16,19 @@ bool UIQueryHandler::OnQuery(
 	// TODO: Defaults to utf-16. Should we default to utf-8?
 	JsonDeserializer deserializer(request.ToString().c_str());
 
-	MessageType messageType = static_cast<MessageType>(deserializer.GetUnsigned("id"));
+	UIMessageId id = static_cast<UIMessageId>(deserializer.GetUint32("id"));
 
-	auto iterator = registeredCallbacks.find(messageType);
+	auto iterator = registeredCallbacks.find(id);
 	if (iterator != registeredCallbacks.end())
 	{
 		printf("found handlers for request: %s\n", request.ToString().c_str());
 
-		switch (messageType)
+		switch (id)
 		{
-			case MessageType::TOGGLE_PAUSE:
+			case UIMessageId::TOGGLE_PAUSE:
 			{
-				TogglePauseRequest togglePauseRequest = TogglePauseRequest::Deserialize(deserializer);
+				TogglePauseRequest togglePauseRequest;
+				togglePauseRequest.Deserialize(deserializer);
 
 				std::vector<SubscriptionCallback>& handlers = iterator->second;
 				for (SubscriptionCallback& handler : handlers)
@@ -39,7 +39,7 @@ bool UIQueryHandler::OnQuery(
 				return true;
 			}
 
-			case MessageType::ANIMATION_STATE:
+			case UIMessageId::ANIMATION_STATE:
 			{
 				AnimationStateRequest animationStateRequest = AnimationStateRequest::Deserialize(deserializer);
 
@@ -67,7 +67,7 @@ void UIQueryHandler::OnQueryCanceled(
 }
 
 void UIQueryHandler::Subscribe(
-		MessageType type,
+		UIMessageId type,
 		SubscriptionCallback handler)
 {
 	printf("registering subscriber for message id: %u\n", type);

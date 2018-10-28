@@ -8,7 +8,7 @@ class JsonDeserializer
 public:
 	JsonDeserializer(const char* json);
 
-	unsigned GetUnsigned(const char* key);
+	uint32_t GetUint32(const char* key) const;
 
 private:
 	rapidjson::Document document;
