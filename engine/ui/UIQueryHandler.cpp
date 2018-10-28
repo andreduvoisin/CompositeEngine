@@ -1,6 +1,6 @@
 #include "UIQueryHandler.h"
 
-#include "message/InputBufferStream.h"
+#include "message/JsonSerializer.h"
 #include "message/TogglePauseMessage.h"
 #include "message/AnimationStateMessage.h"
 
@@ -15,9 +15,9 @@ bool UIQueryHandler::OnQuery(
 	printf("handling message with request: %s\n", request.ToString().c_str());
 
 	// TODO: Defaults to utf-16. Should we default to utf-8?
-	InputBufferStream inputStream(request.ToString());
+	JsonDeserializer deserializer(request.ToString().c_str());
 
-	MessageType messageType = inputStream.Read<MessageType>();
+	MessageType messageType = static_cast<MessageType>(deserializer.GetUnsigned("id"));
 
 	auto iterator = registeredCallbacks.find(messageType);
 	if (iterator != registeredCallbacks.end())
@@ -28,7 +28,7 @@ bool UIQueryHandler::OnQuery(
 		{
 			case MessageType::TOGGLE_PAUSE:
 			{
-				TogglePauseRequest togglePauseRequest = TogglePauseRequest::Deserialize(inputStream);
+				TogglePauseRequest togglePauseRequest = TogglePauseRequest::Deserialize(deserializer);
 
 				std::vector<SubscriptionCallback>& handlers = iterator->second;
 				for (SubscriptionCallback& handler : handlers)
@@ -41,7 +41,7 @@ bool UIQueryHandler::OnQuery(
 
 			case MessageType::ANIMATION_STATE:
 			{
-				AnimationStateRequest animationStateRequest = AnimationStateRequest::Deserialize(inputStream);
+				AnimationStateRequest animationStateRequest = AnimationStateRequest::Deserialize(deserializer);
 
 				std::vector<SubscriptionCallback>& handlers = iterator->second;
 				for (SubscriptionCallback& handler : handlers)
@@ -56,6 +56,14 @@ bool UIQueryHandler::OnQuery(
 
 	printf("no registered handlers for request: %s\n", request.ToString().c_str());
 	return false;
+}
+
+void UIQueryHandler::OnQueryCanceled(
+		CefRefPtr<CefBrowser> browser,
+		CefRefPtr<CefFrame> frame,
+		int64 query_id)
+{
+
 }
 
 void UIQueryHandler::Subscribe(

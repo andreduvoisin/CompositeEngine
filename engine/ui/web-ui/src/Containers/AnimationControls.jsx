@@ -19,7 +19,6 @@ export default connect(
   mapStateToProps,
   mapDispatchToProps
 )((props) => {
-  console.log(JSON.stringify(props))
   return (
     <AnimationControls
       isPlaying={props.animationState.isPlaying}

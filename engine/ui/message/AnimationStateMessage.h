@@ -1,37 +1,28 @@
 #ifndef _CE_ANIMATION_STATE_MESSAGE_H_
 #define _CE_ANIMATION_STATE_MESSAGE_H_
 
-#include "InputBufferStream.h"
-#include "OutputBufferStream.h"
+#include "JsonSerializer.h"
+#include "JsonDeserializer.h"
 
 struct AnimationStateRequest
 {
-	static std::string Serialize(const AnimationStateRequest& message, OutputBufferStream& stream)
+	static AnimationStateRequest Deserialize(const JsonDeserializer& deserializer)
 	{
-		stream.Write(message);
-		return stream.ToString();
-	}
-
-	static AnimationStateRequest Deserialize(InputBufferStream& stream)
-	{
-		return stream.Read<AnimationStateRequest>();
+		return AnimationStateRequest();
 	}
 };
 
 struct AnimationStateResponse
 {
-	unsigned currentTime;
-	unsigned duration;
+	float currentTime;
+	float duration;
 
-	static std::string Serialize(const AnimationStateResponse& message, OutputBufferStream& stream)
+	static std::string Serialize(const AnimationStateResponse& message)
 	{
-		stream.Write(message);
-		return stream.ToString();
-	}
-
-	static AnimationStateResponse Deserialize(InputBufferStream& stream)
-	{
-		return stream.Read<AnimationStateResponse>();
+		JsonSerializer serializer;
+		serializer.WriteFloat("currentTime", message.currentTime);
+		serializer.WriteFloat("duration", message.duration);
+		return serializer.ToString();
 	}
 };
 
