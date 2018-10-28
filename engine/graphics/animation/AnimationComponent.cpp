@@ -230,12 +230,13 @@ namespace CE
 	}
 
 	// TODO: Move out of this file.
-	void AnimationComponent::FillAnimationStateResponse(AnimationStateResponse& animationStateResponse)
+	AnimationStateStatus AnimationComponent::CreateAnimationStateStatus()
 	{
 		Animation* animation = &m_animations->at(m_currentAnimation);
 		AnimationCache* animationCache = &m_animationCaches[m_currentAnimation];
 
-		animationStateResponse.currentTime = animationCache->currTime;
-		animationStateResponse.duration = animation->duration;
+		return AnimationStateStatus(
+			animationCache->currTime,
+			animation->duration);
 	}
 }

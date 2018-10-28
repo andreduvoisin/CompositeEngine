@@ -10,8 +10,8 @@ const {
 
 function* requestToggleAnimationStateAsync() {
   try {
-    const animationState = yield sendToggleAnimationRequest();
-    yield put(toggleAnimationSuccess(animationState));
+    yield sendToggleAnimationRequest();
+    yield put(toggleAnimationSuccess());
   } catch (e) {
     yield put(toggleAnimationFailure());
   }

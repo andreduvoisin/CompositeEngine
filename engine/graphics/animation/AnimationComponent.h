@@ -36,7 +36,7 @@ namespace CE
 
 		void ResetMatrixPalette();
 		// TODO: Move out of this file.
-		void FillAnimationStateResponse(AnimationStateResponse& animationStateResponse);
+		AnimationStateStatus CreateAnimationStateStatus();
 
 		// TODO: Remove.
 		const Skeleton* GetSkeleton() const { return m_skeleton; }

@@ -44,6 +44,8 @@
 #include "ui/UIQueryHandler.h"
 #include "ui/message/TogglePauseMessage.h"
 #include "ui/message/AnimationStateMessage.h"
+#include "ui/message/SuccessMessage.h"
+#include "ui/message/PauseStateMessage.h"
 
 const int SCREEN_WIDTH = 1280;
 const int SCREEN_HEIGHT = 720;
@@ -682,13 +684,31 @@ void HandleTogglePauseRequest(void* request, CefRefPtr<CefMessageRouterBrowserSi
 {
 	g_isPaused = !g_isPaused;
 
-	TogglePauseResponse togglePauseResponse(g_isPaused);
-	std::string buffer = togglePauseResponse.Serialize();
+	SuccessResponse successResponse;
+	std::string buffer = successResponse.Serialize();
 	callback->Success(buffer);
 }
 
+CefRefPtr<CefMessageRouterBrowserSide::Handler::Callback> g_pauseStateCallback;
+void HandlePauseStateSubscription(void* request, CefRefPtr<CefMessageRouterBrowserSide::Handler::Callback> callback)
+{
+	g_pauseStateCallback = callback;
+}
+
+void SendPauseState()
+{
+	if (g_pauseStateCallback.get() == NULL)
+	{
+		return;
+	}
+
+	PauseStateStatus pauseStateStatus(g_isPaused);
+	std::string buffer = pauseStateStatus.Serialize();
+	g_pauseStateCallback->Success(buffer);
+}
+
 CefRefPtr<CefMessageRouterBrowserSide::Handler::Callback> g_animationStateCallback;
-void HandleAnimationStateRequest(void* request, CefRefPtr<CefMessageRouterBrowserSide::Handler::Callback> callback)
+void HandleAnimationStateSubscription(void* request, CefRefPtr<CefMessageRouterBrowserSide::Handler::Callback> callback)
 {
 	g_animationStateCallback = callback;
 }
@@ -700,10 +720,8 @@ void SendAnimationState()
 		return;
 	}
 
-	AnimationStateResponse animationStateResponse;
-	g_animationComponent->FillAnimationStateResponse(animationStateResponse);
-
-	std::string buffer = AnimationStateResponse::Serialize(animationStateResponse);
+	AnimationStateStatus animationStateStatus = g_animationComponent->CreateAnimationStateStatus();
+	std::string buffer = animationStateStatus.Serialize();
 	g_animationStateCallback->Success(buffer);
 }
 
@@ -739,8 +757,9 @@ bool StartCef()
 	// g_browser->GetMainFrame()->LoadString(source, "about:blank");
 	g_browser->GetMainFrame()->LoadURL("http://localhost:3000");
 
-	queryHandler->Subscribe(UIMessageId::TOGGLE_PAUSE, &HandleTogglePauseRequest);
-	queryHandler->Subscribe(UIMessageId::ANIMATION_STATE, &HandleAnimationStateRequest);
+	queryHandler->Subscribe(UIMessageId::REQUEST_TOGGLE_PAUSE, &HandleTogglePauseRequest);
+	queryHandler->Subscribe(UIMessageId::SUBSCRIPTION_PAUSE_STATE, &HandlePauseStateSubscription);
+	queryHandler->Subscribe(UIMessageId::SUBSCRIPTION_ANIMATION_STATE, &HandleAnimationStateSubscription);
 
 	return true;
 }
@@ -1328,7 +1347,9 @@ int main(int argc, char* argv[])
 		}
 
 		g_animationComponent->Update(deltaTime);
+
 		SendAnimationState();
+		SendPauseState();
 
 		CefDoMessageLoopWork();
 

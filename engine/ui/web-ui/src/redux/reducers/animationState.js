@@ -13,7 +13,7 @@ export default (
 
   switch (action.type) {
 
-    case AnimationMutationTypes.TOGGLE_ANIMATION_SUCCESS:
+    case AnimationMutationTypes.PAUSE_STATE_UPDATE:
       return {
         ...state,
         isPlaying: action.payload.isPaused === 0
