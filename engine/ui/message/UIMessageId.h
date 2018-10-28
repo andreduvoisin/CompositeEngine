@@ -4,7 +4,7 @@
 #include <cstdint>
 
 /**
- * A REQUEST_* always merits a RESPONSE_SUCCESS or a RESPONSE_FAILURE.
+ * A REQUEST_* always merits a RESPONSE_SUCCESS or a RESPONSE_FAILURE
  * and is not allowed to be persistent; it will be cancelled if so.
  * Any relevant data changes will be pushed back on the SUBSCRIPTION_* channel.
  * 
