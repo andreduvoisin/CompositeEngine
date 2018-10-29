@@ -16,14 +16,14 @@ export default (
     case AnimationMutationTypes.PAUSE_STATE_UPDATE:
       return {
         ...state,
-        isPlaying: action.payload.isPaused === 0
+        isPlaying: action.payload.isPaused !== true
       };
 
     case AnimationMutationTypes.ANIMATION_STATE_UPDATE:
       return {
         ...state,
         currentTime: action.payload.currentTime,
-        duration: action.payload.duration,
+        duration: action.payload.duration
       };
 
     default:
