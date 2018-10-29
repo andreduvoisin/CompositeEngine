@@ -21,11 +21,12 @@ class App extends Component {
         <React.Fragment>
           {(debugLayout) ? <DebugStyles /> : null}
           <GlobalStyles />
+          <Taskbar></Taskbar>
           <Taskbar>
             <AnimationControls />
           </Taskbar>
           <Layout.FullHeightContainer>
-            <Layout.Sidebar width={26}>
+            <Layout.Sidebar width={90}>
               <Sidebar />
             </Layout.Sidebar>
             <Layout.Center />
