@@ -10,7 +10,7 @@ const Container = styled.div`
   padding: 7px;
 `;
 
-const Taskbar = (props) => {
+const Toolbar = (props) => {
   return (
     <Container>
       {(props.children) ? props.children : null}
@@ -18,4 +18,4 @@ const Taskbar = (props) => {
   );
 };
 
-export default Taskbar;
+export default Toolbar;

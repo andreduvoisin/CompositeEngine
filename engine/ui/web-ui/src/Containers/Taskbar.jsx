@@ -1,5 +1,5 @@
 import { connect } from 'react-redux';
-import Taskbar from '../Components/Taskbar';
+import Toolbar from '../Components/Toolbar';
 import { toggleAnimation } from "../redux/actions";
 
 const mapStateToProps = (state) => {
@@ -17,4 +17,4 @@ const mapDispatchToProps = (dispatch) => {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(Taskbar);
+)(Toolbar);
