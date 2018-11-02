@@ -7,7 +7,7 @@ import { ThemeProvider } from 'styled-components';
 import DebugStyles from './Components/DebugStyles';
 import GlobalStyles from './Components/GlobalStyles';
 import Layout from './Components/Layout';
-import Taskbar from './Components/Taskbar';
+import Toolbar from './Components/Toolbar';
 import Sidebar from './Components/Sidebar';
 import AnimationControls from './Containers/AnimationControls';
 import theme from './theme';
@@ -21,10 +21,10 @@ class App extends Component {
         <React.Fragment>
           {(debugLayout) ? <DebugStyles /> : null}
           <GlobalStyles />
-          <Taskbar></Taskbar>
-          <Taskbar>
+          <Toolbar></Toolbar>
+          <Toolbar>
             <AnimationControls />
-          </Taskbar>
+          </Toolbar>
           <Layout.FullHeightContainer>
             <Layout.Sidebar width={90}>
               <Sidebar />

@@ -8,7 +8,7 @@ const AnimationControlsList = styled.ul`
   text-align: center;
   margin: 0;
   padding: 0;
-    cursor: pointer;
+  cursor: pointer;
 `;
 
 const AnimationControlsListItem = styled.li`

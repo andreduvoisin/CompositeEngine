@@ -14,7 +14,7 @@ import * as serviceWorker from './serviceWorker';
 import { subscribeToPauseState, subscribeToAnimationState } from './ipc';
 
 // create the saga middleware
-const sagaMiddleware = createSagaMiddleware()
+const sagaMiddleware = createSagaMiddleware();
 
 // create the redux store
 const enhancers = composeWithDevTools(

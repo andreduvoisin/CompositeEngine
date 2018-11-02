@@ -1,15 +1,15 @@
 import eventemitter3 from "eventemitter3";
 
 const MessageId = Object.freeze({
-  RESPONSE_SUCCESS:               0,
-  RESPONSE_FAILURE:               1,
-  
-  REQUEST_TOGGLE_PAUSE:           2,
-  SUBSCRIPTION_PAUSE_STATE:       3,
-  STATUS_PAUSE_STATE:             4,
-  
-  SUBSCRIPTION_ANIMATION_STATE:   5,
-  STATUS_ANIMATION_STATE:         6
+  RESPONSE_SUCCESS: 0,
+  RESPONSE_FAILURE: 1,
+
+  REQUEST_TOGGLE_PAUSE: 2,
+  SUBSCRIPTION_PAUSE_STATE: 3,
+  STATUS_PAUSE_STATE: 4,
+
+  SUBSCRIPTION_ANIMATION_STATE: 5,
+  STATUS_ANIMATION_STATE: 6
 })
 
 export const sendMessage = (action) => {

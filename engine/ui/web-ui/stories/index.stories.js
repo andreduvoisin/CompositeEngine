@@ -8,7 +8,7 @@ import React from 'react';
 import AnimationControls from '../src/Components/AnimationControls';
 import BnetAlert from '../src/Components/BnetAlert';
 import Slider from '../src/Components/Slider';
-import Taskbar from '../src/Components/Taskbar';
+import Toolbar from '../src/Components/Toolbar';
 import Layout from '../src/Components/Layout';
 
 storiesOf('Welcome', module).add('to Storybook', () => <Welcome showApp={linkTo('Button')} />);
@@ -22,10 +22,10 @@ storiesOf('BnetAlert', module)
     );
   });
 
-storiesOf('Taskbar', module)
+storiesOf('Toolbar', module)
   .add('Default', () => {
     return (
-      <Taskbar></Taskbar>
+      <Toolbar></Toolbar>
     );
   })
   .add('With Animation Controls', () => {
@@ -38,7 +38,7 @@ storiesOf('Taskbar', module)
     };
     return (
       <React.Fragment>
-        <Taskbar>
+        <Toolbar>
           <Layout.Container>
             <Layout.Center>
               <State store={store}>
@@ -49,7 +49,7 @@ storiesOf('Taskbar', module)
               </State>
             </Layout.Center>
           </Layout.Container>
-        </Taskbar>
+        </Toolbar>
       </React.Fragment>
     );
   });
@@ -57,24 +57,24 @@ storiesOf('Taskbar', module)
 storiesOf('Slider', module)
   .add('Default', () => {
     return (
-      <Taskbar>
+      <Toolbar>
         <Slider></Slider>
-      </Taskbar>
+      </Toolbar>
     );
   })
   .add('With Step', () => {
     return (
-      <Taskbar>
+      <Toolbar>
         <Slider
           min={0}
           max={100}
           step={25} />
-      </Taskbar>
+      </Toolbar>
     );
   })
   .add('With change handler', () => {
     return (
-      <Taskbar>
+      <Toolbar>
         <Slider
           min={0}
           max={100}
@@ -82,6 +82,6 @@ storiesOf('Slider', module)
             action('slider change');
           }}
         />
-      </Taskbar>
+      </Toolbar>
     );
   });

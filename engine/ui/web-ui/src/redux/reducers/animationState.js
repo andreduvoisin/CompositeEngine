@@ -27,6 +27,6 @@ export default (
       };
 
     default:
-      return state
+      return state;
   }
 };
