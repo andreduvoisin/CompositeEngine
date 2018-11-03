@@ -10,7 +10,6 @@ import './index.css';
 import reducer from './redux/reducers/index';
 import { updatePauseState, updateAnimationState } from './redux/actions';
 import rootSaga from './redux/sagas';
-import * as serviceWorker from './serviceWorker';
 import { subscribeToPauseState, subscribeToAnimationState } from './ipc';
 
 // create the saga middleware
