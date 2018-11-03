@@ -3,6 +3,7 @@
 #include "message/TogglePauseMessage.h"
 #include "message/AnimationStateMessage.h"
 #include "message/PauseStateMessage.h"
+#include "message/SetAnimationTimeMessage.h"
 
 bool UIQueryHandler::OnQuery(
 		CefRefPtr<CefBrowser> browser,
@@ -49,6 +50,20 @@ bool UIQueryHandler::OnQuery(
 				for (SubscriptionCallback& handler : handlers)
 				{
 					handler(&pauseStateSubscription, callback);
+				}
+
+				return true;
+			}
+
+			case UIMessageId::REQUEST_SET_ANIMATION_TIME:
+			{
+				SetAnimationTimeRequest setAnimationTimeRequest;
+				setAnimationTimeRequest.Deserialize(deserializer);
+
+				std::vector<SubscriptionCallback>& handlers = iterator->second;
+				for (SubscriptionCallback& handler : handlers)
+				{
+					handler(&setAnimationTimeRequest, callback);
 				}
 
 				return true;

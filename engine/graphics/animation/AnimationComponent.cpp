@@ -239,4 +239,11 @@ namespace CE
 			animationCache->currTime,
 			animation->duration);
 	}
+
+	void AnimationComponent::SetAnimationTime(float time)
+	{
+		// TODO: There's definitely more to do here. I think this should also do a FindInterpolationKeys?
+		AnimationCache* animationCache = &m_animationCaches[m_currentAnimation];
+		animationCache->currTime = time;
+	}
 }

@@ -46,6 +46,7 @@
 #include "ui/message/AnimationStateMessage.h"
 #include "ui/message/SuccessMessage.h"
 #include "ui/message/PauseStateMessage.h"
+#include "ui/message/SetAnimationTimeMessage.h"
 
 const int SCREEN_WIDTH = 1280;
 const int SCREEN_HEIGHT = 720;
@@ -707,6 +708,16 @@ void SendPauseState()
 	g_pauseStateCallback->Success(buffer);
 }
 
+void HandleSetAnimationTimeRequest(void* request, CefRefPtr<CefMessageRouterBrowserSide::Handler::Callback> callback)
+{
+	SetAnimationTimeRequest* setAnimationTimeRequest = reinterpret_cast<SetAnimationTimeRequest*>(request);
+	g_animationComponent->SetAnimationTime(setAnimationTimeRequest->GetTime());
+
+	SuccessResponse successResponse;
+	std::string buffer = successResponse.Serialize();
+	callback->Success(buffer);
+}
+
 CefRefPtr<CefMessageRouterBrowserSide::Handler::Callback> g_animationStateCallback;
 void HandleAnimationStateSubscription(void* request, CefRefPtr<CefMessageRouterBrowserSide::Handler::Callback> callback)
 {
@@ -759,6 +770,7 @@ bool StartCef()
 
 	queryHandler->Subscribe(UIMessageId::REQUEST_TOGGLE_PAUSE, &HandleTogglePauseRequest);
 	queryHandler->Subscribe(UIMessageId::SUBSCRIPTION_PAUSE_STATE, &HandlePauseStateSubscription);
+	queryHandler->Subscribe(UIMessageId::REQUEST_SET_ANIMATION_TIME, &HandleSetAnimationTimeRequest);
 	queryHandler->Subscribe(UIMessageId::SUBSCRIPTION_ANIMATION_STATE, &HandleAnimationStateSubscription);
 
 	return true;

@@ -35,8 +35,10 @@ namespace CE
 			GLuint g_paletteID);
 
 		void ResetMatrixPalette();
+
 		// TODO: Move out of this file.
 		AnimationStateStatus CreateAnimationStateStatus();
+		void SetAnimationTime(float time);
 
 		// TODO: Remove.
 		const Skeleton* GetSkeleton() const { return m_skeleton; }
