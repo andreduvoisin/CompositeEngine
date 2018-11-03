@@ -944,6 +944,8 @@ bool Initialize()
 		printf("Warning: Unable to set VSync! SDL_Error: %s\n", SDL_GetError());
 	}
 
+	SDL_SetHint(SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH, "1");
+
 	//CE::MeshManager::Get().Initialize(g_fbxImporter);
 	//CE::AnimationManager::Get().Initialize(g_fbxImporter);
 	//CE::SkeletonManager::Get().Initialize(g_fbxImporter);
