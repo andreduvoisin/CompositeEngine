@@ -1,11 +1,15 @@
 #ifndef _CE_ANIMATION_COMPONENT_H_
 #define _CE_ANIMATION_COMPONENT_H_
 
+#include "ui/message/AnimationStateMessage.h"
+#include "event/core/EventReceiver.h"
+
 #include <glm\glm.hpp>
 
 #include <vector>
-#include "ui/message/AnimationStateMessage.h"
+#include "AnimationEventHandler.h"
 
+class EventSystem;
 typedef unsigned int GLuint;
 
 namespace CE
@@ -25,7 +29,10 @@ namespace CE
 	class AnimationComponent
 	{
 	public:
-		AnimationComponent(Skeleton* skeleton, Animations* animations);
+		AnimationComponent(
+			Skeleton* skeleton,
+			Animations* animations,
+			EventSystem* eventSystem);
 
 		void Update(float deltaTime);
 		void BindMatrixPalette(
@@ -36,10 +43,6 @@ namespace CE
 
 		void ResetMatrixPalette();
 
-		// TODO: Move out of this file.
-		AnimationStateStatus CreateAnimationStateStatus();
-		void SetAnimationTime(float time);
-
 		// TODO: Remove.
 		const Skeleton* GetSkeleton() const { return m_skeleton; }
 
@@ -48,14 +51,15 @@ namespace CE
 		void InitializePalette();
 		void FindInterpolationKeys(int currentJoint);
 
-	private:
+		AnimationEventHandler animationEventHandler;
+
 		Skeleton* m_skeleton;
 		Animations* m_animations;
-
 		std::vector<AnimationCache> m_animationCaches;
 		std::vector<glm::mat4> m_palette;
-
 		int m_currentAnimation;
+
+		friend class AnimationEventHandler;
 	};
 }
 

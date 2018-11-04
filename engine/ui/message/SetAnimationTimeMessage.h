@@ -4,18 +4,14 @@
 #include "UIMessage.h"
 #include "JsonDeserializer.h"
 
-class SetAnimationTimeRequest : public UIMessageRequest
+struct SetAnimationTimeRequest : UIMessageRequest
 {
-public:
 	SetAnimationTimeRequest();
 
-	float GetTime() const { return time; }
+	float time;
 
 protected:
 	void DeserializeInternal(const JsonDeserializer& deserializer) override;
-
-private:
-	float time;
 };
 
 #endif // _CE_SET_ANIMATION_TIME_MESSAGE_H_

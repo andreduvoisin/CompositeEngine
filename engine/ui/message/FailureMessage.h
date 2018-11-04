@@ -3,9 +3,8 @@
 
 #include "UIMessage.h"
 
-class FailureResponse : public UIMessageResponse
+struct FailureResponse : UIMessageResponse
 {
-public:
 	FailureResponse();
 
 protected:

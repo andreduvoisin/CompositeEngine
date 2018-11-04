@@ -8,21 +8,16 @@
 
 #include <string>
 
-class UIMessage
+struct UIMessage
 {
-public:
 	UIMessage(UIMessageId id);
 	virtual ~UIMessage() = default;
 
-	UIMessageId GetId() const { return id; } 
-
-private:
 	UIMessageId id;
 };
 
-class UIMessageRequest : public UIMessage
+struct UIMessageRequest : UIMessage
 {
-public:
 	UIMessageRequest(UIMessageId id);
 	void Deserialize(const JsonDeserializer& deserializer);
 
@@ -30,9 +25,8 @@ protected:
 	virtual void DeserializeInternal(const JsonDeserializer& deserializer) = 0;
 };
 
-class UIMessageResponse : public UIMessage
+struct UIMessageResponse : UIMessage
 {
-public:
 	UIMessageResponse(UIMessageId id);
 	std::string Serialize() const;
 

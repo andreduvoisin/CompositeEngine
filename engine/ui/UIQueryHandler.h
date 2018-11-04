@@ -1,36 +1,31 @@
 #ifndef _CE_UI_QUERY_HANDLER_H_
 #define _CE_UI_QUERY_HANDLER_H_
 
-#include "message/UIMessageId.h"
-
 #include "include/wrapper/cef_message_router.h"
 
-#include <functional>
-#include <unordered_map>
+class EventSystem;
+class UIQueryResponder;
 
 class UIQueryHandler : public CefMessageRouterBrowserSide::Handler
 {
 public:
-	typedef std::function<void(void* request, CefRefPtr<Callback> callback)> SubscriptionCallback;
+	UIQueryHandler(EventSystem* eventSystem, UIQueryResponder* queryResponder);
 
 	bool OnQuery(
 		CefRefPtr<CefBrowser> browser,
 		CefRefPtr<CefFrame> frame,
-		int64 query_id,
+		int64 queryId,
 		const CefString& request,
 		bool persistent,
 		CefRefPtr<Callback> callback) override;
 
 	void OnQueryCanceled(CefRefPtr<CefBrowser> browser,
 		CefRefPtr<CefFrame> frame,
-		int64 query_id) override;
-
-	void Subscribe(
-		UIMessageId type,
-		SubscriptionCallback handler);
+		int64 queryId) override;
 
 private:
-	std::unordered_map<UIMessageId, std::vector<SubscriptionCallback>> registeredCallbacks;
+	EventSystem* eventSystem;
+	UIQueryResponder* queryResponder;
 };
 
 #endif //_CE_UI_QUERY_HANDLER_H_

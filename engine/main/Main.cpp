@@ -47,6 +47,8 @@
 #include "ui/message/SuccessMessage.h"
 #include "ui/message/PauseStateMessage.h"
 #include "ui/message/SetAnimationTimeMessage.h"
+#include "core/Engine.h"
+#include "ui/UIQueryResponder.h"
 
 const int SCREEN_WIDTH = 1280;
 const int SCREEN_HEIGHT = 720;
@@ -96,9 +98,10 @@ int g_renderType = 0;
 
 CefRefPtr<UIClient> g_uiClient;
 CefRefPtr<CefBrowser> g_browser;
-UIQueryHandler* queryHandler = new UIQueryHandler();
 
-bool g_isPaused = false;
+EventSystem* eventSystem;
+CE::Engine* engine;
+UIQueryHandler* queryHandler;
 
 void printProgramLog(GLuint program)
 {
@@ -616,7 +619,7 @@ bool InitializeOpenGL()
 		*texture);
 
 	g_meshComponent = new CE::MeshComponent(meshes, texture);
-	g_animationComponent = new CE::AnimationComponent(skeleton, animations);
+	g_animationComponent = new CE::AnimationComponent(skeleton, animations, eventSystem);
 
 	glGenVertexArrays(1, &g_vao);
 	glBindVertexArray(g_vao);
@@ -681,61 +684,6 @@ int InitializeCef()
 	return -1;
 }
 
-void HandleTogglePauseRequest(void* request, CefRefPtr<CefMessageRouterBrowserSide::Handler::Callback> callback)
-{
-	g_isPaused = !g_isPaused;
-
-	SuccessResponse successResponse;
-	std::string buffer = successResponse.Serialize();
-	callback->Success(buffer);
-}
-
-CefRefPtr<CefMessageRouterBrowserSide::Handler::Callback> g_pauseStateCallback;
-void HandlePauseStateSubscription(void* request, CefRefPtr<CefMessageRouterBrowserSide::Handler::Callback> callback)
-{
-	g_pauseStateCallback = callback;
-}
-
-void SendPauseState()
-{
-	if (g_pauseStateCallback.get() == NULL)
-	{
-		return;
-	}
-
-	PauseStateStatus pauseStateStatus(g_isPaused);
-	std::string buffer = pauseStateStatus.Serialize();
-	g_pauseStateCallback->Success(buffer);
-}
-
-void HandleSetAnimationTimeRequest(void* request, CefRefPtr<CefMessageRouterBrowserSide::Handler::Callback> callback)
-{
-	SetAnimationTimeRequest* setAnimationTimeRequest = reinterpret_cast<SetAnimationTimeRequest*>(request);
-	g_animationComponent->SetAnimationTime(setAnimationTimeRequest->GetTime());
-
-	SuccessResponse successResponse;
-	std::string buffer = successResponse.Serialize();
-	callback->Success(buffer);
-}
-
-CefRefPtr<CefMessageRouterBrowserSide::Handler::Callback> g_animationStateCallback;
-void HandleAnimationStateSubscription(void* request, CefRefPtr<CefMessageRouterBrowserSide::Handler::Callback> callback)
-{
-	g_animationStateCallback = callback;
-}
-
-void SendAnimationState()
-{
-	if (g_animationStateCallback.get() == NULL)
-	{
-		return;
-	}
-
-	AnimationStateStatus animationStateStatus = g_animationComponent->CreateAnimationStateStatus();
-	std::string buffer = animationStateStatus.Serialize();
-	g_animationStateCallback->Success(buffer);
-}
-
 bool StartCef()
 {
 	CefRefPtr<CefMessageRouterBrowserSide> messageRouterBrowserSide = CefMessageRouterBrowserSide::Create(messageRouterConfig);
@@ -767,11 +715,6 @@ bool StartCef()
 	// std::string source = ReadFile("..\\..\\..\\..\\engine\\ui\\KevinsABitch.html");
 	// g_browser->GetMainFrame()->LoadString(source, "about:blank");
 	g_browser->GetMainFrame()->LoadURL("http://localhost:3000");
-
-	queryHandler->Subscribe(UIMessageId::REQUEST_TOGGLE_PAUSE, &HandleTogglePauseRequest);
-	queryHandler->Subscribe(UIMessageId::SUBSCRIPTION_PAUSE_STATE, &HandlePauseStateSubscription);
-	queryHandler->Subscribe(UIMessageId::REQUEST_SET_ANIMATION_TIME, &HandleSetAnimationTimeRequest);
-	queryHandler->Subscribe(UIMessageId::SUBSCRIPTION_ANIMATION_STATE, &HandleAnimationStateSubscription);
 
 	return true;
 }
@@ -962,6 +905,10 @@ bool Initialize()
 	//CE::AnimationManager::Get().Initialize(g_fbxImporter);
 	//CE::SkeletonManager::Get().Initialize(g_fbxImporter);
 	//CE::TextureManager::Get().Initialize(g_stbiImporter);
+
+	eventSystem = new EventSystem();
+	engine = new CE::Engine(eventSystem);
+	queryHandler = new UIQueryHandler(eventSystem, new UIQueryResponder(eventSystem));
 
 	if (!InitializeOpenGL())
 	{
@@ -1219,7 +1166,7 @@ int main(int argc, char* argv[])
 		last = now;
 		now = SDL_GetPerformanceCounter();
 
-		if (!g_isPaused)
+		if (!engine->IsPaused())
 		{
 			deltaTime = float((now - last) * 1000) / SDL_GetPerformanceFrequency();
 		}
@@ -1362,8 +1309,8 @@ int main(int argc, char* argv[])
 
 		g_animationComponent->Update(deltaTime);
 
-		SendAnimationState();
-		SendPauseState();
+		// TODO: Where does this go?
+		eventSystem->DispatchEvents();
 
 		CefDoMessageLoopWork();
 

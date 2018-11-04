@@ -11,7 +11,7 @@
  * A SUBSCRIPTION_* always merits a STATUS_* and can either be persistent
  * or nonpersistent; it will only receive one STATUS_* if nonpersistent.
  */
-enum UIMessageId : uint32_t
+enum class UIMessageId : uint32_t
 {
 	RESPONSE_SUCCESS				= 0,
 	RESPONSE_FAILURE				= 1,
