@@ -5,6 +5,7 @@ export const AnimationMutationTypes = {
   TOGGLE_ANIMATION_FAILURE: 'TOGGLE_ANIMATION_FAILURE',
   PAUSE_STATE_UPDATE: 'PAUSE_STATE_UPDATE',
   ANIMATION_STATE_UPDATE: 'ANIMATION_STATE_UPDATE',
+  SET_ANIMATION_TIME: 'SET_ANIMATION_TIME',
 }
 
 export const toggleAnimation = () => {
@@ -36,5 +37,12 @@ export const updateAnimationState = (animationState) => {
   return {
     type: AnimationMutationTypes.ANIMATION_STATE_UPDATE,
     payload: animationState
+  };
+};
+
+export const setAnimationTime = (time) => {
+  return {
+    type: AnimationMutationTypes.SET_ANIMATION_TIME,
+    payload: parseInt(time)
   };
 };

@@ -1,8 +1,9 @@
-'use strict';
+
 
 const errorOverlayMiddleware = require('react-dev-utils/errorOverlayMiddleware');
 const evalSourceMapMiddleware = require('react-dev-utils/evalSourceMapMiddleware');
-const noopServiceWorkerMiddleware = require('react-dev-utils/noopServiceWorkerMiddleware');
+// const noopServiceWorkerMiddleware = require('react-dev-utils/noopServiceWorkerMiddleware');
+const webpackDevServerWaitpage = require('webpack-dev-server-waitpage');
 const ignoredFiles = require('react-dev-utils/ignoredFiles');
 const config = require('./webpack.config.dev');
 const paths = require('./paths');
@@ -88,6 +89,11 @@ module.exports = function (proxy, allowedHost) {
         // This registers user provided middleware for proxy reasons
         require(paths.proxySetup)(app);
       }
+
+      // Show a splash screen while webpack is compiling
+      // app.use(webpackDevServerWaitpage(server, {
+      //   theme: 'material'
+      // }));
 
       // This lets us fetch source contents from webpack for the error overlay
       app.use(evalSourceMapMiddleware(server));
