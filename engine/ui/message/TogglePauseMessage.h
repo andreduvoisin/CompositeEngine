@@ -4,9 +4,8 @@
 #include "UIMessage.h"
 #include "JsonDeserializer.h"
 
-class TogglePauseRequest : public UIMessageRequest
+struct TogglePauseRequest : UIMessageRequest
 {
-public:
 	TogglePauseRequest();
 
 protected:

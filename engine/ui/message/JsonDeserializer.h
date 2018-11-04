@@ -9,6 +9,7 @@ public:
 	JsonDeserializer(const char* json);
 
 	uint32_t GetUint32(const char* key) const;
+	float GetFloat(const char* key) const;
 
 private:
 	rapidjson::Document document;

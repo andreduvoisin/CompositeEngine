@@ -4,25 +4,22 @@
 #include "UIMessage.h"
 #include "JsonDeserializer.h"
 
-class PauseStateSubscription : public UIMessageRequest
+struct PauseStateSubscription : UIMessageRequest
 {
-public:
 	PauseStateSubscription();
 
 protected:
 	void DeserializeInternal(const JsonDeserializer& deserializer) override;
 };
 
-class PauseStateStatus : public UIMessageResponse
+struct PauseStateStatus : UIMessageResponse
 {
-public:
-	PauseStateStatus(bool isPaused);
+	PauseStateStatus();
+
+	bool paused;
 
 protected:
 	void SerializeInternal(JsonSerializer& serializer) const override;
-
-private:
-	bool isPaused;
 };
 
 #endif // _CE_PAUSE_STATE_MESSAGE_H_
