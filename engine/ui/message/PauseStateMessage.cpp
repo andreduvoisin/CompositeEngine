@@ -11,14 +11,13 @@ void PauseStateSubscription::DeserializeInternal(const JsonDeserializer& deseria
 
 }
 
-PauseStateStatus::PauseStateStatus(bool isPaused)
+PauseStateStatus::PauseStateStatus()
 	: UIMessageResponse(UIMessageId::STATUS_PAUSE_STATE)
-	, isPaused(isPaused)
 {
 
 }
 
 void PauseStateStatus::SerializeInternal(JsonSerializer& serializer) const
 {
-	serializer.WriteBool("isPaused", isPaused);
+	serializer.WriteBool("paused", paused);
 }

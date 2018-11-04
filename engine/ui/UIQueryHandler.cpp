@@ -1,103 +1,95 @@
 #include "UIQueryHandler.h"
 
+#include "UIQueryResponder.h"
+
 #include "message/TogglePauseMessage.h"
 #include "message/AnimationStateMessage.h"
 #include "message/PauseStateMessage.h"
+#include "message/SetAnimationTimeMessage.h"
+
+#include "event/SetAnimationTimeEvent.h"
+#include "event/TogglePauseEvent.h"
+#include "event/core/EventSystem.h"
+#include "event/PauseStateEvent.h"
+#include "event/AnimationStateEvent.h"
+
+UIQueryHandler::UIQueryHandler(
+		EventSystem* eventSystem,
+		UIQueryResponder* queryResponder)
+	: eventSystem(eventSystem)
+	, queryResponder(queryResponder)
+{
+
+}
 
 bool UIQueryHandler::OnQuery(
 		CefRefPtr<CefBrowser> browser,
 		CefRefPtr<CefFrame> frame,
-		int64 query_id,
+		int64 queryId,
 		const CefString& request,
 		bool persistent,
 		CefRefPtr<Callback> callback)
 {
-	printf("handling message with request: %s\n", request.ToString().c_str());
-
 	// TODO: Defaults to utf-16. Should we default to utf-8?
-	JsonDeserializer deserializer(request.ToString().c_str());
+	std::string requestUtf8 = request.ToString();
 
-	UIMessageId id = static_cast<UIMessageId>(deserializer.GetUint32("id"));
+	JsonDeserializer deserializer(requestUtf8.c_str());
 
-	auto iterator = registeredCallbacks.find(id);
-	if (iterator != registeredCallbacks.end())
+	UIMessageId messageId = static_cast<UIMessageId>(deserializer.GetUint32("id"));
+
+	UIQuery query;
+	query.queryId = queryId;
+	query.messageId = messageId;
+	query.persistent = persistent;
+	query.callback = callback;
+	queryResponder->AddQuery(query);
+
+	switch (messageId)
 	{
-		printf("found handlers for request: %s\n", request.ToString().c_str());
-
-		switch (id)
+		case UIMessageId::REQUEST_TOGGLE_PAUSE:
 		{
-			case UIMessageId::REQUEST_TOGGLE_PAUSE:
-			{
-				TogglePauseRequest togglePauseRequest;
-				togglePauseRequest.Deserialize(deserializer);
+			eventSystem->EnqueueEvent(TogglePauseEvent());
+			return true;
+		}
 
-				std::vector<SubscriptionCallback>& handlers = iterator->second;
-				for (SubscriptionCallback& handler : handlers)
-				{
-					handler(&togglePauseRequest, callback);
-				}
+		case UIMessageId::SUBSCRIPTION_PAUSE_STATE:
+		{
+			eventSystem->EnqueueEvent(RequestPauseStateEvent());
+			return true;
+		}
 
-				return true;
-			}
+		case UIMessageId::REQUEST_SET_ANIMATION_TIME:
+		{
+			SetAnimationTimeRequest setAnimationTimeRequest;
+			setAnimationTimeRequest.Deserialize(deserializer);
 
-			case UIMessageId::SUBSCRIPTION_PAUSE_STATE:
-			{
-				PauseStateSubscription pauseStateSubscription;
-				pauseStateSubscription.Deserialize(deserializer);
+			SetAnimationTimeEvent setAnimationTimeEvent;
+			setAnimationTimeEvent.time = setAnimationTimeRequest.time;
 
-				std::vector<SubscriptionCallback>& handlers = iterator->second;
-				for (SubscriptionCallback& handler : handlers)
-				{
-					handler(&pauseStateSubscription, callback);
-				}
+			eventSystem->EnqueueEvent(setAnimationTimeEvent);
+			return true;
+		}
 
-				return true;
-			}
+		case UIMessageId::SUBSCRIPTION_ANIMATION_STATE:
+		{
+			eventSystem->EnqueueEvent(RequestAnimationStateEvent());
+			return true;
+		}
 
-			case UIMessageId::SUBSCRIPTION_ANIMATION_STATE:
-			{
-				AnimationStateSubscription animationStateSubscription;
-				animationStateSubscription.Deserialize(deserializer);
-
-				std::vector<SubscriptionCallback>& handlers = iterator->second;
-				for (SubscriptionCallback& handler : handlers)
-				{
-					handler(&animationStateSubscription, callback);
-				}
-
-				return true;
-			}
-
-			default:
-			{
-				printf("unsupported message id: %u\n", id);
-			}
+		default:
+		{
+			// TODO: Add assert.
+			printf("Unhandled UIMessageId: %u\n", messageId);
 		}
 	}
 
-	printf("no registered handlers for request: %s\n", request.ToString().c_str());
 	return false;
 }
 
 void UIQueryHandler::OnQueryCanceled(
 		CefRefPtr<CefBrowser> browser,
 		CefRefPtr<CefFrame> frame,
-		int64 query_id)
+		int64 queryId)
 {
-
-}
-
-void UIQueryHandler::Subscribe(
-		UIMessageId type,
-		SubscriptionCallback handler)
-{
-	printf("registering subscriber for message id: %u\n", type);
-	auto iterator = registeredCallbacks.find(type);
-	if (iterator == registeredCallbacks.end())
-	{
-		printf("no existing handlers for message id, initializing new list: %u\n", type);
-		iterator = registeredCallbacks.insert(std::make_pair(type, std::vector<SubscriptionCallback>())).first;
-	}
-	std::vector<SubscriptionCallback>& existingHandlers = iterator->second;
-	existingHandlers.push_back(handler);
+	queryResponder->RemoveQuery(queryId);
 }

@@ -26,7 +26,7 @@ UIMessageResponse::UIMessageResponse(UIMessageId id)
 std::string UIMessageResponse::Serialize() const
 {
 	JsonSerializer serializer;
-	serializer.WriteUint32("id", GetId());
+	serializer.WriteUint32("id", static_cast<uint32_t>(id));
 	SerializeInternal(serializer);
 	return serializer.ToString();
 }
