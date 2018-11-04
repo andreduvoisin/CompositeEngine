@@ -82,7 +82,14 @@ export default class AnimationControls extends React.Component {
           {this.renderStopButton()}
         </AnimationControlsListItem>
         <AnimationControlsListItem>
-          <Slider min={0} max={props.duration} value={props.currentTime} readOnly={true} />
+          <Slider
+            step={0.1}
+            min={0}
+            max={props.duration}
+            value={props.currentTime}
+            readOnly={true}
+            onChange={props.setAnimationTime}
+          />
         </AnimationControlsListItem>
       </AnimationControlsList>
     );

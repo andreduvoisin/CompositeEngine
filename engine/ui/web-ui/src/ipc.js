@@ -33,6 +33,16 @@ export const sendToggleAnimationRequest = () => {
   });
 };
 
+export const sendSetAnimationTime = (time) => {
+  const message = {
+    id: MessageId.REQUEST_SET_ANIMATION_TIME,
+    time: time
+  };
+  return sendMessage(JSON.stringify(message)).then((data) => {
+    return JSON.parse(data);
+  });
+};
+
 export const subscribeToPauseState = (handler) => {
   const message = {
     id: MessageId.SUBSCRIPTION_PAUSE_STATE
@@ -64,3 +74,4 @@ export const subscribeToAnimationState = (handler) => {
     }
   });
 };
+

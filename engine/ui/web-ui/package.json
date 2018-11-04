@@ -131,7 +131,8 @@
     "redux-devtools-extension": "^2.13.5",
     "remote-redux-devtools": "^0.5.13",
     "storybook-addon-styled-component-theme": "^1.0.7",
-    "storybook-styled-components": "^1.1.2"
+    "storybook-styled-components": "^1.1.2",
+    "webpack-dev-server-waitpage": "^1.0.0"
   },
   "engines": {
     "node": ">=8.12.0",
