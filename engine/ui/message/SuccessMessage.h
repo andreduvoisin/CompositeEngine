@@ -3,9 +3,8 @@
 
 #include "UIMessage.h"
 
-class SuccessResponse : public UIMessageResponse
+struct SuccessResponse : UIMessageResponse
 {
-public:
 	SuccessResponse();
 
 protected:

@@ -16,7 +16,7 @@ export default (
     case AnimationMutationTypes.PAUSE_STATE_UPDATE:
       return {
         ...state,
-        isPlaying: action.payload.isPaused !== true
+        isPlaying: action.payload.paused !== true
       };
 
     case AnimationMutationTypes.ANIMATION_STATE_UPDATE:

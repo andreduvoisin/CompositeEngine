@@ -4,26 +4,23 @@
 #include "UIMessage.h"
 #include "JsonDeserializer.h"
 
-class AnimationStateSubscription : public UIMessageRequest
+struct AnimationStateSubscription : UIMessageRequest
 {
-public:
 	AnimationStateSubscription();
 
 protected:
 	void DeserializeInternal(const JsonDeserializer& deserializer) override;
 };
 
-class AnimationStateStatus : public UIMessageResponse
+struct AnimationStateStatus : UIMessageResponse
 {
-public:
-	AnimationStateStatus(float currentTime, float duration);
+	AnimationStateStatus();
+
+	float currentTime;
+	float duration;
 
 protected:
 	void SerializeInternal(JsonSerializer& serializer) const override;
-
-private:
-	float currentTime;
-	float duration;
 };
 
 #endif // _CE_ANIMATION_STATE_MESSAGE_H_

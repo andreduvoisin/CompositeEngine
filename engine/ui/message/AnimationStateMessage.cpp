@@ -11,10 +11,8 @@ void AnimationStateSubscription::DeserializeInternal(const JsonDeserializer& des
 
 }
 
-AnimationStateStatus::AnimationStateStatus(float currentTime, float duration)
+AnimationStateStatus::AnimationStateStatus()
 	: UIMessageResponse(UIMessageId::STATUS_ANIMATION_STATE)
-	, currentTime(currentTime)
-	, duration(duration)
 {
 
 }

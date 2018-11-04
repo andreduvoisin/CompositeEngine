@@ -3,19 +3,24 @@
 #include "Animation.h"
 #include "graphics\skeleton\Skeleton.h"
 
+#include "event/core/EventSystem.h"
+#include "ui/message/AnimationStateMessage.h"
 #include "common\Math.h"
 
 #include <GL\glew.h>
 
 #include <algorithm>
-#include "ui/message/AnimationStateMessage.h"
+#include "event/AnimationStateEvent.h"
+#include "event/SetAnimationTimeEvent.h"
 
 namespace CE
 {
 	AnimationComponent::AnimationComponent(
-			Skeleton* skeleton, 
-			Animations* animations)
-		: m_skeleton(skeleton)
+			Skeleton* skeleton,
+			Animations* animations,
+			EventSystem* eventSystem)
+		: animationEventHandler(eventSystem, this)
+		, m_skeleton(skeleton)
 		, m_animations(animations)
 		, m_currentAnimation(0)
 	{
@@ -200,6 +205,8 @@ namespace CE
 		{
 			m_palette[i] = m_palette[i] * m_skeleton->joints[i].inverseBindPose;
 		}
+
+		animationEventHandler.SendAnimationStateEvent();
 	}
 
 	void AnimationComponent::BindMatrixPalette(
@@ -227,23 +234,5 @@ namespace CE
 		{
 			m_palette[i] = glm::mat4(1.f);
 		}
-	}
-
-	// TODO: Move out of this file.
-	AnimationStateStatus AnimationComponent::CreateAnimationStateStatus()
-	{
-		Animation* animation = &m_animations->at(m_currentAnimation);
-		AnimationCache* animationCache = &m_animationCaches[m_currentAnimation];
-
-		return AnimationStateStatus(
-			animationCache->currTime,
-			animation->duration);
-	}
-
-	void AnimationComponent::SetAnimationTime(float time)
-	{
-		// TODO: There's definitely more to do here. I think this should also do a FindInterpolationKeys?
-		AnimationCache* animationCache = &m_animationCaches[m_currentAnimation];
-		animationCache->currTime = time;
 	}
 }
