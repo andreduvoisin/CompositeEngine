@@ -27,7 +27,12 @@ class App extends Component {
           </Toolbar>
           <Layout.FullHeightContainer>
             <Layout.Sidebar width={90}>
-              <Sidebar />
+              <Sidebar>
+                <select style={{marginLeft: "10px"}}>
+                  <option value={"foo"}>Foo</option>
+                  <option value={"bar"}>Bar</option>
+                </select>
+              </Sidebar>
             </Layout.Sidebar>
             <Layout.Center />
             {/* <Layout.Sidebar>
