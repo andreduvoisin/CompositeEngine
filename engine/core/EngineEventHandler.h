@@ -20,6 +20,7 @@ namespace CE
 
 	private:
 		void HandleTogglePauseEvent();
+		void HandleToggleRenderMode();
 
 		EventSystem* eventSystem;
 		Engine* engine;
