@@ -49,6 +49,7 @@
 #include "ui/message/SetAnimationTimeMessage.h"
 #include "core/Engine.h"
 #include "ui/UIQueryResponder.h"
+#include "event/ToggleRenderModeEvent.h"
 
 const int SCREEN_WIDTH = 1280;
 const int SCREEN_HEIGHT = 720;
@@ -93,8 +94,6 @@ CE::AssetImporter* g_assetImporter;
 
 CE::MeshComponent* g_meshComponent;
 CE::AnimationComponent* g_animationComponent;
-
-int g_renderType = 0;
 
 CefRefPtr<UIClient> g_uiClient;
 CefRefPtr<CefBrowser> g_browser;
@@ -169,9 +168,11 @@ void HandleKeys(unsigned char key)
 {
 	if (key == 'q')
 	{
-		g_renderQuad = !g_renderQuad;
-		g_renderType += 1;
-		g_renderType %= 3;
+		ToggleRenderModeEvent toggleRenderModeEvent;
+		eventSystem->EnqueueEvent(toggleRenderModeEvent);
+//		g_renderQuad = !g_renderQuad;
+//		engine->RenderMode() += 1;
+//		engine->RenderMode() %= 3;
 	}
 
 	if (key == 'w')
@@ -237,7 +238,7 @@ void Render()
 		g_tbo,
 		g_paletteID);
 
-	if (g_renderType == 0 || g_renderType == 2)
+	if (engine->RenderMode() == 0 || engine->RenderMode() == 2)
 	{
 		g_meshComponent->Draw(
 			g_vbo,
@@ -317,7 +318,7 @@ void Render()
 		}
 	}
 
-	if (g_renderType == 1 || g_renderType == 2)
+	if (engine->RenderMode() == 1 || engine->RenderMode() == 2)
 	{
 		glBindBuffer(GL_ARRAY_BUFFER, g_vbo);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(DebugSkeletonVertex) * debugVertices.size(), debugVertices.data(), GL_STATIC_DRAW);
