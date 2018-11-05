@@ -1,11 +1,16 @@
 export const AnimationMutationTypes = {
-  // toggle types
+
   TOGGLE_ANIMATION_REQUEST: 'TOGGLE_ANIMATION_REQUEST',
   TOGGLE_ANIMATION_SUCCESS: 'TOGGLE_ANIMATION_SUCCESS',
   TOGGLE_ANIMATION_FAILURE: 'TOGGLE_ANIMATION_FAILURE',
+
   PAUSE_STATE_UPDATE: 'PAUSE_STATE_UPDATE',
+
   ANIMATION_STATE_UPDATE: 'ANIMATION_STATE_UPDATE',
+
   SET_ANIMATION_TIME: 'SET_ANIMATION_TIME',
+
+  TOGGLE_RENDER_SKELETON: 'TOGGLE_RENDER_SKELETON'
 }
 
 export const toggleAnimation = () => {
@@ -44,5 +49,11 @@ export const setAnimationTime = (time) => {
   return {
     type: AnimationMutationTypes.SET_ANIMATION_TIME,
     payload: parseFloat(time)
+  };
+};
+
+export const toggleRenderSkeleton = () => {
+  return {
+    type: AnimationMutationTypes.TOGGLE_RENDER_SKELETON
   };
 };
