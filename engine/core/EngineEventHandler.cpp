@@ -14,6 +14,7 @@ namespace CE
 	{
 		eventSystem->RegisterReceiverForEvent(this, EventId::REQUEST_PAUSE_STATE);
 		eventSystem->RegisterReceiverForEvent(this, EventId::TOGGLE_PAUSE);
+		eventSystem->RegisterReceiverForEvent(this, EventId::TOGGLE_RENDER_MODE);
 	}
 
 	void EngineEventHandler::OnEvent(const Event& event)
@@ -31,6 +32,12 @@ namespace CE
 				HandleTogglePauseEvent();
 				break;
 			}
+
+			case EventId::TOGGLE_RENDER_MODE:
+			{
+				HandleToggleRenderMode();
+				break;
+			}
 		}
 	}
 
@@ -45,5 +52,17 @@ namespace CE
 	{
 		engine->paused = !engine->paused;
 		SendPauseStateEvent();
+	}
+
+	void EngineEventHandler::HandleToggleRenderMode()
+	{
+		//g_renderQuad = !g_renderQuad;
+		//g_renderType += 1;
+		//g_renderType %= 3;
+
+		int renderMode = engine->RenderMode();
+		renderMode += 1;
+		renderMode %= 3;
+		engine->renderMode = renderMode;
 	}
 }
