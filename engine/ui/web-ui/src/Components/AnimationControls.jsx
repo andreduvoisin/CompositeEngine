@@ -83,7 +83,7 @@ export default class AnimationControls extends React.Component {
         </AnimationControlsListItem>
         <AnimationControlsListItem>
           <Slider
-            step={0.1}
+            step={0.001}
             min={0}
             max={props.duration}
             value={props.currentTime}
