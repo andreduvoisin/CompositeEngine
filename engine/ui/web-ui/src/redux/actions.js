@@ -43,6 +43,6 @@ export const updateAnimationState = (animationState) => {
 export const setAnimationTime = (time) => {
   return {
     type: AnimationMutationTypes.SET_ANIMATION_TIME,
-    payload: parseInt(time)
+    payload: parseFloat(time)
   };
 };
