@@ -83,13 +83,23 @@ export default class AnimationControls extends React.Component {
         </AnimationControlsListItem>
         <AnimationControlsListItem>
           <Slider
-            step={0.001}
+            step={0.0000000001}
             min={0}
             max={props.duration}
             value={props.currentTime}
             readOnly={true}
             onChange={props.setAnimationTime}
           />
+        </AnimationControlsListItem>
+        <AnimationControlsListItem>
+          <select
+            value={0}
+            onChange={props.toggleRenderSkeleton}
+          >
+            <option value={0} selected={props.renderMode === 0}>Mesh</option>
+            <option value={1} selected={props.renderMode === 1}>Mesh w/ Skeleton</option>
+            <option value={2} selected={props.renderMode === 2}>Skeleton</option>
+          </select>
         </AnimationControlsListItem>
       </AnimationControlsList>
     );

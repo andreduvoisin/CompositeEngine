@@ -9,6 +9,7 @@
 
 #include "event/SetAnimationTimeEvent.h"
 #include "event/TogglePauseEvent.h"
+#include "event/ToggleRenderModeEvent.h"
 #include "event/core/EventSystem.h"
 #include "event/PauseStateEvent.h"
 #include "event/AnimationStateEvent.h"
@@ -44,6 +45,8 @@ bool UIQueryHandler::OnQuery(
 	query.callback = callback;
 	queryResponder->AddQuery(query);
 
+	printf("Handling message, UIMessageId: %u\n", messageId);
+
 	switch (messageId)
 	{
 		case UIMessageId::REQUEST_TOGGLE_PAUSE:
@@ -73,6 +76,12 @@ bool UIQueryHandler::OnQuery(
 		case UIMessageId::SUBSCRIPTION_ANIMATION_STATE:
 		{
 			eventSystem->EnqueueEvent(RequestAnimationStateEvent());
+			return true;
+		}
+
+		case UIMessageId::REQUEST_TOGGLE_RENDER_MODE:
+		{
+			eventSystem->EnqueueEvent(ToggleRenderModeEvent());
 			return true;
 		}
 

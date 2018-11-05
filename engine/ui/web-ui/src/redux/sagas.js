@@ -1,10 +1,19 @@
 import { all, fork, put, takeEvery } from 'redux-saga/effects';
-import { sendToggleAnimationRequest, sendSetAnimationTime } from "../ipc";
-import { AnimationMutationTypes, toggleAnimationFailure, toggleAnimationSuccess } from "./actions";
+import {
+  AnimationMutationTypes,
+  toggleAnimationFailure,
+  toggleAnimationSuccess
+} from "./actions";
+import {
+  sendToggleAnimationRequest,
+  sendSetAnimationTime,
+  sendToggleRenderSkeletonRequest
+} from "../ipc";
 
 const {
   TOGGLE_ANIMATION_REQUEST,
-  SET_ANIMATION_TIME
+  SET_ANIMATION_TIME,
+  TOGGLE_RENDER_SKELETON
 } = AnimationMutationTypes;
 
 function* requestToggleAnimationStateAsync() {
@@ -20,6 +29,10 @@ function* requestSetAnimationTime(action) {
   yield sendSetAnimationTime(action.payload);
 }
 
+function* requestToggleRenderSkeleton(action) {
+  yield sendToggleRenderSkeletonRequest();
+}
+
 function* watchToggleAnimation() {
   yield takeEvery(TOGGLE_ANIMATION_REQUEST, requestToggleAnimationStateAsync);
 };
@@ -28,9 +41,14 @@ function* watchSetAnimationTime() {
   yield takeEvery(SET_ANIMATION_TIME, requestSetAnimationTime);
 };
 
+function* watchToggleRenderSkeleton() {
+  yield takeEvery(TOGGLE_RENDER_SKELETON, requestToggleRenderSkeleton);
+};
+
 export default function* root() {
   yield all([
     fork(watchToggleAnimation),
     fork(watchSetAnimationTime),
+    fork(watchToggleRenderSkeleton)
   ]);
 };

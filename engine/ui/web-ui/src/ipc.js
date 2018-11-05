@@ -1,6 +1,6 @@
 import eventemitter3 from "eventemitter3";
 
-const MessageId = Object.freeze({
+const MessageTypes = Object.freeze({
   RESPONSE_SUCCESS: 0,
   RESPONSE_FAILURE: 1,
 
@@ -10,8 +10,10 @@ const MessageId = Object.freeze({
 
   REQUEST_SET_ANIMATION_TIME: 5,
   SUBSCRIPTION_ANIMATION_STATE: 6,
-  STATUS_ANIMATION_STATE: 7
-})
+  STATUS_ANIMATION_STATE: 7,
+
+  REQUEST_TOGGLE_RENDER_SKELETON: 8
+});
 
 export const sendMessage = (action) => {
   return new Promise((resolve, reject) => {
@@ -26,7 +28,16 @@ export const sendMessage = (action) => {
 
 export const sendToggleAnimationRequest = () => {
   const message = {
-    id: MessageId.REQUEST_TOGGLE_PAUSE
+    id: MessageTypes.REQUEST_TOGGLE_PAUSE
+  };
+  return sendMessage(JSON.stringify(message)).then((data) => {
+    return JSON.parse(data);
+  });
+};
+
+export const sendToggleRenderSkeletonRequest = () => {
+  const message = {
+    id: MessageTypes.REQUEST_TOGGLE_RENDER_SKELETON
   };
   return sendMessage(JSON.stringify(message)).then((data) => {
     return JSON.parse(data);
@@ -35,7 +46,7 @@ export const sendToggleAnimationRequest = () => {
 
 export const sendSetAnimationTime = (time) => {
   const message = {
-    id: MessageId.REQUEST_SET_ANIMATION_TIME,
+    id: MessageTypes.REQUEST_SET_ANIMATION_TIME,
     time: time
   };
   return sendMessage(JSON.stringify(message)).then((data) => {
@@ -45,7 +56,7 @@ export const sendSetAnimationTime = (time) => {
 
 export const subscribeToPauseState = (handler) => {
   const message = {
-    id: MessageId.SUBSCRIPTION_PAUSE_STATE
+    id: MessageTypes.SUBSCRIPTION_PAUSE_STATE
   };
   window.cefQuery({
     request: JSON.stringify(message),
@@ -61,7 +72,7 @@ export const subscribeToPauseState = (handler) => {
 
 export const subscribeToAnimationState = (handler) => {
   const message = {
-    id: MessageId.SUBSCRIPTION_ANIMATION_STATE
+    id: MessageTypes.SUBSCRIPTION_ANIMATION_STATE
   };
   window.cefQuery({
     request: JSON.stringify(message),
