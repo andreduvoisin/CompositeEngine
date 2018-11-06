@@ -8,6 +8,7 @@ void UILoadHandler::OnLoadingStateChange(
 {
 	if (!isLoading)
 	{
+		printf("FINISHED LOADING!\n");
 		// TODO: Send initialized message.
 	}
 }

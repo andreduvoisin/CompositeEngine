@@ -4,9 +4,9 @@
 #include "event/PauseStateEvent.h"
 #include "event/core/EventSystem.h"
 
-#include "message/AnimationStateMessage.h"
-#include "message/PauseStateMessage.h"
-#include "message/SuccessMessage.h"
+#include "ui/message/AnimationStateMessage.h"
+#include "ui/message/PauseStateMessage.h"
+#include "ui/message/SuccessMessage.h"
 
 UIQueryResponder::UIQueryResponder(EventSystem* eventSystem)
 {

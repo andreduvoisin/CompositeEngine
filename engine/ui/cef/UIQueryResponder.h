@@ -3,7 +3,7 @@
 
 #include "UIQuery.h"
 #include "event/core/EventReceiver.h"
-#include "message/UIMessage.h"
+#include "ui/message/UIMessage.h"
 
 #include "include/wrapper/cef_message_router.h"
 

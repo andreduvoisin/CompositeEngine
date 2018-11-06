@@ -1,7 +1,7 @@
 #ifndef _CE_UI_QUERY_H_
 #define _CE_UI_QUERY_H_
 
-#include "message/UIMessageId.h"
+#include "ui/message/UIMessageId.h"
 
 #include "include/wrapper/cef_message_router.h"
 
