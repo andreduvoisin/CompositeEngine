@@ -1,7 +1,7 @@
 #include "PauseStateEvent.h"
 
 PauseStateEvent::PauseStateEvent()
-	: Event(EventId::PAUSE_STATE)
+	: Event(EventType::PAUSE_STATE)
 {
 
 }
@@ -12,7 +12,7 @@ PauseStateEvent* PauseStateEvent::Clone() const
 }
 
 RequestPauseStateEvent::RequestPauseStateEvent()
-	: Event(EventId::REQUEST_PAUSE_STATE)
+	: Event(EventType::REQUEST_PAUSE_STATE)
 {
 
 }

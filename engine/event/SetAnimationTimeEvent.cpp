@@ -1,7 +1,7 @@
 #include "SetAnimationTimeEvent.h"
 
 SetAnimationTimeEvent::SetAnimationTimeEvent()
-	: Event(EventId::SET_ANIMATION_TIME)
+	: Event(EventType::SET_ANIMATION_TIME)
 {
 
 }

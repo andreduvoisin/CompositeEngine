@@ -1,7 +1,7 @@
 #include "Event.h"
 
-Event::Event(EventId id)
-	: id(id)
+Event::Event(EventType type)
+	: type(type)
 {
 
 }

@@ -1,16 +1,16 @@
 #ifndef _CE_EVENT_H_
 #define _CE_EVENT_H_
 
-#include "EventId.h"
+#include "EventType.h"
 
 struct Event
 {
-	Event(EventId id);
+	Event(EventType type);
 	virtual ~Event() = default;
 
 	virtual Event* Clone() const = 0;
 
-	EventId id;
+	EventType type;
 };
 
 #endif // _CE_EVENT_H_

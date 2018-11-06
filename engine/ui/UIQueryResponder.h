@@ -23,17 +23,17 @@ public:
 	void RemoveQuery(int64_t queryId);
 
 private:
-	void InitializeQueriesForEvent(EventId eventId);
+	void InitializeQueriesForEvent(EventType type);
 
-	void RegisterQueryForEvent(EventId eventId, const UIQuery& query);
-	void BroadcastMessageForEvent(EventId eventId, const UIMessageResponse& message);
+	void RegisterQueryForEvent(EventType type, const UIQuery& query);
+	void BroadcastMessageForEvent(EventType type, const UIMessageResponse& message);
 
 	void HandleTogglePauseEvent(const Event& event);
 	void HandlePauseStateEvent(const Event& event);
 	void HandleSetAnimationTimeEvent(const Event& event);
 	void HandleAnimationStateEvent(const Event& event);
 
-	std::unordered_map<EventId, std::list<UIQuery>> eventToQueries;
+	std::unordered_map<EventType, std::list<UIQuery>> eventToQueries;
 };
 
 #endif // _CE_UI_QUERY_RESPONDER_H_

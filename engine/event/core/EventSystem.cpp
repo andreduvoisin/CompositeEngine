@@ -1,12 +1,12 @@
 #include "EventSystem.h"
 
-void EventSystem::RegisterReceiverForEvent(EventReceiver* receiver, EventId eventId)
+void EventSystem::RegisterReceiverForEvent(EventReceiver* receiver, EventType type)
 {
-	auto it = registeredReceivers.find(eventId);
+	auto it = registeredReceivers.find(type);
 
 	if (it == registeredReceivers.end())
 	{
-		it = registeredReceivers.insert({ eventId, std::vector<EventReceiver*>() }).first;
+		it = registeredReceivers.insert({ type, std::vector<EventReceiver*>() }).first;
 	}
 
 	it->second.push_back(receiver);
@@ -28,7 +28,7 @@ void EventSystem::DispatchEvents()
 	{
 		Event* event = eventQueue.front();
 
-		auto it = registeredReceivers.find(event->id);
+		auto it = registeredReceivers.find(event->type);
 		if (it == registeredReceivers.end())
 		{
 			continue;

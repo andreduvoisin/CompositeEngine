@@ -14,21 +14,21 @@ namespace CE
 		: eventSystem(eventSystem)
 		, animationComponent(animationComponent)
 	{
-		eventSystem->RegisterReceiverForEvent(this, EventId::REQUEST_ANIMATION_STATE);
-		eventSystem->RegisterReceiverForEvent(this, EventId::SET_ANIMATION_TIME);
+		eventSystem->RegisterReceiverForEvent(this, EventType::REQUEST_ANIMATION_STATE);
+		eventSystem->RegisterReceiverForEvent(this, EventType::SET_ANIMATION_TIME);
 	}
 
 	void AnimationEventHandler::OnEvent(const Event& event)
 	{
-		switch (event.id)
+		switch (event.type)
 		{
-			case EventId::REQUEST_ANIMATION_STATE:
+			case EventType::REQUEST_ANIMATION_STATE:
 			{
 				SendAnimationStateEvent();
 				break;
 			}
 
-			case EventId::SET_ANIMATION_TIME:
+			case EventType::SET_ANIMATION_TIME:
 			{
 				HandleSetAnimationTimeEvent(event);
 				break;

@@ -1,7 +1,7 @@
 #include "ToggleRenderModeEvent.h"
 
 ToggleRenderModeEvent::ToggleRenderModeEvent()
-	: Event(EventId::TOGGLE_RENDER_MODE)
+	: Event(EventType::TOGGLE_RENDER_MODE)
 {
 
 }

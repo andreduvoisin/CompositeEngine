@@ -1,9 +1,9 @@
-#ifndef _CE_EVENT_ID_H_
-#define _CE_EVENT_ID_H_
+#ifndef _CE_EVENT_TYPE_H_
+#define _CE_EVENT_TYPE_H_
 
 #include <cstdint>
 
-enum class EventId : uint32_t
+enum class EventType : uint32_t
 {
 	SET_ANIMATION_TIME = 0,
 	REQUEST_ANIMATION_STATE,
@@ -14,4 +14,4 @@ enum class EventId : uint32_t
 	TOGGLE_RENDER_MODE
 };
 
-#endif // _CE_EVENT_ID_H_
+#endif // _CE_EVENT_TYPE_H_
