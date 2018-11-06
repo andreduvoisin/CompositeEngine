@@ -2,10 +2,10 @@
 
 #include "UIQueryResponder.h"
 
-#include "message/TogglePauseMessage.h"
-#include "message/AnimationStateMessage.h"
-#include "message/PauseStateMessage.h"
-#include "message/SetAnimationTimeMessage.h"
+#include "ui/message/TogglePauseMessage.h"
+#include "ui/message/AnimationStateMessage.h"
+#include "ui/message/PauseStateMessage.h"
+#include "ui/message/SetAnimationTimeMessage.h"
 
 #include "event/SetAnimationTimeEvent.h"
 #include "event/TogglePauseEvent.h"
