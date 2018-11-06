@@ -710,7 +710,7 @@ bool StartCef()
 	g_browser = CefBrowserHost::CreateBrowserSync(
 		windowInfo,
 		g_uiClient,
-		"http://localhost:3000",
+		"http://localhost:3000", // "about:blank"
 		browserSettings,
 		nullptr);
 
