@@ -12,28 +12,28 @@ namespace CE
 		: eventSystem(eventSystem)
 		, engine(engine)
 	{
-		eventSystem->RegisterReceiverForEvent(this, EventId::REQUEST_PAUSE_STATE);
-		eventSystem->RegisterReceiverForEvent(this, EventId::TOGGLE_PAUSE);
-		eventSystem->RegisterReceiverForEvent(this, EventId::TOGGLE_RENDER_MODE);
+		eventSystem->RegisterReceiverForEvent(this, EventType::REQUEST_PAUSE_STATE);
+		eventSystem->RegisterReceiverForEvent(this, EventType::TOGGLE_PAUSE);
+		eventSystem->RegisterReceiverForEvent(this, EventType::TOGGLE_RENDER_MODE);
 	}
 
 	void EngineEventHandler::OnEvent(const Event& event)
 	{
-		switch (event.id)
+		switch (event.type)
 		{
-			case EventId::REQUEST_PAUSE_STATE:
+			case EventType::REQUEST_PAUSE_STATE:
 			{
 				SendPauseStateEvent();
 				break;
 			}
 
-			case EventId::TOGGLE_PAUSE:
+			case EventType::TOGGLE_PAUSE:
 			{
 				HandleTogglePauseEvent();
 				break;
 			}
 
-			case EventId::TOGGLE_RENDER_MODE:
+			case EventType::TOGGLE_RENDER_MODE:
 			{
 				HandleToggleRenderMode();
 				break;

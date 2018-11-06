@@ -1,7 +1,7 @@
 #include "AnimationStateEvent.h"
 
 AnimationStateEvent::AnimationStateEvent()
-	: Event(EventId::ANIMATION_STATE)
+	: Event(EventType::ANIMATION_STATE)
 {
 
 }
@@ -12,7 +12,7 @@ AnimationStateEvent* AnimationStateEvent::Clone() const
 }
 
 RequestAnimationStateEvent::RequestAnimationStateEvent()
-	: Event(EventId::REQUEST_ANIMATION_STATE)
+	: Event(EventType::REQUEST_ANIMATION_STATE)
 {
 
 }

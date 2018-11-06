@@ -1,7 +1,7 @@
 #include "TogglePauseEvent.h"
 
 TogglePauseEvent::TogglePauseEvent()
-	: Event(EventId::TOGGLE_PAUSE)
+	: Event(EventType::TOGGLE_PAUSE)
 {
 
 }

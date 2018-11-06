@@ -10,43 +10,43 @@
 
 UIQueryResponder::UIQueryResponder(EventSystem* eventSystem)
 {
-	EventId eventIds [] = {
-		EventId::TOGGLE_PAUSE,
-		EventId::PAUSE_STATE,
-		EventId::SET_ANIMATION_TIME,
-		EventId::ANIMATION_STATE
+	EventType types [] = {
+		EventType::TOGGLE_PAUSE,
+		EventType::PAUSE_STATE,
+		EventType::SET_ANIMATION_TIME,
+		EventType::ANIMATION_STATE
 	};
 
-	for (EventId eventId : eventIds)
+	for (EventType type : types)
 	{
-		eventSystem->RegisterReceiverForEvent(this, eventId);
-		InitializeQueriesForEvent(eventId);
+		eventSystem->RegisterReceiverForEvent(this, type);
+		InitializeQueriesForEvent(type);
 	}
 }
 
 void UIQueryResponder::OnEvent(const Event& event)
 {
-	switch (event.id)
+	switch (event.type)
 	{
-		case EventId::TOGGLE_PAUSE:
+		case EventType::TOGGLE_PAUSE:
 		{
 			HandleTogglePauseEvent(event);
 			break;
 		}
 
-		case EventId::PAUSE_STATE:
+		case EventType::PAUSE_STATE:
 		{
 			HandlePauseStateEvent(event);
 			break;
 		}
 
-		case EventId::SET_ANIMATION_TIME:
+		case EventType::SET_ANIMATION_TIME:
 		{
 			HandleSetAnimationTimeEvent(event);
 			break;
 		}
 
-		case EventId::ANIMATION_STATE:
+		case EventType::ANIMATION_STATE:
 		{
 			HandleAnimationStateEvent(event);
 			break;
@@ -60,25 +60,25 @@ void UIQueryResponder::AddQuery(const UIQuery& query)
 	{
 		case UIMessageId::REQUEST_TOGGLE_PAUSE:
 		{
-			RegisterQueryForEvent(EventId::TOGGLE_PAUSE, query);
+			RegisterQueryForEvent(EventType::TOGGLE_PAUSE, query);
 			break;
 		}
 
 		case UIMessageId::SUBSCRIPTION_PAUSE_STATE:
 		{
-			RegisterQueryForEvent(EventId::PAUSE_STATE, query);
+			RegisterQueryForEvent(EventType::PAUSE_STATE, query);
 			break;
 		}
 
 		case UIMessageId::REQUEST_SET_ANIMATION_TIME:
 		{
-			RegisterQueryForEvent(EventId::SET_ANIMATION_TIME, query);
+			RegisterQueryForEvent(EventType::SET_ANIMATION_TIME, query);
 			break;
 		}
 
 		case UIMessageId::SUBSCRIPTION_ANIMATION_STATE:
 		{
-			RegisterQueryForEvent(EventId::ANIMATION_STATE, query);
+			RegisterQueryForEvent(EventType::ANIMATION_STATE, query);
 			break;
 		}
 	}
@@ -101,19 +101,19 @@ void UIQueryResponder::RemoveQuery(int64_t queryId)
 	}
 }
 
-void UIQueryResponder::InitializeQueriesForEvent(EventId eventId)
+void UIQueryResponder::InitializeQueriesForEvent(EventType type)
 {
-	eventToQueries[eventId] = std::list<UIQuery>();
+	eventToQueries[type] = std::list<UIQuery>();
 }
 
-void UIQueryResponder::RegisterQueryForEvent(EventId eventId, const UIQuery& query)
+void UIQueryResponder::RegisterQueryForEvent(EventType type, const UIQuery& query)
 {
-	eventToQueries[eventId].push_back(query);
+	eventToQueries[type].push_back(query);
 }
 
-void UIQueryResponder::BroadcastMessageForEvent(EventId eventId, const UIMessageResponse& message)
+void UIQueryResponder::BroadcastMessageForEvent(EventType type, const UIMessageResponse& message)
 {
-	auto it = eventToQueries.find(eventId);
+	auto it = eventToQueries.find(type);
 	if (it == eventToQueries.end())
 	{
 		return;
@@ -145,7 +145,7 @@ void UIQueryResponder::BroadcastMessageForEvent(EventId eventId, const UIMessage
 
 void UIQueryResponder::HandleTogglePauseEvent(const Event& event)
 {
-	BroadcastMessageForEvent(event.id, SuccessResponse());
+	BroadcastMessageForEvent(event.type, SuccessResponse());
 }
 
 void UIQueryResponder::HandlePauseStateEvent(const Event& event)
@@ -155,12 +155,12 @@ void UIQueryResponder::HandlePauseStateEvent(const Event& event)
 	PauseStateStatus pauseStateStatus;
 	pauseStateStatus.paused = pauseStateEvent.paused;
 
-	BroadcastMessageForEvent(event.id, pauseStateStatus);
+	BroadcastMessageForEvent(event.type, pauseStateStatus);
 }
 
 void UIQueryResponder::HandleSetAnimationTimeEvent(const Event& event)
 {
-	BroadcastMessageForEvent(event.id, SuccessResponse());
+	BroadcastMessageForEvent(event.type, SuccessResponse());
 }
 
 void UIQueryResponder::HandleAnimationStateEvent(const Event& event)
@@ -171,5 +171,5 @@ void UIQueryResponder::HandleAnimationStateEvent(const Event& event)
 	animationStateStatus.currentTime = animationStateEvent.currentTime;
 	animationStateStatus.duration = animationStateEvent.duration;
 
-	BroadcastMessageForEvent(event.id, animationStateStatus);
+	BroadcastMessageForEvent(event.type, animationStateStatus);
 }
