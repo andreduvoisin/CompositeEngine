@@ -3,6 +3,7 @@
 
 #include "UIRenderHandler.h"
 #include "UILifeSpanHandler.h"
+#include "UILoadHandler.h"
 #include "UIRequestHandler.h"
 
 #include "include/cef_client.h"
@@ -14,12 +15,14 @@ public:
 	UIClient(
 		CefRefPtr<UIRenderHandler> renderHandler,
 		CefRefPtr<UILifeSpanHandler> lifeSpanHandler,
+		CefRefPtr<UILoadHandler> loadHandler,
 		CefRefPtr<UIRequestHandler> requestHandler,
 		CefRefPtr<CefMessageRouterBrowserSide> messageRouterBrowserSide);
 
 	// CefClient Interface
 	CefRefPtr<CefRenderHandler> GetRenderHandler() override;
 	CefRefPtr<CefLifeSpanHandler> GetLifeSpanHandler() override;
+	CefRefPtr<CefLoadHandler> GetLoadHandler() override;
 	CefRefPtr<CefRequestHandler> GetRequestHandler() override;
 	bool OnProcessMessageReceived(
 		CefRefPtr<CefBrowser> browser,
@@ -29,6 +32,7 @@ public:
 private:
 	CefRefPtr<UIRenderHandler> renderHandler;
 	CefRefPtr<UILifeSpanHandler> lifeSpanHandler;
+	CefRefPtr<UILoadHandler> loadHandler;
 	CefRefPtr<UIRequestHandler> requestHandler;
 	CefRefPtr<CefMessageRouterBrowserSide> messageRouterBrowserSide;
 

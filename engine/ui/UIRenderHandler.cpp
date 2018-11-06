@@ -23,7 +23,7 @@ void UIRenderHandler::Render()
 
 bool UIRenderHandler::GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect)
 {
-	printf("GetViewRect: %u, %u, %u, %u\n", rect.x, rect.y, rect.width, rect.height);
+	//printf("GetViewRect: %u, %u, %u, %u\n", rect.x, rect.y, rect.width, rect.height);
 	rect = CefRect(0, 0, width, height);
 	return true;
 }
@@ -36,11 +36,11 @@ void UIRenderHandler::OnPaint(
 		int width,
 		int height)
 {
-	printf("PaintElementType: %u, w*h*4: %u \t\t ", type, width*height*4);
-	for (const CefRect& rect : dirtyRects)
-	{
-		printf("rect: %u, %u, %u, %u \t\t", rect.x, rect.y, rect.width, rect.height);
-	}
-	printf("\n");
+	//printf("PaintElementType: %u, w*h*4: %u \t\t ", type, width*height*4);
+	//for (const CefRect& rect : dirtyRects)
+	//{
+	//	printf("rect: %u, %u, %u, %u \t\t", rect.x, rect.y, rect.width, rect.height);
+	//}
+	//printf("\n");
 	memcpy(this->buffer, buffer, width * height * 4);
 }

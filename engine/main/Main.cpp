@@ -692,8 +692,9 @@ bool StartCef()
 
 	CefRefPtr<UIRenderHandler> renderHandler = new UIRenderHandler(SCREEN_WIDTH, SCREEN_HEIGHT);
 	CefRefPtr<UILifeSpanHandler> lifeSpanHandler = new UILifeSpanHandler(messageRouterBrowserSide);
+	CefRefPtr<UILoadHandler> loadHandler = new UILoadHandler();
 	CefRefPtr<UIRequestHandler> requestHandler = new UIRequestHandler(messageRouterBrowserSide);
-	g_uiClient = new UIClient(renderHandler, lifeSpanHandler, requestHandler, messageRouterBrowserSide);
+	g_uiClient = new UIClient(renderHandler, lifeSpanHandler, loadHandler, requestHandler, messageRouterBrowserSide);
 
 	SDL_SysWMinfo sysInfo;
 	SDL_VERSION(&sysInfo.version);
@@ -709,13 +710,9 @@ bool StartCef()
 	g_browser = CefBrowserHost::CreateBrowserSync(
 		windowInfo,
 		g_uiClient,
-		"about:blank",
+		"http://localhost:3000",
 		browserSettings,
 		nullptr);
-
-	// std::string source = ReadFile("..\\..\\..\\..\\engine\\ui\\KevinsABitch.html");
-	// g_browser->GetMainFrame()->LoadString(source, "about:blank");
-	g_browser->GetMainFrame()->LoadURL("http://localhost:3000");
 
 	return true;
 }

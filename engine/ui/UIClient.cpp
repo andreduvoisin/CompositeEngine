@@ -3,10 +3,12 @@
 UIClient::UIClient(
 		CefRefPtr<UIRenderHandler> renderHandler,
 		CefRefPtr<UILifeSpanHandler> lifeSpanHandler,
+		CefRefPtr<UILoadHandler> loadHandler,
 		CefRefPtr<UIRequestHandler> requestHandler,
 		CefRefPtr<CefMessageRouterBrowserSide> messageRouterBrowserSide)
 	: renderHandler(renderHandler)
 	, lifeSpanHandler(lifeSpanHandler)
+	, loadHandler(loadHandler)
 	, requestHandler(requestHandler)
 	, messageRouterBrowserSide(messageRouterBrowserSide)
 {
@@ -21,6 +23,11 @@ CefRefPtr<CefRenderHandler> UIClient::GetRenderHandler()
 CefRefPtr<CefLifeSpanHandler> UIClient::GetLifeSpanHandler()
 {
 	return lifeSpanHandler;
+}
+
+CefRefPtr<CefLoadHandler> UIClient::GetLoadHandler()
+{
+	return loadHandler;
 }
 
 CefRefPtr<CefRequestHandler> UIClient::GetRequestHandler()
