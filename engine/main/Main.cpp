@@ -80,9 +80,9 @@ GLuint g_uiTextureUnit = -1;
 GLuint g_uiTextureID = -1;
 
 //const char* g_assetName = "..\\..\\..\\..\\assets\\Stand Up.ceasset";
-const char* g_assetName = "..\\..\\..\\..\\assets\\Thriller Part 2.ceasset";
+//const char* g_assetName = "..\\..\\..\\..\\assets\\Thriller Part 2.ceasset";
 //const char* g_assetName = "..\\..\\..\\..\\assets\\jla_wonder_woman.ceasset";
-//const char* g_assetName = "..\\..\\..\\..\\assets\\Quarterback Pass.ceasset";
+const char* g_assetName = "..\\..\\..\\..\\assets\\Quarterback Pass.ceasset";
 //const char* g_fbxName = "..\\..\\..\\..\\assets\\Soldier_animated_jump.fbx";
 
 CE::AssetImporter* g_assetImporter;
