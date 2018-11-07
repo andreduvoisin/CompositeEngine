@@ -2,17 +2,14 @@
 
 #include "UIQueryResponder.h"
 
-#include "ui/message/TogglePauseMessage.h"
-#include "ui/message/AnimationStateMessage.h"
-#include "ui/message/PauseStateMessage.h"
-#include "ui/message/SetAnimationTimeMessage.h"
-
 #include "event/SetAnimationTimeEvent.h"
 #include "event/TogglePauseEvent.h"
 #include "event/ToggleRenderModeEvent.h"
 #include "event/core/EventSystem.h"
 #include "event/PauseStateEvent.h"
 #include "event/AnimationStateEvent.h"
+
+#include "ui/message/JsonDeserializer.h"
 
 UIQueryHandler::UIQueryHandler(
 		EventSystem* eventSystem,
@@ -36,50 +33,46 @@ bool UIQueryHandler::OnQuery(
 
 	JsonDeserializer deserializer(requestUtf8.c_str());
 
-	UIMessageId messageId = static_cast<UIMessageId>(deserializer.GetUint32("id"));
+	EventType type = static_cast<EventType>(deserializer.GetUint32("type"));
 
 	UIQuery query;
+	query.eventType = type;
 	query.queryId = queryId;
-	query.messageId = messageId;
 	query.persistent = persistent;
 	query.callback = callback;
 	queryResponder->AddQuery(query);
 
-	printf("Handling message, UIMessageId: %u\n", messageId);
+	printf("Handling UI Query. EventType: %u\n", type);
 
-	switch (messageId)
+	switch (type)
 	{
-		case UIMessageId::REQUEST_TOGGLE_PAUSE:
+		case EventType::TOGGLE_PAUSE:
 		{
 			eventSystem->EnqueueEvent(TogglePauseEvent());
 			return true;
 		}
 
-		case UIMessageId::SUBSCRIPTION_PAUSE_STATE:
+		case EventType::REQUEST_PAUSE_STATE:
 		{
 			eventSystem->EnqueueEvent(RequestPauseStateEvent());
 			return true;
 		}
 
-		case UIMessageId::REQUEST_SET_ANIMATION_TIME:
+		case EventType::SET_ANIMATION_TIME:
 		{
-			SetAnimationTimeRequest setAnimationTimeRequest;
-			setAnimationTimeRequest.Deserialize(deserializer);
-
 			SetAnimationTimeEvent setAnimationTimeEvent;
-			setAnimationTimeEvent.time = setAnimationTimeRequest.time;
-
+			setAnimationTimeEvent.Deserialize(deserializer);
 			eventSystem->EnqueueEvent(setAnimationTimeEvent);
 			return true;
 		}
 
-		case UIMessageId::SUBSCRIPTION_ANIMATION_STATE:
+		case EventType::REQUEST_ANIMATION_STATE:
 		{
 			eventSystem->EnqueueEvent(RequestAnimationStateEvent());
 			return true;
 		}
 
-		case UIMessageId::REQUEST_TOGGLE_RENDER_MODE:
+		case EventType::TOGGLE_RENDER_MODE:
 		{
 			eventSystem->EnqueueEvent(ToggleRenderModeEvent());
 			return true;
@@ -88,7 +81,7 @@ bool UIQueryHandler::OnQuery(
 		default:
 		{
 			// TODO: Add assert.
-			printf("Unhandled UIMessageId: %u\n", messageId);
+			printf("Unhandled UI Query. EventType: %u\n", type);
 		}
 	}
 

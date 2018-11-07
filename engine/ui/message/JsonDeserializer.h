@@ -8,6 +8,7 @@ class JsonDeserializer
 public:
 	JsonDeserializer(const char* json);
 
+	bool GetBool(const char* key) const;
 	uint32_t GetUint32(const char* key) const;
 	float GetFloat(const char* key) const;
 

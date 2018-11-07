@@ -9,6 +9,10 @@ struct SetAnimationTimeEvent : Event
 	SetAnimationTimeEvent* Clone() const override;
 
 	float time;
+
+protected:
+	void SerializeInternal(JsonSerializer& serializer) const override;
+	void DeserializeInternal(const JsonDeserializer& deserializer) override;
 };
 
 #endif // _CE_SET_ANIMATION_TIME_EVENT_H_

@@ -1,18 +1,13 @@
 import eventemitter3 from "eventemitter3";
 
 const MessageTypes = Object.freeze({
-  RESPONSE_SUCCESS: 0,
-  RESPONSE_FAILURE: 1,
-
-  REQUEST_TOGGLE_PAUSE: 2,
-  SUBSCRIPTION_PAUSE_STATE: 3,
-  STATUS_PAUSE_STATE: 4,
-
-  REQUEST_SET_ANIMATION_TIME: 5,
-  SUBSCRIPTION_ANIMATION_STATE: 6,
-  STATUS_ANIMATION_STATE: 7,
-
-  REQUEST_TOGGLE_RENDER_SKELETON: 8
+	SET_ANIMATION_TIME: 0,
+	REQUEST_ANIMATION_STATE: 1,
+	ANIMATION_STATE: 2,
+	TOGGLE_PAUSE: 3,
+	REQUEST_PAUSE_STATE: 4,
+	PAUSE_STATE: 5,
+	TOGGLE_RENDER_MODE: 6
 });
 
 export const sendMessage = (action) => {
@@ -28,7 +23,7 @@ export const sendMessage = (action) => {
 
 export const sendToggleAnimationRequest = () => {
   const message = {
-    id: MessageTypes.REQUEST_TOGGLE_PAUSE
+    type: MessageTypes.TOGGLE_PAUSE
   };
   return sendMessage(JSON.stringify(message)).then((data) => {
     return JSON.parse(data);
@@ -37,7 +32,7 @@ export const sendToggleAnimationRequest = () => {
 
 export const sendToggleRenderSkeletonRequest = () => {
   const message = {
-    id: MessageTypes.REQUEST_TOGGLE_RENDER_SKELETON
+    type: MessageTypes.TOGGLE_RENDER_MODE
   };
   return sendMessage(JSON.stringify(message)).then((data) => {
     return JSON.parse(data);
@@ -46,7 +41,7 @@ export const sendToggleRenderSkeletonRequest = () => {
 
 export const sendSetAnimationTime = (time) => {
   const message = {
-    id: MessageTypes.REQUEST_SET_ANIMATION_TIME,
+    type: MessageTypes.SET_ANIMATION_TIME,
     time: time
   };
   return sendMessage(JSON.stringify(message)).then((data) => {
@@ -56,7 +51,7 @@ export const sendSetAnimationTime = (time) => {
 
 export const subscribeToPauseState = (handler) => {
   const message = {
-    id: MessageTypes.SUBSCRIPTION_PAUSE_STATE
+    type: MessageTypes.REQUEST_PAUSE_STATE
   };
   window.cefQuery({
     request: JSON.stringify(message),
@@ -72,7 +67,7 @@ export const subscribeToPauseState = (handler) => {
 
 export const subscribeToAnimationState = (handler) => {
   const message = {
-    id: MessageTypes.SUBSCRIPTION_ANIMATION_STATE
+    type: MessageTypes.REQUEST_ANIMATION_STATE
   };
   window.cefQuery({
     request: JSON.stringify(message),

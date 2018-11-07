@@ -10,6 +10,10 @@ struct AnimationStateEvent : Event
 
 	float currentTime;
 	float duration;
+
+protected:
+	void SerializeInternal(JsonSerializer& serializer) const override;
+	void DeserializeInternal(const JsonDeserializer& deserializer) override;
 };
 
 struct RequestAnimationStateEvent : Event
