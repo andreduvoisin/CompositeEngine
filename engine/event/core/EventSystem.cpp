@@ -1,20 +1,20 @@
 #include "EventSystem.h"
 
-void EventSystem::RegisterReceiverForEvent(EventReceiver* receiver, EventType type)
+void EventSystem::RegisterReceiverForEvent(EventListener* listener, EventType type)
 {
-	auto it = registeredReceivers.find(type);
+	auto it = registeredListeners.find(type);
 
-	if (it == registeredReceivers.end())
+	if (it == registeredListeners.end())
 	{
-		it = registeredReceivers.insert({ type, std::vector<EventReceiver*>() }).first;
+		it = registeredListeners.insert({ type, std::vector<EventListener*>() }).first;
 	}
 
-	it->second.push_back(receiver);
+	it->second.push_back(listener);
 }
 
-void EventSystem::SendEvent(const Event& event, EventReceiver& receiver)
+void EventSystem::SendEvent(const Event& event, EventListener& listener)
 {
-	receiver.OnEvent(event);
+	listener.OnEvent(event);
 }
 
 void EventSystem::EnqueueEvent(const Event& event)
@@ -28,16 +28,16 @@ void EventSystem::DispatchEvents()
 	{
 		Event* event = eventQueue.front();
 
-		auto it = registeredReceivers.find(event->type);
-		if (it == registeredReceivers.end())
+		auto it = registeredListeners.find(event->type);
+		if (it == registeredListeners.end())
 		{
 			continue;
 		}
 
-		const std::vector<EventReceiver*>& eventReceivers = it->second;
-		for (size_t i = 0; i < eventReceivers.size(); ++i)
+		const std::vector<EventListener*>& listeners = it->second;
+		for (size_t i = 0; i < listeners.size(); ++i)
 		{
-			eventReceivers[i]->OnEvent(*event);
+			listeners[i]->OnEvent(*event);
 		}
 
 		eventQueue.pop();
