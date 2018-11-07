@@ -2,7 +2,7 @@
 #define _CE_EVENT_SYSTEM_H_
 
 #include "Event.h"
-#include "EventReceiver.h"
+#include "EventListener.h"
 
 #include <unordered_map>
 #include <queue>
@@ -10,16 +10,16 @@
 class EventSystem
 {
 public:
-	void RegisterReceiverForEvent(EventReceiver* receiver, EventType type);
+	void RegisterReceiverForEvent(EventListener* receiver, EventType type);
 
-	void SendEvent(const Event& event, EventReceiver& receiver);
+	void SendEvent(const Event& event, EventListener& receiver);
 	void EnqueueEvent(const Event& event);
 
 	void DispatchEvents();
 
 private:
 	std::queue<Event*> eventQueue;
-	std::unordered_map<EventType, std::vector<EventReceiver*>> registeredReceivers;
+	std::unordered_map<EventType, std::vector<EventListener*>> registeredListeners;
 };
 
 #endif // _CE_EVENT_SYSTEM_H_

@@ -2,18 +2,18 @@
 #define _CE_UI_QUERY_RESPONDER_H_
 
 #include "UIQuery.h"
-#include "event/core/EventReceiver.h"
+#include "event/core/EventListener.h"
 
 #include <unordered_map>
 
 class EventSystem;
 
-class UIQueryResponder : public EventReceiver
+class UIQueryResponder : public EventListener
 {
 public:
 	UIQueryResponder(EventSystem* eventSystem);
 
-	// EventReceiver Interface
+	// EventListener Interface
 	void OnEvent(const Event& event) override;
 
 	void AddQuery(EventType type, const UIQuery& query);
@@ -22,8 +22,6 @@ public:
 private:
 	void RegisterQueryForEvent(EventType type, const UIQuery& query);
 	void BroadcastEvent(const Event& event);
-
-	void SendSuccessResponse(const UIQuery& query);
 
 	std::unordered_map<EventType, std::list<UIQuery>> eventToQueries;
 };

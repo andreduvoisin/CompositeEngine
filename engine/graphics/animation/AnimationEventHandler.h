@@ -2,19 +2,19 @@
 #define _CE_ANIMATION_EVENT_HANDLER_H_
 
 #include "event/core/EventSystem.h"
-#include "event/core/EventReceiver.h"
+#include "event/core/EventListener.h"
 #include "event/AnimationStateEvent.h"
 
 namespace CE
 {
 	class AnimationComponent;
 
-	class AnimationEventHandler : public EventReceiver
+	class AnimationEventHandler : public EventListener
 	{
 	public:
 		AnimationEventHandler(EventSystem* eventSystem, AnimationComponent* animationComponent);
 
-		// EventReceiver Interface
+		// EventListener Interface
 		void OnEvent(const Event& event) override;
 
 		void SendAnimationStateEvent();
