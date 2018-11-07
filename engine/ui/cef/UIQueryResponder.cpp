@@ -1,62 +1,33 @@
 #include "UIQueryResponder.h"
 
-#include "event/AnimationStateEvent.h"
-#include "event/PauseStateEvent.h"
 #include "event/core/EventSystem.h"
 
 UIQueryResponder::UIQueryResponder(EventSystem* eventSystem)
 {
 	EventType types [] = {
-		//EventType::TOGGLE_PAUSE,
 		EventType::PAUSE_STATE,
-		//EventType::SET_ANIMATION_TIME,
 		EventType::ANIMATION_STATE
 	};
 
 	for (EventType type : types)
 	{
 		eventSystem->RegisterReceiverForEvent(this, type);
-		InitializeQueriesForEvent(type);
+		eventToQueries[type] = std::list<UIQuery>();
 	}
 }
 
 void UIQueryResponder::OnEvent(const Event& event)
 {
-	switch (event.type)
-	{
-		case EventType::PAUSE_STATE:
-		{
-			BroadcastEvent(event);
-			break;
-		}
-
-		case EventType::ANIMATION_STATE:
-		{
-			BroadcastEvent(event);
-			break;
-		}
-	}
+	BroadcastEvent(event);
 }
 
-void UIQueryResponder::AddQuery(const UIQuery& query)
+void UIQueryResponder::AddQuery(EventType type, const UIQuery& query)
 {
-	switch (query.eventType)
+	switch (type)
 	{
-		case EventType::TOGGLE_PAUSE:
-		{
-			query.callback->Success("0");
-			break;
-		}
-
 		case EventType::REQUEST_PAUSE_STATE:
 		{
 			RegisterQueryForEvent(EventType::PAUSE_STATE, query);
-			break;
-		}
-
-		case EventType::SET_ANIMATION_TIME:
-		{
-			query.callback->Success("0");
 			break;
 		}
 
@@ -66,9 +37,11 @@ void UIQueryResponder::AddQuery(const UIQuery& query)
 			break;
 		}
 
+		case EventType::TOGGLE_PAUSE:
+		case EventType::SET_ANIMATION_TIME:
 		case EventType::TOGGLE_RENDER_MODE:
 		{
-			query.callback->Success("0");
+			SendSuccessResponse(query);
 			break;
 		}
 	}
@@ -89,11 +62,6 @@ void UIQueryResponder::RemoveQuery(int64_t queryId)
 			}
 		}
 	}
-}
-
-void UIQueryResponder::InitializeQueriesForEvent(EventType type)
-{
-	eventToQueries[type] = std::list<UIQuery>();
 }
 
 void UIQueryResponder::RegisterQueryForEvent(EventType type, const UIQuery& query)
@@ -131,4 +99,9 @@ void UIQueryResponder::BroadcastEvent(const Event& event)
 			queriesIt = queries.erase(queriesIt);
 		}
 	}
+}
+
+void UIQueryResponder::SendSuccessResponse(const UIQuery& query)
+{
+	query.callback->Success("0");
 }
