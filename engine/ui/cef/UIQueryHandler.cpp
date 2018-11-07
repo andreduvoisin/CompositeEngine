@@ -35,53 +35,42 @@ bool UIQueryHandler::OnQuery(
 
 	EventType type = static_cast<EventType>(deserializer.GetUint32("type"));
 
-	UIQuery query;
-	query.queryId = queryId;
-	query.persistent = persistent;
-	query.callback = callback;
-	queryResponder->AddQuery(type, query);
-
 	printf("Handling UI Query. EventType: %u\n", type);
 
 	switch (type)
 	{
 		case EventType::TOGGLE_PAUSE:
 		{
-			TogglePauseEvent togglePauseEvent;
-			togglePauseEvent.Deserialize(deserializer);
-			eventSystem->EnqueueEvent(togglePauseEvent);
+			SendEvent<TogglePauseEvent>(deserializer);
+			SendSuccessResponse(callback);
 			return true;
 		}
 
 		case EventType::REQUEST_PAUSE_STATE:
 		{
-			RequestPauseStateEvent requestPauseStateEvent;
-			requestPauseStateEvent.Deserialize(deserializer);
-			eventSystem->EnqueueEvent(requestPauseStateEvent);
+			SendEvent<RequestPauseStateEvent>(deserializer);
+			AddQueryToResponder(type, queryId, persistent, callback);
 			return true;
 		}
 
 		case EventType::SET_ANIMATION_TIME:
 		{
-			SetAnimationTimeEvent setAnimationTimeEvent;
-			setAnimationTimeEvent.Deserialize(deserializer);
-			eventSystem->EnqueueEvent(setAnimationTimeEvent);
+			SendEvent<SetAnimationTimeEvent>(deserializer);
+			SendSuccessResponse(callback);
 			return true;
 		}
 
 		case EventType::REQUEST_ANIMATION_STATE:
 		{
-			RequestAnimationStateEvent requestAnimationStateEvent;
-			requestAnimationStateEvent.Deserialize(deserializer);
-			eventSystem->EnqueueEvent(requestAnimationStateEvent);
+			SendEvent<RequestAnimationStateEvent>(deserializer);
+			AddQueryToResponder(type, queryId, persistent, callback);
 			return true;
 		}
 
 		case EventType::TOGGLE_RENDER_MODE:
 		{
-			ToggleRenderModeEvent toggleRenderModeEvent;
-			toggleRenderModeEvent.Deserialize(deserializer);
-			eventSystem->EnqueueEvent(toggleRenderModeEvent);
+			SendEvent<ToggleRenderModeEvent>(deserializer);
+			SendSuccessResponse(callback);
 			return true;
 		}
 
@@ -101,4 +90,22 @@ void UIQueryHandler::OnQueryCanceled(
 		int64 queryId)
 {
 	queryResponder->RemoveQuery(queryId);
+}
+
+void UIQueryHandler::SendSuccessResponse(CefRefPtr<Callback> callback)
+{
+	callback->Success("0");
+}
+
+void UIQueryHandler::AddQueryToResponder(
+		EventType type,
+		int64 queryId,
+		bool persistent,
+		CefRefPtr<Callback> callback)
+{
+	UIQuery query;
+	query.queryId = queryId;
+	query.persistent = persistent;
+	query.callback = callback;
+	queryResponder->AddQuery(type, query);
 }
