@@ -1,7 +1,7 @@
 #include "PauseStateEvent.h"
 
-#include "ui/message/JsonSerializer.h"
-#include "ui/message/JsonDeserializer.h"
+#include "common/json/JsonSerializer.h"
+#include "common/json/JsonDeserializer.h"
 
 PauseStateEvent::PauseStateEvent()
 	: Event(EventType::PAUSE_STATE)

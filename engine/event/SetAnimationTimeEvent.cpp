@@ -1,7 +1,7 @@
 #include "SetAnimationTimeEvent.h"
 
-#include "ui/message/JsonSerializer.h"
-#include "ui/message/JsonDeserializer.h"
+#include "common/json/JsonSerializer.h"
+#include "common/json/JsonDeserializer.h"
 
 SetAnimationTimeEvent::SetAnimationTimeEvent()
 	: Event(EventType::SET_ANIMATION_TIME)
