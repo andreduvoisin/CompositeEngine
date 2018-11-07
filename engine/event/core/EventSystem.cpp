@@ -1,6 +1,6 @@
 #include "EventSystem.h"
 
-void EventSystem::RegisterReceiverForEvent(EventListener* listener, EventType type)
+void EventSystem::RegisterListener(EventListener* listener, EventType type)
 {
 	auto it = registeredListeners.find(type);
 
