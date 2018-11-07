@@ -22,7 +22,8 @@ public:
 		bool persistent,
 		CefRefPtr<Callback> callback) override;
 
-	void OnQueryCanceled(CefRefPtr<CefBrowser> browser,
+	void OnQueryCanceled(
+		CefRefPtr<CefBrowser> browser,
 		CefRefPtr<CefFrame> frame,
 		int64 queryId) override;
 
