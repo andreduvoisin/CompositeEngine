@@ -1,4 +1,4 @@
-import eventemitter3 from "eventemitter3";
+// import eventemitter3 from "eventemitter3";
 
 const MessageTypes = Object.freeze({
 	SET_ANIMATION_TIME: 0,
