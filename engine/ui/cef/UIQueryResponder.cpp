@@ -11,7 +11,7 @@ UIQueryResponder::UIQueryResponder(EventSystem* eventSystem)
 
 	for (EventType type : types)
 	{
-		eventSystem->RegisterReceiverForEvent(this, type);
+		eventSystem->RegisterListener(this, type);
 		eventToQueries[type] = std::list<UIQuery>();
 	}
 }

@@ -10,9 +10,9 @@
 class EventSystem
 {
 public:
-	void RegisterReceiverForEvent(EventListener* receiver, EventType type);
+	void RegisterListener(EventListener* listener, EventType type);
 
-	void SendEvent(const Event& event, EventListener& receiver);
+	void SendEvent(const Event& event, EventListener& listener);
 	void EnqueueEvent(const Event& event);
 
 	void DispatchEvents();

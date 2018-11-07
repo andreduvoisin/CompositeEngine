@@ -14,8 +14,8 @@ namespace CE
 		: eventSystem(eventSystem)
 		, animationComponent(animationComponent)
 	{
-		eventSystem->RegisterReceiverForEvent(this, EventType::REQUEST_ANIMATION_STATE);
-		eventSystem->RegisterReceiverForEvent(this, EventType::SET_ANIMATION_TIME);
+		eventSystem->RegisterListener(this, EventType::REQUEST_ANIMATION_STATE);
+		eventSystem->RegisterListener(this, EventType::SET_ANIMATION_TIME);
 	}
 
 	void AnimationEventHandler::OnEvent(const Event& event)

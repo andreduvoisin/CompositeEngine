@@ -12,9 +12,9 @@ namespace CE
 		: eventSystem(eventSystem)
 		, engine(engine)
 	{
-		eventSystem->RegisterReceiverForEvent(this, EventType::REQUEST_PAUSE_STATE);
-		eventSystem->RegisterReceiverForEvent(this, EventType::TOGGLE_PAUSE);
-		eventSystem->RegisterReceiverForEvent(this, EventType::TOGGLE_RENDER_MODE);
+		eventSystem->RegisterListener(this, EventType::REQUEST_PAUSE_STATE);
+		eventSystem->RegisterListener(this, EventType::TOGGLE_PAUSE);
+		eventSystem->RegisterListener(this, EventType::TOGGLE_RENDER_MODE);
 	}
 
 	void EngineEventHandler::OnEvent(const Event& event)
