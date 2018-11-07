@@ -3,7 +3,6 @@
 
 #include "UIQuery.h"
 #include "event/core/EventReceiver.h"
-#include "ui/message/UIMessage.h"
 
 #include "include/wrapper/cef_message_router.h"
 
@@ -26,12 +25,7 @@ private:
 	void InitializeQueriesForEvent(EventType type);
 
 	void RegisterQueryForEvent(EventType type, const UIQuery& query);
-	void BroadcastMessageForEvent(EventType type, const UIMessageResponse& message);
-
-	void HandleTogglePauseEvent(const Event& event);
-	void HandlePauseStateEvent(const Event& event);
-	void HandleSetAnimationTimeEvent(const Event& event);
-	void HandleAnimationStateEvent(const Event& event);
+	void BroadcastEvent(const Event& event);
 
 	std::unordered_map<EventType, std::list<UIQuery>> eventToQueries;
 };

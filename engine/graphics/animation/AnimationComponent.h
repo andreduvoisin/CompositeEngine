@@ -1,13 +1,11 @@
 #ifndef _CE_ANIMATION_COMPONENT_H_
 #define _CE_ANIMATION_COMPONENT_H_
 
-#include "ui/message/AnimationStateMessage.h"
-#include "event/core/EventReceiver.h"
+#include "AnimationEventHandler.h"
 
 #include <glm\glm.hpp>
 
 #include <vector>
-#include "AnimationEventHandler.h"
 
 class EventSystem;
 typedef unsigned int GLuint;

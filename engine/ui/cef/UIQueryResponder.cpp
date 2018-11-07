@@ -4,16 +4,12 @@
 #include "event/PauseStateEvent.h"
 #include "event/core/EventSystem.h"
 
-#include "ui/message/AnimationStateMessage.h"
-#include "ui/message/PauseStateMessage.h"
-#include "ui/message/SuccessMessage.h"
-
 UIQueryResponder::UIQueryResponder(EventSystem* eventSystem)
 {
 	EventType types [] = {
-		EventType::TOGGLE_PAUSE,
+		//EventType::TOGGLE_PAUSE,
 		EventType::PAUSE_STATE,
-		EventType::SET_ANIMATION_TIME,
+		//EventType::SET_ANIMATION_TIME,
 		EventType::ANIMATION_STATE
 	};
 
@@ -28,27 +24,15 @@ void UIQueryResponder::OnEvent(const Event& event)
 {
 	switch (event.type)
 	{
-		case EventType::TOGGLE_PAUSE:
-		{
-			HandleTogglePauseEvent(event);
-			break;
-		}
-
 		case EventType::PAUSE_STATE:
 		{
-			HandlePauseStateEvent(event);
-			break;
-		}
-
-		case EventType::SET_ANIMATION_TIME:
-		{
-			HandleSetAnimationTimeEvent(event);
+			BroadcastEvent(event);
 			break;
 		}
 
 		case EventType::ANIMATION_STATE:
 		{
-			HandleAnimationStateEvent(event);
+			BroadcastEvent(event);
 			break;
 		}
 	}
@@ -56,29 +40,35 @@ void UIQueryResponder::OnEvent(const Event& event)
 
 void UIQueryResponder::AddQuery(const UIQuery& query)
 {
-	switch (query.messageId)
+	switch (query.eventType)
 	{
-		case UIMessageId::REQUEST_TOGGLE_PAUSE:
+		case EventType::TOGGLE_PAUSE:
 		{
-			RegisterQueryForEvent(EventType::TOGGLE_PAUSE, query);
+			query.callback->Success("0");
 			break;
 		}
 
-		case UIMessageId::SUBSCRIPTION_PAUSE_STATE:
+		case EventType::REQUEST_PAUSE_STATE:
 		{
 			RegisterQueryForEvent(EventType::PAUSE_STATE, query);
 			break;
 		}
 
-		case UIMessageId::REQUEST_SET_ANIMATION_TIME:
+		case EventType::SET_ANIMATION_TIME:
 		{
-			RegisterQueryForEvent(EventType::SET_ANIMATION_TIME, query);
+			query.callback->Success("0");
 			break;
 		}
 
-		case UIMessageId::SUBSCRIPTION_ANIMATION_STATE:
+		case EventType::REQUEST_ANIMATION_STATE:
 		{
 			RegisterQueryForEvent(EventType::ANIMATION_STATE, query);
+			break;
+		}
+
+		case EventType::TOGGLE_RENDER_MODE:
+		{
+			query.callback->Success("0");
 			break;
 		}
 	}
@@ -111,9 +101,9 @@ void UIQueryResponder::RegisterQueryForEvent(EventType type, const UIQuery& quer
 	eventToQueries[type].push_back(query);
 }
 
-void UIQueryResponder::BroadcastMessageForEvent(EventType type, const UIMessageResponse& message)
+void UIQueryResponder::BroadcastEvent(const Event& event)
 {
-	auto it = eventToQueries.find(type);
+	auto it = eventToQueries.find(event.type);
 	if (it == eventToQueries.end())
 	{
 		return;
@@ -125,7 +115,7 @@ void UIQueryResponder::BroadcastMessageForEvent(EventType type, const UIMessageR
 		return;
 	}
 
-	std::string buffer = message.Serialize();
+	std::string buffer = event.Serialize();
 
 	auto queriesIt = queries.begin();
 	while (queriesIt != queries.end())
@@ -141,35 +131,4 @@ void UIQueryResponder::BroadcastMessageForEvent(EventType type, const UIMessageR
 			queriesIt = queries.erase(queriesIt);
 		}
 	}
-}
-
-void UIQueryResponder::HandleTogglePauseEvent(const Event& event)
-{
-	BroadcastMessageForEvent(event.type, SuccessResponse());
-}
-
-void UIQueryResponder::HandlePauseStateEvent(const Event& event)
-{
-	const PauseStateEvent& pauseStateEvent = reinterpret_cast<const PauseStateEvent&>(event);
-
-	PauseStateStatus pauseStateStatus;
-	pauseStateStatus.paused = pauseStateEvent.paused;
-
-	BroadcastMessageForEvent(event.type, pauseStateStatus);
-}
-
-void UIQueryResponder::HandleSetAnimationTimeEvent(const Event& event)
-{
-	BroadcastMessageForEvent(event.type, SuccessResponse());
-}
-
-void UIQueryResponder::HandleAnimationStateEvent(const Event& event)
-{
-	const AnimationStateEvent& animationStateEvent = reinterpret_cast<const AnimationStateEvent&>(event);
-
-	AnimationStateStatus animationStateStatus;
-	animationStateStatus.currentTime = animationStateEvent.currentTime;
-	animationStateStatus.duration = animationStateEvent.duration;
-
-	BroadcastMessageForEvent(event.type, animationStateStatus);
 }

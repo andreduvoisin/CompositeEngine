@@ -9,6 +9,10 @@ struct PauseStateEvent : Event
 	PauseStateEvent* Clone() const override;
 
 	bool paused;
+
+protected:
+	void SerializeInternal(JsonSerializer& serializer) const override;
+	void DeserializeInternal(const JsonDeserializer& deserializer) override;
 };
 
 struct RequestPauseStateEvent : Event

@@ -1,7 +1,7 @@
 #ifndef _CE_UI_QUERY_H_
 #define _CE_UI_QUERY_H_
 
-#include "ui/message/UIMessageId.h"
+#include "event/core/EventType.h"
 
 #include "include/wrapper/cef_message_router.h"
 
@@ -9,8 +9,9 @@
 
 struct UIQuery
 {
+	EventType eventType;
+
 	int64_t queryId;
-	UIMessageId messageId;
 	bool persistent;
 	CefRefPtr<CefMessageRouterBrowserSide::Handler::Callback> callback;
 };
