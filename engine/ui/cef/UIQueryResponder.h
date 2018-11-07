@@ -4,8 +4,6 @@
 #include "UIQuery.h"
 #include "event/core/EventReceiver.h"
 
-#include "include/wrapper/cef_message_router.h"
-
 #include <unordered_map>
 
 class EventSystem;
@@ -18,14 +16,14 @@ public:
 	// EventReceiver Interface
 	void OnEvent(const Event& event) override;
 
-	void AddQuery(const UIQuery& query);
+	void AddQuery(EventType type, const UIQuery& query);
 	void RemoveQuery(int64_t queryId);
 
 private:
-	void InitializeQueriesForEvent(EventType type);
-
 	void RegisterQueryForEvent(EventType type, const UIQuery& query);
 	void BroadcastEvent(const Event& event);
+
+	void SendSuccessResponse(const UIQuery& query);
 
 	std::unordered_map<EventType, std::list<UIQuery>> eventToQueries;
 };

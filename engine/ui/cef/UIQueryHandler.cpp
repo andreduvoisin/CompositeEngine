@@ -36,11 +36,10 @@ bool UIQueryHandler::OnQuery(
 	EventType type = static_cast<EventType>(deserializer.GetUint32("type"));
 
 	UIQuery query;
-	query.eventType = type;
 	query.queryId = queryId;
 	query.persistent = persistent;
 	query.callback = callback;
-	queryResponder->AddQuery(query);
+	queryResponder->AddQuery(type, query);
 
 	printf("Handling UI Query. EventType: %u\n", type);
 
@@ -48,13 +47,17 @@ bool UIQueryHandler::OnQuery(
 	{
 		case EventType::TOGGLE_PAUSE:
 		{
-			eventSystem->EnqueueEvent(TogglePauseEvent());
+			TogglePauseEvent togglePauseEvent;
+			togglePauseEvent.Deserialize(deserializer);
+			eventSystem->EnqueueEvent(togglePauseEvent);
 			return true;
 		}
 
 		case EventType::REQUEST_PAUSE_STATE:
 		{
-			eventSystem->EnqueueEvent(RequestPauseStateEvent());
+			RequestPauseStateEvent requestPauseStateEvent;
+			requestPauseStateEvent.Deserialize(deserializer);
+			eventSystem->EnqueueEvent(requestPauseStateEvent);
 			return true;
 		}
 
@@ -68,13 +71,17 @@ bool UIQueryHandler::OnQuery(
 
 		case EventType::REQUEST_ANIMATION_STATE:
 		{
-			eventSystem->EnqueueEvent(RequestAnimationStateEvent());
+			RequestAnimationStateEvent requestAnimationStateEvent;
+			requestAnimationStateEvent.Deserialize(deserializer);
+			eventSystem->EnqueueEvent(requestAnimationStateEvent);
 			return true;
 		}
 
 		case EventType::TOGGLE_RENDER_MODE:
 		{
-			eventSystem->EnqueueEvent(ToggleRenderModeEvent());
+			ToggleRenderModeEvent toggleRenderModeEvent;
+			toggleRenderModeEvent.Deserialize(deserializer);
+			eventSystem->EnqueueEvent(toggleRenderModeEvent);
 			return true;
 		}
 
