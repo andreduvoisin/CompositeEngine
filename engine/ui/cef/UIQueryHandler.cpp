@@ -9,7 +9,7 @@
 #include "event/PauseStateEvent.h"
 #include "event/AnimationStateEvent.h"
 
-#include "ui/message/JsonDeserializer.h"
+#include "common/json/JsonDeserializer.h"
 
 UIQueryHandler::UIQueryHandler(
 		EventSystem* eventSystem,

@@ -1,7 +1,7 @@
 #include "AnimationStateEvent.h"
 
-#include "ui/message/JsonSerializer.h"
-#include "ui/message/JsonDeserializer.h"
+#include "common/json/JsonSerializer.h"
+#include "common/json/JsonDeserializer.h"
 
 AnimationStateEvent::AnimationStateEvent()
 	: Event(EventType::ANIMATION_STATE)

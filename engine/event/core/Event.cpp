@@ -1,6 +1,6 @@
 #include "Event.h"
 
-#include "ui/message/JsonSerializer.h"
+#include "common/json/JsonSerializer.h"
 
 Event::Event(EventType type)
 	: type(type)
