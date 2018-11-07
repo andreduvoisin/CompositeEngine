@@ -36,14 +36,6 @@ void UIQueryResponder::AddQuery(EventType type, const UIQuery& query)
 			RegisterQueryForEvent(EventType::ANIMATION_STATE, query);
 			break;
 		}
-
-		case EventType::TOGGLE_PAUSE:
-		case EventType::SET_ANIMATION_TIME:
-		case EventType::TOGGLE_RENDER_MODE:
-		{
-			SendSuccessResponse(query);
-			break;
-		}
 	}
 }
 
@@ -99,9 +91,4 @@ void UIQueryResponder::BroadcastEvent(const Event& event)
 			queriesIt = queries.erase(queriesIt);
 		}
 	}
-}
-
-void UIQueryResponder::SendSuccessResponse(const UIQuery& query)
-{
-	query.callback->Success("0");
 }
