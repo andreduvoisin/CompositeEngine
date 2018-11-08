@@ -13,7 +13,10 @@ public:
 
 	// CefRenderHandler Interface
 	bool GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) override;
-	void OnPaint(CefRefPtr<CefBrowser> browser,
+	void OnPopupShow(CefRefPtr<CefBrowser> browser, bool show) override;
+	void OnPopupSize(CefRefPtr<CefBrowser> browser, const CefRect& rect) override;
+	void OnPaint(
+		CefRefPtr<CefBrowser> browser,
 		PaintElementType type,
 		const RectList& dirtyRects,
 		const void* buffer,
@@ -21,15 +24,22 @@ public:
 		int height) override;
 
 	// TODO: Remove and render with Render().
-	char* getBuffer() const { return buffer; }
+	char* GetBuffer() const { return buffer; }
+	char* GetPopupBuffer() const { return popupBuffer; }
+	const CefRect& GetPopupRect() const { return popupRect; }
 
 private:
+	void UpdateBuffer(const char* buffer, int x, int y, int width, int height);
+
 	unsigned width, height;
 
 	// From the CefRenderHandler OnPaint documentation:
 	// |buffer| will be |width|*|height|*4 bytes in size and
 	// represents a BGRA image with an upper-left origin.
-	char* buffer; 
+	char* buffer;
+	char* popupBuffer;
+
+	CefRect popupRect;
 
 	// IMPLEMENT_* macros set access modifiers, so they must come last.
 	IMPLEMENT_REFCOUNTING(UIRenderHandler);
