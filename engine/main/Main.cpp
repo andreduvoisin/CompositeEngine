@@ -676,6 +676,7 @@ int InitializeCef()
 
 	CefSettings settings;
 	settings.external_message_pump = true;
+	settings.windowless_rendering_enabled = true;
 	settings.remote_debugging_port = 3469;
 	if (!CefInitialize(main_args, settings, app, NULL))
 	{
