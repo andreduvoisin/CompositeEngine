@@ -3,12 +3,18 @@
 
 #include "include/cef_browser_process_handler.h"
 
+class UIExternalMessagePump;
+
 class UIBrowserProcessHandler : public CefBrowserProcessHandler
 {
 public:
-	void OnScheduleMessagePumpWork(int64 delay_ms) override;
+	UIBrowserProcessHandler(UIExternalMessagePump* externalMessagePump);
+
+	// CefBrowserProcessHandler Interface
+	void OnScheduleMessagePumpWork(int64 delayMillis) override;
 
 private:
+	UIExternalMessagePump* externalMessagePump;
 
 	// IMPLEMENT_* macros set access modifiers, so they must come last.
 	IMPLEMENT_REFCOUNTING(UIBrowserProcessHandler);
