@@ -45,6 +45,7 @@
 #include "core/Engine.h"
 #include "ui/cef/UIQueryResponder.h"
 #include "event/ToggleRenderModeEvent.h"
+#include "ui/cef/UIExternalMessagePump.h"
 
 const int SCREEN_WIDTH = 1280;
 const int SCREEN_HEIGHT = 720;
@@ -96,6 +97,7 @@ CefRefPtr<CefBrowser> g_browser;
 EventSystem* eventSystem;
 CE::Engine* engine;
 UIQueryHandler* queryHandler;
+UIExternalMessagePump* externalMessagePump;
 
 void printProgramLog(GLuint program)
 {
@@ -662,8 +664,9 @@ int InitializeCef()
 	HINSTANCE hInstance = GetModuleHandle(NULL);
 	CefMainArgs main_args(hInstance);
 
+	externalMessagePump = new UIExternalMessagePump();
 	CefRefPtr<CefMessageRouterRendererSide> messageRouterRendererSide = CefMessageRouterRendererSide::Create(messageRouterConfig);
-	CefRefPtr<UIBrowserProcessHandler> browserProcessHandler = new UIBrowserProcessHandler();
+	CefRefPtr<UIBrowserProcessHandler> browserProcessHandler = new UIBrowserProcessHandler(externalMessagePump);
 	CefRefPtr<UIRenderProcessHandler> renderProcessHandler = new UIRenderProcessHandler(messageRouterRendererSide);
 	CefRefPtr<UIApp> app = new UIApp(browserProcessHandler, renderProcessHandler);
 
@@ -1109,29 +1112,6 @@ unsigned GetCefMouseModifiers(const SDL_Event& event)
 	return modifiers;
 }
 
-const int64 kMaxTimerDelay = 1000 / 30;  // 30fps
-
-// TODO: This needs to look more like the external message pump in cefclient.
-Uint32 TimerCallback(Uint32 interval, void *param)
-{
-	// TODO: Duplicates UIBrowserProcessHandler::OnScheduleMessagePumpWork code.
-	SDL_Event event;
-	SDL_UserEvent userEvent;
-	userEvent.type = SDL_USEREVENT;
-	userEvent.code = 0;
-	userEvent.data1 = NULL;
-	userEvent.data2 = NULL;
-	event.type = SDL_USEREVENT;
-	event.user = userEvent;
-	SDL_PushEvent(&event);
-	return kMaxTimerDelay;
-}
-
-void SetTimer()
-{
-	SDL_AddTimer(kMaxTimerDelay, TimerCallback, NULL);
-}
-
 int main(int argc, char* argv[])
 {
 	// For now, this must come first because of the CEF subprocess architecture.
@@ -1150,7 +1130,6 @@ int main(int argc, char* argv[])
 	}
 
 	MakeRed();
-	SetTimer();
 
 	bool quit = false;
 	SDL_Event event;
@@ -1177,18 +1156,14 @@ int main(int argc, char* argv[])
 
 		while (SDL_PollEvent(&event) != 0)
 		{
+			externalMessagePump->ProcessEvent(event);
+
 			// TODO: Haven't done focus events for Cef (see CefBrowserHost). Do I need these?
 			switch (event.type)
 			{
 				case SDL_TEXTINPUT:
 				{
 					HandleKeys(event.text.text[0]);
-					break;
-				}
-
-				case SDL_USEREVENT:
-				{
-					CefDoMessageLoopWork();
 					break;
 				}
 
@@ -1312,7 +1287,7 @@ int main(int argc, char* argv[])
 		// TODO: Where does this go?
 		eventSystem->DispatchEvents();
 
-		CefDoMessageLoopWork();
+		externalMessagePump->Run();
 
 		Render();
 
