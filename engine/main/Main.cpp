@@ -807,12 +807,14 @@ int GetCefKeyboardModifiers(WPARAM wparam, LPARAM lparam) {
 	return modifiers;
 }
 
+bool messageHappened;
 void WindowsMessageHook(void* userdata,
 		void* hWnd,
 		unsigned int message,
 		Uint64 wParam,
 		Sint64 lParam)
 {
+	messageHappened = true;
 	switch (message)
 	{
 		case WM_SYSCHAR:
@@ -950,6 +952,10 @@ bool Initialize()
 
 void StopCef()
 {
+	// should be "exit" or something? see main_message_loop_external_pump_win.cc
+	// Run() method. everything after that getmessage loop is a shutdown action
+	//externalMessagePump->Run();
+
 	g_browser->GetHost()->CloseBrowser(true);
 
 	g_browser = nullptr;
@@ -1176,6 +1182,8 @@ int main(int argc, char* argv[])
 				// osr_window_win.cc
 				case SDL_MOUSEMOTION:
 				{
+					printf("SDL_MOUSEMOTION\n");
+
 					CefMouseEvent mouseEvent;
 					mouseEvent.x = event.motion.x;
 					mouseEvent.y = event.motion.y;
@@ -1287,11 +1295,12 @@ int main(int argc, char* argv[])
 		// TODO: Where does this go?
 		eventSystem->DispatchEvents();
 
-		externalMessagePump->Run();
-
 		Render();
 
 		SDL_GL_SwapWindow(g_window);
+
+		printf("messagehappened: %u\n", messageHappened);
+		messageHappened = false;
 	}
 
 	SDL_StopTextInput();
