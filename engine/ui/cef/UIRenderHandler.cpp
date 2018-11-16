@@ -67,21 +67,21 @@ void UIRenderHandler::OnPaint(
 		case PET_VIEW:
 		{
 			//printf("PET_VIEW\n");
-			for (auto it = dirtyRects.begin(); it != dirtyRects.end(); ++it)
-			{
-				UpdateBuffer(reinterpret_cast<const char*>(buffer), it->x, it->y, it->width, it->height);
-				//for (int i = 0; i < it->height; ++i)
-				//{
-				//	int offsetSrc = i * it->width * 4;
-				//	int offsetDst = (((it->y + i) * it->width) + it->x) * 4;
-				//	memcpy(this->buffer + offsetDst, (char*)buffer + offsetSrc, it->width * 4);
-				//}
-			}
-			if (!popupRect.IsEmpty())
-			{
-				browser->GetHost()->Invalidate(PET_POPUP);
-			}
-			//memcpy(this->buffer, buffer, width * height * 4);
+			//for (auto it = dirtyRects.begin(); it != dirtyRects.end(); ++it)
+			//{
+			//	UpdateBuffer(reinterpret_cast<const char*>(buffer), it->x, it->y, it->width, it->height);
+			//	//for (int i = 0; i < it->height; ++i)
+			//	//{
+			//	//	int offsetSrc = i * it->width * 4;
+			//	//	int offsetDst = (((it->y + i) * it->width) + it->x) * 4;
+			//	//	memcpy(this->buffer + offsetDst, (char*)buffer + offsetSrc, it->width * 4);
+			//	//}
+			//}
+			//if (!popupRect.IsEmpty())
+			//{
+			//	browser->GetHost()->Invalidate(PET_POPUP);
+			//}
+			memcpy(this->buffer, buffer, width * height * 4);
 			break;
 		}
 

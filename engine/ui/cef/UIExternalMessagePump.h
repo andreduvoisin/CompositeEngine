@@ -9,7 +9,7 @@ class UIExternalMessagePump
 public:
 	UIExternalMessagePump();
 
-	void Run();
+	//void Run();
 	void OnScheduleMessagePumpWork(int64_t delayMillis);
 	void ProcessEvent(const SDL_Event& event);
 

@@ -20,14 +20,15 @@ UIExternalMessagePump::UIExternalMessagePump()
 
 }
 
-void UIExternalMessagePump::Run()
-{
-	KillTimer();
-	CefDoMessageLoopWork();
-}
+//void UIExternalMessagePump::Run()
+//{
+//	KillTimer();
+//	CefDoMessageLoopWork();
+//}
 
 void UIExternalMessagePump::OnScheduleMessagePumpWork(int64_t delayMillis)
 {
+	// todo: cast could explode on 32-bit machine? unless TIMER_DELAY_PLACEHOLDER is int32_t?
 	PushEvent(WORK_EVENT, reinterpret_cast<void*>(delayMillis));
 }
 
@@ -139,6 +140,7 @@ bool UIExternalMessagePump::PerformMessageLoopWork()
 	reentrancyDetected = false;
 
 	active = true;
+	printf("CefDoMessageLoopWork\n");
 	CefDoMessageLoopWork();
 	active = false;
 
