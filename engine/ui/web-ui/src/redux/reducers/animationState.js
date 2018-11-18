@@ -14,7 +14,7 @@ export default (
 
   switch (action.type) {
 
-    case AnimationMutationTypes.SET_FPS_COUNTER:
+    case AnimationMutationTypes.FPS_COUNTER_UPDATE:
       return {
         ...state,
         fps: action.payload.fps
