@@ -14,12 +14,6 @@ export default (
 
   switch (action.type) {
 
-    case AnimationMutationTypes.FPS_COUNTER_UPDATE:
-      return {
-        ...state,
-        fps: action.payload.fps
-      };
-
     case AnimationMutationTypes.PAUSE_STATE_UPDATE:
       return {
         ...state,
@@ -31,6 +25,12 @@ export default (
         ...state,
         currentTime: action.payload.currentTime,
         duration: action.payload.duration
+      };
+
+    case AnimationMutationTypes.FPS_COUNTER_STATE_UPDATE:
+      return {
+        ...state,
+        fps: action.payload.fps
       };
 
     default:
