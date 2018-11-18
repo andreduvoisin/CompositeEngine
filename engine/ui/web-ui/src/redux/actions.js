@@ -10,8 +10,10 @@ export const AnimationMutationTypes = {
 
   SET_ANIMATION_TIME: 'SET_ANIMATION_TIME',
 
-  TOGGLE_RENDER_SKELETON: 'TOGGLE_RENDER_SKELETON'
-}
+  TOGGLE_RENDER_SKELETON: 'TOGGLE_RENDER_SKELETON',
+
+  SET_FPS_COUNTER: 'SET_FPS_COUNTER'
+};
 
 export const toggleAnimation = () => {
   return {
