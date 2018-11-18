@@ -31,6 +31,10 @@ void EventSystem::DispatchEvents()
 		auto it = registeredListeners.find(event->type);
 		if (it == registeredListeners.end())
 		{
+			// TODO: Unique pointer instead of duplicated code.
+			eventQueue.pop();
+			delete event;
+
 			continue;
 		}
 
@@ -40,6 +44,7 @@ void EventSystem::DispatchEvents()
 			listeners[i]->OnEvent(*event);
 		}
 
+		// TODO: Unique pointer instead of duplicated code.
 		eventQueue.pop();
 		delete event;
 	}
