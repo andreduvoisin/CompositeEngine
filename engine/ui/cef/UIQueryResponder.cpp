@@ -6,7 +6,8 @@ UIQueryResponder::UIQueryResponder(EventSystem* eventSystem)
 {
 	EventType types [] = {
 		EventType::PAUSE_STATE,
-		EventType::ANIMATION_STATE
+		EventType::ANIMATION_STATE,
+		EventType::FPS_STATE
 	};
 
 	for (EventType type : types)
@@ -34,6 +35,12 @@ void UIQueryResponder::AddQuery(EventType type, const UIQuery& query)
 		case EventType::REQUEST_ANIMATION_STATE:
 		{
 			RegisterQueryForEvent(EventType::ANIMATION_STATE, query);
+			break;
+		}
+
+		case EventType::REQUEST_FPS_STATE:
+		{
+			RegisterQueryForEvent(EventType::FPS_STATE, query);
 			break;
 		}
 	}

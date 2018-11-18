@@ -10,6 +10,7 @@
 #include "event/AnimationStateEvent.h"
 
 #include "common/json/JsonDeserializer.h"
+#include "event/FpsStateEvent.h"
 
 UIQueryHandler::UIQueryHandler(
 		EventSystem* eventSystem,
@@ -71,6 +72,13 @@ bool UIQueryHandler::OnQuery(
 		{
 			SendEvent<ToggleRenderModeEvent>(deserializer);
 			SendSuccessResponse(callback);
+			return true;
+		}
+
+		case EventType::REQUEST_FPS_STATE:
+		{
+			SendEvent<RequestFpsStateEvent>(deserializer);
+			AddQueryToResponder(type, queryId, persistent, callback);
 			return true;
 		}
 
