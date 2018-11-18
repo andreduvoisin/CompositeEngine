@@ -13,8 +13,7 @@ import {
 const {
   TOGGLE_ANIMATION_REQUEST,
   TOGGLE_RENDER_SKELETON,
-  SET_ANIMATION_TIME,
-  SET_FPS_COUNTER
+  SET_ANIMATION_TIME
 } = AnimationMutationTypes;
 
 function* requestToggleAnimationStateAsync() {
@@ -46,15 +45,10 @@ function* watchToggleRenderSkeleton() {
   yield takeEvery(TOGGLE_RENDER_SKELETON, requestToggleRenderSkeleton);
 };
 
-function* watchSetFpsCounter() {
-  // yield takeEvery(SET_FPS_COUNTER, requestFpsCounterState);
-};
-
 export default function* root() {
   yield all([
     fork(watchToggleAnimation),
     fork(watchSetAnimationTime),
-    // fork(watchSetFpsCounter),
     fork(watchToggleRenderSkeleton)
   ]);
 };

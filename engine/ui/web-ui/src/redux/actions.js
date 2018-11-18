@@ -8,11 +8,11 @@ export const AnimationMutationTypes = {
 
   ANIMATION_STATE_UPDATE: 'ANIMATION_STATE_UPDATE',
 
+  FPS_COUNTER_STATE_UPDATE: 'FPS_COUNTER_STATE_UPDATE',
+
   SET_ANIMATION_TIME: 'SET_ANIMATION_TIME',
 
   TOGGLE_RENDER_SKELETON: 'TOGGLE_RENDER_SKELETON',
-
-  SET_FPS_COUNTER: 'SET_FPS_COUNTER'
 };
 
 export const toggleAnimation = () => {
@@ -57,5 +57,11 @@ export const setAnimationTime = (time) => {
 export const toggleRenderSkeleton = () => {
   return {
     type: AnimationMutationTypes.TOGGLE_RENDER_SKELETON
+  };
+};
+
+export const updateFpsCounterState = () => {
+  return {
+    type: AnimationMutationTypes.FPS_COUNTER_STATE_UPDATE
   };
 };
