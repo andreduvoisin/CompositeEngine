@@ -725,6 +725,28 @@ bool StartCef()
 	return true;
 }
 
+void ToggleDevToolsWindow()
+{
+	if (g_browser->GetHost()->HasDevTools())
+	{
+		g_browser->GetHost()->CloseDevTools();
+	}
+	else
+	{
+		SDL_SysWMinfo sysInfo;
+		SDL_VERSION(&sysInfo.version);
+		if (!SDL_GetWindowWMInfo(g_window, &sysInfo))
+		{
+			return;
+		}
+
+		CefBrowserSettings browserSettings;
+		CefWindowInfo windowInfo;
+		windowInfo.SetAsPopup(sysInfo.info.win.window, "DevTools");
+		g_browser->GetHost()->ShowDevTools(windowInfo, g_uiClient, browserSettings, CefPoint(0, 0));
+	}
+}
+
 bool IsKeyDown(WPARAM wparam) {
 	return (GetKeyState((int)wparam) & 0x8000) != 0;
 }
@@ -1174,6 +1196,15 @@ int main(int argc, char* argv[])
 				case SDL_QUIT:
 				{
 					quit = true;
+					break;
+				}
+
+				case SDL_KEYDOWN:
+				{
+					if (event.key.keysym.sym == SDLK_F11)
+					{
+						ToggleDevToolsWindow();
+					}
 					break;
 				}
 
