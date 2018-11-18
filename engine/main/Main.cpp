@@ -1201,7 +1201,8 @@ int main(int argc, char* argv[])
 
 				case SDL_KEYDOWN:
 				{
-					if (event.key.keysym.sym == SDLK_F11)
+					if (event.key.keysym.sym == SDLK_F11
+						|| event.key.keysym.sym == SDLK_F12)
 					{
 						ToggleDevToolsWindow();
 					}
