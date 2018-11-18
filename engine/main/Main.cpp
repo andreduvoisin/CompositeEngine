@@ -46,6 +46,7 @@
 #include "ui/cef/UIQueryResponder.h"
 #include "event/ToggleRenderModeEvent.h"
 #include "ui/cef/UIExternalMessagePump.h"
+#include "core/FpsCounter.h"
 
 const int SCREEN_WIDTH = 1280;
 const int SCREEN_HEIGHT = 720;
@@ -98,6 +99,8 @@ EventSystem* eventSystem;
 CE::Engine* engine;
 UIQueryHandler* queryHandler;
 UIExternalMessagePump* externalMessagePump;
+
+CE::FpsCounter* g_fpsCounter;
 
 void printProgramLog(GLuint program)
 {
@@ -915,6 +918,8 @@ bool Initialize()
 	engine = new CE::Engine(eventSystem);
 	queryHandler = new UIQueryHandler(eventSystem, new UIQueryResponder(eventSystem));
 
+	g_fpsCounter = new CE::FpsCounter(eventSystem);
+
 	if (!InitializeOpenGL())
 	{
 		printf("Unable to initialize OpenGL!\n");
@@ -1151,14 +1156,7 @@ int main(int argc, char* argv[])
 		last = now;
 		now = SDL_GetPerformanceCounter();
 
-		if (!engine->IsPaused())
-		{
-			deltaTime = float((now - last) * 1000) / SDL_GetPerformanceFrequency();
-		}
-		else
-		{
-			deltaTime = 0;
-		}
+		deltaTime = float((now - last) * 1000) / SDL_GetPerformanceFrequency();
 
 		while (SDL_PollEvent(&event) != 0)
 		{
@@ -1182,8 +1180,6 @@ int main(int argc, char* argv[])
 				// osr_window_win.cc
 				case SDL_MOUSEMOTION:
 				{
-					printf("SDL_MOUSEMOTION\n");
-
 					CefMouseEvent mouseEvent;
 					mouseEvent.x = event.motion.x;
 					mouseEvent.y = event.motion.y;
@@ -1290,7 +1286,8 @@ int main(int argc, char* argv[])
 			}
 		}
 
-		g_animationComponent->Update(deltaTime);
+		g_animationComponent->Update(engine->IsPaused() ? 0.f : deltaTime);
+		g_fpsCounter->Update(deltaTime);
 
 		// TODO: Where does this go?
 		eventSystem->DispatchEvents();
@@ -1299,7 +1296,7 @@ int main(int argc, char* argv[])
 
 		SDL_GL_SwapWindow(g_window);
 
-		printf("messagehappened: %u\n", messageHappened);
+		//printf("messagehappened: %u\n", messageHappened);
 		messageHappened = false;
 	}
 

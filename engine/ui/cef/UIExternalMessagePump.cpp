@@ -140,7 +140,7 @@ bool UIExternalMessagePump::PerformMessageLoopWork()
 	reentrancyDetected = false;
 
 	active = true;
-	printf("CefDoMessageLoopWork\n");
+	//printf("CefDoMessageLoopWork\n");
 	CefDoMessageLoopWork();
 	active = false;
 
