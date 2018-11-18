@@ -60,8 +60,9 @@ export const toggleRenderSkeleton = () => {
   };
 };
 
-export const updateFpsCounterState = () => {
+export const updateFpsCounterState = (fpsCounterState) => {
   return {
-    type: AnimationMutationTypes.FPS_COUNTER_STATE_UPDATE
+    type: AnimationMutationTypes.FPS_COUNTER_STATE_UPDATE,
+    payload: fpsCounterState
   };
 };
