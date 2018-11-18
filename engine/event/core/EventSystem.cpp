@@ -28,6 +28,9 @@ void EventSystem::DispatchEvents()
 	{
 		Event* event = eventQueue.front();
 
+		eventQueue.pop();
+		delete event;
+
 		auto it = registeredListeners.find(event->type);
 		if (it == registeredListeners.end())
 		{
@@ -39,8 +42,5 @@ void EventSystem::DispatchEvents()
 		{
 			listeners[i]->OnEvent(*event);
 		}
-
-		eventQueue.pop();
-		delete event;
 	}
 }
