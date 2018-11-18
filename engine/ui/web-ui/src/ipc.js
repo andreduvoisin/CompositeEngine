@@ -7,7 +7,9 @@ const MessageTypes = Object.freeze({
 	TOGGLE_PAUSE: 3,
 	REQUEST_PAUSE_STATE: 4,
 	PAUSE_STATE: 5,
-	TOGGLE_RENDER_MODE: 6
+	TOGGLE_RENDER_MODE: 6,
+  REQUEST_FPS_STATE: 7,
+  FPS_STATE: 8
 });
 
 export const sendMessage = (action) => {
@@ -81,3 +83,18 @@ export const subscribeToAnimationState = (handler) => {
   });
 };
 
+export const subscribeToFpsCounterState = (handler) => {
+  const message = {
+    type: MessageTypes.REQUEST_FPS_STATE
+  };
+  window.cefQuery({
+    request: JSON.stringify(message),
+    persistent: true,
+    onSuccess: (data) => {
+      handler(JSON.parse(data));
+    },
+    onFailure: (data) => {
+      console.log(data);
+    }
+  });
+};

@@ -10,7 +10,7 @@ import './index.css';
 import reducer from './redux/reducers/index';
 import { updatePauseState, updateAnimationState } from './redux/actions';
 import rootSaga from './redux/sagas';
-import { subscribeToPauseState, subscribeToAnimationState } from './ipc';
+import { subscribeToPauseState, subscribeToAnimationState, subscribeToFpsCounterState } from './ipc';
 
 // create the saga middleware
 const sagaMiddleware = createSagaMiddleware();
@@ -30,8 +30,14 @@ sagaMiddleware.run(rootSaga);
 subscribeToPauseState((state) => {
   store.dispatch(updatePauseState(state));
 });
+
 subscribeToAnimationState((state) => {
   store.dispatch(updateAnimationState(state));
+});
+
+subscribeToFpsCounterState((state) => {
+  console.log(state);
+  // store.dispatch(updateFpsCounterState(state));
 });
 
 ReactDOM.render(
