@@ -16,7 +16,7 @@ namespace CE
 
 	void FpsCounter::Update(float deltaTime)
 	{
-		fps = static_cast<uint32_t>(((1.0f / deltaTime) * SMOOTHING_WEIGHT) + (fps * (1.0f - SMOOTHING_WEIGHT)));
+		fps = static_cast<uint32_t>(((1000.0f / deltaTime) * SMOOTHING_WEIGHT) + (fps * (1.0f - SMOOTHING_WEIGHT)));
 		SendFpsStateEvent();
 	}
 
