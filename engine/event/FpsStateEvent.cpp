@@ -16,12 +16,12 @@ FpsStateEvent* FpsStateEvent::Clone() const
 
 void FpsStateEvent::SerializeInternal(JsonSerializer& serializer) const
 {
-	serializer.WriteBool("fps", fps);
+	serializer.WriteUint32("fps", fps);
 }
 
 void FpsStateEvent::DeserializeInternal(const JsonDeserializer& deserializer)
 {
-	fps = deserializer.GetBool("fps");
+	fps = deserializer.GetUint32("fps");
 }
 
 RequestFpsStateEvent::RequestFpsStateEvent()
