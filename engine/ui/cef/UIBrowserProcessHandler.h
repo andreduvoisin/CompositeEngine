@@ -14,6 +14,8 @@ public:
 	void OnScheduleMessagePumpWork(int64 delayMillis) override;
 
 private:
+	uint32_t ClampToUint32(int64 value);
+
 	UIExternalMessagePump* externalMessagePump;
 
 	// IMPLEMENT_* macros set access modifiers, so they must come last.

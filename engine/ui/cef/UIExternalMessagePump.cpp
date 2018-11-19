@@ -6,18 +6,17 @@
 
 // Special timer delay placeholder value. Intentionally 32-bit for Windows and
 // OS X platform API compatibility.
-static const int32_t TIMER_DELAY_PLACEHOLDER = (std::numeric_limits<int32_t>::max)();
+static const uint32_t TIMER_DELAY_PLACEHOLDER = (std::numeric_limits<uint32_t>::max)();
 
 // The maximum number of milliseconds we're willing to wait between calls to
 // DoWork().
-static const int64_t TIMER_DELAY_MAX = 1000 / 60; // denominator = fps
+static const uint32_t TIMER_DELAY_MAX = 1000 / 60; // denominator = fps
 
 static const SDL_TimerID INVALID_TIMER_ID = 0;
 
 static const uint32_t TIMER_EVENT = SDL_RegisterEvents(1);
 static const uint32_t WORK_EVENT = SDL_RegisterEvents(1);
 
-// TODO: Types. int32_t, int64_t, uint32_t, ...?
 UIExternalMessagePump::UIExternalMessagePump()
 	: timerId(INVALID_TIMER_ID)
 	, active(false)
@@ -31,10 +30,11 @@ UIExternalMessagePump::~UIExternalMessagePump()
 	KillTimer();
 }
 
-void UIExternalMessagePump::OnScheduleMessagePumpWork(int64_t delayMillis)
+void UIExternalMessagePump::OnScheduleMessagePumpWork(uint32_t delayMillis)
 {
 	// This method may be called on any thread.
-	PushEvent(WORK_EVENT, reinterpret_cast<void*>(delayMillis), nullptr);
+	void* data1 = reinterpret_cast<void*>(static_cast<uintptr_t>(delayMillis));
+	PushEvent(WORK_EVENT, data1, nullptr);
 }
 
 void UIExternalMessagePump::ProcessEvent(const SDL_Event& event)
@@ -47,7 +47,8 @@ void UIExternalMessagePump::ProcessEvent(const SDL_Event& event)
 	else if (event.type == WORK_EVENT)
 	{
 		// OnScheduleMessagePumpWork() request.
-		OnScheduleWork(reinterpret_cast<int64_t>(event.user.data1));
+		uint32_t delayMillis = static_cast<uint32_t>(reinterpret_cast<uintptr_t>(event.user.data1));
+		OnScheduleWork(delayMillis);
 	}
 }
 
@@ -94,9 +95,9 @@ bool UIExternalMessagePump::IsTimerPending()
 	return timerId != INVALID_TIMER_ID;
 }
 
-void UIExternalMessagePump::SetTimer(int64_t delayMillis)
+void UIExternalMessagePump::SetTimer(uint32_t delayMillis)
 {
-	timerId = SDL_AddTimer(static_cast<uint32_t>(delayMillis), &TimerCallback, NULL);
+	timerId = SDL_AddTimer(delayMillis, &TimerCallback, nullptr);
 }
 
 void UIExternalMessagePump::KillTimer()
@@ -113,7 +114,7 @@ void UIExternalMessagePump::OnTimerTimeout()
 	DoWork();
 }
 
-void UIExternalMessagePump::OnScheduleWork(int64_t delayMillis)
+void UIExternalMessagePump::OnScheduleWork(uint32_t delayMillis)
 {
 	if (delayMillis == TIMER_DELAY_PLACEHOLDER && IsTimerPending())
 	{
