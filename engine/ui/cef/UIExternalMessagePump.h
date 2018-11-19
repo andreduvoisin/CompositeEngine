@@ -15,7 +15,7 @@ public:
 	UIExternalMessagePump();
 	~UIExternalMessagePump();
 
-	void OnScheduleMessagePumpWork(int64_t delayMillis);
+	void OnScheduleMessagePumpWork(uint32_t delayMillis);
 	void ProcessEvent(const SDL_Event& event);
 
 	void Shutdown();
@@ -25,11 +25,11 @@ private:
 	static void PushEvent(uint32_t type, void* data1, void* data2);
 
 	bool IsTimerPending();
-	void SetTimer(int64_t delayMillis);
+	void SetTimer(uint32_t delayMillis);
 	void KillTimer();
 	void OnTimerTimeout();
 
-	void OnScheduleWork(int64_t delayMillis);
+	void OnScheduleWork(uint32_t delayMillis);
 	void DoWork();
 	bool PerformMessageLoopWork();
 
