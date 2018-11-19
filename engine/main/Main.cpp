@@ -164,23 +164,6 @@ void printShaderLog(GLuint shader)
 	delete[] infoLog;
 }
 
-void HandleKeys(unsigned char key)
-{
-	if (key == 'q')
-	{
-		ToggleRenderModeEvent toggleRenderModeEvent;
-		eventSystem->EnqueueEvent(toggleRenderModeEvent);
-//		g_renderQuad = !g_renderQuad;
-//		engine->RenderMode() += 1;
-//		engine->RenderMode() %= 3;
-	}
-
-	if (key == 'w')
-	{
-		g_renderBindPose = !g_renderBindPose;
-	}
-}
-
 void Update()
 {
 	(void)0;
@@ -979,9 +962,7 @@ bool Initialize()
 
 void StopCef()
 {
-	// should be "exit" or something? see main_message_loop_external_pump_win.cc
-	// Run() method. everything after that getmessage loop is a shutdown action
-	//externalMessagePump->Run();
+	externalMessagePump->Shutdown();
 
 	g_browser->GetHost()->CloseBrowser(true);
 
@@ -1167,8 +1148,6 @@ int main(int argc, char* argv[])
 	bool quit = false;
 	SDL_Event event;
 
-	SDL_StartTextInput();
-
 	unsigned long long now = SDL_GetPerformanceCounter();
 	unsigned long long last = 0;
 	float deltaTime = 0;
@@ -1187,12 +1166,6 @@ int main(int argc, char* argv[])
 			// TODO: Haven't done focus events for Cef (see CefBrowserHost). Do I need these?
 			switch (event.type)
 			{
-				case SDL_TEXTINPUT:
-				{
-					HandleKeys(event.text.text[0]);
-					break;
-				}
-
 				case SDL_QUIT:
 				{
 					quit = true;
@@ -1201,11 +1174,29 @@ int main(int argc, char* argv[])
 
 				case SDL_KEYDOWN:
 				{
-					if (event.key.keysym.sym == SDLK_F11
-						|| event.key.keysym.sym == SDLK_F12)
+					switch (event.key.keysym.sym)
 					{
-						ToggleDevToolsWindow();
+						case SDLK_q:
+						{
+							ToggleRenderModeEvent toggleRenderModeEvent;
+							eventSystem->EnqueueEvent(toggleRenderModeEvent);
+							break;
+						}
+
+						case SDLK_w:
+						{
+							g_renderBindPose = !g_renderBindPose;
+							break;
+						}
+
+						case SDLK_F11:
+						case SDLK_F12:
+						{
+							ToggleDevToolsWindow();
+							break;
+						}
 					}
+
 					break;
 				}
 
@@ -1331,8 +1322,6 @@ int main(int argc, char* argv[])
 		//printf("messagehappened: %u\n", messageHappened);
 		messageHappened = false;
 	}
-
-	SDL_StopTextInput();
 
 	Destroy();
 
