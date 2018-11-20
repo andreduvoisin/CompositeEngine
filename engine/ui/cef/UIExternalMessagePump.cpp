@@ -10,7 +10,7 @@ static const uint32_t TIMER_DELAY_PLACEHOLDER = (std::numeric_limits<uint32_t>::
 
 // The maximum number of milliseconds we're willing to wait between calls to
 // DoWork().
-static const uint32_t TIMER_DELAY_MAX = 1000 / 30; // denominator = fps
+static const uint32_t TIMER_DELAY_MAX = 1000 / 60; // denominator = fps
 
 static const SDL_TimerID INVALID_TIMER_ID = 0;
 
