@@ -82,11 +82,11 @@ export default class AnimationControls extends React.Component {
         'is-playing': props.isPlaying,
         'is-paused': !props.isPlaying
       })}>
-        {/* <AnimationControlsListItem>
+        <AnimationControlsListItem>
           <AnimationControlsFps>
             <span>{props.animationState.fps}</span><span style={{ marginLeft: '3px' }}>FPS</span>
           </AnimationControlsFps>
-        </AnimationControlsListItem> */}
+        </AnimationControlsListItem>
         <AnimationControlsListItem>
           {this.renderPlayButton()}
         </AnimationControlsListItem>
