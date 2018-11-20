@@ -905,10 +905,10 @@ bool Initialize()
 		printf("Error initializing GLEW! %s\n", glewGetErrorString(glewError));
 	}
 
-	// Use VSync
-	if (SDL_GL_SetSwapInterval(1) < 0)
+	// Disable VSync
+	if (SDL_GL_SetSwapInterval(0) < 0)
 	{
-		printf("Warning: Unable to set VSync! SDL_Error: %s\n", SDL_GetError());
+		printf("Warning: Unable to set immediate updates for VSync! SDL_Error: %s\n", SDL_GetError());
 	}
 
 	SDL_SetHint(SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH, "1");
