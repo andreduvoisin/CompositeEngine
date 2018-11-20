@@ -34,10 +34,6 @@ export default (
       };
 
     case AnimationMutationTypes.SET_RENDER_MODE:
-      console.log({
-        ...state,
-        renderMode: action.payload.mode
-      })
       return {
         ...state,
         renderMode: action.payload.mode
