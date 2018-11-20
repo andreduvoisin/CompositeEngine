@@ -7,7 +7,7 @@ const MessageTypes = Object.freeze({
 	TOGGLE_PAUSE: 3,
 	REQUEST_PAUSE_STATE: 4,
 	PAUSE_STATE: 5,
-	TOGGLE_RENDER_MODE: 6,
+	SET_RENDER_MODE: 6,
   REQUEST_FPS_STATE: 7,
   FPS_STATE: 8
 });
@@ -32,9 +32,10 @@ export const sendToggleAnimationRequest = () => {
   });
 };
 
-export const sendToggleRenderSkeletonRequest = () => {
+export const sendSetRenderModeRequest = (mode) => {
   const message = {
-    type: MessageTypes.TOGGLE_RENDER_MODE
+    type: MessageTypes.SET_RENDER_MODE,
+    mode: mode
   };
   return sendMessage(JSON.stringify(message)).then((data) => {
     return JSON.parse(data);

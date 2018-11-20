@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import AnimationControls from '../Components/AnimationControls';
-import { toggleAnimation, setAnimationTime, toggleRenderSkeleton } from "../redux/actions";
+import { toggleAnimation, setAnimationTime, setRenderSkeletonMode } from "../redux/actions";
 
 const mapStateToProps = (state) => {
   return state;
@@ -15,8 +15,8 @@ const mapDispatchToProps = (dispatch) => {
     setAnimationTime: (event) => {
       dispatch(setAnimationTime(event.target.value));
     },
-    toggleRenderSkeleton: () => {
-      dispatch(toggleRenderSkeleton());
+    setRenderMode: (event) => {
+      dispatch(setRenderSkeletonMode(event.target.value));
     }
   };
 };

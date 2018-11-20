@@ -7,12 +7,12 @@ import {
 import {
   sendToggleAnimationRequest,
   sendSetAnimationTime,
-  sendToggleRenderSkeletonRequest
+  sendSetRenderModeRequest
 } from "../ipc";
 
 const {
   TOGGLE_ANIMATION_REQUEST,
-  TOGGLE_RENDER_SKELETON,
+  SET_RENDER_MODE,
   SET_ANIMATION_TIME
 } = AnimationMutationTypes;
 
@@ -26,11 +26,11 @@ function* requestToggleAnimationStateAsync() {
 }
 
 function* requestSetAnimationTime(action) {
-  yield sendSetAnimationTime(action.payload);
+  yield sendSetAnimationTime(action.payload.time);
 }
 
 function* requestToggleRenderSkeleton(action) {
-  yield sendToggleRenderSkeletonRequest();
+  yield sendSetRenderModeRequest(action.payload.mode);
 }
 
 function* watchToggleAnimation() {
@@ -42,7 +42,7 @@ function* watchSetAnimationTime() {
 };
 
 function* watchToggleRenderSkeleton() {
-  yield takeEvery(TOGGLE_RENDER_SKELETON, requestToggleRenderSkeleton);
+  yield takeEvery(SET_RENDER_MODE, requestToggleRenderSkeleton);
 };
 
 export default function* root() {

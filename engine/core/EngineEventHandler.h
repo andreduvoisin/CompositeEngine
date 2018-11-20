@@ -20,7 +20,7 @@ namespace CE
 
 	private:
 		void HandleTogglePauseEvent();
-		void HandleToggleRenderMode();
+		void HandleSetRenderMode(const Event& event);
 
 		EventSystem* eventSystem;
 		Engine* engine;
