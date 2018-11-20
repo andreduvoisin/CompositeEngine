@@ -24,19 +24,17 @@ public:
 		int height) override;
 
 	// TODO: Remove and render with Render().
-	char* GetBuffer() const { return buffer; }
+	char* GetViewBuffer() const { return viewBuffer; }
 	char* GetPopupBuffer() const { return popupBuffer; }
 	const CefRect& GetPopupRect() const { return popupRect; }
 
 private:
-	void UpdateBuffer(const char* buffer, int x, int y, int width, int height);
-
 	unsigned width, height;
 
 	// From the CefRenderHandler OnPaint documentation:
 	// |buffer| will be |width|*|height|*4 bytes in size and
 	// represents a BGRA image with an upper-left origin.
-	char* buffer;
+	char* viewBuffer;
 	char* popupBuffer;
 
 	CefRect popupRect;
