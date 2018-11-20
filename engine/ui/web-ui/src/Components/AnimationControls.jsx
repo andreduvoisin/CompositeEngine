@@ -82,10 +82,11 @@ export default class AnimationControls extends React.Component {
         'is-playing': props.isPlaying,
         'is-paused': !props.isPlaying
       })}>
-        <AnimationControlsListItem>
+        {/* <AnimationControlsListItem>
           <AnimationControlsFps>
-          <span>{props.animationState.fps}</span><span style={{ marginLeft: '3px' }}>FPS</span></AnimationControlsFps>
-        </AnimationControlsListItem>
+            <span>{props.animationState.fps}</span><span style={{ marginLeft: '3px' }}>FPS</span>
+          </AnimationControlsFps>
+        </AnimationControlsListItem> */}
         <AnimationControlsListItem>
           {this.renderPlayButton()}
         </AnimationControlsListItem>
@@ -104,12 +105,13 @@ export default class AnimationControls extends React.Component {
         </AnimationControlsListItem>
         <AnimationControlsListItem>
           <select
-            value={0}
-            onChange={props.toggleRenderSkeleton}
+            defaultValue={0}
+            value={props.renderMode}
+            onChange={props.setRenderMode}
           >
-            <option value={0} selected={props.renderMode === 0}>Mesh</option>
-            <option value={1} selected={props.renderMode === 1}>Mesh w/ Skeleton</option>
-            <option value={2} selected={props.renderMode === 2}>Skeleton</option>
+            <option value={0}>Mesh</option>
+            <option value={1}>Skeleton</option>
+            <option value={2}>Mesh w/ Skeleton</option>
           </select>
         </AnimationControlsListItem>
       </AnimationControlsList>

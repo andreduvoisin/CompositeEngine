@@ -4,7 +4,7 @@
 
 #include "event/SetAnimationTimeEvent.h"
 #include "event/TogglePauseEvent.h"
-#include "event/ToggleRenderModeEvent.h"
+#include "event/SetRenderModeEvent.h"
 #include "event/core/EventSystem.h"
 #include "event/PauseStateEvent.h"
 #include "event/AnimationStateEvent.h"
@@ -68,9 +68,9 @@ bool UIQueryHandler::OnQuery(
 			return true;
 		}
 
-		case EventType::TOGGLE_RENDER_MODE:
+		case EventType::SET_RENDER_MODE:
 		{
-			SendEvent<ToggleRenderModeEvent>(deserializer);
+			SendEvent<SetRenderModeEvent>(deserializer);
 			SendSuccessResponse(callback);
 			return true;
 		}

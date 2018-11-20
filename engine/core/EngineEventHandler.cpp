@@ -3,6 +3,7 @@
 #include "Engine.h"
 
 #include "event/PauseStateEvent.h"
+#include "event/SetRenderModeEvent.h"
 
 namespace CE
 {
@@ -14,7 +15,7 @@ namespace CE
 	{
 		eventSystem->RegisterListener(this, EventType::REQUEST_PAUSE_STATE);
 		eventSystem->RegisterListener(this, EventType::TOGGLE_PAUSE);
-		eventSystem->RegisterListener(this, EventType::TOGGLE_RENDER_MODE);
+		eventSystem->RegisterListener(this, EventType::SET_RENDER_MODE);
 	}
 
 	void EngineEventHandler::OnEvent(const Event& event)
@@ -33,9 +34,9 @@ namespace CE
 				break;
 			}
 
-			case EventType::TOGGLE_RENDER_MODE:
+			case EventType::SET_RENDER_MODE:
 			{
-				HandleToggleRenderMode();
+				HandleSetRenderMode(event);
 				break;
 			}
 		}
@@ -54,15 +55,9 @@ namespace CE
 		SendPauseStateEvent();
 	}
 
-	void EngineEventHandler::HandleToggleRenderMode()
+	void EngineEventHandler::HandleSetRenderMode(const Event& event)
 	{
-		//g_renderQuad = !g_renderQuad;
-		//g_renderType += 1;
-		//g_renderType %= 3;
-
-		int renderMode = engine->RenderMode();
-		renderMode += 1;
-		renderMode %= 3;
-		engine->renderMode = renderMode;
+		const SetRenderModeEvent& setRenderModeEvent = reinterpret_cast<const SetRenderModeEvent&>(event);
+		engine->renderMode = setRenderModeEvent.mode;
 	}
 }

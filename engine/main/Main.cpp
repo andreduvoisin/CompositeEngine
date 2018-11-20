@@ -44,7 +44,6 @@
 #include "ui/cef/UIQueryHandler.h"
 #include "core/Engine.h"
 #include "ui/cef/UIQueryResponder.h"
-#include "event/ToggleRenderModeEvent.h"
 #include "ui/cef/UIExternalMessagePump.h"
 #include "core/FpsCounter.h"
 
@@ -1176,13 +1175,6 @@ int main(int argc, char* argv[])
 				{
 					switch (event.key.keysym.sym)
 					{
-						case SDLK_q:
-						{
-							ToggleRenderModeEvent toggleRenderModeEvent;
-							eventSystem->EnqueueEvent(toggleRenderModeEvent);
-							break;
-						}
-
 						case SDLK_w:
 						{
 							g_renderBindPose = !g_renderBindPose;
