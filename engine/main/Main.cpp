@@ -46,6 +46,7 @@
 #include "ui/cef/UIQueryResponder.h"
 #include "ui/cef/UIExternalMessagePump.h"
 #include "core/FpsCounter.h"
+#include "common/debug/AssertThread.h"
 
 const int SCREEN_WIDTH = 1280;
 const int SCREEN_HEIGHT = 720;
@@ -1127,6 +1128,8 @@ unsigned GetCefMouseModifiers(const SDL_Event& event)
 
 int main(int argc, char* argv[])
 {
+	CE_SET_MAIN_THREAD();
+
 	// For now, this must come first because of the CEF subprocess architecture.
 	// TODO: Look into spawning subprocesses via a separate executable. We need this for MacOS.
 	int exitCode = InitializeCef();
