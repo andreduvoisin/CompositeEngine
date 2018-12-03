@@ -17,35 +17,67 @@ void EventSystem::SendEvent(const Event& event, EventListener& listener)
 	listener.OnEvent(event);
 }
 
-void EventSystem::EnqueueEvent(const Event& event)
+void EventSystem::DispatchEvent(const Event& event)
 {
-	eventQueue.push(event.Clone());
+	auto it = registeredListeners.find(event.type);
+	if (it == registeredListeners.end())
+	{
+		return;
+	}
+
+	const std::vector<EventListener*>& listeners = it->second;
+	for (size_t i = 0; i < listeners.size(); ++i)
+	{
+		listeners[i]->OnEvent(event);
+	}
 }
 
-void EventSystem::DispatchEvents()
+void EventSystem::EnqueueEvent(const Event& event)
 {
-	while (!eventQueue.empty())
+	immediateEventQueue.push(event.Clone());
+}
+
+void EventSystem::EnqueueEventScheduled(const Event& event, uint64_t deliveryTicks)
+{
+	ScheduledEvent scheduledEvent;
+	scheduledEvent.event = event.Clone();
+	scheduledEvent.deliveryTicks = deliveryTicks;
+	scheduledEventQueue.push(scheduledEvent);
+}
+
+void EventSystem::DispatchEvents(uint64_t currentTicks)
+{
+	DispatchImmediateEvents();
+	DispatchScheduledEvents(currentTicks);
+}
+
+void EventSystem::DispatchImmediateEvents()
+{
+	while (!immediateEventQueue.empty())
 	{
-		Event* event = eventQueue.front();
+		Event* event = immediateEventQueue.front();
 
-		auto it = registeredListeners.find(event->type);
-		if (it == registeredListeners.end())
-		{
-			// TODO: Unique pointer instead of duplicated code.
-			eventQueue.pop();
-			delete event;
+		DispatchEvent(*event);
 
-			continue;
-		}
-
-		const std::vector<EventListener*>& listeners = it->second;
-		for (size_t i = 0; i < listeners.size(); ++i)
-		{
-			listeners[i]->OnEvent(*event);
-		}
-
-		// TODO: Unique pointer instead of duplicated code.
-		eventQueue.pop();
 		delete event;
+		immediateEventQueue.pop();
+	}
+}
+
+void EventSystem::DispatchScheduledEvents(uint64_t currentTicks)
+{
+	while (!scheduledEventQueue.empty())
+	{
+		const ScheduledEvent& event = scheduledEventQueue.top();
+
+		if (event.deliveryTicks > currentTicks)
+		{
+			break;
+		}
+
+		DispatchEvent(*event.event);
+
+		delete event.event;
+		scheduledEventQueue.pop();
 	}
 }
