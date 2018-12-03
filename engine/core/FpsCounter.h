@@ -19,6 +19,8 @@ namespace CE
 
 		EventSystem* eventSystem;
 		uint32_t fps;
+
+		uint64_t previousFpsStateEventTicks;
 	};
 }
 

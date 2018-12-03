@@ -4,6 +4,7 @@
 
 #include "event/PauseStateEvent.h"
 #include "event/SetRenderModeEvent.h"
+#include "clock/GameTimeClock.h"
 
 namespace CE
 {
@@ -45,13 +46,13 @@ namespace CE
 	void EngineEventHandler::SendPauseStateEvent()
 	{
 		PauseStateEvent pauseStateEvent;
-		pauseStateEvent.paused = engine->paused;
+		pauseStateEvent.paused = GameTimeClock::Get().IsPaused();
 		eventSystem->EnqueueEvent(pauseStateEvent);
 	}
 
 	void EngineEventHandler::HandleTogglePauseEvent()
 	{
-		engine->paused = !engine->paused;
+		GameTimeClock::Get().SetPaused(!GameTimeClock::Get().IsPaused());
 		SendPauseStateEvent();
 	}
 

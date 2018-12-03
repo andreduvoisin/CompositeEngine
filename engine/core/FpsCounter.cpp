@@ -2,6 +2,7 @@
 
 #include "event/FpsStateEvent.h"
 #include "event/core/EventSystem.h"
+#include "clock/RealTimeClock.h"
 
 namespace CE
 {
@@ -10,6 +11,7 @@ namespace CE
 	FpsCounter::FpsCounter(EventSystem* eventSystem)
 		: eventSystem(eventSystem)
 		, fps(0)
+		, previousFpsStateEventTicks(0)
 	{
 
 	}
@@ -22,8 +24,17 @@ namespace CE
 
 	void FpsCounter::SendFpsStateEvent()
 	{
+		uint64_t throttleTicks = CE::RealTimeClock::Get().GetNextTicksForInterval(1.f / 30.f);
+
+		if (previousFpsStateEventTicks == throttleTicks)
+		{
+			return;
+		}
+
+		previousFpsStateEventTicks = throttleTicks;
+
 		FpsStateEvent event;
 		event.fps = fps;
-		eventSystem->EnqueueEvent(event);
+		eventSystem->EnqueueEventScheduled(event, throttleTicks);
 	}
 }

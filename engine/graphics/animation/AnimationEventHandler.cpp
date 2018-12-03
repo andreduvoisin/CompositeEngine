@@ -5,6 +5,7 @@
 
 #include "event/core/Event.h"
 #include "event/SetAnimationTimeEvent.h"
+#include "core/clock/RealTimeClock.h"
 
 namespace CE
 {
@@ -13,6 +14,7 @@ namespace CE
 			AnimationComponent* animationComponent)
 		: eventSystem(eventSystem)
 		, animationComponent(animationComponent)
+		, previousAnimationTimeEventTicks(0)
 	{
 		eventSystem->RegisterListener(this, EventType::REQUEST_ANIMATION_STATE);
 		eventSystem->RegisterListener(this, EventType::SET_ANIMATION_TIME);
@@ -38,6 +40,16 @@ namespace CE
 
 	void AnimationEventHandler::SendAnimationStateEvent()
 	{
+		// TODO: Write event throttling class. see fpscounter
+		uint64_t throttleTicks = CE::RealTimeClock::Get().GetNextTicksForInterval(1.f / 30.f);
+
+		if (previousAnimationTimeEventTicks == throttleTicks)
+		{
+			return;
+		}
+
+		previousAnimationTimeEventTicks = throttleTicks;
+
 		Animation* animation = &animationComponent->m_animations->at(animationComponent->m_currentAnimation);
 		AnimationCache* animationCache = &animationComponent->m_animationCaches[animationComponent->m_currentAnimation];
 
@@ -45,7 +57,7 @@ namespace CE
 		animationStateEvent.currentTime = animationCache->currTime;
 		animationStateEvent.duration = animation->duration;
 
-		eventSystem->EnqueueEvent(animationStateEvent);
+		eventSystem->EnqueueEventScheduled(animationStateEvent, throttleTicks);
 	}
 
 	void AnimationEventHandler::HandleSetAnimationTimeEvent(const Event& event)

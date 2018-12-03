@@ -10,14 +10,10 @@ namespace CE
 	public:
 		Engine(EventSystem* eventSystem);
 
-		bool IsPaused() const { return paused; }
-
 		int RenderMode() const { return renderMode; }
 
 	private:
 		EngineEventHandler engineEventHandler;
-
-		bool paused;
 
 		int renderMode;
 

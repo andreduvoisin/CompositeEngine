@@ -4,7 +4,6 @@ namespace CE
 {
 	Engine::Engine(EventSystem* eventSystem)
 		: engineEventHandler(eventSystem, this)
-		, paused(false)
 		, renderMode(0)
 	{
 

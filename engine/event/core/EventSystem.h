@@ -3,6 +3,7 @@
 
 #include "Event.h"
 #include "EventListener.h"
+#include "ScheduledEvent.h"
 
 #include <unordered_map>
 #include <queue>
@@ -13,12 +14,18 @@ public:
 	void RegisterListener(EventListener* listener, EventType type);
 
 	void SendEvent(const Event& event, EventListener& listener);
+	void DispatchEvent(const Event& event);
 	void EnqueueEvent(const Event& event);
+	void EnqueueEventScheduled(const Event& event, uint64_t deliveryTicks);
 
-	void DispatchEvents();
+	void DispatchEvents(uint64_t currentTicks);
 
 private:
-	std::queue<Event*> eventQueue;
+	void DispatchImmediateEvents();
+	void DispatchScheduledEvents(uint64_t currentTicks);
+
+	std::queue<Event*> immediateEventQueue;
+	std::priority_queue<ScheduledEvent, std::vector<ScheduledEvent>, std::greater<>> scheduledEventQueue;
 	std::unordered_map<EventType, std::vector<EventListener*>> registeredListeners;
 };
 

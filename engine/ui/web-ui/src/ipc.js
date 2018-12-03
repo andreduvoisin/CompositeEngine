@@ -1,5 +1,4 @@
 // import eventemitter3 from "eventemitter3";
-import { throttle60fps } from "./throttle";
 
 const MessageTypes = Object.freeze({
   SET_ANIMATION_TIME: 0,
@@ -92,9 +91,9 @@ export const subscribeToFpsCounterState = (handler) => {
   window.cefQuery({
     request: JSON.stringify(message),
     persistent: true,
-    onSuccess: throttle60fps((data) => {
+    onSuccess: (data) => {
       handler(JSON.parse(data));
-    }),
+    },
     onFailure: (data) => {
       console.log(data);
     }
