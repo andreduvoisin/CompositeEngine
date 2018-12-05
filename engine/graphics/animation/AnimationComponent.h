@@ -32,7 +32,7 @@ namespace CE
 			Animations* animations,
 			EventSystem* eventSystem);
 
-		void Update(float deltaTime);
+		void Update(float deltaSeconds);
 		void BindMatrixPalette(
 			GLuint g_paletteTextureUnit,
 			GLuint g_paletteGenTex,
