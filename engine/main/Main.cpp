@@ -1310,8 +1310,8 @@ int main(int argc, char* argv[])
 			}
 		}
 
-		g_animationComponent->Update(CE::GameTimeClock::Get().GetDeltaSeconds() * 1000);
-		g_fpsCounter->Update(CE::RealTimeClock::Get().GetDeltaSeconds() * 1000);
+		g_animationComponent->Update(CE::GameTimeClock::Get().GetDeltaSeconds());
+		g_fpsCounter->Update(CE::RealTimeClock::Get().GetDeltaSeconds());
 
 		// TODO: Where does this go?
 		eventSystem->DispatchEvents(CE::RealTimeClock::Get().GetCurrentTicks());

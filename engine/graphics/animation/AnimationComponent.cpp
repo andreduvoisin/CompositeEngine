@@ -136,7 +136,7 @@ namespace CE
 		}
 	}
 
-	void AnimationComponent::Update(float deltaTime)
+	void AnimationComponent::Update(float deltaSeconds)
 	{
 		if (m_animations->empty())
 		{
@@ -146,7 +146,7 @@ namespace CE
 		Animation* animation = &m_animations->at(m_currentAnimation);
 		AnimationCache* animationCache = &m_animationCaches[m_currentAnimation];
 
-		animationCache->currTime += deltaTime * .001f;
+		animationCache->currTime += deltaSeconds;
 
 		if (animationCache->currTime > animation->duration)
 		{
