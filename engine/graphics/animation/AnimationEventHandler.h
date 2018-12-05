@@ -24,8 +24,6 @@ namespace CE
 
 		EventSystem* eventSystem;
 		AnimationComponent* animationComponent;
-
-		uint64_t previousAnimationTimeEventTicks;
 	};
 }
 
