@@ -39,10 +39,10 @@ void EventSystem::EnqueueEvent(const Event& event)
 
 void EventSystem::EnqueueEventScheduled(const Event& event, uint64_t deliveryTicks)
 {
-	ScheduledEvent scheduledEvent;
-	scheduledEvent.event = event.Clone();
-	scheduledEvent.deliveryTicks = deliveryTicks;
-	scheduledEventQueue.push(scheduledEvent);
+	ScheduledEventKey key;
+	key.deliveryTicks = deliveryTicks;
+	key.type = event.type;
+	scheduledEventQueue[key] = event.Clone();
 }
 
 void EventSystem::DispatchEvents(uint64_t currentTicks)
@@ -66,18 +66,18 @@ void EventSystem::DispatchImmediateEvents()
 
 void EventSystem::DispatchScheduledEvents(uint64_t currentTicks)
 {
-	while (!scheduledEventQueue.empty())
-	{
-		const ScheduledEvent& event = scheduledEventQueue.top();
+	auto it = scheduledEventQueue.begin();
 
-		if (event.deliveryTicks > currentTicks)
+	while (it != scheduledEventQueue.end())
+	{
+		if (it->first.deliveryTicks > currentTicks)
 		{
 			break;
 		}
 
-		DispatchEvent(*event.event);
+		DispatchEvent(*it->second);
 
-		delete event.event;
-		scheduledEventQueue.pop();
+		delete it->second;
+		it = scheduledEventQueue.erase(it);
 	}
 }
