@@ -16,6 +16,7 @@ namespace CE
 		eventSystem->RegisterListener(this, EventType::REQUEST_PAUSE_STATE);
 		eventSystem->RegisterListener(this, EventType::TOGGLE_PAUSE);
 		eventSystem->RegisterListener(this, EventType::SET_RENDER_MODE);
+		eventSystem->RegisterListener(this, EventType::TOGGLE_BIND_POSE);
 	}
 
 	void EngineEventHandler::OnEvent(const Event& event)
@@ -55,6 +56,13 @@ namespace CE
 		eventSystem->EnqueueEvent(pauseStateEvent);
 	}
 
+	void EngineEventHandler::SendBindPoseStateEvent()
+	{
+		// PauseStateEvent pauseStateEvent;
+		// pauseStateEvent.paused = engine->paused;
+	 	// eventSystem->EnqueueEvent(pauseStateEvent);
+	}
+
 	void EngineEventHandler::HandleTogglePauseEvent()
 	{
 		engine->paused = !engine->paused;
@@ -64,7 +72,7 @@ namespace CE
 	void EngineEventHandler::HandleToggleRenderBindPose()
 	{
 		engine->renderBindPose = !engine->renderBindPose;
-		SendPauseStateEvent();
+		SendBindPoseStateEvent();
 	}
 
 	void EngineEventHandler::HandleSetRenderMode(const Event& event)
