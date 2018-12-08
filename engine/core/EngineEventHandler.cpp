@@ -39,6 +39,12 @@ namespace CE
 				HandleSetRenderMode(event);
 				break;
 			}
+
+			case EventType::TOGGLE_BIND_POSE:
+			{
+				HandleToggleRenderBindPose();
+				break;
+			}
 		}
 	}
 
@@ -52,6 +58,12 @@ namespace CE
 	void EngineEventHandler::HandleTogglePauseEvent()
 	{
 		engine->paused = !engine->paused;
+		SendPauseStateEvent();
+	}
+
+	void EngineEventHandler::HandleToggleRenderBindPose()
+	{
+		engine->renderBindPose = !engine->renderBindPose;
 		SendPauseStateEvent();
 	}
 

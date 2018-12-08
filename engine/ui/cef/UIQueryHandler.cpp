@@ -82,6 +82,13 @@ bool UIQueryHandler::OnQuery(
 			return true;
 		}
 
+		case EventType::TOGGLE_BIND_POSE:
+		{
+			SendEvent<SetRenderModeEvent>(deserializer);
+			SendSuccessResponse(callback);
+			return true;
+		}
+
 		default:
 		{
 			// TODO: Add assert.

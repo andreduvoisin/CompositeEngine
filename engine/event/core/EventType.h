@@ -13,7 +13,8 @@ enum class EventType : uint32_t
 	PAUSE_STATE,
 	SET_RENDER_MODE,
 	REQUEST_FPS_STATE,
-	FPS_STATE
+	FPS_STATE,
+	TOGGLE_BIND_POSE
 };
 
 #endif // _CE_EVENT_TYPE_H_

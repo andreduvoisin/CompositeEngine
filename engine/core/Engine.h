@@ -14,12 +14,16 @@ namespace CE
 
 		int RenderMode() const { return renderMode; }
 
+		bool IsRenderBindPose() const { return renderBindPose; }
+
 	private:
 		EngineEventHandler engineEventHandler;
 
 		bool paused;
 
 		int renderMode;
+
+		bool renderBindPose;
 
 		friend class EngineEventHandler;
 	};
