@@ -6,6 +6,9 @@ build/*
 # Visual Studio
 .vs
 
+# VS Code
+.vscode
+
 # Intellij Idea
 .idea
 
