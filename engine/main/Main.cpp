@@ -804,11 +804,18 @@ bool StartCef()
 	CefRefPtr<CefMessageRouterBrowserSide> messageRouterBrowserSide = CefMessageRouterBrowserSide::Create(messageRouterConfig);
 	messageRouterBrowserSide->AddHandler(queryHandler, true);
 
+	CefRefPtr<UIContextMenuHandler> contextMenuHandler = new UIContextMenuHandler();
 	CefRefPtr<UIRenderHandler> renderHandler = new UIRenderHandler(SCREEN_WIDTH, SCREEN_HEIGHT);
 	CefRefPtr<UILifeSpanHandler> lifeSpanHandler = new UILifeSpanHandler(messageRouterBrowserSide);
 	CefRefPtr<UILoadHandler> loadHandler = new UILoadHandler();
 	CefRefPtr<UIRequestHandler> requestHandler = new UIRequestHandler(messageRouterBrowserSide);
-	g_uiClient = new UIClient(renderHandler, lifeSpanHandler, loadHandler, requestHandler, messageRouterBrowserSide);
+	g_uiClient = new UIClient(
+		contextMenuHandler,
+		renderHandler,
+		lifeSpanHandler,
+		loadHandler,
+		requestHandler,
+		messageRouterBrowserSide);
 
 	SDL_SysWMinfo sysInfo;
 	SDL_VERSION(&sysInfo.version);
