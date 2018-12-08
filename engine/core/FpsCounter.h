@@ -12,7 +12,7 @@ namespace CE
 	public:
 		FpsCounter(EventSystem* eventSystem);
 
-		void Update(float deltaTime);
+		void Update(float deltaSeconds);
 
 	private:
 		void SendFpsStateEvent();

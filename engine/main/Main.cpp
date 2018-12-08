@@ -46,6 +46,9 @@
 #include "ui/cef/UIQueryResponder.h"
 #include "ui/cef/UIExternalMessagePump.h"
 #include "core/FpsCounter.h"
+#include "common/debug/AssertThread.h"
+#include "core/clock/RealTimeClock.h"
+#include "core/clock/GameTimeClock.h"
 
 #include "event/ToggleBindPoseEvent.h"
 
@@ -815,14 +818,13 @@ int GetCefKeyboardModifiers(WPARAM wparam, LPARAM lparam) {
 	return modifiers;
 }
 
-bool messageHappened;
-void WindowsMessageHook(void* userdata,
+void WindowsMessageHook(
+		void* userdata,
 		void* hWnd,
 		unsigned int message,
 		Uint64 wParam,
 		Sint64 lParam)
 {
-	messageHappened = true;
 	switch (message)
 	{
 		case WM_SYSCHAR:
@@ -833,8 +835,8 @@ void WindowsMessageHook(void* userdata,
 		case WM_CHAR:
 		{
 			CefKeyEvent keyEvent;
-			keyEvent.windows_key_code = (int)wParam;
-			keyEvent.native_key_code = (int)lParam;
+			keyEvent.windows_key_code = static_cast<int>(wParam);
+			keyEvent.native_key_code = static_cast<int>(lParam);
 			keyEvent.is_system_key = message == WM_SYSCHAR
 				|| message == WM_SYSKEYDOWN
 				|| message == WM_SYSKEYUP;
@@ -1128,6 +1130,8 @@ unsigned GetCefMouseModifiers(const SDL_Event& event)
 
 int main(int argc, char* argv[])
 {
+	CE_SET_MAIN_THREAD();
+
 	// For now, this must come first because of the CEF subprocess architecture.
 	// TODO: Look into spawning subprocesses via a separate executable. We need this for MacOS.
 	int exitCode = InitializeCef();
@@ -1145,19 +1149,24 @@ int main(int argc, char* argv[])
 
 	MakeRed();
 
-	bool quit = false;
-	SDL_Event event;
+	uint64_t currentTicks = SDL_GetPerformanceCounter();
+	uint64_t previousTicks = 0;
 
-	unsigned long long now = SDL_GetPerformanceCounter();
-	unsigned long long last = 0;
-	float deltaTime = 0;
+	CE::RealTimeClock::Get().Initialize(currentTicks);
+	CE::GameTimeClock::Get().Initialize(currentTicks);
+
+	bool quit = false;
 
 	while (!quit)
 	{
-		last = now;
-		now = SDL_GetPerformanceCounter();
+		previousTicks = currentTicks;
+		currentTicks = SDL_GetPerformanceCounter();
 
-		deltaTime = float((now - last) * 1000) / SDL_GetPerformanceFrequency();
+		uint64_t deltaTicks = currentTicks - previousTicks;
+		CE::RealTimeClock::Get().Update(deltaTicks);
+		CE::GameTimeClock::Get().Update(deltaTicks);
+
+		SDL_Event event;
 
 		while (SDL_PollEvent(&event) != 0)
 		{
@@ -1302,18 +1311,15 @@ int main(int argc, char* argv[])
 			}
 		}
 
-		g_animationComponent->Update(engine->IsPaused() ? 0.f : deltaTime);
-		g_fpsCounter->Update(deltaTime);
+		g_animationComponent->Update(CE::GameTimeClock::Get().GetDeltaSeconds());
+		g_fpsCounter->Update(CE::RealTimeClock::Get().GetDeltaSeconds());
 
 		// TODO: Where does this go?
-		eventSystem->DispatchEvents();
+		eventSystem->DispatchEvents(CE::RealTimeClock::Get().GetCurrentTicks());
 
 		Render();
 
 		SDL_GL_SwapWindow(g_window);
-
-		//printf("messagehappened: %u\n", messageHappened);
-		messageHappened = false;
 	}
 
 	Destroy();

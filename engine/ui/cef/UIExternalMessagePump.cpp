@@ -1,8 +1,12 @@
 #include "UIExternalMessagePump.h"
 
-#include "include/cef_app.h"
+#include "common/debug/Assert.h"
+#include "common/debug/AssertThread.h"
 
+#include "include/cef_app.h"
 #include <SDL_events.h>
+
+#include <thread>
 
 // Special timer delay placeholder value. Intentionally 32-bit for Windows and
 // OS X platform API compatibility.
@@ -97,12 +101,15 @@ bool UIExternalMessagePump::IsTimerPending()
 
 void UIExternalMessagePump::SetTimer(uint32_t delayMillis)
 {
+	CE_ASSERT(!IsTimerPending(), "Timer should not be pending on call to SetTimer().");
+	CE_ASSERT(delayMillis > 0, "Should not set a timer with an immediate delay; instead, execute the work immediately.");
 	timerId = SDL_AddTimer(delayMillis, &TimerCallback, nullptr);
 }
 
 void UIExternalMessagePump::KillTimer()
 {
-	if (timerId != INVALID_TIMER_ID) {
+	if (timerId != INVALID_TIMER_ID)
+	{
 		SDL_RemoveTimer(timerId);
 		timerId = INVALID_TIMER_ID;
 	}
@@ -110,12 +117,16 @@ void UIExternalMessagePump::KillTimer()
 
 void UIExternalMessagePump::OnTimerTimeout()
 {
+	CE_REQUIRE_MAIN_THREAD();
+
 	KillTimer();
 	DoWork();
 }
 
 void UIExternalMessagePump::OnScheduleWork(uint32_t delayMillis)
 {
+	CE_REQUIRE_MAIN_THREAD();
+
 	if (delayMillis == TIMER_DELAY_PLACEHOLDER && IsTimerPending())
 	{
 		// Don't set the maximum timer requested from DoWork() if a timer event is
