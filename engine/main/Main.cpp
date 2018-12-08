@@ -187,13 +187,9 @@ void MakeRed()
 	}
 }
 
-void Render()
+void RenderMesh(const glm::mat4& projectionViewModel)
 {
-	//Clear color buffer
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 	glUseProgram(g_programID);
-	glBindVertexArray(g_vao);
 
 	unsigned int stride = sizeof(CE::Vertex1P1UV4J);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(offsetof(CE::Vertex1P1UV4J, position)));
@@ -205,14 +201,6 @@ void Render()
 	glEnableVertexAttribArray(2);
 	glEnableVertexAttribArray(3);
 
-	glm::mat4 projection = glm::perspective(glm::pi<float>() * 0.25f, (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 10000.0f);
-	//glm::mat4 view = glm::lookAt(glm::vec3(0, 100, 400), glm::vec3(0, 100, 0), glm::vec3(0, 1, 0)); // paladin
-	//glm::mat4 view = glm::lookAt(glm::vec3(0, 200, 400), glm::vec3(0, 100, 0), glm::vec3(0, 1, 0)); // solider
-	glm::mat4 view = glm::lookAt(glm::vec3(0, 200, 700), glm::vec3(0, 50, 0), glm::vec3(0, 1, 0)); // thriller, quarterback
-	//glm::mat4 view = glm::lookAt(glm::vec3(0, 2, 8), glm::vec3(0, 2, 0), glm::vec3(0, 1, 0)); // wonder woman
-	//glm::mat4 view = glm::lookAt(glm::vec3(0, 0, 1), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
-	glm::mat4 model = glm::mat4(1.0f);
-	glm::mat4 projectionViewModel = projection * view * model;
 	glUniformMatrix4fv(g_projectionViewModelMatrixID, 1, GL_FALSE, &projectionViewModel[0][0]);
 
 	if (g_renderBindPose)
@@ -221,7 +209,7 @@ void Render()
 	}
 
 	g_animationComponent->BindMatrixPalette(
-		g_paletteTextureUnit, 
+		g_paletteTextureUnit,
 		g_paletteGenTex,
 		g_tbo,
 		g_paletteID);
@@ -240,8 +228,10 @@ void Render()
 	glDisableVertexAttribArray(1);
 	glDisableVertexAttribArray(2);
 	glDisableVertexAttribArray(3);
+}
 
-
+void RenderSkeleton(const glm::mat4& projectionViewModel)
+{
 	glUseProgram(g_programID2);
 
 	struct DebugSkeletonVertex
@@ -251,7 +241,7 @@ void Render()
 		int jointIndex;
 	};
 
-	stride = sizeof(DebugSkeletonVertex);
+	unsigned stride = sizeof(DebugSkeletonVertex);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(offsetof(DebugSkeletonVertex, position)));
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(offsetof(DebugSkeletonVertex, color)));
 	glVertexAttribIPointer(2, 1, GL_INT, stride, reinterpret_cast<void*>(offsetof(DebugSkeletonVertex, jointIndex)));
@@ -315,7 +305,7 @@ void Render()
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned) * debugJointIndices.size(), debugJointIndices.data(), GL_STATIC_DRAW);
 
 		glPointSize(5.f);
-		glDrawElements(GL_POINTS, (GLsizei) debugJointIndices.size(), GL_UNSIGNED_INT, NULL);
+		glDrawElements(GL_POINTS, (GLsizei)debugJointIndices.size(), GL_UNSIGNED_INT, NULL);
 
 		for (unsigned i = 0; i < skeleton->joints.size(); ++i)
 		{
@@ -326,15 +316,16 @@ void Render()
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned) * debugLineIndices.size(), debugLineIndices.data(), GL_STATIC_DRAW);
 
 		glLineWidth(1.f);
-		glDrawElements(GL_LINES, (GLsizei) debugLineIndices.size(), GL_UNSIGNED_INT, NULL);
+		glDrawElements(GL_LINES, (GLsizei)debugLineIndices.size(), GL_UNSIGNED_INT, NULL);
 	}
 
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
 	glDisableVertexAttribArray(2);
+}
 
-
-
+void RenderGrid(const glm::mat4& projectionViewModel)
+{
 	glUseProgram(g_programID5);
 
 	struct GridVertex
@@ -343,7 +334,7 @@ void Render()
 		glm::vec3 color;
 	};
 
-	stride = sizeof(GridVertex);
+	unsigned stride = sizeof(GridVertex);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(offsetof(GridVertex, position)));
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(offsetof(GridVertex, color)));
 	glEnableVertexAttribArray(0);
@@ -395,9 +386,10 @@ void Render()
 
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
+}
 
-
-
+void RenderUI()
+{
 	glUseProgram(g_programID4);
 
 	struct UIVertex
@@ -406,7 +398,7 @@ void Render()
 		float uv[2];
 	};
 
-	stride = sizeof(UIVertex);
+	unsigned stride = sizeof(UIVertex);
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(offsetof(UIVertex, position)));
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(offsetof(UIVertex, uv)));
 	glEnableVertexAttribArray(0);
@@ -467,10 +459,42 @@ void Render()
 	glGenerateMipmap(GL_TEXTURE_2D);
 	glUniform1i(g_uiTextureLocation, g_uiTextureUnit);
 
-	glDrawElements(GL_TRIANGLES, (GLsizei) uiIndices.size(), GL_UNSIGNED_INT, NULL);
+	glDrawElements(GL_TRIANGLES, (GLsizei)uiIndices.size(), GL_UNSIGNED_INT, NULL);
 
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
+}
+
+void Render()
+{
+	//Clear color buffer
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	// TODO: Is this required? Works without it?
+	glBindVertexArray(g_vao);
+
+	glm::mat4 projection = glm::perspective(glm::pi<float>() * 0.25f, (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 10000.0f);
+	//glm::mat4 view = glm::lookAt(glm::vec3(0, 100, 400), glm::vec3(0, 100, 0), glm::vec3(0, 1, 0)); // paladin
+	//glm::mat4 view = glm::lookAt(glm::vec3(0, 200, 400), glm::vec3(0, 100, 0), glm::vec3(0, 1, 0)); // solider
+	glm::mat4 view = glm::lookAt(glm::vec3(0, 200, 700), glm::vec3(0, 50, 0), glm::vec3(0, 1, 0)); // thriller, quarterback
+	//glm::mat4 view = glm::lookAt(glm::vec3(0, 2, 8), glm::vec3(0, 2, 0), glm::vec3(0, 1, 0)); // wonder woman
+	//glm::mat4 view = glm::lookAt(glm::vec3(0, 0, 1), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+	glm::mat4 model = glm::mat4(1.0f);
+	glm::mat4 projectionViewModel = projection * view * model;
+
+	RenderMesh(projectionViewModel);
+
+	RenderSkeleton(projectionViewModel);
+
+	RenderGrid(projectionViewModel);
+
+	// Because of depth testing, and because the UI is currently rendered as
+	// one giant texture the size of the screen instead of just its visible parts,
+	// we must render the UI last. Otherwise, everything fails the depth test.
+	//
+	// Once we render only visible parts, we could render the UI first.
+	// Then, everything behind the UI will fail the depth test, but for good reason.
+	RenderUI();
 }
 
 std::string ReadFile(const char* file)
