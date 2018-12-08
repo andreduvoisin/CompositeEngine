@@ -47,6 +47,8 @@
 #include "ui/cef/UIExternalMessagePump.h"
 #include "core/FpsCounter.h"
 
+#include "event/ToggleBindPoseEvent.h"
+
 const int SCREEN_WIDTH = 1280;
 const int SCREEN_HEIGHT = 720;
 
@@ -54,7 +56,6 @@ SDL_Window* g_window = NULL;
 SDL_GLContext g_context;
 
 bool g_renderQuad = true;
-bool g_renderBindPose = false;
 
 GLuint g_programID = 0;
 GLuint g_vbo = 0;
@@ -209,7 +210,7 @@ void Render()
 	glm::mat4 projectionViewModel = projection * view * model;
 	glUniformMatrix4fv(g_projectionViewModelMatrixID, 1, GL_FALSE, &projectionViewModel[0][0]);
 
-	if (g_renderBindPose)
+	if (engine->IsRenderBindPose())
 	{
 		g_animationComponent->ResetMatrixPalette();
 	}
@@ -1177,7 +1178,7 @@ int main(int argc, char* argv[])
 					{
 						case SDLK_w:
 						{
-							g_renderBindPose = !g_renderBindPose;
+							eventSystem->EnqueueEvent(ToggleBindPoseEvent());
 							break;
 						}
 
