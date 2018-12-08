@@ -25,14 +25,6 @@
 
 #include <glm\gtx\matrix_decompose.hpp>
 
-//#include "ui/simple_app.h"
-//#include "ui/simple_handler.h"
-//#include "include/cef_sandbox_win.h"
-//#include "include/internal/cef_win.h"
-//#include "include/internal/cef_types_wrappers.h"
-//#include "include/internal/cef_ptr.h"
-//#include "SDL_syswm.h"
-
 #include "include/cef_app.h"
 #include "ui/cef/UIClient.h"
 #include "ui/cef/UIRenderHandler.h"
@@ -50,8 +42,8 @@
 #include "core/clock/RealTimeClock.h"
 #include "core/clock/GameTimeClock.h"
 
-const int SCREEN_WIDTH = 1280;
-const int SCREEN_HEIGHT = 720;
+const int SCREEN_WIDTH = 1920;
+const int SCREEN_HEIGHT = 1080;
 
 SDL_Window* g_window = NULL;
 SDL_GLContext g_context;
@@ -167,24 +159,6 @@ void printShaderLog(GLuint shader)
 
 	//Deallocate string
 	delete[] infoLog;
-}
-
-void Update()
-{
-	(void)0;
-}
-
-std::vector<unsigned char> red;
-void MakeRed()
-{
-	red.reserve(SCREEN_WIDTH * SCREEN_HEIGHT * 4);
-	for (int i = 0; i < SCREEN_WIDTH * SCREEN_HEIGHT; ++i)
-	{
-		red.push_back((unsigned char)0);
-		red.push_back((unsigned char)0);
-		red.push_back((unsigned char)255);
-		red.push_back((unsigned char)0);
-	}
 }
 
 void RenderMesh(const glm::mat4& projectionViewModel)
@@ -331,48 +305,44 @@ void RenderGrid(const glm::mat4& projectionViewModel)
 	struct GridVertex
 	{
 		glm::vec3 position;
-		glm::vec3 color;
+		// color is hardcoded in GridShader.frag
 	};
 
 	unsigned stride = sizeof(GridVertex);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(offsetof(GridVertex, position)));
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(offsetof(GridVertex, color)));
 	glEnableVertexAttribArray(0);
-	glEnableVertexAttribArray(1);
 
 	glUniformMatrix4fv(g_projectionViewModelMatrixID5, 1, GL_FALSE, &projectionViewModel[0][0]);
 
 	std::vector<GridVertex> gridVertices;
 	std::vector<unsigned> gridIndices;
 
-	for (int i = -1000; i != 1000; i += 100)
+	int sideLength = 2000;
+	int halfSideLength = sideLength / 2;
+	int increment = 100;
+
+	for (int i = -halfSideLength; i <= halfSideLength; i += increment)
 	{
-		GridVertex gridVertex;
-		gridVertex.position = glm::vec3(i, 0, 1000);
-		gridVertex.color = glm::vec3(1.f, 0.f, 0.f);
-		gridVertices.push_back(gridVertex);
+		GridVertex gridVertexMaxZ;
+		gridVertexMaxZ.position = glm::vec3(i, 0, halfSideLength);
+		gridVertices.push_back(gridVertexMaxZ);
+		gridIndices.push_back(static_cast<unsigned>(gridIndices.size()));
 
-		GridVertex gridVertex2;
-		gridVertex2.position = glm::vec3(i, 0, -1000);
-		gridVertex2.color = glm::vec3(1.f, 0.f, 0.f);
-		gridVertices.push_back(gridVertex2);
-
-		gridIndices.push_back((unsigned)gridIndices.size());
-		gridIndices.push_back((unsigned)gridIndices.size());
+		GridVertex gridVertexMinZ;
+		gridVertexMinZ.position = glm::vec3(i, 0, -halfSideLength);
+		gridVertices.push_back(gridVertexMinZ);
+		gridIndices.push_back(static_cast<unsigned>(gridIndices.size()));
 
 
-		GridVertex gridVertex3;
-		gridVertex3.position = glm::vec3(1000, 0, i);
-		gridVertex3.color = glm::vec3(1.f, 0.f, 0.f);
-		gridVertices.push_back(gridVertex3);
+		GridVertex gridVertexMaxX;
+		gridVertexMaxX.position = glm::vec3(halfSideLength, 0, i);
+		gridVertices.push_back(gridVertexMaxX);
+		gridIndices.push_back(static_cast<unsigned>(gridIndices.size()));
 
-		GridVertex gridVertex4;
-		gridVertex4.position = glm::vec3(-1000, 0, i);
-		gridVertex4.color = glm::vec3(1.f, 0.f, 0.f);
-		gridVertices.push_back(gridVertex4);
-
-		gridIndices.push_back((unsigned)gridIndices.size());
-		gridIndices.push_back((unsigned)gridIndices.size());
+		GridVertex gridVertexMinX;
+		gridVertexMinX.position = glm::vec3(-halfSideLength, 0, i);
+		gridVertices.push_back(gridVertexMinX);
+		gridIndices.push_back(static_cast<unsigned>(gridIndices.size()));
 	}
 
 	glBindBuffer(GL_ARRAY_BUFFER, g_vbo);
@@ -385,7 +355,6 @@ void RenderGrid(const glm::mat4& projectionViewModel)
 	glDrawElements(GL_LINES, (GLsizei)gridIndices.size(), GL_UNSIGNED_INT, NULL);
 
 	glDisableVertexAttribArray(0);
-	glDisableVertexAttribArray(1);
 }
 
 void RenderUI()
@@ -448,9 +417,9 @@ void RenderUI()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	char* viewBuffer = ((UIRenderHandler*)(g_uiClient->GetRenderHandler().get()))->GetViewBuffer();// red.data();
+	char* viewBuffer = ((UIRenderHandler*)(g_uiClient->GetRenderHandler().get()))->GetViewBuffer();
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, SCREEN_WIDTH, SCREEN_HEIGHT, 0, GL_BGRA, GL_UNSIGNED_BYTE, viewBuffer);
-	char* popupBuffer = ((UIRenderHandler*)(g_uiClient->GetRenderHandler().get()))->GetPopupBuffer();// red.data();
+	char* popupBuffer = ((UIRenderHandler*)(g_uiClient->GetRenderHandler().get()))->GetPopupBuffer();
 	if (popupBuffer != nullptr)
 	{
 		const CefRect& popupRect = ((UIRenderHandler*)(g_uiClient->GetRenderHandler().get()))->GetPopupRect();
@@ -644,7 +613,7 @@ bool CreateProgram5()
 	//{
 	//	"#version 410\nout vec4 LFragment; void main() { LFragment = vec4(1.0, 1.0, 1.0, 1.0); }"
 	//};
-	std::string fragmentShaderSource = ReadFile("..\\..\\..\\..\\engine\\graphics\\shaders\\FragmentShader.frag");
+	std::string fragmentShaderSource = ReadFile("..\\..\\..\\..\\engine\\graphics\\shaders\\GridShader.frag");
 	const char* fragmentShaderSourceStr = fragmentShaderSource.c_str();
 	glShaderSource(fragmentShader, 1, &fragmentShaderSourceStr, NULL);
 	glCompileShader(fragmentShader);
@@ -1297,8 +1266,6 @@ int main(int argc, char* argv[])
 		getchar();
 		return -1;
 	}
-
-	MakeRed();
 
 	uint64_t currentTicks = SDL_GetPerformanceCounter();
 	uint64_t previousTicks = 0;
