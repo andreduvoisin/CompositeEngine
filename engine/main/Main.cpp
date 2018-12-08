@@ -67,6 +67,7 @@ GLuint g_tbo = 0;
 
 GLuint g_programID2 = 0;
 GLuint g_programID4 = 0;
+GLuint g_programID5 = 0;
 
 GLuint g_projectionViewModelMatrixID = -1;
 GLuint g_paletteID = -1;
@@ -78,6 +79,8 @@ GLuint g_diffuseTextureID = -1;
 
 GLuint g_projectionViewModelMatrixID2 = -1;
 GLuint g_paletteID2 = -1;
+
+GLuint g_projectionViewModelMatrixID5 = -1;
 
 GLuint g_uiTextureLocation = -1;
 GLuint g_uiTextureUnit = -1;
@@ -202,7 +205,7 @@ void Render()
 	glEnableVertexAttribArray(2);
 	glEnableVertexAttribArray(3);
 
-	glm::mat4 projection = glm::perspective(glm::pi<float>() * 0.25f, (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 1000.0f);
+	glm::mat4 projection = glm::perspective(glm::pi<float>() * 0.25f, (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 10000.0f);
 	//glm::mat4 view = glm::lookAt(glm::vec3(0, 100, 400), glm::vec3(0, 100, 0), glm::vec3(0, 1, 0)); // paladin
 	//glm::mat4 view = glm::lookAt(glm::vec3(0, 200, 400), glm::vec3(0, 100, 0), glm::vec3(0, 1, 0)); // solider
 	glm::mat4 view = glm::lookAt(glm::vec3(0, 200, 700), glm::vec3(0, 50, 0), glm::vec3(0, 1, 0)); // thriller, quarterback
@@ -329,6 +332,71 @@ void Render()
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
 	glDisableVertexAttribArray(2);
+
+
+
+	glUseProgram(g_programID5);
+
+	struct GridVertex
+	{
+		glm::vec3 position;
+		glm::vec3 color;
+	};
+
+	stride = sizeof(GridVertex);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(offsetof(GridVertex, position)));
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(offsetof(GridVertex, color)));
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+
+	glUniformMatrix4fv(g_projectionViewModelMatrixID5, 1, GL_FALSE, &projectionViewModel[0][0]);
+
+	std::vector<GridVertex> gridVertices;
+	std::vector<unsigned> gridIndices;
+
+	for (int i = -1000; i != 1000; i += 100)
+	{
+		GridVertex gridVertex;
+		gridVertex.position = glm::vec3(i, 0, 1000);
+		gridVertex.color = glm::vec3(1.f, 0.f, 0.f);
+		gridVertices.push_back(gridVertex);
+
+		GridVertex gridVertex2;
+		gridVertex2.position = glm::vec3(i, 0, -1000);
+		gridVertex2.color = glm::vec3(1.f, 0.f, 0.f);
+		gridVertices.push_back(gridVertex2);
+
+		gridIndices.push_back((unsigned)gridIndices.size());
+		gridIndices.push_back((unsigned)gridIndices.size());
+
+
+		GridVertex gridVertex3;
+		gridVertex3.position = glm::vec3(1000, 0, i);
+		gridVertex3.color = glm::vec3(1.f, 0.f, 0.f);
+		gridVertices.push_back(gridVertex3);
+
+		GridVertex gridVertex4;
+		gridVertex4.position = glm::vec3(-1000, 0, i);
+		gridVertex4.color = glm::vec3(1.f, 0.f, 0.f);
+		gridVertices.push_back(gridVertex4);
+
+		gridIndices.push_back((unsigned)gridIndices.size());
+		gridIndices.push_back((unsigned)gridIndices.size());
+	}
+
+	glBindBuffer(GL_ARRAY_BUFFER, g_vbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(GridVertex) * gridVertices.size(), gridVertices.data(), GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_ibo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned) * gridIndices.size(), gridIndices.data(), GL_STATIC_DRAW);
+
+	glLineWidth(1.f);
+	glDrawElements(GL_LINES, (GLsizei)gridIndices.size(), GL_UNSIGNED_INT, NULL);
+
+	glDisableVertexAttribArray(0);
+	glDisableVertexAttribArray(1);
+
+
 
 	glUseProgram(g_programID4);
 
@@ -526,6 +594,59 @@ bool CreateProgram4()
 	return true;
 }
 
+bool CreateProgram5()
+{
+	g_programID5 = glCreateProgram();
+
+	// TODO: Copy shaders in CMAKE to .exe dir (or subdir next to .exe).
+
+	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+	std::string vertexShaderSource = ReadFile("..\\..\\..\\..\\engine\\graphics\\shaders\\GridShader.vert");
+	const char* vertexShaderSourceStr = vertexShaderSource.c_str();
+	glShaderSource(vertexShader, 1, &vertexShaderSourceStr, NULL);
+	glCompileShader(vertexShader);
+	GLint vShaderCompiled = GL_FALSE;
+	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &vShaderCompiled);
+	printShaderLog(vertexShader);
+	if (vShaderCompiled != GL_TRUE)
+	{
+		printf("Unable to compile vertex shader %d!\n", vertexShader);
+		return false;
+	}
+	glAttachShader(g_programID5, vertexShader);
+
+	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+	//const GLchar* fragmentShaderSource[] =
+	//{
+	//	"#version 410\nout vec4 LFragment; void main() { LFragment = vec4(1.0, 1.0, 1.0, 1.0); }"
+	//};
+	std::string fragmentShaderSource = ReadFile("..\\..\\..\\..\\engine\\graphics\\shaders\\FragmentShader.frag");
+	const char* fragmentShaderSourceStr = fragmentShaderSource.c_str();
+	glShaderSource(fragmentShader, 1, &fragmentShaderSourceStr, NULL);
+	glCompileShader(fragmentShader);
+	GLint fShaderCompiled = GL_FALSE;
+	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &fShaderCompiled);
+	printShaderLog(fragmentShader);
+	if (fShaderCompiled != GL_TRUE)
+	{
+		printf("Unable to compile fragment shader %d!\n", fragmentShader);
+		return false;
+	}
+	glAttachShader(g_programID5, fragmentShader);
+
+	glLinkProgram(g_programID5);
+	GLint programSuccess = GL_TRUE;
+	glGetProgramiv(g_programID5, GL_LINK_STATUS, &programSuccess);
+	printProgramLog(g_programID5);
+	if (programSuccess != GL_TRUE)
+	{
+		printf("Error linking program %d!\n", g_programID5);
+		return false;
+	}
+
+	return true;
+}
+
 bool InitializeOpenGL()
 {
 	g_programID = glCreateProgram();
@@ -586,7 +707,14 @@ bool InitializeOpenGL()
 		return false;
 	}
 
+	if (!CreateProgram5())
+	{
+		return false;
+	}
+
 	g_uiTextureLocation = glGetUniformLocation(g_programID4, "uiTexture");
+
+	g_projectionViewModelMatrixID5 = glGetUniformLocation(g_programID5, "projectionViewModel");
 
 	g_projectionViewModelMatrixID2 = glGetUniformLocation(g_programID2, "projectionViewModel");
 	g_paletteID2 = glGetUniformLocation(g_programID2, "palette");
