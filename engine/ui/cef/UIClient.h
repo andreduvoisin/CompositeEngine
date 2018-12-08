@@ -1,6 +1,7 @@
 #ifndef _CE_UI_CLIENT_H_
 #define _CE_UI_CLIENT_H_
 
+#include "UIContextMenuHandler.h"
 #include "UIRenderHandler.h"
 #include "UILifeSpanHandler.h"
 #include "UILoadHandler.h"
@@ -13,6 +14,7 @@ class UIClient : public CefClient
 {
 public:
 	UIClient(
+		CefRefPtr<UIContextMenuHandler> contextMenuHandler,
 		CefRefPtr<UIRenderHandler> renderHandler,
 		CefRefPtr<UILifeSpanHandler> lifeSpanHandler,
 		CefRefPtr<UILoadHandler> loadHandler,
@@ -20,6 +22,7 @@ public:
 		CefRefPtr<CefMessageRouterBrowserSide> messageRouterBrowserSide);
 
 	// CefClient Interface
+	CefRefPtr<CefContextMenuHandler> GetContextMenuHandler() override;
 	CefRefPtr<CefRenderHandler> GetRenderHandler() override;
 	CefRefPtr<CefLifeSpanHandler> GetLifeSpanHandler() override;
 	CefRefPtr<CefLoadHandler> GetLoadHandler() override;
@@ -30,6 +33,7 @@ public:
 		CefRefPtr<CefProcessMessage> message) override;
 
 private:
+	CefRefPtr<UIContextMenuHandler> contextMenuHandler;
 	CefRefPtr<UIRenderHandler> renderHandler;
 	CefRefPtr<UILifeSpanHandler> lifeSpanHandler;
 	CefRefPtr<UILoadHandler> loadHandler;

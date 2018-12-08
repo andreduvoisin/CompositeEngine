@@ -1,18 +1,25 @@
 #include "UIClient.h"
 
 UIClient::UIClient(
+		CefRefPtr<UIContextMenuHandler> contextMenuHandler,
 		CefRefPtr<UIRenderHandler> renderHandler,
 		CefRefPtr<UILifeSpanHandler> lifeSpanHandler,
 		CefRefPtr<UILoadHandler> loadHandler,
 		CefRefPtr<UIRequestHandler> requestHandler,
 		CefRefPtr<CefMessageRouterBrowserSide> messageRouterBrowserSide)
-	: renderHandler(renderHandler)
+	: contextMenuHandler(contextMenuHandler)
+	, renderHandler(renderHandler)
 	, lifeSpanHandler(lifeSpanHandler)
 	, loadHandler(loadHandler)
 	, requestHandler(requestHandler)
 	, messageRouterBrowserSide(messageRouterBrowserSide)
 {
 
+}
+
+CefRefPtr<CefContextMenuHandler> UIClient::GetContextMenuHandler()
+{
+	return contextMenuHandler;
 }
 
 CefRefPtr<CefRenderHandler> UIClient::GetRenderHandler()
