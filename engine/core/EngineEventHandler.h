@@ -18,9 +18,12 @@ namespace CE
 
 		void SendPauseStateEvent();
 
+		void SendBindPoseStateEvent();
+
 	private:
 		void HandleTogglePauseEvent();
 		void HandleSetRenderMode(const Event& event);
+		void HandleToggleRenderBindPose();
 
 		EventSystem* eventSystem;
 		Engine* engine;
