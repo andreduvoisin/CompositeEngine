@@ -1,10 +1,13 @@
 #ifndef _CE_ANIMATION_COMPONENT_H_
 #define _CE_ANIMATION_COMPONENT_H_
 
+#include "AnimationEventHandler.h"
+
 #include <glm\glm.hpp>
 
 #include <vector>
 
+class EventSystem;
 typedef unsigned int GLuint;
 
 namespace CE
@@ -24,9 +27,12 @@ namespace CE
 	class AnimationComponent
 	{
 	public:
-		AnimationComponent(Skeleton* skeleton, Animations* animations);
+		AnimationComponent(
+			Skeleton* skeleton,
+			Animations* animations,
+			EventSystem* eventSystem);
 
-		void Update(float deltaTime);
+		void Update(float deltaSeconds);
 		void BindMatrixPalette(
 			GLuint g_paletteTextureUnit,
 			GLuint g_paletteGenTex,
@@ -43,14 +49,15 @@ namespace CE
 		void InitializePalette();
 		void FindInterpolationKeys(int currentJoint);
 
-	private:
+		AnimationEventHandler animationEventHandler;
+
 		Skeleton* m_skeleton;
 		Animations* m_animations;
-
 		std::vector<AnimationCache> m_animationCaches;
 		std::vector<glm::mat4> m_palette;
-
 		int m_currentAnimation;
+
+		friend class AnimationEventHandler;
 	};
 }
 

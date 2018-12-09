@@ -119,3 +119,6 @@ if(WIN32)
 		DESTINATION "${PROJECT_BINARY_DIR}/engine/${CE_CONFIGURATION}"
 	)
 endif()
+
+# RapidJSON
+include_directories("${EXTERN_DIR}/rapidjson-67fac85/include")

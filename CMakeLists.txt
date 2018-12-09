@@ -2,6 +2,10 @@ cmake_minimum_required(VERSION 3.7.2)
 
 project(CompositeEngine)
 
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
 set(EXTERN_DIR "${CMAKE_CURRENT_LIST_DIR}/extern")
 set(ENGINE_SRC_DIR "${CMAKE_CURRENT_LIST_DIR}/engine")
 set(ASSET_CONVERTER_SRC_DIR "${CMAKE_CURRENT_LIST_DIR}/asset-converter")

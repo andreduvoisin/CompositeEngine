@@ -54,6 +54,10 @@ GAME ENGINE BADASSERY
 	* CEF 3.3497.1840.gcd24143 / Chromium 69.0.3497.100: http://opensource.spotify.com/cefbuilds/index.html
 	* Reference: https://bitbucket.org/chromiumembedded/cef/wiki/Home
 
+* RapidJSON: https://github.com/Tencent/rapidjson
+	* 67fac85 (master): https://github.com/Tencent/rapidjson/tree/67fac85e96220f69076121d569abd15471abb6bf
+	* Reference: http://rapidjson.org/
+
 ### Resources ###
 
 * DirectX:
