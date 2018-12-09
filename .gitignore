@@ -6,6 +6,12 @@ build/*
 # Visual Studio
 .vs
 
+# VS Code
+.vscode
+
+# Intellij Idea
+.idea
+
 # Shader Generated Header Files
 src/shaders/*.h
 

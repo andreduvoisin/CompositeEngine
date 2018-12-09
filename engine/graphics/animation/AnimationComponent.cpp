@@ -3,18 +3,23 @@
 #include "Animation.h"
 #include "graphics\skeleton\Skeleton.h"
 
+#include "event/core/EventSystem.h"
 #include "common\Math.h"
 
 #include <GL\glew.h>
 
 #include <algorithm>
+#include "event/AnimationStateEvent.h"
+#include "event/SetAnimationTimeEvent.h"
 
 namespace CE
 {
 	AnimationComponent::AnimationComponent(
-			Skeleton* skeleton, 
-			Animations* animations)
-		: m_skeleton(skeleton)
+			Skeleton* skeleton,
+			Animations* animations,
+			EventSystem* eventSystem)
+		: animationEventHandler(eventSystem, this)
+		, m_skeleton(skeleton)
 		, m_animations(animations)
 		, m_currentAnimation(0)
 	{
@@ -131,7 +136,7 @@ namespace CE
 		}
 	}
 
-	void AnimationComponent::Update(float deltaTime)
+	void AnimationComponent::Update(float deltaSeconds)
 	{
 		if (m_animations->empty())
 		{
@@ -141,7 +146,7 @@ namespace CE
 		Animation* animation = &m_animations->at(m_currentAnimation);
 		AnimationCache* animationCache = &m_animationCaches[m_currentAnimation];
 
-		animationCache->currTime += deltaTime * .001f;
+		animationCache->currTime += deltaSeconds;
 
 		if (animationCache->currTime > animation->duration)
 		{
@@ -199,6 +204,8 @@ namespace CE
 		{
 			m_palette[i] = m_palette[i] * m_skeleton->joints[i].inverseBindPose;
 		}
+
+		animationEventHandler.SendAnimationStateEvent();
 	}
 
 	void AnimationComponent::BindMatrixPalette(

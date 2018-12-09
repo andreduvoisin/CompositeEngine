@@ -1,4 +1,5 @@
 #include <SDL.h>
+#include <SDL_syswm.h>
 #include <GL\glew.h>
 #include <SDL_opengl.h>
 #include <glm\glm.hpp>
@@ -24,33 +25,32 @@
 
 #include <glm\gtx\matrix_decompose.hpp>
 
-//#include "ui/simple_app.h"
-//#include "ui/simple_handler.h"
-//#include "include/cef_sandbox_win.h"
-//#include "include/internal/cef_win.h"
-//#include "include/internal/cef_types_wrappers.h"
-//#include "include/internal/cef_ptr.h"
-//#include "SDL_syswm.h"
-
 #include "include/cef_app.h"
-#include "ui/UIClient.h"
-#include "ui/UIRenderHandler.h"
-#include "SDL_syswm.h"
-#include "ui/UIApp.h"
-#include "ui/UIBrowserProcessHandler.h"
-#include "ui/UIRequestHandler.h"
-#include "ui/UILifeSpanHandler.h"
-#include "ui/UIRenderProcessHandler.h"
-#include "ui/UIQueryHandler.h"
+#include "ui/cef/UIClient.h"
+#include "ui/cef/UIRenderHandler.h"
+#include "ui/cef/UIApp.h"
+#include "ui/cef/UIBrowserProcessHandler.h"
+#include "ui/cef/UIRequestHandler.h"
+#include "ui/cef/UILifeSpanHandler.h"
+#include "ui/cef/UIRenderProcessHandler.h"
+#include "ui/cef/UIQueryHandler.h"
+#include "core/Engine.h"
+#include "ui/cef/UIQueryResponder.h"
+#include "ui/cef/UIExternalMessagePump.h"
+#include "core/FpsCounter.h"
+#include "common/debug/AssertThread.h"
+#include "core/clock/RealTimeClock.h"
+#include "core/clock/GameTimeClock.h"
+#include "event/ToggleBindPoseEvent.h"
+#include "core/Camera.h"
 
-const int SCREEN_WIDTH = 1280;
-const int SCREEN_HEIGHT = 720;
+const int SCREEN_WIDTH = 1920;
+const int SCREEN_HEIGHT = 1080;
 
 SDL_Window* g_window = NULL;
 SDL_GLContext g_context;
 
 bool g_renderQuad = true;
-bool g_renderBindPose = false;
 
 GLuint g_programID = 0;
 GLuint g_vbo = 0;
@@ -60,6 +60,7 @@ GLuint g_tbo = 0;
 
 GLuint g_programID2 = 0;
 GLuint g_programID4 = 0;
+GLuint g_programID5 = 0;
 
 GLuint g_projectionViewModelMatrixID = -1;
 GLuint g_paletteID = -1;
@@ -71,6 +72,8 @@ GLuint g_diffuseTextureID = -1;
 
 GLuint g_projectionViewModelMatrixID2 = -1;
 GLuint g_paletteID2 = -1;
+
+GLuint g_projectionViewModelMatrixID5 = -1;
 
 GLuint g_uiTextureLocation = -1;
 GLuint g_uiTextureUnit = -1;
@@ -87,10 +90,17 @@ CE::AssetImporter* g_assetImporter;
 CE::MeshComponent* g_meshComponent;
 CE::AnimationComponent* g_animationComponent;
 
-int g_renderType = 0;
-
 CefRefPtr<UIClient> g_uiClient;
 CefRefPtr<CefBrowser> g_browser;
+
+EventSystem* eventSystem;
+CE::Engine* engine;
+UIQueryHandler* queryHandler;
+UIExternalMessagePump* externalMessagePump;
+
+CE::FpsCounter* g_fpsCounter;
+
+CE::Camera* g_camera;
 
 void printProgramLog(GLuint program)
 {
@@ -154,46 +164,9 @@ void printShaderLog(GLuint shader)
 	delete[] infoLog;
 }
 
-void HandleKeys(unsigned char key, int x, int y)
+void RenderMesh(const glm::mat4& projectionViewModel)
 {
-	if (key == 'q')
-	{
-		g_renderQuad = !g_renderQuad;
-		g_renderType += 1;
-		g_renderType %= 3;
-	}
-
-	if (key == 'w')
-	{
-		g_renderBindPose = !g_renderBindPose;
-	}
-}
-
-void Update()
-{
-	(void)0;
-}
-
-std::vector<unsigned char> red;
-void MakeRed()
-{
-	red.reserve(SCREEN_WIDTH * SCREEN_HEIGHT * 4);
-	for (int i = 0; i < SCREEN_WIDTH * SCREEN_HEIGHT; ++i)
-	{
-		red.push_back((unsigned char)0);
-		red.push_back((unsigned char)0);
-		red.push_back((unsigned char)255);
-		red.push_back((unsigned char)0);
-	}
-}
-
-void Render()
-{
-	//Clear color buffer
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 	glUseProgram(g_programID);
-	glBindVertexArray(g_vao);
 
 	unsigned int stride = sizeof(CE::Vertex1P1UV4J);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(offsetof(CE::Vertex1P1UV4J, position)));
@@ -205,28 +178,20 @@ void Render()
 	glEnableVertexAttribArray(2);
 	glEnableVertexAttribArray(3);
 
-	glm::mat4 projection = glm::perspective(glm::pi<float>() * 0.25f, (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 1000.0f);
-	//glm::mat4 view = glm::lookAt(glm::vec3(0, 100, 400), glm::vec3(0, 100, 0), glm::vec3(0, 1, 0)); // paladin
-	//glm::mat4 view = glm::lookAt(glm::vec3(0, 200, 400), glm::vec3(0, 100, 0), glm::vec3(0, 1, 0)); // solider
-	glm::mat4 view = glm::lookAt(glm::vec3(0, 200, 700), glm::vec3(0, 50, 0), glm::vec3(0, 1, 0)); // thriller
-	//glm::mat4 view = glm::lookAt(glm::vec3(0, 2, 8), glm::vec3(0, 2, 0), glm::vec3(0, 1, 0)); // wonder woman
-	//glm::mat4 view = glm::lookAt(glm::vec3(0, 0, 1), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
-	glm::mat4 model = glm::mat4(1.0f);
-	glm::mat4 projectionViewModel = projection * view * model;
 	glUniformMatrix4fv(g_projectionViewModelMatrixID, 1, GL_FALSE, &projectionViewModel[0][0]);
 
-	if (g_renderBindPose)
+	if (engine->IsRenderBindPose())
 	{
 		g_animationComponent->ResetMatrixPalette();
 	}
 
 	g_animationComponent->BindMatrixPalette(
-		g_paletteTextureUnit, 
+		g_paletteTextureUnit,
 		g_paletteGenTex,
 		g_tbo,
 		g_paletteID);
 
-	if (g_renderType == 0 || g_renderType == 2)
+	if (engine->RenderMode() == 0 || engine->RenderMode() == 2)
 	{
 		g_meshComponent->Draw(
 			g_vbo,
@@ -240,8 +205,10 @@ void Render()
 	glDisableVertexAttribArray(1);
 	glDisableVertexAttribArray(2);
 	glDisableVertexAttribArray(3);
+}
 
-
+void RenderSkeleton(const glm::mat4& projectionViewModel)
+{
 	glUseProgram(g_programID2);
 
 	struct DebugSkeletonVertex
@@ -251,7 +218,7 @@ void Render()
 		int jointIndex;
 	};
 
-	stride = sizeof(DebugSkeletonVertex);
+	unsigned stride = sizeof(DebugSkeletonVertex);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(offsetof(DebugSkeletonVertex, position)));
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(offsetof(DebugSkeletonVertex, color)));
 	glVertexAttribIPointer(2, 1, GL_INT, stride, reinterpret_cast<void*>(offsetof(DebugSkeletonVertex, jointIndex)));
@@ -306,7 +273,7 @@ void Render()
 		}
 	}
 
-	if (g_renderType == 1 || g_renderType == 2)
+	if (engine->RenderMode() == 1 || engine->RenderMode() == 2)
 	{
 		glBindBuffer(GL_ARRAY_BUFFER, g_vbo);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(DebugSkeletonVertex) * debugVertices.size(), debugVertices.data(), GL_STATIC_DRAW);
@@ -315,7 +282,7 @@ void Render()
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned) * debugJointIndices.size(), debugJointIndices.data(), GL_STATIC_DRAW);
 
 		glPointSize(5.f);
-		glDrawElements(GL_POINTS, (GLsizei) debugJointIndices.size(), GL_UNSIGNED_INT, NULL);
+		glDrawElements(GL_POINTS, (GLsizei)debugJointIndices.size(), GL_UNSIGNED_INT, NULL);
 
 		for (unsigned i = 0; i < skeleton->joints.size(); ++i)
 		{
@@ -326,13 +293,75 @@ void Render()
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned) * debugLineIndices.size(), debugLineIndices.data(), GL_STATIC_DRAW);
 
 		glLineWidth(1.f);
-		glDrawElements(GL_LINES, (GLsizei) debugLineIndices.size(), GL_UNSIGNED_INT, NULL);
+		glDrawElements(GL_LINES, (GLsizei)debugLineIndices.size(), GL_UNSIGNED_INT, NULL);
 	}
 
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
 	glDisableVertexAttribArray(2);
+}
 
+void RenderGrid(const glm::mat4& projectionViewModel)
+{
+	glUseProgram(g_programID5);
+
+	struct GridVertex
+	{
+		glm::vec3 position;
+		// color is hardcoded in GridShader.frag
+	};
+
+	unsigned stride = sizeof(GridVertex);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(offsetof(GridVertex, position)));
+	glEnableVertexAttribArray(0);
+
+	glUniformMatrix4fv(g_projectionViewModelMatrixID5, 1, GL_FALSE, &projectionViewModel[0][0]);
+
+	std::vector<GridVertex> gridVertices;
+	std::vector<unsigned> gridIndices;
+
+	int sideLength = 2000;
+	int halfSideLength = sideLength / 2;
+	int increment = 100;
+
+	for (int i = -halfSideLength; i <= halfSideLength; i += increment)
+	{
+		GridVertex gridVertexMaxZ;
+		gridVertexMaxZ.position = glm::vec3(i, 0, halfSideLength);
+		gridVertices.push_back(gridVertexMaxZ);
+		gridIndices.push_back(static_cast<unsigned>(gridIndices.size()));
+
+		GridVertex gridVertexMinZ;
+		gridVertexMinZ.position = glm::vec3(i, 0, -halfSideLength);
+		gridVertices.push_back(gridVertexMinZ);
+		gridIndices.push_back(static_cast<unsigned>(gridIndices.size()));
+
+
+		GridVertex gridVertexMaxX;
+		gridVertexMaxX.position = glm::vec3(halfSideLength, 0, i);
+		gridVertices.push_back(gridVertexMaxX);
+		gridIndices.push_back(static_cast<unsigned>(gridIndices.size()));
+
+		GridVertex gridVertexMinX;
+		gridVertexMinX.position = glm::vec3(-halfSideLength, 0, i);
+		gridVertices.push_back(gridVertexMinX);
+		gridIndices.push_back(static_cast<unsigned>(gridIndices.size()));
+	}
+
+	glBindBuffer(GL_ARRAY_BUFFER, g_vbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(GridVertex) * gridVertices.size(), gridVertices.data(), GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_ibo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned) * gridIndices.size(), gridIndices.data(), GL_STATIC_DRAW);
+
+	glLineWidth(1.f);
+	glDrawElements(GL_LINES, (GLsizei)gridIndices.size(), GL_UNSIGNED_INT, NULL);
+
+	glDisableVertexAttribArray(0);
+}
+
+void RenderUI()
+{
 	glUseProgram(g_programID4);
 
 	struct UIVertex
@@ -341,7 +370,7 @@ void Render()
 		float uv[2];
 	};
 
-	stride = sizeof(UIVertex);
+	unsigned stride = sizeof(UIVertex);
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(offsetof(UIVertex, position)));
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(offsetof(UIVertex, uv)));
 	glEnableVertexAttribArray(0);
@@ -391,15 +420,49 @@ void Render()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	char* buffer = ((UIRenderHandler*)(g_uiClient->GetRenderHandler().get()))->getBuffer();// red.data();
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, SCREEN_WIDTH, SCREEN_HEIGHT, 0, GL_BGRA, GL_UNSIGNED_BYTE, buffer);
+	char* viewBuffer = ((UIRenderHandler*)(g_uiClient->GetRenderHandler().get()))->GetViewBuffer();
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, SCREEN_WIDTH, SCREEN_HEIGHT, 0, GL_BGRA, GL_UNSIGNED_BYTE, viewBuffer);
+	char* popupBuffer = ((UIRenderHandler*)(g_uiClient->GetRenderHandler().get()))->GetPopupBuffer();
+	if (popupBuffer != nullptr)
+	{
+		const CefRect& popupRect = ((UIRenderHandler*)(g_uiClient->GetRenderHandler().get()))->GetPopupRect();
+		glTexSubImage2D(GL_TEXTURE_2D, 0, popupRect.x, popupRect.y, popupRect.width, popupRect.height, GL_BGRA, GL_UNSIGNED_BYTE, popupBuffer);
+	}
 	glGenerateMipmap(GL_TEXTURE_2D);
 	glUniform1i(g_uiTextureLocation, g_uiTextureUnit);
 
-	glDrawElements(GL_TRIANGLES, (GLsizei) uiIndices.size(), GL_UNSIGNED_INT, NULL);
+	glDrawElements(GL_TRIANGLES, (GLsizei)uiIndices.size(), GL_UNSIGNED_INT, NULL);
 
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
+}
+
+void Render()
+{
+	//Clear color buffer
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	// TODO: Is this required? Works without it?
+	glBindVertexArray(g_vao);
+
+	glm::mat4 projection = glm::perspective(glm::pi<float>() * 0.25f, (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 10000.0f);
+	glm::mat4 view = g_camera->CreateViewMatrix();
+	glm::mat4 model = glm::mat4(1.0f);
+	glm::mat4 projectionViewModel = projection * view * model;
+
+	RenderMesh(projectionViewModel);
+
+	RenderSkeleton(projectionViewModel);
+
+	RenderGrid(projectionViewModel);
+
+	// Because of depth testing, and because the UI is currently rendered as
+	// one giant texture the size of the screen instead of just its visible parts,
+	// we must render the UI last. Otherwise, everything fails the depth test.
+	//
+	// Once we render only visible parts, we could render the UI first.
+	// Then, everything behind the UI will fail the depth test, but for good reason.
+	RenderUI();
 }
 
 std::string ReadFile(const char* file)
@@ -523,6 +586,59 @@ bool CreateProgram4()
 	return true;
 }
 
+bool CreateProgram5()
+{
+	g_programID5 = glCreateProgram();
+
+	// TODO: Copy shaders in CMAKE to .exe dir (or subdir next to .exe).
+
+	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+	std::string vertexShaderSource = ReadFile("..\\..\\..\\..\\engine\\graphics\\shaders\\GridShader.vert");
+	const char* vertexShaderSourceStr = vertexShaderSource.c_str();
+	glShaderSource(vertexShader, 1, &vertexShaderSourceStr, NULL);
+	glCompileShader(vertexShader);
+	GLint vShaderCompiled = GL_FALSE;
+	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &vShaderCompiled);
+	printShaderLog(vertexShader);
+	if (vShaderCompiled != GL_TRUE)
+	{
+		printf("Unable to compile vertex shader %d!\n", vertexShader);
+		return false;
+	}
+	glAttachShader(g_programID5, vertexShader);
+
+	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+	//const GLchar* fragmentShaderSource[] =
+	//{
+	//	"#version 410\nout vec4 LFragment; void main() { LFragment = vec4(1.0, 1.0, 1.0, 1.0); }"
+	//};
+	std::string fragmentShaderSource = ReadFile("..\\..\\..\\..\\engine\\graphics\\shaders\\GridShader.frag");
+	const char* fragmentShaderSourceStr = fragmentShaderSource.c_str();
+	glShaderSource(fragmentShader, 1, &fragmentShaderSourceStr, NULL);
+	glCompileShader(fragmentShader);
+	GLint fShaderCompiled = GL_FALSE;
+	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &fShaderCompiled);
+	printShaderLog(fragmentShader);
+	if (fShaderCompiled != GL_TRUE)
+	{
+		printf("Unable to compile fragment shader %d!\n", fragmentShader);
+		return false;
+	}
+	glAttachShader(g_programID5, fragmentShader);
+
+	glLinkProgram(g_programID5);
+	GLint programSuccess = GL_TRUE;
+	glGetProgramiv(g_programID5, GL_LINK_STATUS, &programSuccess);
+	printProgramLog(g_programID5);
+	if (programSuccess != GL_TRUE)
+	{
+		printf("Error linking program %d!\n", g_programID5);
+		return false;
+	}
+
+	return true;
+}
+
 bool InitializeOpenGL()
 {
 	g_programID = glCreateProgram();
@@ -583,7 +699,14 @@ bool InitializeOpenGL()
 		return false;
 	}
 
+	if (!CreateProgram5())
+	{
+		return false;
+	}
+
 	g_uiTextureLocation = glGetUniformLocation(g_programID4, "uiTexture");
+
+	g_projectionViewModelMatrixID5 = glGetUniformLocation(g_programID5, "projectionViewModel");
 
 	g_projectionViewModelMatrixID2 = glGetUniformLocation(g_programID2, "projectionViewModel");
 	g_paletteID2 = glGetUniformLocation(g_programID2, "palette");
@@ -608,7 +731,7 @@ bool InitializeOpenGL()
 		*texture);
 
 	g_meshComponent = new CE::MeshComponent(meshes, texture);
-	g_animationComponent = new CE::AnimationComponent(skeleton, animations);
+	g_animationComponent = new CE::AnimationComponent(skeleton, animations, eventSystem);
 
 	glGenVertexArrays(1, &g_vao);
 	glBindVertexArray(g_vao);
@@ -649,8 +772,9 @@ int InitializeCef()
 	HINSTANCE hInstance = GetModuleHandle(NULL);
 	CefMainArgs main_args(hInstance);
 
+	externalMessagePump = new UIExternalMessagePump();
 	CefRefPtr<CefMessageRouterRendererSide> messageRouterRendererSide = CefMessageRouterRendererSide::Create(messageRouterConfig);
-	CefRefPtr<UIBrowserProcessHandler> browserProcessHandler = new UIBrowserProcessHandler();
+	CefRefPtr<UIBrowserProcessHandler> browserProcessHandler = new UIBrowserProcessHandler(externalMessagePump);
 	CefRefPtr<UIRenderProcessHandler> renderProcessHandler = new UIRenderProcessHandler(messageRouterRendererSide);
 	CefRefPtr<UIApp> app = new UIApp(browserProcessHandler, renderProcessHandler);
 
@@ -663,6 +787,7 @@ int InitializeCef()
 
 	CefSettings settings;
 	settings.external_message_pump = true;
+	settings.windowless_rendering_enabled = true;
 	settings.remote_debugging_port = 3469;
 	if (!CefInitialize(main_args, settings, app, NULL))
 	{
@@ -675,14 +800,21 @@ int InitializeCef()
 
 bool StartCef()
 {
-	UIQueryHandler* queryHandler = new UIQueryHandler();
 	CefRefPtr<CefMessageRouterBrowserSide> messageRouterBrowserSide = CefMessageRouterBrowserSide::Create(messageRouterConfig);
 	messageRouterBrowserSide->AddHandler(queryHandler, true);
 
+	CefRefPtr<UIContextMenuHandler> contextMenuHandler = new UIContextMenuHandler();
 	CefRefPtr<UIRenderHandler> renderHandler = new UIRenderHandler(SCREEN_WIDTH, SCREEN_HEIGHT);
 	CefRefPtr<UILifeSpanHandler> lifeSpanHandler = new UILifeSpanHandler(messageRouterBrowserSide);
+	CefRefPtr<UILoadHandler> loadHandler = new UILoadHandler();
 	CefRefPtr<UIRequestHandler> requestHandler = new UIRequestHandler(messageRouterBrowserSide);
-	g_uiClient = new UIClient(renderHandler, lifeSpanHandler, requestHandler, messageRouterBrowserSide);
+	g_uiClient = new UIClient(
+		contextMenuHandler,
+		renderHandler,
+		lifeSpanHandler,
+		loadHandler,
+		requestHandler,
+		messageRouterBrowserSide);
 
 	SDL_SysWMinfo sysInfo;
 	SDL_VERSION(&sysInfo.version);
@@ -698,14 +830,33 @@ bool StartCef()
 	g_browser = CefBrowserHost::CreateBrowserSync(
 		windowInfo,
 		g_uiClient,
-		"about:blank",
+		"http://localhost:3000", // "about:blank"
 		browserSettings,
 		nullptr);
 
-	std::string source = ReadFile("..\\..\\..\\..\\engine\\ui\\KevinsABitch.html");
-	g_browser->GetMainFrame()->LoadString(source, "about:blank");
-
 	return true;
+}
+
+void ToggleDevToolsWindow()
+{
+	if (g_browser->GetHost()->HasDevTools())
+	{
+		g_browser->GetHost()->CloseDevTools();
+	}
+	else
+	{
+		SDL_SysWMinfo sysInfo;
+		SDL_VERSION(&sysInfo.version);
+		if (!SDL_GetWindowWMInfo(g_window, &sysInfo))
+		{
+			return;
+		}
+
+		CefBrowserSettings browserSettings;
+		CefWindowInfo windowInfo;
+		windowInfo.SetAsPopup(sysInfo.info.win.window, "DevTools");
+		g_browser->GetHost()->ShowDevTools(windowInfo, g_uiClient, browserSettings, CefPoint(0, 0));
+	}
 }
 
 bool IsKeyDown(WPARAM wparam) {
@@ -793,7 +944,8 @@ int GetCefKeyboardModifiers(WPARAM wparam, LPARAM lparam) {
 	return modifiers;
 }
 
-void WindowsMessageHook(void* userdata,
+void WindowsMessageHook(
+		void* userdata,
 		void* hWnd,
 		unsigned int message,
 		Uint64 wParam,
@@ -809,8 +961,8 @@ void WindowsMessageHook(void* userdata,
 		case WM_CHAR:
 		{
 			CefKeyEvent keyEvent;
-			keyEvent.windows_key_code = (int)wParam;
-			keyEvent.native_key_code = (int)lParam;
+			keyEvent.windows_key_code = static_cast<int>(wParam);
+			keyEvent.native_key_code = static_cast<int>(lParam);
 			keyEvent.is_system_key = message == WM_SYSCHAR
 				|| message == WM_SYSKEYDOWN
 				|| message == WM_SYSKEYUP;
@@ -850,6 +1002,10 @@ bool Initialize()
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 
+	// Enable MSAA.
+	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
+
 	g_window = SDL_CreateWindow(
 		"Composite Engine",
 		SDL_WINDOWPOS_UNDEFINED,
@@ -882,16 +1038,30 @@ bool Initialize()
 		printf("Error initializing GLEW! %s\n", glewGetErrorString(glewError));
 	}
 
-	// Use VSync
-	if (SDL_GL_SetSwapInterval(1) < 0)
+	// Disable VSync
+	if (SDL_GL_SetSwapInterval(0) < 0)
 	{
-		printf("Warning: Unable to set VSync! SDL_Error: %s\n", SDL_GetError());
+		printf("Warning: Unable to set immediate updates for VSync! SDL_Error: %s\n", SDL_GetError());
 	}
+
+	SDL_SetHint(SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH, "1");
 
 	//CE::MeshManager::Get().Initialize(g_fbxImporter);
 	//CE::AnimationManager::Get().Initialize(g_fbxImporter);
 	//CE::SkeletonManager::Get().Initialize(g_fbxImporter);
 	//CE::TextureManager::Get().Initialize(g_stbiImporter);
+
+	eventSystem = new EventSystem();
+	engine = new CE::Engine(eventSystem);
+	queryHandler = new UIQueryHandler(eventSystem, new UIQueryResponder(eventSystem));
+
+	g_fpsCounter = new CE::FpsCounter(eventSystem);
+
+	//g_camera = new CE::Camera(glm::vec3(0, 100, 400), glm::vec3(0, 100, 0)); // paladin
+	//g_camera = new CE::Camera(glm::vec3(0, 200, 400), glm::vec3(0, 100, 0)); // solider
+	g_camera = new CE::Camera(glm::vec3(0, 200, 700), glm::vec3(0, 0, -1)); // thriller, quarterback
+	//g_camera = new CE::Camera(glm::vec3(0, 2, 8), glm::vec3(0, 2, 0)); // wonder woman
+	//g_camera = new CE::Camera(glm::vec3(0, 0, 1), glm::vec3(0, 0, 0));
 
 	if (!InitializeOpenGL())
 	{
@@ -913,6 +1083,9 @@ bool Initialize()
 	glEnable(GL_DEPTH_TEST); // enable depth-testing
 	glDepthFunc(GL_LESS); // depth-testing interprets a smaller value as "closer"
 
+	// Enable MSAA.
+	glEnable(GL_MULTISAMPLE);
+
 	// enable alpha blending (allows transparent textures)
 	// https://gamedev.stackexchange.com/questions/29492/opengl-blending-gui-textures
 	// https://www.opengl.org/archives/resources/faq/technical/transparency.htm
@@ -930,6 +1103,8 @@ bool Initialize()
 
 void StopCef()
 {
+	externalMessagePump->Shutdown();
+
 	g_browser->GetHost()->CloseBrowser(true);
 
 	g_browser = nullptr;
@@ -1092,31 +1267,10 @@ unsigned GetCefMouseModifiers(const SDL_Event& event)
 	return modifiers;
 }
 
-const int64 kMaxTimerDelay = 1000 / 30;  // 30fps
-
-// TODO: This needs to look more like the external message pump in cefclient.
-Uint32 TimerCallback(Uint32 interval, void *param)
-{
-	// TODO: Duplicates UIBrowserProcessHandler::OnScheduleMessagePumpWork code.
-	SDL_Event event;
-	SDL_UserEvent userEvent;
-	userEvent.type = SDL_USEREVENT;
-	userEvent.code = 0;
-	userEvent.data1 = NULL;
-	userEvent.data2 = NULL;
-	event.type = SDL_USEREVENT;
-	event.user = userEvent;
-	SDL_PushEvent(&event);
-	return kMaxTimerDelay;
-}
-
-void SetTimer()
-{
-	SDL_AddTimer(kMaxTimerDelay, TimerCallback, NULL);
-}
-
 int main(int argc, char* argv[])
 {
+	CE_SET_MAIN_THREAD();
+
 	// For now, this must come first because of the CEF subprocess architecture.
 	// TODO: Look into spawning subprocesses via a separate executable. We need this for MacOS.
 	int exitCode = InitializeCef();
@@ -1132,38 +1286,80 @@ int main(int argc, char* argv[])
 		return -1;
 	}
 
-	MakeRed();
-	SetTimer();
+	uint64_t currentTicks = SDL_GetPerformanceCounter();
+	uint64_t previousTicks = 0;
+
+	CE::RealTimeClock::Get().Initialize(currentTicks);
+	CE::GameTimeClock::Get().Initialize(currentTicks);
 
 	bool quit = false;
-	SDL_Event event;
-
-	SDL_StartTextInput();
-
-	unsigned long long now = SDL_GetPerformanceCounter();
-	unsigned long long last = 0;
-	float deltaTime = 0;
 
 	while (!quit)
 	{
-		last = now;
-		now = SDL_GetPerformanceCounter();
-		deltaTime = float((now - last) * 1000) / SDL_GetPerformanceFrequency();
+		previousTicks = currentTicks;
+		currentTicks = SDL_GetPerformanceCounter();
+
+		uint64_t deltaTicks = currentTicks - previousTicks;
+		CE::RealTimeClock::Get().Update(deltaTicks);
+		CE::GameTimeClock::Get().Update(deltaTicks);
+
+		SDL_Event event;
 
 		while (SDL_PollEvent(&event) != 0)
 		{
+			externalMessagePump->ProcessEvent(event);
+
 			// TODO: Haven't done focus events for Cef (see CefBrowserHost). Do I need these?
 			switch (event.type)
 			{
-				case SDL_USEREVENT:
-				{
-					CefDoMessageLoopWork();
-					break;
-				}
-
 				case SDL_QUIT:
 				{
 					quit = true;
+					break;
+				}
+
+				case SDL_KEYDOWN:
+				{
+					switch (event.key.keysym.sym)
+					{
+						case SDLK_q:
+						{
+							eventSystem->EnqueueEvent(ToggleBindPoseEvent());
+							break;
+						}
+
+						case SDLK_w:
+						{
+							g_camera->MoveForward(1000 * CE::RealTimeClock::Get().GetDeltaSeconds());
+							break;
+						}
+
+						case SDLK_a:
+						{
+							g_camera->MoveLeft(1000 * CE::RealTimeClock::Get().GetDeltaSeconds());
+							break;
+						}
+
+						case SDLK_s:
+						{
+							g_camera->MoveBackward(1000 * CE::RealTimeClock::Get().GetDeltaSeconds());
+							break;
+						}
+
+						case SDLK_d:
+						{
+							g_camera->MoveRight(1000 * CE::RealTimeClock::Get().GetDeltaSeconds());
+							break;
+						}
+
+						case SDLK_F11:
+						case SDLK_F12:
+						{
+							ToggleDevToolsWindow();
+							break;
+						}
+					}
+
 					break;
 				}
 
@@ -1276,16 +1472,16 @@ int main(int argc, char* argv[])
 			}
 		}
 
-		g_animationComponent->Update(deltaTime);
+		g_animationComponent->Update(CE::GameTimeClock::Get().GetDeltaSeconds());
+		g_fpsCounter->Update(CE::RealTimeClock::Get().GetDeltaSeconds());
 
-		CefDoMessageLoopWork();
+		// TODO: Where does this go?
+		eventSystem->DispatchEvents(CE::RealTimeClock::Get().GetCurrentTicks());
 
 		Render();
 
 		SDL_GL_SwapWindow(g_window);
 	}
-
-	SDL_StopTextInput();
 
 	Destroy();
 

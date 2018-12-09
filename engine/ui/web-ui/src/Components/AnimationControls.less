@@ -1,0 +1,19 @@
+@import '../styles/colors.less';
+
+.AnimationControls {
+
+  .AnimationControlsListItem-play {
+    &.is-active {
+      box-shadow: inset 0px 0px 3px #000;
+      color: grey;
+    }
+    color: @color-green;
+  }
+  .AnimationControlsListItem-stop {
+    &.is-active {
+      color: grey;
+      box-shadow: inset 0px 0px 3px #000;
+    }
+    color: @color-red;
+  }
+}
