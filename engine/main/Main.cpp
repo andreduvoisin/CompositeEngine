@@ -42,6 +42,7 @@
 #include "core/clock/RealTimeClock.h"
 #include "core/clock/GameTimeClock.h"
 #include "event/ToggleBindPoseEvent.h"
+#include "core/Camera.h"
 
 const int SCREEN_WIDTH = 1920;
 const int SCREEN_HEIGHT = 1080;
@@ -98,6 +99,8 @@ UIQueryHandler* queryHandler;
 UIExternalMessagePump* externalMessagePump;
 
 CE::FpsCounter* g_fpsCounter;
+
+CE::Camera* g_camera;
 
 void printProgramLog(GLuint program)
 {
@@ -443,11 +446,7 @@ void Render()
 	glBindVertexArray(g_vao);
 
 	glm::mat4 projection = glm::perspective(glm::pi<float>() * 0.25f, (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 10000.0f);
-	//glm::mat4 view = glm::lookAt(glm::vec3(0, 100, 400), glm::vec3(0, 100, 0), glm::vec3(0, 1, 0)); // paladin
-	//glm::mat4 view = glm::lookAt(glm::vec3(0, 200, 400), glm::vec3(0, 100, 0), glm::vec3(0, 1, 0)); // solider
-	glm::mat4 view = glm::lookAt(glm::vec3(0, 200, 700), glm::vec3(0, 50, 0), glm::vec3(0, 1, 0)); // thriller, quarterback
-	//glm::mat4 view = glm::lookAt(glm::vec3(0, 2, 8), glm::vec3(0, 2, 0), glm::vec3(0, 1, 0)); // wonder woman
-	//glm::mat4 view = glm::lookAt(glm::vec3(0, 0, 1), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+	glm::mat4 view = g_camera->CreateViewMatrix();
 	glm::mat4 model = glm::mat4(1.0f);
 	glm::mat4 projectionViewModel = projection * view * model;
 
@@ -1058,6 +1057,12 @@ bool Initialize()
 
 	g_fpsCounter = new CE::FpsCounter(eventSystem);
 
+	//g_camera = new CE::Camera(glm::vec3(0, 100, 400), glm::vec3(0, 100, 0)); // paladin
+	//g_camera = new CE::Camera(glm::vec3(0, 200, 400), glm::vec3(0, 100, 0)); // solider
+	g_camera = new CE::Camera(glm::vec3(0, 200, 700), glm::vec3(0, 0, -1)); // thriller, quarterback
+	//g_camera = new CE::Camera(glm::vec3(0, 2, 8), glm::vec3(0, 2, 0)); // wonder woman
+	//g_camera = new CE::Camera(glm::vec3(0, 0, 1), glm::vec3(0, 0, 0));
+
 	if (!InitializeOpenGL())
 	{
 		printf("Unable to initialize OpenGL!\n");
@@ -1317,9 +1322,33 @@ int main(int argc, char* argv[])
 				{
 					switch (event.key.keysym.sym)
 					{
-						case SDLK_w:
+						case SDLK_q:
 						{
 							eventSystem->EnqueueEvent(ToggleBindPoseEvent());
+							break;
+						}
+
+						case SDLK_w:
+						{
+							g_camera->MoveForward(1000 * CE::RealTimeClock::Get().GetDeltaSeconds());
+							break;
+						}
+
+						case SDLK_a:
+						{
+							g_camera->MoveLeft(1000 * CE::RealTimeClock::Get().GetDeltaSeconds());
+							break;
+						}
+
+						case SDLK_s:
+						{
+							g_camera->MoveBackward(1000 * CE::RealTimeClock::Get().GetDeltaSeconds());
+							break;
+						}
+
+						case SDLK_d:
+						{
+							g_camera->MoveRight(1000 * CE::RealTimeClock::Get().GetDeltaSeconds());
 							break;
 						}
 
