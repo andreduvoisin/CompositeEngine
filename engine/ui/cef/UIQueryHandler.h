@@ -4,7 +4,6 @@
 #include "event/core/EventSystem.h"
 
 #include "include/wrapper/cef_message_router.h"
-#include "UIQuery.h"
 
 class JsonDeserializer;
 class UIQueryResponder;
