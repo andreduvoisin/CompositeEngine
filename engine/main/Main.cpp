@@ -1003,6 +1003,10 @@ bool Initialize()
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 
+	// Enable MSAA.
+	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
+
 	g_window = SDL_CreateWindow(
 		"Composite Engine",
 		SDL_WINDOWPOS_UNDEFINED,
@@ -1073,6 +1077,9 @@ bool Initialize()
 	// tell GL to only draw onto a pixel if the shape is closer to the viewer
 	glEnable(GL_DEPTH_TEST); // enable depth-testing
 	glDepthFunc(GL_LESS); // depth-testing interprets a smaller value as "closer"
+
+	// Enable MSAA.
+	glEnable(GL_MULTISAMPLE);
 
 	// enable alpha blending (allows transparent textures)
 	// https://gamedev.stackexchange.com/questions/29492/opengl-blending-gui-textures
