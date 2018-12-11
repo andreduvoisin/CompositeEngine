@@ -26,23 +26,23 @@
 #include <glm\gtx\matrix_decompose.hpp>
 
 #include "include/cef_app.h"
-#include "ui/cef/UIClient.h"
-#include "ui/cef/UIRenderHandler.h"
-#include "ui/cef/UIApp.h"
-#include "ui/cef/UIBrowserProcessHandler.h"
-#include "ui/cef/UIRequestHandler.h"
-#include "ui/cef/UILifeSpanHandler.h"
-#include "ui/cef/UIRenderProcessHandler.h"
-#include "ui/cef/UIQueryHandler.h"
+#include "cef/client/UIClient.h"
+#include "cef/client/UIRenderHandler.h"
+#include "cef/browser/UIAppBrowser.h"
+#include "cef/browser/UIBrowserProcessHandler.h"
+#include "cef/client/UIRequestHandler.h"
+#include "cef/client/UILifeSpanHandler.h"
+#include "cef/browser/UIQueryHandler.h"
 #include "core/Engine.h"
-#include "ui/cef/UIQueryResponder.h"
-#include "ui/cef/UIExternalMessagePump.h"
+#include "cef/browser/UIQueryResponder.h"
+#include "cef/browser/UIExternalMessagePump.h"
 #include "core/FpsCounter.h"
 #include "common/debug/AssertThread.h"
 #include "core/clock/RealTimeClock.h"
 #include "core/clock/GameTimeClock.h"
 #include "event/ToggleBindPoseEvent.h"
 #include "core/Camera.h"
+#include "include/wrapper/cef_message_router.h"
 
 const int SCREEN_WIDTH = 1920;
 const int SCREEN_HEIGHT = 1080;
@@ -765,41 +765,26 @@ bool InitializeOpenGL()
 	return true;
 }
 
-CefMessageRouterConfig messageRouterConfig;
-
-int InitializeCef()
+bool StartCef()
 {
-	HINSTANCE hInstance = GetModuleHandle(NULL);
-	CefMainArgs main_args(hInstance);
+	CefMainArgs main_args(::GetModuleHandle(NULL));
 
 	externalMessagePump = new UIExternalMessagePump();
-	CefRefPtr<CefMessageRouterRendererSide> messageRouterRendererSide = CefMessageRouterRendererSide::Create(messageRouterConfig);
 	CefRefPtr<UIBrowserProcessHandler> browserProcessHandler = new UIBrowserProcessHandler(externalMessagePump);
-	CefRefPtr<UIRenderProcessHandler> renderProcessHandler = new UIRenderProcessHandler(messageRouterRendererSide);
-	CefRefPtr<UIApp> app = new UIApp(browserProcessHandler, renderProcessHandler);
-
-	int exitCode = CefExecuteProcess(main_args, app, NULL);
-	if (exitCode >= 0)
-	{
-		printf("CEF subprocess has exited. Exit code: %i\n", exitCode);
-		return exitCode;
-	}
+	CefRefPtr<UIAppBrowser> app = new UIAppBrowser(browserProcessHandler);
 
 	CefSettings settings;
 	settings.external_message_pump = true;
 	settings.windowless_rendering_enabled = true;
 	settings.remote_debugging_port = 3469;
+	CefString(&settings.browser_subprocess_path).FromASCII("../../ui/Debug/CefSubprocess.exe");
 	if (!CefInitialize(main_args, settings, app, NULL))
 	{
 		printf("CEF failed to initialize.\n");
-		return 0;
+		return false;
 	}
 
-	return -1;
-}
-
-bool StartCef()
-{
+	CefMessageRouterConfig messageRouterConfig;
 	CefRefPtr<CefMessageRouterBrowserSide> messageRouterBrowserSide = CefMessageRouterBrowserSide::Create(messageRouterConfig);
 	messageRouterBrowserSide->AddHandler(queryHandler, true);
 
@@ -1270,14 +1255,6 @@ unsigned GetCefMouseModifiers(const SDL_Event& event)
 int main(int argc, char* argv[])
 {
 	CE_SET_MAIN_THREAD();
-
-	// For now, this must come first because of the CEF subprocess architecture.
-	// TODO: Look into spawning subprocesses via a separate executable. We need this for MacOS.
-	int exitCode = InitializeCef();
-	if (exitCode >= 0)
-	{
-		return exitCode;
-	}
 
 	if (!Initialize())
 	{
