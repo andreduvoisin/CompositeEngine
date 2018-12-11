@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.7.2)
 add_executable(CompositeEngine ${ENGINE_SRC_FILES})
 
 include_directories(${ENGINE_SRC_DIR})
+include_directories(${UI_SRC_DIR})
 
 if(WIN32)
 	target_compile_options(CompositeEngine PRIVATE /W3 /WX)
