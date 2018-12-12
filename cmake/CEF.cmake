@@ -21,7 +21,7 @@ endif()
 # opengl32.lib (and glu32.lib) link with /MD, so we can't link with /MT.
 # /MD[d] is included in CMAKE_CXX_FLAGS[_*] by default.
 #
-# We also would like to avoid having to build all of Chromium and CEF for our sanity's sake.
+# Also, to maintain our sanity, we would like to avoid having to build Chromium and CEF.
 function(BuildCEF)
 	set(CEF_RUNTIME_LIBRARY_FLAG "/MD")
 
