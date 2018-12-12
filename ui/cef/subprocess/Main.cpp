@@ -1,14 +1,85 @@
-#include "UIAppRender.h"
+#include "UIAppRenderer.h"
+#include "UIAppOther.h"
 #include "UIRenderProcessHandler.h"
-
-#include "include/cef_command_line.h"
 
 #ifdef _WIN32
 #include <windows.h>
 #include "include/internal/cef_win.h"
 #else
-// TODO: Need CefMainArgs include on non-Windows operating systems.
+// TODO: CefMainArgs include on non-Windows operating systems.
 #endif
+
+
+enum class ProcessType
+{
+	BROWSER,
+	RENDERER,
+	ZYGOTE,
+	OTHER
+};
+
+
+ProcessType ParseProcessType(CefRefPtr<CefCommandLine> commandLine)
+{
+	// The command-line flag won't be specified for the browser process.
+	if (!commandLine->HasSwitch("type"))
+	{
+		return ProcessType::BROWSER;
+	}
+	
+	CefString processType = commandLine->GetSwitchValue("type");
+
+	if (processType == "renderer")
+	{
+		return ProcessType::RENDERER;
+	}
+
+#ifdef __linux__
+	if (processType == "zygote")
+	{
+		return ProcessType::ZYGOTE;
+	}
+#endif
+
+	return ProcessType::OTHER;
+}
+
+
+CefRefPtr<UIAppRenderer> CreateAppRenderer()
+{
+	CefMessageRouterConfig messageRouterConfig;
+	CefRefPtr<CefMessageRouterRendererSide> messageRouterRendererSide = CefMessageRouterRendererSide::Create(messageRouterConfig);
+	CefRefPtr<UIRenderProcessHandler> renderProcessHandler = new UIRenderProcessHandler(messageRouterRendererSide);
+	return new UIAppRenderer(renderProcessHandler);
+}
+
+
+CefRefPtr<CefApp> CreateApp(CefRefPtr<CefCommandLine> commandLine)
+{
+	ProcessType processType = ParseProcessType(commandLine);
+
+	if (processType == ProcessType::RENDERER)
+	{
+		return CreateAppRenderer();
+	}
+
+#ifdef __linux__
+	if (processType == ProcessType::ZYGOTE)
+	{
+		// On Linux the zygote process is used to spawn other process types. Since
+		// we don't know what type of process it will be give it the renderer
+		// client.
+		return CreateAppRenderer();
+	}
+#endif
+
+	if (processType == ProcessType::OTHER)
+	{
+		return new UIAppOther();
+	}
+
+	return nullptr;
+}
 
 
 int main(int argc, char* argv[])
@@ -24,22 +95,7 @@ int main(int argc, char* argv[])
 	commandLine->InitFromArgv(argc, argv);
 #endif
 
-	CefRefPtr<CefApp> app;
-
-	// The command-line flag won't be specified for the browser process.
-	if (!commandLine->HasSwitch("type"))
-	{
-		assert(false);
-	}
-
-	const std::string& processType = commandLine->GetSwitchValue("type");
-	if (processType == "renderer" || processType == "zygote")
-	{
-		CefMessageRouterConfig messageRouterConfig;
-		CefRefPtr<CefMessageRouterRendererSide> messageRouterRendererSide = CefMessageRouterRendererSide::Create(messageRouterConfig);
-		CefRefPtr<UIRenderProcessHandler> renderProcessHandler = new UIRenderProcessHandler(messageRouterRendererSide);
-		app = new UIAppRender(renderProcessHandler);
-	}
+	CefRefPtr<CefApp> app = CreateApp(commandLine);
 
 	return CefExecuteProcess(mainArgs, app, nullptr);
 }

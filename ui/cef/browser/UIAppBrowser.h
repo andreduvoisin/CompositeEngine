@@ -18,6 +18,7 @@ private:
 
 	// IMPLEMENT_* macros set access modifiers, so they must come last.
 	IMPLEMENT_REFCOUNTING(UIAppBrowser);
+	DISALLOW_COPY_AND_ASSIGN(UIAppBrowser);
 };
 
 #endif //_CE_UI_APP_BROWSER_H_
