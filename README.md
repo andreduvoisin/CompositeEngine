@@ -51,7 +51,7 @@ GAME ENGINE BADASSERY
 	* Reference: See File
 
 * Chromium Embedded Framework: https://bitbucket.org/chromiumembedded/cef/src/master/
-	* CEF 3.3497.1840.gcd24143 / Chromium 69.0.3497.100: http://opensource.spotify.com/cefbuilds/index.html
+	* CEF 3.3538.1852.gcb937fc / Chromium 70.0.3538.102: http://opensource.spotify.com/cefbuilds/index.html
 	* Reference: https://bitbucket.org/chromiumembedded/cef/wiki/Home
 
 * RapidJSON: https://github.com/Tencent/rapidjson
