@@ -16,12 +16,11 @@ elseif(${CE_PLATFORM} STREQUAL "x64")
 endif()
 
 function(BuildGLEW)
-	# TODO: Uses v120. What happens if v120 isn't installed?
 	execute_process(
 		COMMAND
 			MSBuild
 			"${GLEW_MSVC_DIR}/glew.sln"
-			/p:PlatformToolset=v141
+			/p:PlatformToolset=v141 # Default: v120
 			/p:Configuration=${CE_CONFIGURATION}
 			/p:Platform=${CE_PLATFORM}
 			/m

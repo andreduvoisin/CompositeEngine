@@ -14,12 +14,11 @@ elseif(${CE_PLATFORM} STREQUAL "x64")
 endif()
 
 function(BuildSDL)
-	# TODO: Uses v100. What happens if v100 isn't installed?
 	execute_process(
 		COMMAND
 			MSBuild
 			"${SDL_MSVC_DIR}/SDL.sln"
-			/p:PlatformToolset=v141
+			/p:PlatformToolset=v141 # Default: v100
 			/p:Configuration=${CE_CONFIGURATION}
 			/p:Platform=${CE_PLATFORM}
 			/m
