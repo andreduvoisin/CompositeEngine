@@ -2,12 +2,7 @@
 #include "UIAppOther.h"
 #include "UIRenderProcessHandler.h"
 
-#ifdef _WIN32
-#include <windows.h>
-#include "include/internal/cef_win.h"
-#else
-// TODO: CefMainArgs include on non-Windows operating systems.
-#endif
+#include "include/cef_base.h"
 
 
 enum class ProcessType
