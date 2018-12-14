@@ -84,12 +84,17 @@ GLuint g_uiTextureID = -1;
 //const char* g_assetName = "..\\..\\..\\..\\assets\\jla_wonder_woman.ceasset";
 //const char* g_assetName = "..\\..\\..\\..\\assets\\Quarterback Pass.ceasset";
 //const char* g_fbxName = "..\\..\\..\\..\\assets\\Soldier_animated_jump.fbx";
-const char* g_assetName = "..\\..\\..\\..\\assets\\Standing Walk Forward.ceasset";
+//const char* g_assetName = "..\\..\\..\\..\\assets\\Standing Walk Forward.ceasset";
+
+std::vector<const char*> g_assetNames = {
+	"..\\..\\..\\..\\assets\\Quarterback Pass.ceasset",
+	"..\\..\\..\\..\\assets\\Thriller Part 2.ceasset"
+};
 
 CE::AssetImporter* g_assetImporter;
 
-CE::MeshComponent* g_meshComponent;
-CE::AnimationComponent* g_animationComponent;
+std::vector<CE::MeshComponent*> g_meshComponents;
+std::vector<CE::AnimationComponent*> g_animationComponents;
 
 CefRefPtr<UIClient> g_uiClient;
 CefRefPtr<CefBrowser> g_browser;
@@ -165,7 +170,7 @@ void printShaderLog(GLuint shader)
 	delete[] infoLog;
 }
 
-void RenderMesh(const glm::mat4& projectionViewModel)
+void RenderMesh(CE::MeshComponent& meshComponent, CE::AnimationComponent& animationComponent, const glm::mat4& projectionViewModel)
 {
 	glUseProgram(g_programID);
 
@@ -183,10 +188,10 @@ void RenderMesh(const glm::mat4& projectionViewModel)
 
 	if (engine->IsRenderBindPose())
 	{
-		g_animationComponent->ResetMatrixPalette();
+		animationComponent.ResetMatrixPalette();
 	}
 
-	g_animationComponent->BindMatrixPalette(
+	animationComponent.BindMatrixPalette(
 		g_paletteTextureUnit,
 		g_paletteGenTex,
 		g_tbo,
@@ -194,7 +199,7 @@ void RenderMesh(const glm::mat4& projectionViewModel)
 
 	if (engine->RenderMode() == 0 || engine->RenderMode() == 2)
 	{
-		g_meshComponent->Draw(
+		meshComponent.Draw(
 			g_vbo,
 			g_ibo,
 			g_diffuseTextureID,
@@ -208,7 +213,7 @@ void RenderMesh(const glm::mat4& projectionViewModel)
 	glDisableVertexAttribArray(3);
 }
 
-void RenderSkeleton(const glm::mat4& projectionViewModel)
+void RenderSkeleton(CE::AnimationComponent& animationComponent, const glm::mat4& projectionViewModel)
 {
 	glUseProgram(g_programID2);
 
@@ -228,13 +233,13 @@ void RenderSkeleton(const glm::mat4& projectionViewModel)
 	glEnableVertexAttribArray(2);
 
 	glUniformMatrix4fv(g_projectionViewModelMatrixID2, 1, GL_FALSE, &projectionViewModel[0][0]);
-	g_animationComponent->BindMatrixPalette(
+	animationComponent.BindMatrixPalette(
 		g_paletteTextureUnit,
 		g_paletteGenTex,
 		g_tbo,
 		g_paletteID2);
 
-	const CE::Skeleton* skeleton = g_animationComponent->GetSkeleton();// CE::SkeletonManager::Get().GetSkeleton(g_fbxName);
+	const CE::Skeleton* skeleton = animationComponent.GetSkeleton();// CE::SkeletonManager::Get().GetSkeleton(g_fbxName);
 
 	std::vector<DebugSkeletonVertex> debugVertices;
 	std::vector<unsigned> debugJointIndices;
@@ -451,9 +456,11 @@ void Render()
 	glm::mat4 model = glm::mat4(1.0f);
 	glm::mat4 projectionViewModel = projection * view * model;
 
-	RenderMesh(projectionViewModel);
-
-	RenderSkeleton(projectionViewModel);
+	for (size_t i = 0; i < g_assetNames.size(); ++i)
+	{
+		RenderMesh(*g_meshComponents[i], *g_animationComponents[i], projectionViewModel);
+		RenderSkeleton(*g_animationComponents[i], projectionViewModel);
+	}
 
 	RenderGrid(projectionViewModel);
 
@@ -718,21 +725,25 @@ bool InitializeOpenGL()
 
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
-	// TODO: bad
-	CE::Skeleton* skeleton = new CE::Skeleton();
-	CE::Meshes* meshes = new CE::Meshes();
-	CE::Animations* animations = new CE::Animations();
-	CE::Textures* textures = new CE::Textures();
+	// TODO: what if there are dupes
+	for (size_t i = 0; i < g_assetNames.size(); ++i)
+	{
+		// TODO: bad
+		CE::Skeleton* skeleton = new CE::Skeleton();
+		CE::Meshes* meshes = new CE::Meshes();
+		CE::Animations* animations = new CE::Animations();
+		CE::Textures* textures = new CE::Textures();
 
-	CE::AssetImporter::ImportSkeletonMeshesAnimationsTextures(
-		g_assetName,
-		*skeleton,
-		*meshes,
-		*animations,
-		*textures);
+		CE::AssetImporter::ImportSkeletonMeshesAnimationsTextures(
+			g_assetNames[i],
+			*skeleton,
+			*meshes,
+			*animations,
+			*textures);
 
-	g_meshComponent = new CE::MeshComponent(meshes, textures);
-	g_animationComponent = new CE::AnimationComponent(skeleton, animations, eventSystem);
+		g_meshComponents.push_back(new CE::MeshComponent(meshes, textures));
+		g_animationComponents.push_back(new CE::AnimationComponent(skeleton, animations, eventSystem));
+	}
 
 	glGenVertexArrays(1, &g_vao);
 	glBindVertexArray(g_vao);
@@ -1450,7 +1461,10 @@ int main(int argc, char* argv[])
 			}
 		}
 
-		g_animationComponent->Update(CE::GameTimeClock::Get().GetDeltaSeconds());
+		for (CE::AnimationComponent* animationComponent : g_animationComponents)
+		{
+			animationComponent->Update(CE::GameTimeClock::Get().GetDeltaSeconds());
+		}
 		g_fpsCounter->Update(CE::RealTimeClock::Get().GetDeltaSeconds());
 
 		// TODO: Where does this go?
