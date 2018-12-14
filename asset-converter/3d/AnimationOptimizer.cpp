@@ -30,7 +30,7 @@ namespace CE
 		float scaleTolerance = 1e-3f; // 0.1%
 		//float hierarchicalTolerance = 1e-3f; // 1 mm
 
-		for (int i = 0; i < animation.translations.size(); ++i)
+		for (size_t i = 0; i < animation.translations.size(); ++i)
 		{
 			// Translation.
 			// TODO: can these be done in place? is it even worth it?
@@ -66,7 +66,7 @@ namespace CE
 			animation.translations[i] = newTranslations;
 		}
 
-		for (int i = 0; i < animation.rotations.size(); ++i)
+		for (size_t i = 0; i < animation.rotations.size(); ++i)
 		{
 			// Rotation.
 			// TODO: can these be done in place? is it even worth it?
@@ -110,7 +110,7 @@ namespace CE
 			animation.rotations[i] = newRotations;
 		}
 
-		for (int i = 0; i < animation.scales.size(); ++i)
+		for (size_t i = 0; i < animation.scales.size(); ++i)
 		{
 			// Scale.
 			// TODO: can these be done in place? is it even worth it?
