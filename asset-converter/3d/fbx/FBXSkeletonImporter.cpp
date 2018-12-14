@@ -137,7 +137,7 @@ namespace CE
 
 	bool FBXSkeletonImporter::JointHasChild(size_t index)
 	{
-		for (int i = 0; i < m_outSkeleton->joints.size(); ++i)
+		for (size_t i = 0; i < m_outSkeleton->joints.size(); ++i)
 		{
 			if (m_outSkeleton->joints[i].parentIndex == index)
 			{
@@ -154,7 +154,7 @@ namespace CE
 
 		for (size_t i = index; i < m_outSkeleton->joints.size(); ++i)
 		{
-			if (m_outSkeleton->joints[i].parentIndex > index)
+			if (m_outSkeleton->joints[i].parentIndex > static_cast<short>(index))
 			{
 				--m_outSkeleton->joints[i].parentIndex;
 			}

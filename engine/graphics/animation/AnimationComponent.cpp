@@ -9,8 +9,6 @@
 #include <GL\glew.h>
 
 #include <algorithm>
-#include "event/AnimationStateEvent.h"
-#include "event/SetAnimationTimeEvent.h"
 
 namespace CE
 {
@@ -52,7 +50,7 @@ namespace CE
 		}
 	}
 
-	void AnimationComponent::FindInterpolationKeys(int currentJoint)
+	void AnimationComponent::FindInterpolationKeys(size_t currentJoint)
 	{
 		Animation& animation = m_animations->at(m_currentAnimation);
 		AnimationCache& animationCache = m_animationCaches[m_currentAnimation];
@@ -160,7 +158,7 @@ namespace CE
 			animationCache = &m_animationCaches[m_currentAnimation];
 		}
 
-		for (int i = 0; i < m_skeleton->joints.size(); ++i)
+		for (size_t i = 0; i < m_skeleton->joints.size(); ++i)
 		{
 			FindInterpolationKeys(i);
 
@@ -200,7 +198,7 @@ namespace CE
 			}
 		}
 
-		for (int i = 0; i < m_skeleton->joints.size(); ++i)
+		for (size_t i = 0; i < m_skeleton->joints.size(); ++i)
 		{
 			m_palette[i] = m_palette[i] * m_skeleton->joints[i].inverseBindPose;
 		}
@@ -229,7 +227,7 @@ namespace CE
 
 	void AnimationComponent::ResetMatrixPalette()
 	{
-		for (int i = 0; i < m_skeleton->joints.size(); ++i)
+		for (size_t i = 0; i < m_skeleton->joints.size(); ++i)
 		{
 			m_palette[i] = glm::mat4(1.f);
 		}

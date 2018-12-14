@@ -47,7 +47,7 @@ namespace CE
 	private:
 		void InitializeAnimationCache();
 		void InitializePalette();
-		void FindInterpolationKeys(int currentJoint);
+		void FindInterpolationKeys(size_t currentJoint);
 
 		AnimationEventHandler animationEventHandler;
 

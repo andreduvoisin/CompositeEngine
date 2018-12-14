@@ -22,7 +22,7 @@ namespace CE
 		GLuint g_diffuseTextureLocation,
 		GLuint g_diffuseTextureUnit)
 	{
-		for (int i = 0; i < m_meshes->size(); ++i)
+		for (size_t i = 0; i < m_meshes->size(); ++i)
 		{
 			DrawMesh(
 				m_meshes->at(i),

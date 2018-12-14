@@ -88,7 +88,8 @@ GLuint g_uiTextureID = -1;
 
 std::vector<const char*> g_assetNames = {
 	"..\\..\\..\\..\\assets\\Quarterback Pass.ceasset",
-	"..\\..\\..\\..\\assets\\Thriller Part 2.ceasset"
+	//"..\\..\\..\\..\\assets\\Thriller Part 2.ceasset",
+	//"..\\..\\..\\..\\assets\\Standing Walk Forward.ceasset"
 };
 
 CE::AssetImporter* g_assetImporter;
@@ -789,7 +790,7 @@ bool StartCef()
 	settings.external_message_pump = true;
 	settings.windowless_rendering_enabled = true;
 	settings.remote_debugging_port = 3469;
-	CefString(&settings.browser_subprocess_path).FromASCII("../../ui/Debug/CefSubprocess.exe");
+	CefString(&settings.browser_subprocess_path).FromASCII("../../ui/Debug/CompositeCefSubprocess.exe");
 	if (!CefInitialize(main_args, settings, app, NULL))
 	{
 		printf("CEF failed to initialize.\n");
@@ -975,7 +976,7 @@ void WindowsMessageHook(
 			{
 				keyEvent.type = KEYEVENT_CHAR;
 			}
-			keyEvent.modifiers = GetCefKeyboardModifiers(wParam, lParam);
+			keyEvent.modifiers = GetCefKeyboardModifiers(static_cast<WPARAM>(wParam), static_cast<LPARAM>(lParam));
 
 			g_browser->GetHost()->SendKeyEvent(keyEvent);
 
