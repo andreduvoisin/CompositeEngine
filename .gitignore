@@ -1,7 +1,7 @@
 # .gitignore
 
 # Build Folder
-build/*
+build/
 
 # Visual Studio
 .vs
@@ -37,3 +37,8 @@ extern/SDL2-2.0.8/VisualC/tests/*/*.dat
 extern/glew-2.1.0/bin
 extern/glew-2.1.0/lib
 extern/glew-2.1.0/build/vc12/tmp
+
+# CEF
+extern/cef_binary_*/
+extern/cef_binary_*.tar.bz2
+extern/cef_binary_*.tar.bz2.sha1
