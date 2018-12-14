@@ -2,6 +2,7 @@
 #define _CE_ASSET_SERIALIZER_H_
 
 #include <vector>
+#include "AssetExporter.h"
 
 namespace CE
 {
@@ -30,6 +31,7 @@ namespace CE
 		void WriteAnimation(const Animation& animation);
 		void WriteAnimations(const Animations& animations);
 		void WriteTexture(const Texture& texture);
+		void WriteTextures(const Textures& textures);
 
 	private:
 		template<typename T>

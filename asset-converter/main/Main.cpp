@@ -45,15 +45,17 @@ int main(int argc, char* argv[])
 		}
 
 		bool textureSuccess = true;
-		std::vector<CE::Texture> textures;
-		for (const CE::Mesh& mesh : meshes)
+		CE::Textures textures;
+		for (CE::Mesh& mesh : meshes)
 		{
 			textures.push_back(CE::Texture());
 			CE::Texture& texture = textures.back();
 			if (!stbImageImporter.ExtractTexture(mesh.m_diffuseMapName.c_str(), &texture))
 			{
+				printf("Extracting Texture Failed: %s\n", mesh.m_diffuseMapName.c_str());
 				textureSuccess = false;
 			}
+			mesh.m_diffuseIndex = static_cast<uint8_t>(textures.size() - 1);
 		}
 
 		if (!textureSuccess)
@@ -68,12 +70,12 @@ int main(int argc, char* argv[])
 		const auto position = fileName.find_last_of('.');
 		std::string outputFileName = fileName.substr(0, position) + ".ceasset";
 
-		bool exportSuccess = CE::AssetExporter::ExportSkeletonMeshesAnimationsTexture(
+		bool exportSuccess = CE::AssetExporter::ExportSkeletonMeshesAnimationsTextures(
 			outputFileName.c_str(),
 			skeleton,
 			meshes,
 			animations,
-			textures[0]);
+			textures);
 		if (exportSuccess)
 		{
 			printf("Exported: %s\n", outputFileName.c_str());

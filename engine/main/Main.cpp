@@ -82,8 +82,9 @@ GLuint g_uiTextureID = -1;
 //const char* g_assetName = "..\\..\\..\\..\\assets\\Stand Up.ceasset";
 //const char* g_assetName = "..\\..\\..\\..\\assets\\Thriller Part 2.ceasset";
 //const char* g_assetName = "..\\..\\..\\..\\assets\\jla_wonder_woman.ceasset";
-const char* g_assetName = "..\\..\\..\\..\\assets\\Quarterback Pass.ceasset";
+//const char* g_assetName = "..\\..\\..\\..\\assets\\Quarterback Pass.ceasset";
 //const char* g_fbxName = "..\\..\\..\\..\\assets\\Soldier_animated_jump.fbx";
+const char* g_assetName = "..\\..\\..\\..\\assets\\Standing Walk Forward.ceasset";
 
 CE::AssetImporter* g_assetImporter;
 
@@ -721,16 +722,16 @@ bool InitializeOpenGL()
 	CE::Skeleton* skeleton = new CE::Skeleton();
 	CE::Meshes* meshes = new CE::Meshes();
 	CE::Animations* animations = new CE::Animations();
-	CE::Texture* texture = new CE::Texture();
+	CE::Textures* textures = new CE::Textures();
 
-	CE::AssetImporter::ImportSkeletonMeshesAnimationsTexture(
+	CE::AssetImporter::ImportSkeletonMeshesAnimationsTextures(
 		g_assetName,
 		*skeleton,
 		*meshes,
 		*animations,
-		*texture);
+		*textures);
 
-	g_meshComponent = new CE::MeshComponent(meshes, texture);
+	g_meshComponent = new CE::MeshComponent(meshes, textures);
 	g_animationComponent = new CE::AnimationComponent(skeleton, animations, eventSystem);
 
 	glGenVertexArrays(1, &g_vao);
