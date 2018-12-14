@@ -3,18 +3,19 @@
 #include "AssetDeserializer.h"
 #include "InputFileStream.h"
 
-#include "graphics\mesh\Mesh.h"
-#include "graphics\animation\Animation.h"
+#include "graphics/mesh/Mesh.h"
+#include "graphics/animation/Animation.h"
+#include "graphics/texture/Texture.h"
 
 namespace CE
 {
 	// TODO: Convert from reference to pointer?
-	bool AssetImporter::ImportSkeletonMeshesAnimationsTexture(
+	bool AssetImporter::ImportSkeletonMeshesAnimationsTextures(
 		const char* fileName, 
 		Skeleton& outSkeleton, 
 		Meshes& outMeshes,
 		Animations& outAnimations, 
-		Texture& outTexture)
+		Textures& outTextures)
 	{
 		InputFileStream stream(fileName);
 
@@ -49,7 +50,8 @@ namespace CE
 					break;
 
 				case AssetType::TEXTURE:
-					deserializer.ReadTexture(outTexture);
+					outTextures.push_back(Texture());
+					deserializer.ReadTexture(outTextures.back());
 					break;
 			}
 		}

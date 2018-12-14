@@ -53,6 +53,10 @@ namespace CE
 		stream >> outMesh.m_diffuseMapName;
 		stream >> outMesh.m_specularMapName;
 		stream >> outMesh.m_normalMapName;
+
+		stream >> outMesh.m_diffuseIndex;
+		stream >> outMesh.m_specularIndex;
+		stream >> outMesh.m_normalIndex;
 	}
 
 	void AssetDeserializer::ReadAnimation(Animation& outAnimation)
