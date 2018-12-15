@@ -67,7 +67,7 @@ function(DownloadCEF DOWNLOAD_DIR)
 			WORKING_DIRECTORY ${CEF_DOWNLOAD_DIR}
 		)
 	endif()
-endfunction()
+endfunction(DownloadCEF)
 
 # CMake Reference:
 # https://bitbucket.org/chromiumembedded/cef-project/src/master/CMakeLists.txt
