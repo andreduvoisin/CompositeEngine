@@ -24,10 +24,9 @@ void UIRenderHandler::Render()
 	// TODO: Move code here from Main.cpp
 }
 
-bool UIRenderHandler::GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect)
+void UIRenderHandler::GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect)
 {
 	rect = CefRect(0, 0, width, height);
-	return true;
 }
 
 void UIRenderHandler::OnPopupShow(CefRefPtr<CefBrowser> browser, bool show)
