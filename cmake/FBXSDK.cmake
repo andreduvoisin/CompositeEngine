@@ -7,10 +7,13 @@ elseif(${CE_CONFIGURATION} STREQUAL "Release")
 	set(FBXSDK_CONFIGURATION "release")
 endif()
 
-if(${CE_PLATFORM} STREQUAL "Win32")
-	set(FBXSDK_PLATFORM "x86")
-elseif(${CE_PLATFORM} STREQUAL "x64")
-	set(FBXSDK_PLATFORM "x64")
+
+if("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
+	if(${CE_PLATFORM} STREQUAL "Win32")
+		set(FBXSDK_PLATFORM "x86")
+	elseif(${CE_PLATFORM} STREQUAL "x64")
+		set(FBXSDK_PLATFORM "x64")
+	endif()
 endif()
 
 function(BootstrapFBXSDK TARGET_NAME EXECUTABLE_SUBDIR)

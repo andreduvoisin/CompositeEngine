@@ -7,22 +7,29 @@ elseif(${CE_CONFIGURATION} STREQUAL "Release")
 	set(SDL_CONFIGURATION "Release")
 endif()
 
-if(${CE_PLATFORM} STREQUAL "Win32")
-	set(SDL_PLATFORM "Win32")
-elseif(${CE_PLATFORM} STREQUAL "x64")
-	set(SDL_PLATFORM "x64")
+if("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
+	if(${CE_PLATFORM} STREQUAL "Win32")
+		set(SDL_PLATFORM "Win32")
+	elseif(${CE_PLATFORM} STREQUAL "x64")
+		set(SDL_PLATFORM "x64")
+	endif()
 endif()
 
 function(BuildSDL)
-	execute_process(
-		COMMAND
-			MSBuild
-			"${SDL_MSVC_DIR}/SDL.sln"
-			/p:PlatformToolset=v141 # Default: v100
-			/p:Configuration=${CE_CONFIGURATION}
-			/p:Platform=${CE_PLATFORM}
-			/m
-	)
+	if("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
+		execute_process(
+			COMMAND
+				MSBuild
+				"${SDL_MSVC_DIR}/SDL.sln"
+				/p:PlatformToolset=v141 # Default: v100
+				/p:Configuration=${CE_CONFIGURATION}
+				/p:Platform=${CE_PLATFORM}
+				/m
+		)
+	elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
+		execute_process(COMMAND ./configure WORKING_DIRECTORY "${SDL_ROOT_DIR}")
+		execute_process(COMMAND make WORKING_DIRECTORY "${SDL_ROOT_DIR}")
+	endif()
 endfunction(BuildSDL)
 
 function(BootstrapSDL TARGET_NAME EXECUTABLE_SUBDIR)
@@ -36,14 +43,21 @@ function(IncludeSDL)
 endfunction(IncludeSDL)
 
 function(LinkSDL TARGET_NAME)
-	target_link_libraries(${TARGET_NAME} "${SDL_MSVC_DIR}/${SDL_PLATFORM}/${SDL_CONFIGURATION}/SDL2.lib")
-	target_link_libraries(${TARGET_NAME} "${SDL_MSVC_DIR}/${SDL_PLATFORM}/${SDL_CONFIGURATION}/SDL2main.lib")
+	if("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
+		target_link_libraries(${TARGET_NAME} "${SDL_MSVC_DIR}/${SDL_PLATFORM}/${SDL_CONFIGURATION}/SDL2.lib")
+		target_link_libraries(${TARGET_NAME} "${SDL_MSVC_DIR}/${SDL_PLATFORM}/${SDL_CONFIGURATION}/SDL2main.lib")
+	elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
+		target_link_libraries(${TARGET_NAME} "${SDL_ROOT_DIR}/build/.libs/libSDL2.dylib")
+		target_link_libraries(${TARGET_NAME} "${SDL_ROOT_DIR}/build/.libs/libSDL2main.a")
+	endif()
 endfunction(LinkSDL)
 
 function(CopySDLFiles EXECUTABLE_SUBDIR)
-	configure_file(
-		"${SDL_MSVC_DIR}/${SDL_PLATFORM}/${SDL_CONFIGURATION}/SDL2.dll"
-		"${PROJECT_BINARY_DIR}/${EXECUTABLE_SUBDIR}/${CE_CONFIGURATION}/SDL2.dll"
-		COPYONLY
-	)
+	if("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
+		configure_file(
+			"${SDL_MSVC_DIR}/${SDL_PLATFORM}/${SDL_CONFIGURATION}/SDL2.dll"
+			"${PROJECT_BINARY_DIR}/${EXECUTABLE_SUBDIR}/${CE_CONFIGURATION}/SDL2.dll"
+			COPYONLY
+		)
+	endif()
 endfunction(CopySDLFiles)
