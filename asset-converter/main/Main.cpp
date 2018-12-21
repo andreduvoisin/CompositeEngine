@@ -2,12 +2,12 @@
 #include "3d/fbx/FBXImporter.h"
 #include "3d/AnimationOptimizer.h"
 
-#include "graphics\ceasset\output\AssetExporter.h"
+#include "graphics/ceasset/output/AssetExporter.h"
 
-#include "graphics\skeleton\Skeleton.h"
-#include "graphics\mesh\Mesh.h"
-#include "graphics\animation\Animation.h"
-#include "graphics\texture\Texture.h"
+#include "graphics/skeleton/Skeleton.h"
+#include "graphics/mesh/Mesh.h"
+#include "graphics/animation/Animation.h"
+#include "graphics/texture/Texture.h"
 
 int main(int argc, char* argv[])
 {
