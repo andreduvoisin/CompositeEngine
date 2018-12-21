@@ -43,7 +43,7 @@ GAME ENGINE BADASSERY
 	* Reference: See Above (sidebar)
 
 * FBX SDK: https://www.autodesk.com/products/fbx/overview
-	* 2018.1.1: http://usa.autodesk.com/adsk/servlet/pc/item?siteID=123112&id=26416130
+	* 2018.1.1: https://www.autodesk.com/developer-network/platform-technologies/fbx-sdk-2018-1-1
 	* Reference: http://help.autodesk.com/view/FBX/2018/ENU/
 
 * stb_image: https://github.com/nothings/stb
