@@ -1,12 +1,12 @@
 set(FBXSDK_ROOT_DIR "${EXTERN_DIR}/FBX SDK/2018.1.1")
 set(FBXSDK_MSVC_DIR "${FBXSDK_ROOT_DIR}/lib/vs2015")
+set(FBXSDK_CLANG_DIR "${FBXSDK_ROOT_DIR}/lib/clang")
 	
 if(${CE_CONFIGURATION} STREQUAL "Debug")
 	set(FBXSDK_CONFIGURATION "debug")
 elseif(${CE_CONFIGURATION} STREQUAL "Release")
 	set(FBXSDK_CONFIGURATION "release")
 endif()
-
 
 if("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
 	if(${CE_PLATFORM} STREQUAL "Win32")
@@ -30,19 +30,29 @@ endfunction(IncludeFBXSDK)
 # opengl32.lib (and glu32.lib) link with /MD, so we can't link with /MT.
 # /MD[d] is included in CMAKE_CXX_FLAGS[_*] by default.
 function(LinkFBXSDK TARGET_NAME)
-	# Statically-Linked Library (/MD)
-	target_link_libraries(${TARGET_NAME} "${FBXSDK_MSVC_DIR}/${FBXSDK_PLATFORM}/${FBXSDK_CONFIGURATION}/libfbxsdk-md.lib")
+	if("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
+		# Statically-Linked Library (/MD)
+		target_link_libraries(${TARGET_NAME} "${FBXSDK_MSVC_DIR}/${FBXSDK_PLATFORM}/${FBXSDK_CONFIGURATION}/libfbxsdk-md.lib")
 
-	# Dynamically-Linked Library
-	#target_compile_definitions(${TARGET_NAME} PRIVATE FBXSDK_SHARED)
-	#target_link_libraries(${TARGET_NAME} "${FBXSDK_MSVC_DIR}/${FBXSDK_PLATFORM}/${FBXSDK_CONFIGURATION}/libfbxsdk.lib")
+		# Dynamically-Linked Library
+		#target_compile_definitions(${TARGET_NAME} PRIVATE FBXSDK_SHARED)
+		#target_link_libraries(${TARGET_NAME} "${FBXSDK_MSVC_DIR}/${FBXSDK_PLATFORM}/${FBXSDK_CONFIGURATION}/libfbxsdk.lib")
+	elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
+		# Statically-Linked Library
+		target_link_libraries(${TARGET_NAME} "${FBXSDK_CLANG_DIR}/${FBXSDK_CONFIGURATION}/libfbxsdk.a")
+
+		# Dynamically-Linked Library
+		#target_link_libraries(${TARGET_NAME} "${FBXSDK_CLANG_DIR}/${FBXSDK_CONFIGURATION}/libfbxsdk.dylib")
+	endif()
 endfunction(LinkFBXSDK)
 
 function(CopyFBXSDKFiles EXECUTABLE_SUBDIR)
-	# Dynamically-Linked Library
-	#configure_file(
-	#	"${FBXSDK_MSVC_DIR}/${FBXSDK_PLATFORM}/${FBXSDK_CONFIGURATION}/libfbxsdk.dll"
-	#	"${PROJECT_BINARY_DIR}/${EXECUTABLE_SUBDIR}/${CE_CONFIGURATION}/libfbxsdk.dll"
-	#	COPYONLY
-	#)
+	if("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
+		# Dynamically-Linked Library
+		#configure_file(
+		#	"${FBXSDK_MSVC_DIR}/${FBXSDK_PLATFORM}/${FBXSDK_CONFIGURATION}/libfbxsdk.dll"
+		#	"${PROJECT_BINARY_DIR}/${EXECUTABLE_SUBDIR}/${CE_CONFIGURATION}/libfbxsdk.dll"
+		#	COPYONLY
+		#)
+	endif()
 endfunction(CopyFBXSDKFiles)
