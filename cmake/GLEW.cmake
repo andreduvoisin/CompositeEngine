@@ -32,6 +32,7 @@ function(BuildGLEW)
 		)
 	elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
 		# TODO: How is Debug vs Release specified?
+		# TODO: Should this be using add_subdirectory()? How does that work with make?
 		execute_process(COMMAND cmake ./cmake WORKING_DIRECTORY "${GLEW_BUILD_DIR}")
 		execute_process(COMMAND make -j4 WORKING_DIRECTORY "${GLEW_BUILD_DIR}")
 	endif()

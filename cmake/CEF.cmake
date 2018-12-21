@@ -1,3 +1,6 @@
+cmake_policy(SET CMP0074 NEW)
+cmake_policy(SET CMP0077 NEW)
+
 # Specify the CEF distribution version.
 set(CEF_VERSION "3.3538.1852.gcb937fc")
 
