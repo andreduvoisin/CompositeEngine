@@ -1,5 +1,5 @@
 # Specify the CEF distribution version.
-set(CEF_VERSION "3.3578.1860.g36610bd")
+set(CEF_VERSION "3.3538.1852.gcb937fc")
 
 # Determine the platform.
 if("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
