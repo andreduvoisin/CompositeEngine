@@ -1,12 +1,12 @@
 #include "AnimationComponent.h"
 
 #include "Animation.h"
-#include "graphics\skeleton\Skeleton.h"
+#include "graphics/skeleton/Skeleton.h"
 
 #include "event/core/EventSystem.h"
-#include "common\Math.h"
+#include "common/Math.h"
 
-#include <GL\glew.h>
+#include <GL/glew.h>
 
 #include <algorithm>
 

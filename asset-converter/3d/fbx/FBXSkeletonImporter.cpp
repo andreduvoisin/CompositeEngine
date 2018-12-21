@@ -1,7 +1,7 @@
 #include "FBXSkeletonImporter.h"
 
 #include "FBXValidator.h"
-#include "graphics\skeleton\Skeleton.h"
+#include "graphics/skeleton/Skeleton.h"
 
 #include <fbxsdk.h>
 

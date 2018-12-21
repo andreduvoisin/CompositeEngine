@@ -1,13 +1,13 @@
 #include "FBXAnimationImporter.h"
 
 #include "FBXValidator.h"
-#include "graphics\animation\Animation.h"
-#include "graphics\skeleton\Skeleton.h"
+#include "graphics/animation/Animation.h"
+#include "graphics/skeleton/Skeleton.h"
 
 #include <fbxsdk.h>
 
-#include <glm\glm.hpp>
-#include <glm\gtx\matrix_decompose.hpp>
+#include <glm/glm.hpp>
+#include <glm/gtx/matrix_decompose.hpp>
 
 namespace CE
 {

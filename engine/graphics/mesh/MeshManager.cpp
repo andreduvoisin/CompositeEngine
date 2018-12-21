@@ -1,7 +1,7 @@
 #include "MeshManager.h"
 
 #include "Mesh.h"
-#include "graphics\File3DImporter.h"
+#include "graphics/File3DImporter.h"
 
 #include <string>
 

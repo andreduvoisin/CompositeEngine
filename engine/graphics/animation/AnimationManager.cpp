@@ -1,7 +1,7 @@
 #include "AnimationManager.h"
 
 #include "Animation.h"
-#include "graphics\File3DImporter.h"
+#include "graphics/File3DImporter.h"
 
 #include <string>
 
