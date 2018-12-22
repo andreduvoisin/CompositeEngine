@@ -3,6 +3,7 @@
 
 #include "Vertex.h"
 
+#include <string>
 #include <vector>
 
 namespace CE

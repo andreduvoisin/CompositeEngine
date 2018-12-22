@@ -3,8 +3,6 @@
 #include "Mesh.h"
 #include "graphics/File3DImporter.h"
 
-#include <string>
-
 namespace CE
 {
 	void MeshManager::Initialize(File3DImporter* importer)

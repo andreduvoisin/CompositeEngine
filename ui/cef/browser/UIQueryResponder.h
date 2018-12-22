@@ -4,6 +4,7 @@
 #include "UIQuery.h"
 #include "event/core/EventListener.h"
 
+#include <list>
 #include <unordered_map>
 
 class EventSystem;

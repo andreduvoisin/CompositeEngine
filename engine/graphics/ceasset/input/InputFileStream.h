@@ -20,8 +20,6 @@ namespace CE
 
 		template<typename T>
 		void Read(T& data);
-		template<>
-		void Read(std::string& data);
 
 		template<typename T>
 		void Read(T* data, size_t count);
@@ -45,7 +43,7 @@ namespace CE
 	}
 
 	template<>
-	void InputFileStream::Read(std::string& data)
+	inline void InputFileStream::Read(std::string& data)
 	{
 		std::getline(stream, data, '\0');
 	}

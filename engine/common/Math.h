@@ -1,8 +1,8 @@
 #ifndef _CE_MATH_H_
 #define _CE_MATH_H_
 
-#include <glm\glm.hpp>
-#include <glm\gtc\quaternion.hpp>
+#include <glm/glm.hpp>
+#include <glm/gtc/quaternion.hpp>
 
 namespace CE
 {

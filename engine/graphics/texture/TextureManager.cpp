@@ -3,8 +3,6 @@
 #include "Texture.h"
 #include "graphics/File2DImporter.h"
 
-#include <string>
-
 namespace CE
 {
 	void TextureManager::Initialize(File2DImporter* importer)

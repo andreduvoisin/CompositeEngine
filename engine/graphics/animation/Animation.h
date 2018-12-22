@@ -1,9 +1,10 @@
 #ifndef _CE_ANIMATION_H_
 #define _CE_ANIMATION_H_
 
-#include <glm\glm.hpp>
-#include <glm\gtc\quaternion.hpp>
+#include <glm/glm.hpp>
+#include <glm/gtc/quaternion.hpp>
 
+#include <string>
 #include <vector>
 
 namespace CE

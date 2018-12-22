@@ -3,8 +3,6 @@
 #include "Animation.h"
 #include "graphics/File3DImporter.h"
 
-#include <string>
-
 namespace CE
 {
 	void AnimationManager::Initialize(File3DImporter* importer)

@@ -1,8 +1,9 @@
 #ifndef _CE_TEXTURE_MANAGER_H_
 #define _CE_TEXTURE_MANAGER_H_
 
-#include "common\Singleton.h"
+#include "common/Singleton.h"
 
+#include <string>
 #include <unordered_map>
 
 namespace CE
