@@ -1,8 +1,5 @@
 cmake_policy(SET CMP0074 NEW)
 cmake_policy(SET CMP0077 NEW)
-#cmake_policy(SET CMP0080 NEW)
-
-#include(BundleUtilities)
 
 # Specify the CEF distribution version.
 set(CEF_VERSION "3.3538.1852.gcb937fc")
@@ -121,7 +118,7 @@ endfunction(BuildCEF)
 function(BootstrapCEF TARGET_NAME EXECUTABLE_SUBDIR)
 	IncludeCEF()
 	LinkCEF(${TARGET_NAME})
-	CopyCEFFiles(${EXECUTABLE_SUBDIR})
+	CopyCEFFiles(${TARGET_NAME} ${EXECUTABLE_SUBDIR})
 endfunction(BootstrapCEF)
 
 function(IncludeCEF)
@@ -144,7 +141,7 @@ function(LinkCEF TARGET_NAME)
 	endif()
 endfunction(LinkCEF)
 
-function(CopyCEFFiles EXECUTABLE_SUBDIR)
+function(CopyCEFFiles TARGET_NAME EXECUTABLE_SUBDIR)
 	if("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
 		file(GLOB CEF_BINARY_FILES "${CEF_ROOT}/${CEF_CONFIGURATION}/*")
 		file(
@@ -161,6 +158,16 @@ function(CopyCEFFiles EXECUTABLE_SUBDIR)
 			DESTINATION "${PROJECT_BINARY_DIR}/${EXECUTABLE_SUBDIR}/${CE_CONFIGURATION}"
 		)
 	elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
-		#copy_resolved_framework_into_bundle("${CEF_ROOT}/${CEF_CONFIGURATION}/Chromium Embedded Framework.framework")
+		# TODO: Look into this command and its args. Ensure it's correct.
+		# Copy files into the main app bundle.
+		add_custom_command(
+			TARGET ${TARGET_NAME}
+			POST_BUILD
+			# Copy the CEF framework into the Frameworks directory.
+			COMMAND ${CMAKE_COMMAND} -E copy_directory
+					"${CEF_ROOT}/${CEF_CONFIGURATION}/Chromium Embedded Framework.framework"
+					"${PROJECT_BINARY_DIR}/engine/${CE_CONFIGURATION}/CompositeEngine.app/Contents/Frameworks/Chromium Embedded Framework.framework"
+			VERBATIM
+		)
 	endif()
 endfunction(CopyCEFFiles)
