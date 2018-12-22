@@ -39,6 +39,8 @@ function(LinkFBXSDK TARGET_NAME)
 		#target_link_libraries(${TARGET_NAME} "${FBXSDK_MSVC_DIR}/${FBXSDK_PLATFORM}/${FBXSDK_CONFIGURATION}/libfbxsdk.lib")
 	elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
 		# Statically-Linked Library
+		find_library(CORE_FOUNDATION_LIBRARY CoreFoundation)
+		target_link_libraries(${TARGET_NAME} ${CORE_FOUNDATION_LIBRARY})
 		target_link_libraries(${TARGET_NAME} "${FBXSDK_CLANG_DIR}/${FBXSDK_CONFIGURATION}/libfbxsdk.a")
 
 		# Dynamically-Linked Library

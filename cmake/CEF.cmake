@@ -1,5 +1,8 @@
 cmake_policy(SET CMP0074 NEW)
 cmake_policy(SET CMP0077 NEW)
+#cmake_policy(SET CMP0080 NEW)
+
+#include(BundleUtilities)
 
 # Specify the CEF distribution version.
 set(CEF_VERSION "3.3538.1852.gcb937fc")
@@ -126,27 +129,38 @@ function(IncludeCEF)
 endfunction(IncludeCEF)
 
 function(LinkCEF TARGET_NAME)
-	target_link_libraries(${TARGET_NAME} "${PROJECT_BINARY_DIR}/extern/libcef_dll_wrapper/${CEF_CONFIGURATION}/libcef_dll_wrapper.lib")
-	target_link_libraries(${TARGET_NAME} "${CEF_ROOT}/${CEF_CONFIGURATION}/libcef.lib")
+	if("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
+		target_link_libraries(${TARGET_NAME} "${PROJECT_BINARY_DIR}/extern/libcef_dll_wrapper/${CEF_CONFIGURATION}/libcef_dll_wrapper.lib")
+		target_link_libraries(${TARGET_NAME} "${CEF_ROOT}/${CEF_CONFIGURATION}/libcef.lib")
 
-	# Reference: https://bitbucket.org/chromiumembedded/cef/wiki/LinkingDifferentRunTimeLibraries.md
-	# Sandbox support (linking cef_sandbox.lib) is only possible when your application is built with the /MT flag.
-	#target_link_libraries(${TARGET_NAME} "${CEF_ROOT}/${CEF_CONFIGURATION}/cef_sandbox.lib")
+		# Reference: https://bitbucket.org/chromiumembedded/cef/wiki/LinkingDifferentRunTimeLibraries.md
+		# Sandbox support (linking cef_sandbox.lib) is only possible when your application is built with the /MT flag.
+		#target_link_libraries(${TARGET_NAME} "${CEF_ROOT}/${CEF_CONFIGURATION}/cef_sandbox.lib")
+	elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
+		target_link_libraries(${TARGET_NAME} "${PROJECT_BINARY_DIR}/extern/libcef_dll_wrapper/${CEF_CONFIGURATION}/libcef_dll_wrapper.a")
+		target_link_libraries(${TARGET_NAME} "${CEF_ROOT}/${CEF_CONFIGURATION}/Chromium Embedded Framework.framework")
+		
+		#target_link_libraries(${TARGET_NAME} "${CEF_ROOT}/${CEF_CONFIGURATION}/cef_sandbox.a")
+	endif()
 endfunction(LinkCEF)
 
 function(CopyCEFFiles EXECUTABLE_SUBDIR)
-	file(GLOB CEF_BINARY_FILES "${CEF_ROOT}/${CEF_CONFIGURATION}/*")
-	file(
-		COPY ${CEF_BINARY_FILES}
-		DESTINATION "${PROJECT_BINARY_DIR}/${EXECUTABLE_SUBDIR}/${CE_CONFIGURATION}"
-		FILES_MATCHING
-			PATTERN "*.dll"
-			PATTERN "*.bin"
-	)
+	if("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
+		file(GLOB CEF_BINARY_FILES "${CEF_ROOT}/${CEF_CONFIGURATION}/*")
+		file(
+			COPY ${CEF_BINARY_FILES}
+			DESTINATION "${PROJECT_BINARY_DIR}/${EXECUTABLE_SUBDIR}/${CE_CONFIGURATION}"
+			FILES_MATCHING
+				PATTERN "*.dll"
+				PATTERN "*.bin"
+		)
 
-	file(GLOB CEF_RESOURCE_FILES "${CEF_ROOT}/Resources/*")
-	file(
-		COPY ${CEF_RESOURCE_FILES}
-		DESTINATION "${PROJECT_BINARY_DIR}/${EXECUTABLE_SUBDIR}/${CE_CONFIGURATION}"
-	)
+		file(GLOB CEF_RESOURCE_FILES "${CEF_ROOT}/Resources/*")
+		file(
+			COPY ${CEF_RESOURCE_FILES}
+			DESTINATION "${PROJECT_BINARY_DIR}/${EXECUTABLE_SUBDIR}/${CE_CONFIGURATION}"
+		)
+	elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
+		#copy_resolved_framework_into_bundle("${CEF_ROOT}/${CEF_CONFIGURATION}/Chromium Embedded Framework.framework")
+	endif()
 endfunction(CopyCEFFiles)

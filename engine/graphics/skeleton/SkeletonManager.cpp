@@ -3,8 +3,6 @@
 #include "Skeleton.h"
 #include "graphics/File3DImporter.h"
 
-#include <string>
-
 namespace CE
 {
 	void SkeletonManager::Initialize(File3DImporter* importer)

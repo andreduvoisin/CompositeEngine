@@ -1,7 +1,7 @@
 #ifndef _CE_STB_IMAGE_IMPORTER_H_
 #define _CE_STB_IMAGE_IMPORTER_H_
 
-#include "graphics\File2DImporter.h"
+#include "graphics/File2DImporter.h"
 
 namespace CE
 {

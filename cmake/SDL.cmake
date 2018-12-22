@@ -29,6 +29,9 @@ function(BuildSDL)
 	elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
 		execute_process(COMMAND ./configure WORKING_DIRECTORY "${SDL_ROOT_DIR}")
 		execute_process(COMMAND make WORKING_DIRECTORY "${SDL_ROOT_DIR}")
+		# TODO: Should this be installed, or should we just point to the local dylib?
+		# https://developer.apple.com/library/archive/documentation/DeveloperTools/Conceptual/DynamicLibraries/100-Articles/UsingDynamicLibraries.html
+		execute_process(COMMAND sudo make install WORKING_DIRECTORY "${SDL_ROOT_DIR}")
 	endif()
 endfunction(BuildSDL)
 
