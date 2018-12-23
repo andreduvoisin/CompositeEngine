@@ -29,16 +29,18 @@ function(BuildSDL)
 	elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
 		execute_process(COMMAND ./configure WORKING_DIRECTORY "${SDL_ROOT_DIR}")
 		execute_process(COMMAND make WORKING_DIRECTORY "${SDL_ROOT_DIR}")
-		# TODO: Should this be installed, or should we just point to the local dylib?
-		# https://developer.apple.com/library/archive/documentation/DeveloperTools/Conceptual/DynamicLibraries/100-Articles/UsingDynamicLibraries.html
-		execute_process(COMMAND sudo make install WORKING_DIRECTORY "${SDL_ROOT_DIR}")
+		execute_process(
+			COMMAND install_name_tool -id
+				"@executable_path/../Frameworks/libSDL2.dylib"
+				"${SDL_ROOT_DIR}/build/.libs/libSDL2.dylib"
+		)
 	endif()
 endfunction(BuildSDL)
 
 function(BootstrapSDL TARGET_NAME EXECUTABLE_SUBDIR)
 	IncludeSDL()
 	LinkSDL(${TARGET_NAME})
-	CopySDLFiles(${EXECUTABLE_SUBDIR})
+	CopySDLFiles(${TARGET_NAME} ${EXECUTABLE_SUBDIR})
 endfunction(BootstrapSDL)
 
 function(IncludeSDL)
@@ -55,12 +57,21 @@ function(LinkSDL TARGET_NAME)
 	endif()
 endfunction(LinkSDL)
 
-function(CopySDLFiles EXECUTABLE_SUBDIR)
+function(CopySDLFiles TARGET_NAME EXECUTABLE_SUBDIR)
 	if("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
 		configure_file(
 			"${SDL_MSVC_DIR}/${SDL_PLATFORM}/${SDL_CONFIGURATION}/SDL2.dll"
 			"${PROJECT_BINARY_DIR}/${EXECUTABLE_SUBDIR}/${CE_CONFIGURATION}/SDL2.dll"
 			COPYONLY
+		)
+	elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
+		add_custom_command(
+			TARGET ${TARGET_NAME}
+			POST_BUILD
+			COMMAND ${CMAKE_COMMAND} -E copy
+				"${SDL_ROOT_DIR}/build/.libs/libSDL2.dylib"
+				"${PROJECT_BINARY_DIR}/engine/${CE_CONFIGURATION}/CompositeEngine.app/Contents/Frameworks/libSDL2.dylib"
+			VERBATIM
 		)
 	endif()
 endfunction(CopySDLFiles)

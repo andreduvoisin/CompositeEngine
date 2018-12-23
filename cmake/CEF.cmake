@@ -158,15 +158,12 @@ function(CopyCEFFiles TARGET_NAME EXECUTABLE_SUBDIR)
 			DESTINATION "${PROJECT_BINARY_DIR}/${EXECUTABLE_SUBDIR}/${CE_CONFIGURATION}"
 		)
 	elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
-		# TODO: Look into this command and its args. Ensure it's correct.
-		# Copy files into the main app bundle.
 		add_custom_command(
 			TARGET ${TARGET_NAME}
 			POST_BUILD
-			# Copy the CEF framework into the Frameworks directory.
 			COMMAND ${CMAKE_COMMAND} -E copy_directory
-					"${CEF_ROOT}/${CEF_CONFIGURATION}/Chromium Embedded Framework.framework"
-					"${PROJECT_BINARY_DIR}/engine/${CE_CONFIGURATION}/CompositeEngine.app/Contents/Frameworks/Chromium Embedded Framework.framework"
+				"${CEF_ROOT}/${CEF_CONFIGURATION}/Chromium Embedded Framework.framework"
+				"${PROJECT_BINARY_DIR}/engine/${CE_CONFIGURATION}/CompositeEngine.app/Contents/Frameworks/Chromium Embedded Framework.framework"
 			VERBATIM
 		)
 	endif()
