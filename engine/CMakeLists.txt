@@ -11,6 +11,12 @@ endif()
 
 add_executable(CompositeEngine ${COMPOSITE_ENGINE_EXECUTABLE_ARGS} ${ENGINE_SRC_FILES})
 
+add_dependencies(
+	CompositeEngine
+		CompositeCefSubprocess
+		libcef_dll_wrapper
+)
+
 source_group(TREE ${CMAKE_SOURCE_DIR} FILES ${ENGINE_SRC_FILES})
 
 include_directories(${ENGINE_SRC_DIR})
