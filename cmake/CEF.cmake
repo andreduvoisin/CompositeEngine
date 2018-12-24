@@ -126,15 +126,15 @@ function(IncludeCEF)
 endfunction(IncludeCEF)
 
 function(LinkCEF TARGET_NAME)
+	target_link_libraries(${TARGET_NAME} libcef_dll_wrapper)
+	
 	if("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
-		target_link_libraries(${TARGET_NAME} "${PROJECT_BINARY_DIR}/extern/libcef_dll_wrapper/${CEF_CONFIGURATION}/libcef_dll_wrapper.lib")
 		target_link_libraries(${TARGET_NAME} "${CEF_ROOT}/${CEF_CONFIGURATION}/libcef.lib")
 
 		# Reference: https://bitbucket.org/chromiumembedded/cef/wiki/LinkingDifferentRunTimeLibraries.md
 		# Sandbox support (linking cef_sandbox.lib) is only possible when your application is built with the /MT flag.
 		#target_link_libraries(${TARGET_NAME} "${CEF_ROOT}/${CEF_CONFIGURATION}/cef_sandbox.lib")
 	elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
-		target_link_libraries(${TARGET_NAME} "${PROJECT_BINARY_DIR}/extern/libcef_dll_wrapper/${CEF_CONFIGURATION}/libcef_dll_wrapper.a")
 		target_link_libraries(${TARGET_NAME} "${CEF_ROOT}/${CEF_CONFIGURATION}/Chromium Embedded Framework.framework")
 		
 		#target_link_libraries(${TARGET_NAME} "${CEF_ROOT}/${CEF_CONFIGURATION}/cef_sandbox.a")
