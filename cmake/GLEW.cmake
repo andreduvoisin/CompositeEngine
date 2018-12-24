@@ -31,10 +31,7 @@ function(BuildGLEW)
 				/m
 		)
 	elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
-		# TODO: How is Debug vs Release specified?
-		# TODO: Should this be using add_subdirectory()? How does that work with the make command?
-		execute_process(COMMAND cmake ./cmake WORKING_DIRECTORY "${GLEW_BUILD_DIR}")
-		execute_process(COMMAND make -j4 WORKING_DIRECTORY "${GLEW_BUILD_DIR}")
+		add_subdirectory("${GLEW_BUILD_DIR}/cmake")
 	endif()
 endfunction(BuildGLEW)
 
@@ -52,15 +49,15 @@ function(LinkGLEW TARGET_NAME)
 	if("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
 		# Statically-Linked Library
 		target_compile_definitions(CompositeEngine PRIVATE GLEW_STATIC)
-		target_link_libraries(CompositeEngine "${GLEW_ROOT_DIR}/lib/${GLEW_CONFIGURATION}/${GLEW_PLATFORM}/glew32s${GLEW_LIB_CONFIGURATION}.lib")
+		target_link_libraries(CompositeEngine glew_s)
 
 		# Dynamically-Linked Library
 		#target_link_libraries(CompositeEngine "${GLEW_ROOT_DIR}/lib/${GLEW_CONFIGURATION}/${GLEW_PLATFORM}/glew32${GLEW_LIB_CONFIGURATION}.lib")
 	elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
 		# Statically-Linked Library
 		target_compile_definitions(CompositeEngine PRIVATE GLEW_STATIC)
-		target_link_libraries(CompositeEngine "${GLEW_BUILD_DIR}/lib/libGLEW.a")
-
+		target_link_libraries(CompositeEngine glew_s)
+		
 		# Dynamically-Linked Library
 		#target_link_libraries(CompositeEngine "${GLEW_BUILD_DIR}/lib/libGLEW.dylib")
 	endif()
