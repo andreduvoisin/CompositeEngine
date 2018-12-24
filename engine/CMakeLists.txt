@@ -11,6 +11,8 @@ endif()
 
 add_executable(CompositeEngine ${COMPOSITE_ENGINE_EXECUTABLE_ARGS} ${ENGINE_SRC_FILES})
 
+source_group(TREE ${CMAKE_SOURCE_DIR} FILES ${ENGINE_SRC_FILES})
+
 include_directories(${ENGINE_SRC_DIR})
 include_directories(${UI_SRC_DIR})
 
