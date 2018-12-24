@@ -2,12 +2,9 @@ include("${CMAKE_DIR}/GLM.cmake")
 include("${CMAKE_DIR}/STBImage.cmake")
 include("${CMAKE_DIR}/FBXSDK.cmake")
 
-add_executable(CompositeAssetConverter ${ASSET_CONVERTER_SRC_FILES}
-	"${ENGINE_SRC_DIR}/common/Math.cpp"
-	"${ENGINE_SRC_DIR}/graphics/ceasset/AssetTraits.cpp"
-	"${ENGINE_SRC_DIR}/graphics/ceasset/output/AssetExporter.cpp"
-	"${ENGINE_SRC_DIR}/graphics/ceasset/output/AssetSerializer.cpp"
-	"${ENGINE_SRC_DIR}/graphics/ceasset/output/OutputFileStream.cpp")
+add_executable(CompositeAssetConverter ${ASSET_CONVERTER_SRC_FILES})
+
+source_group(TREE ${CMAKE_SOURCE_DIR} FILES ${ASSET_CONVERTER_SRC_FILES})
 
 include_directories(${ASSET_CONVERTER_SRC_DIR})
 include_directories(${ENGINE_SRC_DIR})
