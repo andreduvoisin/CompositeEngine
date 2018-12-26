@@ -37,6 +37,7 @@ function(BuildGLEW)
 		)
 	elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
 		#add_subdirectory("${GLEW_BUILD_DIR}/cmake")
+		# TODO: Builds release always, need to pass the CMAKE build var, which changes the lib output so fix that too.
 		ExternalProject_Add(
 			GLEW
 			PREFIX ${GLEW_VERSION_STRING}
