@@ -1,5 +1,8 @@
 # .gitignore
 
+# macOS
+.DS_Store
+
 # Build Folder
 build/
 
