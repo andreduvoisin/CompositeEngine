@@ -27,7 +27,7 @@ add_dependencies(
 	CompositeEngine
 		CompositeCefSubprocess
 		libcef_dll_wrapper
-		glew_s
+		GLEW
 		SDL
 )
 

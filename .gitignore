@@ -26,9 +26,8 @@ extern/SDL2-*/
 extern/SDL2-*.tar.gz
 
 # GLEW
-extern/glew-2.1.0/bin
-extern/glew-2.1.0/lib
-extern/glew-2.1.0/build/vc12/tmp
+extern/glew-*/
+extern/glew-*.tgz
 
 # CEF
 extern/cef_binary_*/
