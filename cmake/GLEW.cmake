@@ -1,4 +1,9 @@
-set(GLEW_ROOT_DIR "${EXTERN_DIR}/glew-2.1.0")
+include(ExternalProject)
+
+set(GLEW_VERSION "2.1.0")
+set(GLEW_VERSION_STRING "glew-${GLEW_VERSION}")
+
+set(GLEW_ROOT_DIR "${EXTERN_DIR}/${GLEW_VERSION_STRING}")
 set(GLEW_BUILD_DIR "${GLEW_ROOT_DIR}/build")
 set(GLEW_MSVC_DIR "${GLEW_BUILD_DIR}/vc12")
 
@@ -31,7 +36,24 @@ function(BuildGLEW)
 				/m
 		)
 	elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
-		add_subdirectory("${GLEW_BUILD_DIR}/cmake")
+		#add_subdirectory("${GLEW_BUILD_DIR}/cmake")
+		ExternalProject_Add(
+			GLEW
+			PREFIX ${GLEW_VERSION_STRING}
+
+			DOWNLOAD_DIR ${EXTERN_DIR}
+			URL "https://github.com/nigels-com/glew/releases/download/${GLEW_VERSION_STRING}/${GLEW_VERSION_STRING}.tgz"
+
+			SOURCE_DIR ${GLEW_ROOT_DIR}
+			BINARY_DIR ${GLEW_BUILD_DIR}
+
+			CONFIGURE_COMMAND cmake ./cmake
+			BUILD_COMMAND make -j4
+			INSTALL_COMMAND ""
+
+			BUILD_BYPRODUCTS
+				"${GLEW_BUILD_DIR}/lib/libGLEW.a"
+		)
 	endif()
 endfunction(BuildGLEW)
 
@@ -56,7 +78,7 @@ function(LinkGLEW TARGET_NAME)
 	elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
 		# Statically-Linked Library
 		target_compile_definitions(CompositeEngine PRIVATE GLEW_STATIC)
-		target_link_libraries(CompositeEngine glew_s)
+		target_link_libraries(CompositeEngine "${GLEW_BUILD_DIR}/lib/libGLEW.a")
 		
 		# Dynamically-Linked Library
 		#target_link_libraries(CompositeEngine "${GLEW_BUILD_DIR}/lib/libGLEW.dylib")

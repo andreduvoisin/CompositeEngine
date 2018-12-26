@@ -31,11 +31,13 @@ GAME ENGINE BADASSERY
 ### Dependencies ###
 
 * SDL: https://www.libsdl.org/
-	* 2.0.5: https://www.libsdl.org/download-2.0.php
+	* Version in SDL.cmake
+	* Versions: https://www.libsdl.org/download-2.0.php
 	* Reference: http://wiki.libsdl.org/FrontPage
 
 * GLEW: http://glew.sourceforge.net/
-	* 2.1.0: https://sourceforge.net/projects/glew/files/glew/2.1.0/
+	* Version in GLEW.cmake
+	* Repository: https://github.com/nigels-com/glew
 	* Reference: See Above (sidebar)
 
 * GLM: https://glm.g-truc.net/
