@@ -19,19 +19,8 @@ src/shaders/*.h
 *.fbm
 
 # SDL
-extern/SDL2-2.0.8/VisualC/Win32
-extern/SDL2-2.0.8/VisualC/x64
-extern/SDL2-2.0.8/VisualC/SDL/Win32
-extern/SDL2-2.0.8/VisualC/SDL/x64
-extern/SDL2-2.0.8/VisualC/SDLmain/Win32
-extern/SDL2-2.0.8/VisualC/SDLmain/x64
-extern/SDL2-2.0.8/VisualC/SDLtest/Win32
-extern/SDL2-2.0.8/VisualC/SDLtest/x64
-extern/SDL2-2.0.8/VisualC/tests/*/Win32
-extern/SDL2-2.0.8/VisualC/tests/*/x64
-extern/SDL2-2.0.8/VisualC/tests/*/*.bmp
-extern/SDL2-2.0.8/VisualC/tests/*/*.wav
-extern/SDL2-2.0.8/VisualC/tests/*/*.dat
+extern/SDL2-*/
+extern/SDL2-*.tar.gz
 
 # GLEW
 extern/glew-2.1.0/bin

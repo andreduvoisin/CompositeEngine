@@ -1,6 +1,6 @@
 include(ExternalProject)
 
-set(SDL_VERSION "2.0.8")
+set(SDL_VERSION "2.0.9")
 set(SDL_VERSION_STRING "SDL2-${SDL_VERSION}")
 
 set(SDL_ROOT_DIR "${EXTERN_DIR}/${SDL_VERSION_STRING}")
@@ -41,10 +41,13 @@ function(BuildSDL)
 		# )
 		ExternalProject_Add(
 			SDL
-			PREFIX "${SDL_VERSION_STRING}"
+			PREFIX ${SDL_VERSION_STRING}
 
-			SOURCE_DIR "${SDL_ROOT_DIR}"
-			BINARY_DIR "${SDL_ROOT_DIR}"
+			DOWNLOAD_DIR ${EXTERN_DIR}
+			URL "https://www.libsdl.org/release/${SDL_VERSION_STRING}.tar.gz"
+
+			SOURCE_DIR ${SDL_ROOT_DIR}
+			BINARY_DIR ${SDL_ROOT_DIR}
 
 			CONFIGURE_COMMAND ./configure
 			BUILD_COMMAND make
