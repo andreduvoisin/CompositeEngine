@@ -28,6 +28,7 @@ add_dependencies(
 		CompositeCefSubprocess
 		libcef_dll_wrapper
 		glew_s
+		SDL
 )
 
 source_group(TREE ${CMAKE_SOURCE_DIR} FILES ${ENGINE_SRC_FILES})
