@@ -1,4 +1,9 @@
-set(SDL_ROOT_DIR "${EXTERN_DIR}/SDL2-2.0.8")
+include(ExternalProject)
+
+set(SDL_VERSION "2.0.8")
+set(SDL_VERSION_STRING "SDL2-${SDL_VERSION}")
+
+set(SDL_ROOT_DIR "${EXTERN_DIR}/${SDL_VERSION_STRING}")
 set(SDL_MSVC_DIR "${SDL_ROOT_DIR}/VisualC")
 
 if(${CE_CONFIGURATION} STREQUAL "Debug")
@@ -27,12 +32,28 @@ function(BuildSDL)
 				/m
 		)
 	elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
-		execute_process(COMMAND ./configure WORKING_DIRECTORY "${SDL_ROOT_DIR}")
-		execute_process(COMMAND make WORKING_DIRECTORY "${SDL_ROOT_DIR}")
-		execute_process(
-			COMMAND install_name_tool -id
-				"@executable_path/../Frameworks/libSDL2.dylib"
+		# execute_process(COMMAND ./configure WORKING_DIRECTORY "${SDL_ROOT_DIR}")
+		# execute_process(COMMAND make WORKING_DIRECTORY "${SDL_ROOT_DIR}")
+		# execute_process(
+		# 	COMMAND install_name_tool -id
+		# 		"@executable_path/../Frameworks/libSDL2.dylib"
+		# 		"${SDL_ROOT_DIR}/build/.libs/libSDL2.dylib"
+		# )
+		ExternalProject_Add(
+			SDL
+			PREFIX "${SDL_VERSION_STRING}"
+
+			SOURCE_DIR "${SDL_ROOT_DIR}"
+			BINARY_DIR "${SDL_ROOT_DIR}"
+
+			CONFIGURE_COMMAND ./configure
+			BUILD_COMMAND make
+				COMMAND install_name_tool -id "@executable_path/../Frameworks/libSDL2.dylib" "${SDL_ROOT_DIR}/build/.libs/libSDL2.dylib"
+			INSTALL_COMMAND ""
+
+			BUILD_BYPRODUCTS
 				"${SDL_ROOT_DIR}/build/.libs/libSDL2.dylib"
+				"${SDL_ROOT_DIR}/build/.libs/libSDL2main.a"
 		)
 	endif()
 endfunction(BuildSDL)
