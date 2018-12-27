@@ -26,7 +26,7 @@ add_executable(CompositeEngine ${COMPOSITE_ENGINE_EXECUTABLE_ARGS} ${ENGINE_SRC_
 add_dependencies(
 	CompositeEngine
 		CompositeCefSubprocess
-		libcef_dll_wrapper
+		CEF
 		GLEW
 		SDL
 )

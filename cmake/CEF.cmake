@@ -21,6 +21,9 @@ elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
 	endif()
 endif()
 
+set(CEF_DISTRIBUTION "cef_binary_${CEF_VERSION}_${CEF_PLATFORM}")
+set(CEF_ROOT "${EXTERN_DIR}/${CEF_DISTRIBUTION}")
+
 if(${CE_CONFIGURATION} STREQUAL "Debug")
 	set(CEF_CONFIGURATION "Debug")
 elseif(${CE_CONFIGURATION} STREQUAL "Release")
@@ -76,43 +79,36 @@ endfunction(DownloadCEF)
 # https://bitbucket.org/chromiumembedded/cef-project/src/master/CMakeLists.txt
 # https://bitbucket.org/chromiumembedded/cef/src/master/CMakeLists.txt.in
 function(BuildCEF)
-	# Only generate Debug and Release configuration types.
-	set(CMAKE_CONFIGURATION_TYPES Debug Release)
+	ExternalProject_Add(
+		CEF
+		PREFIX ${CEF_DISTRIBUTION}
 
-	# Use folders in the resulting project files.
-	set_property(GLOBAL PROPERTY OS_FOLDERS ON)
+		DOWNLOAD_DIR ${EXTERN_DIR}
+		URL "http://opensource.spotify.com/cefbuilds/${CEF_DISTRIBUTION}.tar.bz2"
 
-	# Download and extract the CEF binary distribution.
-	DownloadCEF(${EXTERN_DIR})
+		SOURCE_DIR ${CEF_ROOT}
+		BINARY_DIR ${CEF_ROOT}
 
-	# Custom configuration for Composite Engine.
-	#
-	# Linking Reference: https://bitbucket.org/chromiumembedded/cef/wiki/LinkingDifferentRunTimeLibraries.md
-	# opengl32.lib (and glu32.lib) link with /MD, so we can't link with /MT.
-	# /MD[d] is included in CMAKE_CXX_FLAGS[_*] by default.
-	# Also, to maintain our sanity, we would like to avoid having to build Chromium and CEF.
-	#
-	# Sandbox Reference: https://magpcss.org/ceforum/viewtopic.php?f=6&t=15482
-	set(CEF_RUNTIME_LIBRARY_FLAG "/MD")
-	set(USE_SANDBOX OFF)
+		# Custom configuration for Composite Engine.
+		#
+		# Linking Reference: https://bitbucket.org/chromiumembedded/cef/wiki/LinkingDifferentRunTimeLibraries.md
+		# opengl32.lib (and glu32.lib) link with /MD, so we can't link with /MT.
+		# /MD[d] is included in CMAKE_CXX_FLAGS[_*] by default.
+		# Also, to maintain our sanity, we would like to avoid having to build Chromium and CEF.
+		#
+		# Sandbox Reference: https://magpcss.org/ceforum/viewtopic.php?f=6&t=15482
+		CMAKE_ARGS
+			-DCMAKE_MAKE_PROGRAM=/Users/andreduvoisin/Downloads/ninja
+			-DCEF_RUNTIME_LIBRARY_FLAG=/MD
+			-DUSE_SANDBOX=OFF
 
-	# Add the CEF binary distribution's cmake/ directory to the module path.
-	set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CEF_ROOT}/cmake")
+		BUILD_COMMAND /Users/andreduvoisin/Downloads/ninja
+		INSTALL_COMMAND ""
 
-	# Load the CEF configuration (executes FindCEF.cmake).
-	find_package(CEF REQUIRED)
-
-	# Include the libcef_dll_wrapper target (executes libcef_dll/CMakeLists.txt).
-	add_subdirectory(${CEF_LIBCEF_DLL_WRAPPER_PATH} libcef_dll_wrapper)
-
-	# Include CEF's test application targets (executes <target>/CMakeLists.txt).
-	#add_subdirectory(${CEF_ROOT}/tests/cefclient)
-	#add_subdirectory(${CEF_ROOT}/tests/cefsimple)
-	#add_subdirectory(${CEF_ROOT}/tests/gtest)
-	#add_subdirectory(${CEF_ROOT}/tests/ceftests)
-
-	# Display configuration settings.
-	PRINT_CEF_CONFIG()
+		BUILD_BYPRODUCTS
+			"${CEF_ROOT}/libcef_dll_wrapper/libcef_dll_wrapper.a"
+			"${CEF_ROOT}/${CEF_CONFIGURATION}/Chromium Embedded Framework.framework"
+	)
 endfunction(BuildCEF)
 
 function(BootstrapCEF TARGET_NAME EXECUTABLE_SUBDIR)
@@ -125,16 +121,16 @@ function(IncludeCEF)
 	include_directories(${CEF_ROOT})
 endfunction(IncludeCEF)
 
+# Reference: https://bitbucket.org/chromiumembedded/cef/wiki/LinkingDifferentRunTimeLibraries.md
+# Sandbox support (linking cef_sandbox.lib) is only possible when your application is built with the /MT flag.
 function(LinkCEF TARGET_NAME)
-	target_link_libraries(${TARGET_NAME} libcef_dll_wrapper)
-	
 	if("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
+		target_link_libraries(${TARGET_NAME} "${CEF_ROOT}/libcef_dll_wrapper/libcef_dll_wrapper.lib")
 		target_link_libraries(${TARGET_NAME} "${CEF_ROOT}/${CEF_CONFIGURATION}/libcef.lib")
 
-		# Reference: https://bitbucket.org/chromiumembedded/cef/wiki/LinkingDifferentRunTimeLibraries.md
-		# Sandbox support (linking cef_sandbox.lib) is only possible when your application is built with the /MT flag.
 		#target_link_libraries(${TARGET_NAME} "${CEF_ROOT}/${CEF_CONFIGURATION}/cef_sandbox.lib")
 	elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
+		target_link_libraries(${TARGET_NAME} "${CEF_ROOT}/libcef_dll_wrapper/libcef_dll_wrapper.a")
 		target_link_libraries(${TARGET_NAME} "${CEF_ROOT}/${CEF_CONFIGURATION}/Chromium Embedded Framework.framework")
 		
 		#target_link_libraries(${TARGET_NAME} "${CEF_ROOT}/${CEF_CONFIGURATION}/cef_sandbox.a")
