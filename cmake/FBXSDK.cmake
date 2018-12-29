@@ -20,11 +20,11 @@ function(BootstrapFBXSDK TARGET_NAME EXECUTABLE_SUBDIR)
 	IncludeFBXSDK()
 	LinkFBXSDK(${TARGET_NAME})
 	CopyFBXSDKFiles(${EXECUTABLE_SUBDIR})
-endfunction(BootstrapFBXSDK)
+endfunction()
 
 function(IncludeFBXSDK)
 	include_directories("${FBXSDK_ROOT_DIR}/include")
-endfunction(IncludeFBXSDK)
+endfunction()
 
 # FBX SDK can be linked statically (with either /MD or /MT) or dynamically.
 # opengl32.lib (and glu32.lib) link with /MD, so we can't link with /MT.
@@ -46,7 +46,7 @@ function(LinkFBXSDK TARGET_NAME)
 		# Dynamically-Linked Library
 		#target_link_libraries(${TARGET_NAME} "${FBXSDK_CLANG_DIR}/${FBXSDK_CONFIGURATION}/libfbxsdk.dylib")
 	endif()
-endfunction(LinkFBXSDK)
+endfunction()
 
 function(CopyFBXSDKFiles EXECUTABLE_SUBDIR)
 	if("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
@@ -57,4 +57,4 @@ function(CopyFBXSDKFiles EXECUTABLE_SUBDIR)
 		#	COPYONLY
 		#)
 	endif()
-endfunction(CopyFBXSDKFiles)
+endfunction()
