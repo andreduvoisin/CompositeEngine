@@ -7,6 +7,7 @@ add_executable(CompositeAssetConverter ${ASSET_CONVERTER_SRC_FILES})
 add_dependencies(
 	CompositeAssetConverter
 		STB
+		GLM
 )
 
 source_group(TREE ${CMAKE_SOURCE_DIR} FILES ${ASSET_CONVERTER_SRC_FILES})

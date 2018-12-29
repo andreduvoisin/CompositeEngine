@@ -39,3 +39,7 @@ extern/rapidjson-*/
 
 # STB
 extern/stb-*/
+
+# GLM
+extern/glm-*/
+extern/glm-*.zip
