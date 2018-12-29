@@ -33,3 +33,6 @@ extern/glew-*.tgz
 extern/cef_binary_*/
 extern/cef_binary_*.tar.bz2
 extern/cef_binary_*.tar.bz2.sha1
+
+# RapidJSON
+extern/rapidjson-*/

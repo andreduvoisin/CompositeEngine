@@ -26,6 +26,7 @@ add_executable(CompositeEngine ${COMPOSITE_ENGINE_EXECUTABLE_ARGS} ${ENGINE_SRC_
 add_dependencies(
 	CompositeEngine
 		CompositeCefSubprocess
+		RapidJSON
 		CEF
 		GLEW
 		SDL
