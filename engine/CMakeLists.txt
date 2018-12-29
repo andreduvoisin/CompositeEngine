@@ -30,6 +30,7 @@ add_dependencies(
 		CEF
 		GLEW
 		SDL
+		GLM
 )
 
 source_group(TREE ${CMAKE_SOURCE_DIR} FILES ${ENGINE_SRC_FILES})
