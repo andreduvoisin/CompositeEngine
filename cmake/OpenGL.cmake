@@ -1,6 +1,6 @@
 function(BootstrapOpenGL TARGET_NAME)
 	LinkOpenGL(${TARGET_NAME})
-endfunction(BootstrapOpenGL)
+endfunction()
 
 function(LinkOpenGL TARGET_NAME)
 	if("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
@@ -9,4 +9,4 @@ function(LinkOpenGL TARGET_NAME)
 		find_library(OPENGL_LIBRARY OpenGL)
 		target_link_libraries(${TARGET_NAME} ${OPENGL_LIBRARY})
 	endif()
-endfunction(LinkOpenGL)
+endfunction()

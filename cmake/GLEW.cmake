@@ -56,17 +56,17 @@ function(BuildGLEW)
 				"${GLEW_BUILD_DIR}/lib/libGLEW.a"
 		)
 	endif()
-endfunction(BuildGLEW)
+endfunction()
 
 function(BootstrapGLEW TARGET_NAME EXECUTABLE_SUBDIR)
 	IncludeGLEW()
 	LinkGLEW(${TARGET_NAME})
 	CopyGLEWFiles(${EXECUTABLE_SUBDIR})
-endfunction(BootstrapGLEW)
+endfunction()
 
 function(IncludeGLEW)
 	include_directories("${GLEW_ROOT_DIR}/include")
-endfunction(IncludeGLEW)
+endfunction()
 
 function(LinkGLEW TARGET_NAME)
 	if("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
@@ -84,7 +84,7 @@ function(LinkGLEW TARGET_NAME)
 		# Dynamically-Linked Library
 		#target_link_libraries(CompositeEngine "${GLEW_BUILD_DIR}/lib/libGLEW.dylib")
 	endif()
-endfunction(LinkGLEW)
+endfunction()
 
 function(CopyGLEWFiles EXECUTABLE_SUBDIR)
 	if("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
@@ -95,4 +95,4 @@ function(CopyGLEWFiles EXECUTABLE_SUBDIR)
 		#	COPYONLY
 		#)
 	endif()
-endfunction(CopyGLEWFiles)
+endfunction()

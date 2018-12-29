@@ -73,7 +73,7 @@ function(DownloadCEF DOWNLOAD_DIR)
 			WORKING_DIRECTORY ${CEF_DOWNLOAD_DIR}
 		)
 	endif()
-endfunction(DownloadCEF)
+endfunction()
 
 # CMake Reference:
 # https://bitbucket.org/chromiumembedded/cef-project/src/master/CMakeLists.txt
@@ -109,17 +109,17 @@ function(BuildCEF)
 			"${CEF_ROOT}/libcef_dll_wrapper/libcef_dll_wrapper.a"
 			"${CEF_ROOT}/${CEF_CONFIGURATION}/Chromium Embedded Framework.framework"
 	)
-endfunction(BuildCEF)
+endfunction()
 
 function(BootstrapCEF TARGET_NAME EXECUTABLE_SUBDIR)
 	IncludeCEF()
 	LinkCEF(${TARGET_NAME})
 	CopyCEFFiles(${TARGET_NAME} ${EXECUTABLE_SUBDIR})
-endfunction(BootstrapCEF)
+endfunction()
 
 function(IncludeCEF)
 	include_directories(${CEF_ROOT})
-endfunction(IncludeCEF)
+endfunction()
 
 # Reference: https://bitbucket.org/chromiumembedded/cef/wiki/LinkingDifferentRunTimeLibraries.md
 # Sandbox support (linking cef_sandbox.lib) is only possible when your application is built with the /MT flag.
@@ -135,7 +135,7 @@ function(LinkCEF TARGET_NAME)
 		
 		#target_link_libraries(${TARGET_NAME} "${CEF_ROOT}/${CEF_CONFIGURATION}/cef_sandbox.a")
 	endif()
-endfunction(LinkCEF)
+endfunction()
 
 function(CopyCEFFiles TARGET_NAME EXECUTABLE_SUBDIR)
 	if("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
@@ -163,4 +163,4 @@ function(CopyCEFFiles TARGET_NAME EXECUTABLE_SUBDIR)
 			VERBATIM
 		)
 	endif()
-endfunction(CopyCEFFiles)
+endfunction()
