@@ -36,3 +36,6 @@ extern/cef_binary_*.tar.bz2.sha1
 
 # RapidJSON
 extern/rapidjson-*/
+
+# STB
+extern/stb-*/
