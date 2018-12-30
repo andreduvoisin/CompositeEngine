@@ -1,7 +1,17 @@
-set(FBXSDK_ROOT_DIR "${EXTERN_DIR}/FBX SDK/2018.1.1")
-set(FBXSDK_MSVC_DIR "${FBXSDK_ROOT_DIR}/lib/vs2015")
-set(FBXSDK_CLANG_DIR "${FBXSDK_ROOT_DIR}/lib/clang")
-	
+include(ExternalProject)
+
+set(FBXSDK_YEAR "2018")
+set(FBXSDK_VERSION_NAME "2018.1.1")
+set(FBXSDK_VERSION_FILE_PREFIX "fbx20181_1")
+
+if("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
+	set(FBXSDK_FILE_NAME "${FBXSDK_VERSION_FILE_PREFIX}_fbxsdk_clang_mac")
+	set(FBXSDK_FILE_EXTENSION ".pkg.tgz")
+endif()
+
+set(FBXSDK_ROOT_DIR "${EXTERN_DIR}/${FBXSDK_FILE_NAME}")
+set(FBXSDK_CLANG_DIR "${FBXSDK_ROOT_DIR}/Contents/Applications/Autodesk/FBX SDK/${FBXSDK_VERSION_NAME}/lib/clang")
+
 if(${CE_CONFIGURATION} STREQUAL "Debug")
 	set(FBXSDK_CONFIGURATION "debug")
 elseif(${CE_CONFIGURATION} STREQUAL "Release")
@@ -16,6 +26,27 @@ if("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
 	endif()
 endif()
 
+# Windows: https://en.wikipedia.org/wiki/Nullsoft_Scriptable_Install_System
+function(BuildFBXSDK)
+	ExternalProject_Add(
+		FBXSDK
+		PREFIX ${FBXSDK_FILE_NAME}
+
+		DOWNLOAD_DIR ${EXTERN_DIR}
+		URL "http://download.autodesk.com/us/fbx/${FBXSDK_YEAR}/${FBXSDK_VERSION_NAME}/${FBXSDK_FILE_NAME}${FBXSDK_FILE_EXTENSION}"
+
+		SOURCE_DIR ${FBXSDK_ROOT_DIR}
+		BINARY_DIR "${FBXSDK_ROOT_DIR}/Contents"
+
+		CONFIGURE_COMMAND ${CMAKE_COMMAND} -E tar xzf "${FBXSDK_ROOT_DIR}/Contents/Archive.pax.gz"
+		BUILD_COMMAND ""
+		INSTALL_COMMAND ""
+
+		BUILD_BYPRODUCTS
+			"${FBXSDK_CLANG_DIR}/${FBXSDK_CONFIGURATION}/libfbxsdk.a"
+	)
+endfunction()
+
 function(BootstrapFBXSDK TARGET_NAME EXECUTABLE_SUBDIR)
 	IncludeFBXSDK()
 	LinkFBXSDK(${TARGET_NAME})
@@ -23,7 +54,7 @@ function(BootstrapFBXSDK TARGET_NAME EXECUTABLE_SUBDIR)
 endfunction()
 
 function(IncludeFBXSDK)
-	include_directories("${FBXSDK_ROOT_DIR}/include")
+	include_directories("${FBXSDK_ROOT_DIR}/Contents/Applications/Autodesk/FBX SDK/${FBXSDK_VERSION_NAME}/include")
 endfunction()
 
 # FBX SDK can be linked statically (with either /MD or /MT) or dynamically.
