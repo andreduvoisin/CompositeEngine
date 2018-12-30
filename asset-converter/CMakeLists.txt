@@ -1,14 +1,14 @@
+include("${CMAKE_DIR}/FBXSDK.cmake")
 include("${CMAKE_DIR}/GLM.cmake")
 include("${CMAKE_DIR}/STB.cmake")
-include("${CMAKE_DIR}/FBXSDK.cmake")
 
 add_executable(CompositeAssetConverter ${ASSET_CONVERTER_SRC_FILES})
 
 add_dependencies(
 	CompositeAssetConverter
-		STB
-		GLM
 		FBXSDK
+		GLM
+		STB
 )
 
 source_group(TREE ${CMAKE_SOURCE_DIR} FILES ${ASSET_CONVERTER_SRC_FILES})
@@ -20,6 +20,6 @@ if(WIN32)
 	target_compile_options(CompositeAssetConverter PRIVATE /W3 /WX)
 endif()
 
+BootstrapFBXSDK(CompositeAssetConverter "asset-converter")
 BootstrapGLM()
 BootstrapSTB()
-BootstrapFBXSDK(CompositeAssetConverter "asset-converter")
