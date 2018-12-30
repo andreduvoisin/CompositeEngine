@@ -43,3 +43,7 @@ extern/stb-*/
 # GLM
 extern/glm-*/
 extern/glm-*.zip
+
+# FBX SDK
+extern/*_fbxsdk_*/
+extern/*_fbxsdk_*.pkg.tgz

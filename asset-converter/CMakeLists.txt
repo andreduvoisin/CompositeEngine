@@ -8,6 +8,7 @@ add_dependencies(
 	CompositeAssetConverter
 		STB
 		GLM
+		FBXSDK
 )
 
 source_group(TREE ${CMAKE_SOURCE_DIR} FILES ${ASSET_CONVERTER_SRC_FILES})

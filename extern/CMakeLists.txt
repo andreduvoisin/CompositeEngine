@@ -1,3 +1,4 @@
+include("${CMAKE_DIR}/FBXSDK.cmake")
 include("${CMAKE_DIR}/GLM.cmake")
 include("${CMAKE_DIR}/STB.cmake")
 include("${CMAKE_DIR}/RapidJSON.cmake")
@@ -5,6 +6,7 @@ include("${CMAKE_DIR}/SDL.cmake")
 include("${CMAKE_DIR}/GLEW.cmake")
 include("${CMAKE_DIR}/CEF.cmake")
 
+BuildFBXSDK()
 BuildGLM()
 BuildSTB()
 BuildRapidJSON()
