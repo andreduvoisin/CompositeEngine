@@ -3,19 +3,19 @@
 uniform mat4 projectionViewModel;
 uniform samplerBuffer palette;
 
-in vec3 vertexPosition;
-in vec3 vertexColor;
-in int jointIndex;
+layout(location = 0) in vec3 vertexPosition;
+layout(location = 1) in vec3 vertexColor;
+layout(location = 2) in uint jointIndex;
 
 out vec3 color;
 
-mat4 FetchJointTransform(in int jointIndex)
+mat4 FetchJointTransform(in uint jointIndex)
 {
 	return mat4(
-		texelFetch(palette, jointIndex * 4),
-		texelFetch(palette, jointIndex * 4 + 1),
-		texelFetch(palette, jointIndex * 4 + 2),
-		texelFetch(palette, jointIndex * 4 + 3));
+		texelFetch(palette, int(jointIndex) * 4),
+		texelFetch(palette, int(jointIndex) * 4 + 1),
+		texelFetch(palette, int(jointIndex) * 4 + 2),
+		texelFetch(palette, int(jointIndex) * 4 + 3));
 }
 
 void main()

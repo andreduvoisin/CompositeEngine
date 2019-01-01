@@ -3,10 +3,10 @@
 uniform mat4 projectionViewModel;
 uniform samplerBuffer palette;
 
-in vec3 vertexPosition;
-in vec2 vertexTextureCoordinate;
-in uvec4 jointIndices;
-in vec3 jointWeights;
+layout(location = 0) in vec3 vertexPosition;
+layout(location = 1) in vec2 vertexTextureCoordinate;
+layout(location = 2) in uvec4 jointIndices;
+layout(location = 3) in vec3 jointWeights;
 
 out vec2 textureCoordinate;
 
