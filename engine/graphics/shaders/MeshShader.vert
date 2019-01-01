@@ -2,8 +2,8 @@
 
 uniform mat4 projectionViewModel;
 
-in vec3 vertexPosition;
-in vec2 vertexTextureCoordinate;
+layout(location = 0) in vec3 vertexPosition;
+layout(location = 1) in vec2 vertexTextureCoordinate;
 
 out vec2 textureCoordinate;
 

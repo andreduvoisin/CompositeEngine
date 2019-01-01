@@ -228,13 +228,13 @@ void RenderSkeleton(CE::AnimationComponent& animationComponent, const glm::mat4&
 	{
 		glm::vec3 position;
 		glm::vec3 color;
-		int jointIndex;
+		unsigned jointIndex;
 	};
 
 	unsigned stride = sizeof(DebugSkeletonVertex);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(offsetof(DebugSkeletonVertex, position)));
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(offsetof(DebugSkeletonVertex, color)));
-	glVertexAttribIPointer(2, 1, GL_INT, stride, reinterpret_cast<void*>(offsetof(DebugSkeletonVertex, jointIndex)));
+	glVertexAttribIPointer(2, 1, GL_UNSIGNED_INT, stride, reinterpret_cast<void*>(offsetof(DebugSkeletonVertex, jointIndex)));
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
 	glEnableVertexAttribArray(2);
