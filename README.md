@@ -1,14 +1,8 @@
-# Composite Engine #
+# Composite Engine
 
-This shit ain't Prime.
+### How do I get set up?
 
-### What is this repository for? ###
-
-GAME ENGINE BADASSERY
-
-### How do I get set up? ###
-
-#### After Cloning ####
+#### After Cloning
 
 This repository requires [Git Large File Storage (Git LFS)](https://git-lfs.github.com/).
 
@@ -17,7 +11,7 @@ This repository requires [Git Large File Storage (Git LFS)](https://git-lfs.gith
 * Run `git lfs install` in the repository directory.
 	* This must be done once per repository clone.
 
-#### Windows ####
+#### Windows
 
 * Install VS2017.
 	* VS2017: https://www.visualstudio.com/downloads/
@@ -25,19 +19,11 @@ This repository requires [Git Large File Storage (Git LFS)](https://git-lfs.gith
 	* If necessary, add MSBuild.exe to PATH.
 		* C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\MSBuild\15.0\Bin
 
-#### All Platforms ####
+#### All Platforms
 
-* Hit Play (and Pray)
+* Hit Play
 
-### Contribution Guidelines ###
-
-* git push origin master -f
-
-### Who do I talk to? ###
-
-* do-not-reply@andreduvoisin.com
-
-### Dependencies ###
+### Dependencies
 
 * SDL: https://www.libsdl.org/
 	* 2.0.5: https://www.libsdl.org/download-2.0.php
@@ -68,7 +54,7 @@ This repository requires [Git Large File Storage (Git LFS)](https://git-lfs.gith
 	* 67fac85 (master): https://github.com/Tencent/rapidjson/tree/67fac85e96220f69076121d569abd15471abb6bf
 	* Reference: http://rapidjson.org/
 
-### Resources ###
+### Resources
 
 * DirectX:
 	* https://www.3dgep.com/introduction-to-directx-11/
@@ -105,11 +91,6 @@ This repository requires [Git Large File Storage (Git LFS)](https://git-lfs.gith
 		* https://developer.apple.com/library/content/documentation/3DDrawing/Conceptual/OpenGLES_ProgrammingGuide/OpenGLESontheiPhone/OpenGLESontheiPhone.html
 
 * SDL and OpenGL Tutorials: http://lazyfoo.net/
-
-* John's Engines:
-	* http://www.ayxia.com/gitea/john/test65
-		* http://www.ayxia.com/gitea/john/test65/src/master/src/tools/munge
-	* http://www.ayxia.com/gitea/john/engine67
 
 * Lang's FBX SDK Guide: https://www.gamedev.net/articles/programming/graphics/how-to-work-with-fbx-sdk-r3582/
 * C++ Skeletal Animation Library: http://guillaumeblanc.github.io/ozz-animation/
