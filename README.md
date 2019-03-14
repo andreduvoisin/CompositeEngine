@@ -1,14 +1,8 @@
-# Composite Engine #
+# Composite Engine
 
-This shit ain't Prime.
+### How do I get set up?
 
-### What is this repository for? ###
-
-GAME ENGINE BADASSERY
-
-### How do I get set up? ###
-
-#### Windows ####
+#### Windows
 
 * Install VS2017.
 	* VS2017: https://www.visualstudio.com/downloads/
@@ -16,19 +10,11 @@ GAME ENGINE BADASSERY
 	* If necessary, add MSBuild.exe to PATH.
 		* C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\MSBuild\15.0\Bin
 
-#### All Platforms ####
+#### All Platforms
 
-* Hit Play (and Pray)
+* Hit Play
 
-### Contribution Guidelines ###
-
-* git push origin master -f
-
-### Who do I talk to? ###
-
-* do-not-reply@andreduvoisin.com
-
-### Dependencies ###
+### Dependencies
 
 * SDL: https://www.libsdl.org/
 	* 2.0.5: https://www.libsdl.org/download-2.0.php
@@ -54,7 +40,7 @@ GAME ENGINE BADASSERY
 	* CEF 3.3440.1805.gbe070f9 / Chromium 68.0.3440.84: http://opensource.spotify.com/cefbuilds/index.html
 	* Reference: https://bitbucket.org/chromiumembedded/cef/wiki/Home
 
-### Resources ###
+### Resources
 
 * DirectX:
 	* https://www.3dgep.com/introduction-to-directx-11/
@@ -91,11 +77,6 @@ GAME ENGINE BADASSERY
 		* https://developer.apple.com/library/content/documentation/3DDrawing/Conceptual/OpenGLES_ProgrammingGuide/OpenGLESontheiPhone/OpenGLESontheiPhone.html
 
 * SDL and OpenGL Tutorials: http://lazyfoo.net/
-
-* John's Engines:
-	* http://www.ayxia.com/gitea/john/test65
-		* http://www.ayxia.com/gitea/john/test65/src/master/src/tools/munge
-	* http://www.ayxia.com/gitea/john/engine67
 
 * Lang's FBX SDK Guide: https://www.gamedev.net/articles/programming/graphics/how-to-work-with-fbx-sdk-r3582/
 * C++ Skeletal Animation Library: http://guillaumeblanc.github.io/ozz-animation/
