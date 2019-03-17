@@ -98,11 +98,11 @@ function(BuildCEF)
 		#
 		# Sandbox Reference: https://magpcss.org/ceforum/viewtopic.php?f=6&t=15482
 		CMAKE_ARGS
-			-DCMAKE_MAKE_PROGRAM=/Users/andreduvoisin/Downloads/ninja
+			-DCMAKE_MAKE_PROGRAM=ninja
 			-DCEF_RUNTIME_LIBRARY_FLAG=/MD
 			-DUSE_SANDBOX=OFF
 
-		BUILD_COMMAND /Users/andreduvoisin/Downloads/ninja
+		BUILD_COMMAND ninja
 		INSTALL_COMMAND ""
 
 		BUILD_BYPRODUCTS
