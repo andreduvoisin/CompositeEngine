@@ -19,6 +19,30 @@ This repository requires [Git Large File Storage (Git LFS)](https://git-lfs.gith
 	* If necessary, add MSBuild.exe to PATH.
 		* C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\MSBuild\15.0\Bin
 
+#### Mac
+
+* Install Xcode. Then:
+
+```sh
+# Install the command line tools.
+xcode-select --install
+
+# Switch to Xcode's command line tools.
+sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
+```
+
+* Install [Ninja](https://ninja-build.org). Ensure it's on your PATH.
+
+```sh
+mkdir build
+cd build
+cmake \
+	-G "Ninja" \
+	-DCE_CONFIGURATION="Debug" \
+	-DCMAKE_BUILD_TYPE="Debug" \
+	..
+```
+
 #### All Platforms
 
 * Hit Play
