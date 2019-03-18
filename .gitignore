@@ -46,4 +46,5 @@ extern/glm-*.zip
 
 # FBX SDK
 extern/*_fbxsdk_*/
+extern/*_fbxsdk_*.exe
 extern/*_fbxsdk_*.pkg.tgz

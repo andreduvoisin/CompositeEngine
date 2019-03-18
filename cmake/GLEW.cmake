@@ -26,14 +26,37 @@ endif()
 function(BuildGLEW)
 	if("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
 		# TODO: Does this need WORKING_DIRECTORY? Windows outputs to libs/, whereas Mac outputs to build/libs/
-		execute_process(
-			COMMAND
-				MSBuild
+		# execute_process(
+		#	COMMAND
+		#		MSBuild
+		#		"${GLEW_MSVC_DIR}/glew.sln"
+		#		/p:PlatformToolset=v141 # Default: v120
+		#		/p:Configuration=${CE_CONFIGURATION}
+		#		/p:Platform=${CE_PLATFORM}
+		#		/m
+		# )
+
+		ExternalProject_Add(
+			GLEW
+			PREFIX ${GLEW_VERSION_STRING}
+
+			DOWNLOAD_DIR ${EXTERN_DIR}
+			URL "https://github.com/nigels-com/glew/releases/download/${GLEW_VERSION_STRING}/${GLEW_VERSION_STRING}.tgz"
+
+			SOURCE_DIR ${GLEW_ROOT_DIR}
+			BINARY_DIR ${GLEW_BUILD_DIR}
+
+			CONFIGURE_COMMAND ""
+			BUILD_COMMAND MSBuild
 				"${GLEW_MSVC_DIR}/glew.sln"
 				/p:PlatformToolset=v141 # Default: v120
 				/p:Configuration=${CE_CONFIGURATION}
 				/p:Platform=${CE_PLATFORM}
 				/m
+			INSTALL_COMMAND ""
+
+			BUILD_BYPRODUCTS
+				"${GLEW_ROOT_DIR}/lib/${GLEW_CONFIGURATION}/${GLEW_PLATFORM}/glew32s${GLEW_LIB_CONFIGURATION}.lib"
 		)
 	elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
 		#add_subdirectory("${GLEW_BUILD_DIR}/cmake")
@@ -72,7 +95,7 @@ function(LinkGLEW TARGET_NAME)
 	if("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
 		# Statically-Linked Library
 		target_compile_definitions(CompositeEngine PRIVATE GLEW_STATIC)
-		target_link_libraries(CompositeEngine glew_s)
+		target_link_libraries(CompositeEngine "${GLEW_ROOT_DIR}/lib/${GLEW_CONFIGURATION}/${GLEW_PLATFORM}/glew32s${GLEW_LIB_CONFIGURATION}.lib")
 
 		# Dynamically-Linked Library
 		#target_link_libraries(CompositeEngine "${GLEW_ROOT_DIR}/lib/${GLEW_CONFIGURATION}/${GLEW_PLATFORM}/glew32${GLEW_LIB_CONFIGURATION}.lib")

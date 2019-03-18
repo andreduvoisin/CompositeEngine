@@ -1,5 +1,7 @@
 cmake_policy(SET CMP0074 NEW)
-cmake_policy(SET CMP0077 NEW)
+if(POLICY CMP0077)
+	cmake_policy(SET CMP0077 NEW)
+endif()
 
 # Specify the CEF distribution version.
 set(CEF_VERSION "3.3538.1852.gcb937fc")
@@ -79,36 +81,70 @@ endfunction()
 # https://bitbucket.org/chromiumembedded/cef-project/src/master/CMakeLists.txt
 # https://bitbucket.org/chromiumembedded/cef/src/master/CMakeLists.txt.in
 function(BuildCEF)
-	ExternalProject_Add(
-		CEF
-		PREFIX ${CEF_DISTRIBUTION}
+	if("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
+		ExternalProject_Add(
+			CEF
+			PREFIX ${CEF_DISTRIBUTION}
 
-		DOWNLOAD_DIR ${EXTERN_DIR}
-		URL "http://opensource.spotify.com/cefbuilds/${CEF_DISTRIBUTION}.tar.bz2"
+			DOWNLOAD_DIR ${EXTERN_DIR}
+			URL "http://opensource.spotify.com/cefbuilds/${CEF_DISTRIBUTION}.tar.bz2"
 
-		SOURCE_DIR ${CEF_ROOT}
-		BINARY_DIR ${CEF_ROOT}
+			SOURCE_DIR ${CEF_ROOT}
+			BINARY_DIR ${CEF_ROOT}
 
-		# Custom configuration for Composite Engine.
-		#
-		# Linking Reference: https://bitbucket.org/chromiumembedded/cef/wiki/LinkingDifferentRunTimeLibraries.md
-		# opengl32.lib (and glu32.lib) link with /MD, so we can't link with /MT.
-		# /MD[d] is included in CMAKE_CXX_FLAGS[_*] by default.
-		# Also, to maintain our sanity, we would like to avoid having to build Chromium and CEF.
-		#
-		# Sandbox Reference: https://magpcss.org/ceforum/viewtopic.php?f=6&t=15482
-		CMAKE_ARGS
-			-DCMAKE_MAKE_PROGRAM=ninja
-			-DCEF_RUNTIME_LIBRARY_FLAG=/MD
-			-DUSE_SANDBOX=OFF
+			# Custom configuration for Composite Engine.
+			#
+			# Linking Reference: https://bitbucket.org/chromiumembedded/cef/wiki/LinkingDifferentRunTimeLibraries.md
+			# opengl32.lib (and glu32.lib) link with /MD, so we can't link with /MT.
+			# /MD[d] is included in CMAKE_CXX_FLAGS[_*] by default.
+			# Also, to maintain our sanity, we would like to avoid having to build Chromium and CEF.
+			#
+			# Sandbox Reference: https://magpcss.org/ceforum/viewtopic.php?f=6&t=15482
+			CMAKE_ARGS
+				-DCMAKE_MAKE_PROGRAM=ninja
+				-DCEF_RUNTIME_LIBRARY_FLAG=/MD
+				-DUSE_SANDBOX=OFF
 
-		BUILD_COMMAND ninja
-		INSTALL_COMMAND ""
+			BUILD_COMMAND ninja
+			INSTALL_COMMAND ""
 
-		BUILD_BYPRODUCTS
-			"${CEF_ROOT}/libcef_dll_wrapper/libcef_dll_wrapper.a"
-			"${CEF_ROOT}/${CEF_CONFIGURATION}/Chromium Embedded Framework.framework"
-	)
+			BUILD_BYPRODUCTS
+				"${CEF_ROOT}/libcef_dll_wrapper/libcef_dll_wrapper.dll"
+				"${CEF_ROOT}/libcef_dll_wrapper/libcef_dll_wrapper.lib"
+				"${CEF_ROOT}/${CEF_CONFIGURATION}/libcef.lib"
+		)
+	elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
+		ExternalProject_Add(
+			CEF
+			PREFIX ${CEF_DISTRIBUTION}
+
+			DOWNLOAD_DIR ${EXTERN_DIR}
+			URL "http://opensource.spotify.com/cefbuilds/${CEF_DISTRIBUTION}.tar.bz2"
+
+			SOURCE_DIR ${CEF_ROOT}
+			BINARY_DIR ${CEF_ROOT}
+
+			# Custom configuration for Composite Engine.
+			#
+			# Linking Reference: https://bitbucket.org/chromiumembedded/cef/wiki/LinkingDifferentRunTimeLibraries.md
+			# opengl32.lib (and glu32.lib) link with /MD, so we can't link with /MT.
+			# /MD[d] is included in CMAKE_CXX_FLAGS[_*] by default.
+			# Also, to maintain our sanity, we would like to avoid having to build Chromium and CEF.
+			#
+			# Sandbox Reference: https://magpcss.org/ceforum/viewtopic.php?f=6&t=15482
+			CMAKE_ARGS
+				-DCMAKE_MAKE_PROGRAM=ninja
+				-DCEF_RUNTIME_LIBRARY_FLAG=/MD
+				-DUSE_SANDBOX=OFF
+
+			BUILD_COMMAND ninja
+			INSTALL_COMMAND ""
+
+			BUILD_BYPRODUCTS
+				"${CEF_ROOT}/libcef_dll_wrapper/libcef_dll_wrapper.a"
+				"${CEF_ROOT}/${CEF_CONFIGURATION}/Chromium Embedded Framework.framework"
+		)
+	endif()
 endfunction()
 
 function(BootstrapCEF TARGET_NAME EXECUTABLE_SUBDIR)

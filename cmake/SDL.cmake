@@ -22,14 +22,38 @@ endif()
 
 function(BuildSDL)
 	if("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
-		execute_process(
-			COMMAND
-				MSBuild
+		# execute_process(
+		#	COMMAND
+		#		MSBuild
+		#		"${SDL_MSVC_DIR}/SDL.sln"
+		#		/p:PlatformToolset=v141 # Default: v100
+		#		/p:Configuration=${CE_CONFIGURATION}
+		#		/p:Platform=${CE_PLATFORM}
+		#		/m
+		# )
+
+		ExternalProject_Add(
+			SDL
+			PREFIX ${SDL_VERSION_STRING}
+
+			DOWNLOAD_DIR ${EXTERN_DIR}
+			URL "https://www.libsdl.org/release/${SDL_VERSION_STRING}.tar.gz"
+
+			SOURCE_DIR ${SDL_ROOT_DIR}
+			BINARY_DIR ${SDL_ROOT_DIR}
+			
+			CONFIGURE_COMMAND ""
+			BUILD_COMMAND MSBuild
 				"${SDL_MSVC_DIR}/SDL.sln"
 				/p:PlatformToolset=v141 # Default: v100
 				/p:Configuration=${CE_CONFIGURATION}
 				/p:Platform=${CE_PLATFORM}
 				/m
+			INSTALL_COMMAND ""
+
+			BUILD_BYPRODUCTS
+				"${SDL_MSVC_DIR}/${SDL_PLATFORM}/${SDL_CONFIGURATION}/SDL2.lib"
+				"${SDL_MSVC_DIR}/${SDL_PLATFORM}/${SDL_CONFIGURATION}/SDL2main.lib"
 		)
 	elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
 		# execute_process(COMMAND ./configure WORKING_DIRECTORY "${SDL_ROOT_DIR}")
@@ -83,10 +107,19 @@ endfunction()
 
 function(CopySDLFiles TARGET_NAME EXECUTABLE_SUBDIR)
 	if("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
-		configure_file(
-			"${SDL_MSVC_DIR}/${SDL_PLATFORM}/${SDL_CONFIGURATION}/SDL2.dll"
-			"${PROJECT_BINARY_DIR}/${EXECUTABLE_SUBDIR}/${CE_CONFIGURATION}/SDL2.dll"
-			COPYONLY
+		# configure_file(
+		#	"${SDL_MSVC_DIR}/${SDL_PLATFORM}/${SDL_CONFIGURATION}/SDL2.dll"
+		#	"${PROJECT_BINARY_DIR}/${EXECUTABLE_SUBDIR}/${CE_CONFIGURATION}/SDL2.dll"
+		#	COPYONLY
+		# )
+
+		add_custom_command(
+			TARGET ${TARGET_NAME}
+			POST_BUILD
+			COMMAND ${CMAKE_COMMAND} -E copy
+				"${SDL_MSVC_DIR}/${SDL_PLATFORM}/${SDL_CONFIGURATION}/SDL2.dll"
+				"${PROJECT_BINARY_DIR}/${EXECUTABLE_SUBDIR}/${CE_CONFIGURATION}/SDL2.dll"
+			VERBATIM
 		)
 	elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
 		add_custom_command(

@@ -43,6 +43,7 @@ target_compile_options(CompositeEngine PRIVATE -g)
 
 if(WIN32)
 	target_compile_options(CompositeEngine PRIVATE /W3 /WX)
+	#target_link_libraries(CompositeEngine -manifest:embed -manifestinput:"${ENGINE_SRC_DIR}/CompositeEngine.manifest")
 endif()
 
 BootstrapCEF(CompositeEngine "engine")
