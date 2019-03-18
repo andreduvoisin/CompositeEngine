@@ -30,6 +30,7 @@ include_directories(${CEF_SUBPROCESS_SRC_DIR})
 
 if(WIN32)
 	target_compile_options(CompositeCefSubprocess PRIVATE /W3 /WX)
+	#target_link_libraries(CompositeCefSubprocess -manifest:embed -manifestinput:"${ENGINE_SRC_DIR}/CompositeEngine.manifest")
 endif()
 
 BootstrapCEF(CompositeCefSubprocess "ui")
