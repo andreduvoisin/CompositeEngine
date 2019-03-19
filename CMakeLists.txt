@@ -2,6 +2,17 @@ cmake_minimum_required(VERSION 3.12.0)
 
 project(CompositeEngine)
 
+# Determine the platform.
+if("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
+	set(OS_MACOSX 1)
+	set(OS_POSIX 1)
+elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
+	set(OS_LINUX 1)
+	set(OS_POSIX 1)
+elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
+	set(OS_WINDOWS 1)
+endif()
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
