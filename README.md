@@ -41,6 +41,7 @@ cmake \
 	-DCE_CONFIGURATION="Debug" \
 	-DCMAKE_BUILD_TYPE="Debug" \
 	..
+ninja
 ```
 
 #### All Platforms
