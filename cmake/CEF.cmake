@@ -132,12 +132,21 @@ function(CopyCEFFiles TARGET_NAME EXECUTABLE_SUBDIR)
 			VERBATIM
 		)
 	elseif(OS_MACOSX)
+		# TODO: This should use EXECUTABLE_SUBDIR, and only one of these two should exist.
 		add_custom_command(
 			TARGET ${TARGET_NAME}
 			POST_BUILD
 			COMMAND ${CMAKE_COMMAND} -E copy_directory
 				"${CEF_ROOT}/${CEF_CONFIGURATION}/Chromium Embedded Framework.framework"
 				"${PROJECT_BINARY_DIR}/engine/${CE_CONFIGURATION}/CompositeEngine.app/Contents/Frameworks/Chromium Embedded Framework.framework"
+			VERBATIM
+		)
+		add_custom_command(
+			TARGET ${TARGET_NAME}
+			POST_BUILD
+			COMMAND ${CMAKE_COMMAND} -E copy_directory
+				"${CEF_ROOT}/${CEF_CONFIGURATION}/Chromium Embedded Framework.framework"
+				"${PROJECT_BINARY_DIR}/ui/${CE_CONFIGURATION}/CompositeCefSubprocess.app/Contents/Frameworks/Chromium Embedded Framework.framework"
 			VERBATIM
 		)
 	endif()
