@@ -1,4 +1,3 @@
-include("${CMAKE_DIR}/CEF.cmake")
 
 if("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
 	set(COMPOSITE_CEF_SUBPROCESS_EXECUTABLE_ARGS MACOSX_BUNDLE)
@@ -19,10 +18,7 @@ endif()
 
 add_executable(CompositeCefSubprocess ${COMPOSITE_CEF_SUBPROCESS_EXECUTABLE_ARGS} ${CEF_SUBPROCESS_SRC_FILES})
 
-add_dependencies(
-	CompositeCefSubprocess
-		CEF
-)
+target_link_libraries(CompositeCefSubprocess PRIVATE CEF)
 
 source_group(TREE ${CMAKE_SOURCE_DIR} FILES ${CEF_SUBPROCESS_SRC_FILES})
 
@@ -33,4 +29,12 @@ if(WIN32)
 	#target_link_libraries(CompositeCefSubprocess -manifest:embed -manifestinput:"${ENGINE_SRC_DIR}/CompositeEngine.manifest")
 endif()
 
-BootstrapCEF(CompositeCefSubprocess "ui")
+install(
+	TARGETS CompositeCefSubprocess
+	RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}"
+)
+install(
+	FILES $<TARGET_PDB_FILE:CompositeCefSubprocess>
+	DESTINATION "${CMAKE_INSTALL_PREFIX}"
+	OPTIONAL
+)
