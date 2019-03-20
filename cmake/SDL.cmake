@@ -87,7 +87,7 @@ function(LinkSDL TARGET_NAME)
 		)
 	endif()
 	
-	target_link_libraries(${TARGET_NAME} ${LIBRARIES})
+	target_link_libraries(${TARGET_NAME} PRIVATE ${LIBRARIES})
 endfunction()
 
 function(CopySDLFiles TARGET_NAME EXECUTABLE_SUBDIR)

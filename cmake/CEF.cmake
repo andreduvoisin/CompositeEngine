@@ -106,7 +106,7 @@ function(LinkCEF TARGET_NAME)
 		#set(LIBRARIES ${LIBRARIES} "${CEF_ROOT}/${CEF_CONFIGURATION}/cef_sandbox.a")
 	endif()
 
-	target_link_libraries(${TARGET_NAME} ${LIBRARIES})
+	target_link_libraries(${TARGET_NAME} PRIVATE ${LIBRARIES})
 endfunction()
 
 function(CopyCEFFiles TARGET_NAME EXECUTABLE_SUBDIR)

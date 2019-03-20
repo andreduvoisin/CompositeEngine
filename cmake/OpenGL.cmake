@@ -10,5 +10,5 @@ function(LinkOpenGL TARGET_NAME)
 		find_library(OPENGL_LIBRARY OpenGL)
 	endif()
 
-	target_link_libraries(${TARGET_NAME} ${OPENGL_LIBRARY}) # glu32 gdi32 winmm user32 glut32
+	target_link_libraries(${TARGET_NAME} PRIVATE ${OPENGL_LIBRARY}) # glu32 gdi32 winmm user32 glut32
 endfunction()

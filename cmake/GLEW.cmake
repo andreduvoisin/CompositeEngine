@@ -83,7 +83,7 @@ function(LinkGLEW TARGET_NAME)
 		endif()
 
 		target_compile_definitions(CompositeEngine PRIVATE GLEW_STATIC)
-		target_link_libraries(CompositeEngine ${LIBRARY_STATIC})
+		target_link_libraries(CompositeEngine PRIVATE ${LIBRARY_STATIC})
 	elseif(GLEW_DYNAMIC)
 		if(OS_WINDOWS)
 			set(LIBRARY_DYNAMIC "${GLEW_ROOT_DIR}/lib/${GLEW_CONFIGURATION}/${GLEW_PLATFORM}/glew32${GLEW_LIB_CONFIGURATION}.lib")
@@ -91,7 +91,7 @@ function(LinkGLEW TARGET_NAME)
 			set(LIBRARY_DYNAMIC "${GLEW_BUILD_DIR}/lib/libGLEW.dylib")
 		endif()
 
-		target_link_libraries(CompositeEngine ${LIBRARY_DYNAMIC})
+		target_link_libraries(CompositeEngine PRIVATE ${LIBRARY_DYNAMIC})
 	endif()
 endfunction()
 

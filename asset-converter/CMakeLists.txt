@@ -1,6 +1,4 @@
 include("${CMAKE_DIR}/FBXSDK.cmake")
-include("${CMAKE_DIR}/GLM.cmake")
-include("${CMAKE_DIR}/STB.cmake")
 
 if(${CMAKE_GENERATOR} STREQUAL "Ninja" OR ${CMAKE_GENERATOR} STREQUAL "Unix Makefiles")
 	# By default Ninja and Make builds don't create a subdirectory named after
@@ -19,19 +17,19 @@ add_executable(CompositeAssetConverter ${ASSET_CONVERTER_SRC_FILES})
 add_dependencies(
 	CompositeAssetConverter
 		FBXSDK
-		GLM
-		STB
+		#GLM
+		#STB
 )
+
+target_link_libraries(CompositeAssetConverter PRIVATE GLM STB)
 
 source_group(TREE ${CMAKE_SOURCE_DIR} FILES ${ASSET_CONVERTER_SRC_FILES})
 
-include_directories(${ASSET_CONVERTER_SRC_DIR})
-include_directories(${ENGINE_SRC_DIR})
+target_include_directories(CompositeAssetConverter PRIVATE ${ASSET_CONVERTER_SRC_DIR})
+target_include_directories(CompositeAssetConverter PRIVATE ${ENGINE_SRC_DIR})
 
 if(WIN32)
 	target_compile_options(CompositeAssetConverter PRIVATE /W3 /WX)
 endif()
 
 BootstrapFBXSDK(CompositeAssetConverter "asset-converter")
-BootstrapGLM()
-BootstrapSTB()
