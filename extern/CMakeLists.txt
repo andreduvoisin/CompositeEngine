@@ -9,5 +9,4 @@ include("${CMAKE_DIR}/STB.cmake")
 
 BuildCEF()
 BuildFBXSDK()
-BuildGLEW()
 BuildSDL()
