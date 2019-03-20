@@ -1,4 +1,3 @@
-include("${CMAKE_DIR}/CEF.cmake")
 
 if(OS_MACOSX)
 	set(COMPOSITE_ENGINE_EXECUTABLE_ARGS MACOSX_BUNDLE)
@@ -21,14 +20,9 @@ add_executable(CompositeEngine ${COMPOSITE_ENGINE_EXECUTABLE_ARGS} ${ENGINE_SRC_
 add_dependencies(
 	CompositeEngine
 		CompositeCefSubprocess
-		CEF
-		#GLEW
-		#GLM
-		#RapidJSON
-		#SDL
 )
 
-target_link_libraries(CompositeEngine PRIVATE GLEW GLM OpenGL RapidJSON SDL)
+target_link_libraries(CompositeEngine PRIVATE CEF GLEW GLM OpenGL RapidJSON SDL)
 
 source_group(TREE ${CMAKE_SOURCE_DIR} FILES ${ENGINE_SRC_FILES})
 
@@ -42,8 +36,6 @@ if(WIN32)
 	target_compile_options(CompositeEngine PRIVATE /W3 /WX)
 	#target_link_libraries(CompositeEngine -manifest:embed -manifestinput:"${ENGINE_SRC_DIR}/CompositeEngine.manifest")
 endif()
-
-BootstrapCEF(CompositeEngine "engine")
 
 install(
 	TARGETS CompositeEngine

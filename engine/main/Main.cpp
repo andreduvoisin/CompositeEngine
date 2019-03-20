@@ -805,7 +805,7 @@ bool StartCef()
 	settings.external_message_pump = true;
 	settings.windowless_rendering_enabled = true;
 	settings.remote_debugging_port = 3469;
-	CefString(&settings.browser_subprocess_path).FromASCII("../../ui/Debug/CompositeCefSubprocess.exe");
+	CefString(&settings.browser_subprocess_path).FromASCII("CompositeCefSubprocess.exe");
 	if (!CefInitialize(main_args, settings, app, NULL))
 	{
 		printf("CEF failed to initialize.\n");

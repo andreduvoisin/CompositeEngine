@@ -6,5 +6,3 @@ include("${CMAKE_DIR}/OpenGL.cmake")
 include("${CMAKE_DIR}/RapidJSON.cmake")
 include("${CMAKE_DIR}/SDL.cmake")
 include("${CMAKE_DIR}/STB.cmake")
-
-BuildCEF()
