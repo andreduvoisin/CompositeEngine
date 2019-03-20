@@ -1,10 +1,9 @@
 include("${CMAKE_DIR}/CEF.cmake")
 include("${CMAKE_DIR}/GLEW.cmake")
-include("${CMAKE_DIR}/OpenGL.cmake")
 include("${CMAKE_DIR}/RapidJSON.cmake")
 include("${CMAKE_DIR}/SDL.cmake")
 
-if("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
+if(OS_MACOSX)
 	set(COMPOSITE_ENGINE_EXECUTABLE_ARGS MACOSX_BUNDLE)
 endif()
 
@@ -32,7 +31,7 @@ add_dependencies(
 		SDL
 )
 
-target_link_libraries(CompositeEngine PRIVATE GLM)
+target_link_libraries(CompositeEngine PRIVATE GLM OpenGL)
 
 source_group(TREE ${CMAKE_SOURCE_DIR} FILES ${ENGINE_SRC_FILES})
 
@@ -49,6 +48,5 @@ endif()
 
 BootstrapCEF(CompositeEngine "engine")
 BootstrapGLEW(CompositeEngine "engine")
-BootstrapOpenGL(CompositeEngine)
 BootstrapRapidJSON()
 BootstrapSDL(CompositeEngine "engine")
