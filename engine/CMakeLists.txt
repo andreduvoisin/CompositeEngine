@@ -1,5 +1,4 @@
 include("${CMAKE_DIR}/CEF.cmake")
-include("${CMAKE_DIR}/GLEW.cmake")
 include("${CMAKE_DIR}/SDL.cmake")
 
 if(OS_MACOSX)
@@ -24,13 +23,13 @@ add_dependencies(
 	CompositeEngine
 		CompositeCefSubprocess
 		CEF
-		GLEW
+		#GLEW
 		#GLM
 		#RapidJSON
 		SDL
 )
 
-target_link_libraries(CompositeEngine PRIVATE GLM OpenGL RapidJSON)
+target_link_libraries(CompositeEngine PRIVATE GLEW GLM OpenGL RapidJSON)
 
 source_group(TREE ${CMAKE_SOURCE_DIR} FILES ${ENGINE_SRC_FILES})
 
@@ -46,5 +45,14 @@ if(WIN32)
 endif()
 
 BootstrapCEF(CompositeEngine "engine")
-BootstrapGLEW(CompositeEngine "engine")
 BootstrapSDL(CompositeEngine "engine")
+
+install(
+	TARGETS CompositeEngine
+	RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}"
+)
+install(
+	FILES $<TARGET_PDB_FILE:CompositeEngine>
+	DESTINATION "${CMAKE_INSTALL_PREFIX}"
+	OPTIONAL
+)

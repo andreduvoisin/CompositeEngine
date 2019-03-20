@@ -6,6 +6,9 @@
 # Build Folder
 build/
 
+# Install Folder
+install/
+
 # Visual Studio
 .vs
 
