@@ -100,7 +100,7 @@ function(LinkFBXSDK TARGET_NAME)
 			set(LIBRARIES_STATIC ${CORE_FOUNDATION_LIBRARY} "${FBXSDK_CLANG_DIR}/${FBXSDK_CONFIGURATION}/libfbxsdk.a")
 		endif()
 		
-		target_link_libraries(${TARGET_NAME} ${LIBRARIES_STATIC})
+		target_link_libraries(${TARGET_NAME} PRIVATE ${LIBRARIES_STATIC})
 	elseif(FBXSDK_DYNAMIC)
 		if(OS_WINDOWS)
 			set(LIBRARY_DYNAMIC "${FBXSDK_MSVC_DIR}/${FBXSDK_PLATFORM}/${FBXSDK_CONFIGURATION}/libfbxsdk.lib")
@@ -109,7 +109,7 @@ function(LinkFBXSDK TARGET_NAME)
 			set(LIBRARY_DYNAMIC "${FBXSDK_CLANG_DIR}/${FBXSDK_CONFIGURATION}/libfbxsdk.dylib")
 		endif()
 		
-		target_link_libraries(${TARGET_NAME} ${LIBRARY_DYNAMIC})
+		target_link_libraries(${TARGET_NAME} PRIVATE ${LIBRARY_DYNAMIC})
 	endif()
 endfunction()
 

@@ -5,26 +5,21 @@ set(GLM_VERSION_STRING "glm-${GLM_VERSION}")
 
 set(GLM_ROOT_DIR "${EXTERN_DIR}/${GLM_VERSION_STRING}")
 
-function(BuildGLM)
-	ExternalProject_Add(
-		GLM
-		PREFIX ${GLM_VERSION_STRING}
+ExternalProject_Add(
+	GLMExternal
+	PREFIX ${GLM_VERSION_STRING}
 
-		DOWNLOAD_DIR ${EXTERN_DIR}
-		URL "https://github.com/g-truc/glm/releases/download/${GLM_VERSION}/${GLM_VERSION_STRING}.zip"
+	DOWNLOAD_DIR ${EXTERN_DIR}
+	URL "https://github.com/g-truc/glm/releases/download/${GLM_VERSION}/${GLM_VERSION_STRING}.zip"
 
-		SOURCE_DIR ${GLM_ROOT_DIR}
+	SOURCE_DIR ${GLM_ROOT_DIR}
 
-		CONFIGURE_COMMAND ""
-		BUILD_COMMAND ""
-		INSTALL_COMMAND ""
-	)
-endfunction()
+	CONFIGURE_COMMAND ""
+	BUILD_COMMAND ""
+	INSTALL_COMMAND ""
+)
 
-function(BootstrapGLM)
-	IncludeGLM()
-endfunction()
+add_library(GLM INTERFACE)
+add_dependencies(GLM GLMExternal)
 
-function(IncludeGLM)
-	include_directories("${GLM_ROOT_DIR}")
-endfunction()
+target_include_directories(GLM INTERFACE "${GLM_ROOT_DIR}")

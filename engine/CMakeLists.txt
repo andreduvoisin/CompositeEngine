@@ -1,6 +1,5 @@
 include("${CMAKE_DIR}/CEF.cmake")
 include("${CMAKE_DIR}/GLEW.cmake")
-include("${CMAKE_DIR}/GLM.cmake")
 include("${CMAKE_DIR}/OpenGL.cmake")
 include("${CMAKE_DIR}/RapidJSON.cmake")
 include("${CMAKE_DIR}/SDL.cmake")
@@ -28,17 +27,19 @@ add_dependencies(
 		CompositeCefSubprocess
 		CEF
 		GLEW
-		GLM
+		#GLM
 		RapidJSON
 		SDL
 )
+
+target_link_libraries(CompositeEngine PRIVATE GLM)
 
 source_group(TREE ${CMAKE_SOURCE_DIR} FILES ${ENGINE_SRC_FILES})
 
 include_directories(${ENGINE_SRC_DIR})
 include_directories(${UI_SRC_DIR})
 
-# TODO: ONLY FOR DEBUG BUILDS
+# TODO: ONLY FOR DEBUG BUILDS (AND NOT ON WINDOWS?)
 target_compile_options(CompositeEngine PRIVATE -g)
 
 if(WIN32)
@@ -48,7 +49,6 @@ endif()
 
 BootstrapCEF(CompositeEngine "engine")
 BootstrapGLEW(CompositeEngine "engine")
-BootstrapGLM()
 BootstrapOpenGL(CompositeEngine)
 BootstrapRapidJSON()
 BootstrapSDL(CompositeEngine "engine")
