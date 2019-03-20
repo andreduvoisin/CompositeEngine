@@ -8,4 +8,3 @@ include("${CMAKE_DIR}/SDL.cmake")
 include("${CMAKE_DIR}/STB.cmake")
 
 BuildCEF()
-BuildFBXSDK()
