@@ -32,7 +32,7 @@ if(OS_WINDOWS)
 	set(BUILD_COMMAND
 		MSBuild
 			"${GLEW_MSVC_DIR}/glew.sln"
-			/p:PlatformToolset=v141 # Default: v120
+			/p:PlatformToolset=v142 # Default: v120
 			/p:Configuration=${CE_CONFIGURATION}
 			/p:Platform=${CE_PLATFORM}
 			/m

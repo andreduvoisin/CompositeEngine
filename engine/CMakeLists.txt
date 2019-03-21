@@ -46,3 +46,15 @@ install(
 	DESTINATION "${CMAKE_INSTALL_PREFIX}"
 	OPTIONAL
 )
+install(
+	DIRECTORY "${CMAKE_SOURCE_DIR}/engine/graphics/shaders"
+	DESTINATION "${CMAKE_INSTALL_PREFIX}"
+	FILES_MATCHING
+		PATTERN "*.frag"
+		PATTERN "*.vert"
+)
+# TODO: This would be much better as a symlink, which CMake supports, but I can't get it to work.
+install(
+	DIRECTORY "${CMAKE_SOURCE_DIR}/assets"
+	DESTINATION "${CMAKE_INSTALL_PREFIX}"
+)

@@ -13,11 +13,9 @@ This repository requires [Git Large File Storage (Git LFS)](https://git-lfs.gith
 
 #### Windows
 
-* Install VS2017.
-	* VS2017: https://www.visualstudio.com/downloads/
-		* Include "Visual C++ tools for CMake" under "Desktop development with C++".
-	* If necessary, add MSBuild.exe to PATH.
-		* C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\MSBuild\15.0\Bin
+* Install VS2019.
+	* VS2019: https://www.visualstudio.com/downloads/
+		* Include "Desktop development with C++" and "Game development with C++"
 
 #### Mac
 
