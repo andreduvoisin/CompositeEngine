@@ -25,7 +25,7 @@ if(OS_WINDOWS)
 	set(BUILD_COMMAND
 		MSBuild
 			"${SDL_MSVC_DIR}/SDL.sln"
-			/p:PlatformToolset=v141 # Default: v100
+			/p:PlatformToolset=v142 # Default: v100
 			/p:Configuration=${CE_CONFIGURATION}
 			/p:Platform=${CE_PLATFORM}
 			/m
