@@ -37,10 +37,10 @@ if(OS_WINDOWS)
 elseif(OS_MACOSX)
 	set(CONFIGURE_COMMAND ./configure)
 	set(BUILD_COMMAND make
-		COMMAND install_name_tool -id "@executable_path/../Frameworks/libSDL2.dylib" "${SDL_ROOT_DIR}/build/.libs/libSDL2.dylib"
+		COMMAND install_name_tool -id "@executable_path/../Frameworks/libSDL2-2.0.0.dylib" "${SDL_ROOT_DIR}/build/.libs/libSDL2-2.0.0.dylib"
 	)
 	set(BUILD_BYPRODUCTS
-		"${SDL_ROOT_DIR}/build/.libs/libSDL2.dylib"
+		"${SDL_ROOT_DIR}/build/.libs/libSDL2-2.0.0.dylib"
 		"${SDL_ROOT_DIR}/build/.libs/libSDL2main.a"
 	)
 endif()
@@ -74,7 +74,7 @@ if(OS_WINDOWS)
 	)
 elseif(OS_MACOSX)
 	set(LIBRARIES
-		"${SDL_ROOT_DIR}/build/.libs/libSDL2.dylib"
+		"${SDL_ROOT_DIR}/build/.libs/libSDL2-2.0.0.dylib"
 		"${SDL_ROOT_DIR}/build/.libs/libSDL2main.a"
 	)
 endif()
@@ -82,14 +82,13 @@ endif()
 target_link_libraries(SDL INTERFACE ${LIBRARIES})
 
 if(OS_WINDOWS)
-	set(LIBRARY_SRC "${SDL_MSVC_DIR}/${SDL_PLATFORM}/${SDL_CONFIGURATION}/SDL2.dll")
-	set(LIBRARY_DST "${PROJECT_BINARY_DIR}/${EXECUTABLE_SUBDIR}/${CE_CONFIGURATION}/SDL2.dll")
+	install(
+		FILES "${SDL_MSVC_DIR}/${SDL_PLATFORM}/${SDL_CONFIGURATION}/SDL2.dll"
+		DESTINATION "${CMAKE_INSTALL_PREFIX}"
+	)
 elseif(OS_MACOSX)
-	set(LIBRARY_SRC "${SDL_ROOT_DIR}/build/.libs/libSDL2.dylib")
-	set(LIBRARY_DST "${PROJECT_BINARY_DIR}/engine/${CE_CONFIGURATION}/CompositeEngine.app/Contents/Frameworks/libSDL2.dylib")
+	install(
+		FILES "${SDL_ROOT_DIR}/build/.libs/libSDL2-2.0.0.dylib"
+		DESTINATION "${CMAKE_INSTALL_PREFIX}/CompositeEngine.app/Contents/Frameworks"
+	)
 endif()
-
-install(
-	FILES "${LIBRARY_SRC}"
-	DESTINATION "${CMAKE_INSTALL_PREFIX}"
-)

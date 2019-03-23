@@ -13,7 +13,9 @@ install/
 .vs
 
 # VS Code
-.vscode
+.vscode/*
+!.vscode/tasks.json
+!.vscode/launch.json
 
 # Intellij Idea
 .idea

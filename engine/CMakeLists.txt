@@ -32,29 +32,47 @@ include_directories(${UI_SRC_DIR})
 # TODO: ONLY FOR DEBUG BUILDS (AND NOT ON WINDOWS?)
 target_compile_options(CompositeEngine PRIVATE -g)
 
-if(WIN32)
+if(OS_WINDOWS)
 	target_compile_options(CompositeEngine PRIVATE /W3 /WX)
-	#target_link_libraries(CompositeEngine -manifest:embed -manifestinput:"${ENGINE_SRC_DIR}/CompositeEngine.manifest")
+elseif(OS_MACOSX)
+	find_library(CORE_FOUNDATION_LIBRARY CoreFoundation)
+	target_link_libraries(CompositeEngine PRIVATE ${CORE_FOUNDATION_LIBRARY})
 endif()
 
 install(
 	TARGETS CompositeEngine
 	RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}"
+	BUNDLE DESTINATION "${CMAKE_INSTALL_PREFIX}"
 )
-install(
-	FILES $<TARGET_PDB_FILE:CompositeEngine>
-	DESTINATION "${CMAKE_INSTALL_PREFIX}"
-	OPTIONAL
-)
-install(
-	DIRECTORY "${CMAKE_SOURCE_DIR}/engine/graphics/shaders"
-	DESTINATION "${CMAKE_INSTALL_PREFIX}"
-	FILES_MATCHING
-		PATTERN "*.frag"
-		PATTERN "*.vert"
-)
-# TODO: This would be much better as a symlink, which CMake supports, but I can't get it to work.
-install(
-	DIRECTORY "${CMAKE_SOURCE_DIR}/assets"
-	DESTINATION "${CMAKE_INSTALL_PREFIX}"
-)
+if(OS_WINDOWS)
+	install(
+		FILES $<TARGET_PDB_FILE:CompositeEngine>
+		DESTINATION "${CMAKE_INSTALL_PREFIX}"
+		OPTIONAL
+	)
+	install(
+		DIRECTORY "${CMAKE_SOURCE_DIR}/engine/graphics/shaders"
+		DESTINATION "${CMAKE_INSTALL_PREFIX}"
+		FILES_MATCHING
+			PATTERN "*.frag"
+			PATTERN "*.vert"
+	)
+	# TODO: This would be much better as a symlink, which CMake supports, but I can't get it to work.
+	install(
+		DIRECTORY "${CMAKE_SOURCE_DIR}/assets"
+		DESTINATION "${CMAKE_INSTALL_PREFIX}"
+	)
+elseif(OS_MACOSX)
+	install(
+		DIRECTORY "${CMAKE_SOURCE_DIR}/engine/graphics/shaders"
+		DESTINATION "${CMAKE_INSTALL_PREFIX}/CompositeEngine.app/Contents/Resources"
+		FILES_MATCHING
+			PATTERN "*.frag"
+			PATTERN "*.vert"
+	)
+	# TODO: This would be much better as a symlink, which CMake supports, but I can't get it to work.
+	install(
+		DIRECTORY "${CMAKE_SOURCE_DIR}/assets"
+		DESTINATION "${CMAKE_INSTALL_PREFIX}/CompositeEngine.app/Contents/Resources"
+	)
+endif()

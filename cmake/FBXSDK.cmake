@@ -106,15 +106,14 @@ endif()
 
 if(FBXSDK_DYNAMIC)
 	if(OS_WINDOWS)
-		set(LIBRARY_DYNAMIC_SRC "${FBXSDK_MSVC_DIR}/${FBXSDK_PLATFORM}/${FBXSDK_CONFIGURATION}/libfbxsdk.dll")
-		set(LIBRARY_DYNAMIC_DST "${PROJECT_BINARY_DIR}/${EXECUTABLE_SUBDIR}/${CE_CONFIGURATION}/libfbxsdk.dll")
+		install(
+			FILES "${FBXSDK_MSVC_DIR}/${FBXSDK_PLATFORM}/${FBXSDK_CONFIGURATION}/libfbxsdk.dll"
+			DESTINATION "${CMAKE_INSTALL_PREFIX}"
+		)
 	elseif(OS_MACOSX)
-		set(LIBRARY_DYNAMIC_SRC "${FBXSDK_CLANG_DIR}/${FBXSDK_CONFIGURATION}/libfbxsdk.dylib")
-		set(LIBRARY_DYNAMIC_DST "${PROJECT_BINARY_DIR}/engine/${CE_CONFIGURATION}/CompositeEngine.app/Contents/Frameworks/libfbxsdk.dylib")
+		install(
+			FILES "${FBXSDK_CLANG_DIR}/${FBXSDK_CONFIGURATION}/libfbxsdk.dylib"
+			DESTINATION "${CMAKE_INSTALL_PREFIX}/CompositeEngine.app/Contents/Frameworks"
+		)
 	endif()
-	
-	install(
-		FILES "${LIBRARY_DYNAMIC_SRC}"
-		DESTINATION "${CMAKE_INSTALL_PREFIX}"
-	)
 endif()
