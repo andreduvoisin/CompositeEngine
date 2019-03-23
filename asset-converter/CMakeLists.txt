@@ -20,7 +20,7 @@ source_group(TREE ${CMAKE_SOURCE_DIR} FILES ${ASSET_CONVERTER_SRC_FILES})
 target_include_directories(CompositeAssetConverter PRIVATE ${ASSET_CONVERTER_SRC_DIR})
 target_include_directories(CompositeAssetConverter PRIVATE ${ENGINE_SRC_DIR})
 
-if(WIN32)
+if(OS_WINDOWS)
 	target_compile_options(CompositeAssetConverter PRIVATE /W3 /WX)
 endif()
 
