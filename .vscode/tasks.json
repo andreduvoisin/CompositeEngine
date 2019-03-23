@@ -4,14 +4,29 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Generate, Build, and Install Composite Engine",
-            "dependsOn": [
-                "Generate Composite Engine",
-                "Build and Install Composite Engine"
+            "label": "Create Build Folder",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "-E",
+                "make_directory",
+                "build"
             ],
-            "group": {
-                "kind": "build",
-                "isDefault": true
+            "options": {
+                "cwd": "${workspaceFolder}"
+            }
+        },
+        {
+            "label": "Create Install Folder",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "-E",
+                "make_directory",
+                "install"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
             }
         },
         {
@@ -27,10 +42,14 @@
             ],
             "options": {
                 "cwd": "${workspaceFolder}/build"
-            }
+            },
+            "dependsOn": [
+                "Create Build Folder",
+                "Create Install Folder"
+            ]
         },
         {
-            "label": "Build and Install Composite Engine",
+            "label": "Build Composite Engine",
             "type": "shell",
             "command": "cmake",
             "args": [
@@ -41,6 +60,13 @@
             ],
             "options": {
                 "cwd": "${workspaceFolder}/build"
+            },
+            "dependsOn": [
+                "Generate Composite Engine"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
             }
         }
     ]
