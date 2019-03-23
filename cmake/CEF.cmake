@@ -28,9 +28,9 @@ endif()
 set(CEF_DISTRIBUTION "cef_binary_${CEF_VERSION}_${CEF_PLATFORM}")
 set(CEF_ROOT "${EXTERN_DIR}/${CEF_DISTRIBUTION}")
 
-if(${CE_CONFIGURATION} STREQUAL "Debug")
+if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
 	set(CEF_CONFIGURATION "Debug")
-elseif(${CE_CONFIGURATION} STREQUAL "Release")
+elseif(${CMAKE_BUILD_TYPE} STREQUAL "Release")
 	set(CEF_CONFIGURATION "Release")
 endif()
 

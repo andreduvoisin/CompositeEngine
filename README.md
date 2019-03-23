@@ -13,11 +13,14 @@ This repository requires [Git Large File Storage (Git LFS)](https://git-lfs.gith
 
 #### Windows
 
-* Install VS2019.
-	* VS2019: https://www.visualstudio.com/downloads/
-		* Include "Desktop development with C++" and "Game development with C++"
+* Install [Visual Studio 2019](https://www.visualstudio.com/downloads/).
+	* Include `Desktop development with C++` and `Game development with C++`
 
 #### Mac
+
+* Install [CMake](https://cmake.org/download/).
+
+* Install [Ninja](https://ninja-build.org).
 
 * Install Xcode. Then:
 
@@ -29,18 +32,11 @@ xcode-select --install
 sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
 ```
 
-* Install [Ninja](https://ninja-build.org). Ensure it's on your PATH.
+#### Visual Studio Code
 
-```sh
-mkdir build
-cd build
-cmake \
-	-G "Ninja" \
-	-DCE_CONFIGURATION="Debug" \
-	-DCMAKE_BUILD_TYPE="Debug" \
-	..
-ninja
-```
+* Install the [C/C++ Extension from Microsoft](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools).
+
+* On Windows, open with Developer Command Prompt.
 
 #### All Platforms
 
