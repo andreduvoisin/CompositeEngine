@@ -12,7 +12,7 @@
             "cwd": "${workspaceFolder}/install",
             "externalConsole": false,
             "stopAtEntry": false,
-            "preLaunchTask": "Generate, Build, and Install Composite Engine"
+            "preLaunchTask": "Build Composite Engine"
         },
         {
             "name": "Launch Composite Engine (Mac)",
@@ -24,7 +24,7 @@
             "miDebuggerPath": "/Applications/Xcode.app/Contents/Developer/usr/bin/lldb-mi",
             "externalConsole": false,
             "stopAtEntry": false,
-            "preLaunchTask": "Generate, Build, and Install Composite Engine"
+            "preLaunchTask": "Build Composite Engine"
         }
     ]
 }
