@@ -103,27 +103,6 @@ endif()
 target_link_libraries(CEF INTERFACE ${LIBRARIES})
 
 if(OS_WINDOWS)
-	# TODO: As far as I know, the *.lib files from this copy are unnecessary,
-	# which means this should be changed to only copy *.dll and *.bin files.
-	# However, the CEF README.txt implies that the whole directory should be copied.
-	#add_custom_command(
-	#	TARGET ${TARGET_NAME}
-	#	POST_BUILD
-	#	COMMAND ${CMAKE_COMMAND} -E copy_directory
-	#		"${CEF_ROOT}/${CEF_CONFIGURATION}"
-	#		"${PROJECT_BINARY_DIR}/${EXECUTABLE_SUBDIR}/${CE_CONFIGURATION}"
-	#	VERBATIM
-	#)
-		
-	#add_custom_command(
-	#	TARGET ${TARGET_NAME}
-	#	POST_BUILD
-	#	COMMAND ${CMAKE_COMMAND} -E copy_directory
-	#		"${CEF_ROOT}/Resources"
-	#		"${PROJECT_BINARY_DIR}/${EXECUTABLE_SUBDIR}/${CE_CONFIGURATION}"
-	#	VERBATIM
-	#)
-	
 	# The trailing slashes are important.
 	# Reference: https://cmake.org/cmake/help/v3.12/command/install.html#installing-directories
 	# "The last component of each directory name is appended to the destination directory but
@@ -140,21 +119,9 @@ if(OS_WINDOWS)
 		DESTINATION "${CMAKE_INSTALL_PREFIX}"
 	)
 elseif(OS_MACOSX)
-	# TODO: This should use EXECUTABLE_SUBDIR, and only one of these two should exist.
-	add_custom_command(
-		TARGET ${TARGET_NAME}
-		POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy_directory
-			"${CEF_ROOT}/${CEF_CONFIGURATION}/Chromium Embedded Framework.framework"
-			"${PROJECT_BINARY_DIR}/engine/${CE_CONFIGURATION}/CompositeEngine.app/Contents/Frameworks/Chromium Embedded Framework.framework"
-		VERBATIM
-	)
-	add_custom_command(
-		TARGET ${TARGET_NAME}
-		POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy_directory
-			"${CEF_ROOT}/${CEF_CONFIGURATION}/Chromium Embedded Framework.framework"
-			"${PROJECT_BINARY_DIR}/ui/${CE_CONFIGURATION}/CompositeCefSubprocess.app/Contents/Frameworks/Chromium Embedded Framework.framework"
-		VERBATIM
+	# TODO: This should use EXECUTABLE_SUBDIR?
+	install(
+		DIRECTORY "${CEF_ROOT}/${CEF_CONFIGURATION}/Chromium Embedded Framework.framework"
+		DESTINATION "${CMAKE_INSTALL_PREFIX}/CompositeEngine.app/Contents/Frameworks"
 	)
 endif()

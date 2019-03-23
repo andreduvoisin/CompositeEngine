@@ -28,8 +28,10 @@ install(
 	TARGETS CompositeAssetConverter
 	RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}"
 )
-install(
-	FILES $<TARGET_PDB_FILE:CompositeAssetConverter>
-	DESTINATION "${CMAKE_INSTALL_PREFIX}"
-	OPTIONAL
-)
+if(OS_WINDOWS)
+	install(
+		FILES $<TARGET_PDB_FILE:CompositeAssetConverter>
+		DESTINATION "${CMAKE_INSTALL_PREFIX}"
+		OPTIONAL
+	)
+endif()

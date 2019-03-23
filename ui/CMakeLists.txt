@@ -26,15 +26,17 @@ include_directories(${CEF_SUBPROCESS_SRC_DIR})
 
 if(WIN32)
 	target_compile_options(CompositeCefSubprocess PRIVATE /W3 /WX)
-	#target_link_libraries(CompositeCefSubprocess -manifest:embed -manifestinput:"${ENGINE_SRC_DIR}/CompositeEngine.manifest")
 endif()
 
 install(
 	TARGETS CompositeCefSubprocess
 	RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}"
+	BUNDLE DESTINATION "${CMAKE_INSTALL_PREFIX}"
 )
-install(
-	FILES $<TARGET_PDB_FILE:CompositeCefSubprocess>
-	DESTINATION "${CMAKE_INSTALL_PREFIX}"
-	OPTIONAL
-)
+if(OS_WINDOWS)
+	install(
+		FILES $<TARGET_PDB_FILE:CompositeCefSubprocess>
+		DESTINATION "${CMAKE_INSTALL_PREFIX}"
+		OPTIONAL
+	)
+endif()

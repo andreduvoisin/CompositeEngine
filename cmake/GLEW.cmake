@@ -96,14 +96,14 @@ endif()
 
 if(GLEW_DYNAMIC)
 	if(OS_WINDOWS)
-		set(LIBRARY_DYNAMIC_SRC "${GLEW_ROOT_DIR}/bin/${GLEW_CONFIGURATION}/${GLEW_PLATFORM}/glew32${GLEW_LIB_CONFIGURATION}.dll")
+		install(
+			FILES "${GLEW_ROOT_DIR}/bin/${GLEW_CONFIGURATION}/${GLEW_PLATFORM}/glew32${GLEW_LIB_CONFIGURATION}.dll"
+			DESTINATION "${CMAKE_INSTALL_PREFIX}"
+		)
 	elseif(OS_MACOSX)
-		set(LIBRARY_DYNAMIC_SRC "${GLEW_BUILD_DIR}/lib/libGLEW.dylib")
-		set(LIBRARY_DYNAMIC_DST "${PROJECT_BINARY_DIR}/engine/${CE_CONFIGURATION}/CompositeEngine.app/Contents/Frameworks/libGLEW.dylib")
+		install(
+			FILES "${GLEW_BUILD_DIR}/lib/libGLEW.dylib"
+			DESTINATION "${CMAKE_INSTALL_PREFIX}/CompositeEngine.app/Contents/Frameworks"
+		)
 	endif()
-
-	install(
-		FILES "${LIBRARY_DYNAMIC_SRC}"
-		DESTINATION "${CMAKE_INSTALL_PREFIX}"
-	)
 endif()
