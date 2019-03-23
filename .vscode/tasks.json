@@ -7,8 +7,7 @@
             "label": "Generate, Build, and Install Composite Engine",
             "dependsOn": [
                 "Generate Composite Engine",
-                "Build Composite Engine",
-                "Install Composite Engine"
+                "Build and Install Composite Engine"
             ],
             "group": {
                 "kind": "build",
@@ -22,7 +21,6 @@
             "args": [
                 "-G",
                 "Ninja",
-                "-DCE_CONFIGURATION=\"Debug\"",
                 "-DCMAKE_BUILD_TYPE=\"Debug\"",
                 "-DCMAKE_INSTALL_PREFIX=\"${workspaceFolder}/install\"",
                 ".."
@@ -32,15 +30,7 @@
             }
         },
         {
-            "label": "Build Composite Engine",
-            "type": "shell",
-            "command": "ninja",
-            "options": {
-                "cwd": "${workspaceFolder}/build"
-            }
-        },
-        {
-            "label": "Install Composite Engine",
+            "label": "Build and Install Composite Engine",
             "type": "shell",
             "command": "cmake",
             "args": [

@@ -5,16 +5,25 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Launch Composite Engine",
+            "name": "Launch Composite Engine (Windows)",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/install/CompositeEngine.exe",
+            "cwd": "${workspaceFolder}/install",
+            "externalConsole": false,
+            "stopAtEntry": false,
+            "preLaunchTask": "Generate, Build, and Install Composite Engine"
+        },
+        {
+            "name": "Launch Composite Engine (Mac)",
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/install/CompositeEngine.app/Contents/MacOS/CompositeEngine",
-            "cwd": "${workspaceFolder}",
+            "cwd": "${workspaceFolder}/install/CompositeEngine.app/Contents/MacOS",
+            "MIMode": "lldb",
+            "miDebuggerPath": "/Applications/Xcode.app/Contents/Developer/usr/bin/lldb-mi",
             "externalConsole": false,
-            "osx": {
-                "MIMode": "lldb",
-                "miDebuggerPath": "/Applications/Xcode.app/Contents/Developer/usr/bin/lldb-mi"
-            },
+            "stopAtEntry": false,
             "preLaunchTask": "Generate, Build, and Install Composite Engine"
         }
     ]

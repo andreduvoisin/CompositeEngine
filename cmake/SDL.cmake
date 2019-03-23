@@ -6,17 +6,17 @@ set(SDL_VERSION_STRING "SDL2-${SDL_VERSION}")
 set(SDL_ROOT_DIR "${EXTERN_DIR}/${SDL_VERSION_STRING}")
 set(SDL_MSVC_DIR "${SDL_ROOT_DIR}/VisualC")
 
-if(${CE_CONFIGURATION} STREQUAL "Debug")
+if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
 	set(SDL_CONFIGURATION "Debug")
-elseif(${CE_CONFIGURATION} STREQUAL "Release")
+elseif(${CMAKE_BUILD_TYPE} STREQUAL "Release")
 	set(SDL_CONFIGURATION "Release")
 endif()
 
 if(OS_WINDOWS)
-	if(${CE_PLATFORM} STREQUAL "Win32")
-		set(SDL_PLATFORM "Win32")
-	elseif(${CE_PLATFORM} STREQUAL "x64")
+	if(CMAKE_SIZEOF_VOID_P MATCHES 8)
 		set(SDL_PLATFORM "x64")
+	else()
+		set(SDL_PLATFORM "Win32")
 	endif()
 endif()
 
@@ -26,8 +26,8 @@ if(OS_WINDOWS)
 		MSBuild
 			"${SDL_MSVC_DIR}/SDL.sln"
 			/p:PlatformToolset=v142 # Default: v100
-			/p:Configuration=${CE_CONFIGURATION}
-			/p:Platform=${CE_PLATFORM}
+			/p:Configuration=${CMAKE_BUILD_TYPE}
+			/p:Platform=${SDL_PLATFORM}
 			/m
 	)
 	set(BUILD_BYPRODUCTS

@@ -11,16 +11,7 @@
       "cmakeCommandArgs": "",
       "buildCommandArgs": "-v",
       "ctestCommandArgs": "",
-      "variables": [
-        {
-          "name": "CE_CONFIGURATION",
-          "value": "Debug"
-        },
-        {
-          "name": "CE_PLATFORM",
-          "value": "Win32"
-        }
-      ]
+      "variables": []
     },
     {
       "name": "x86-Release",
@@ -32,16 +23,7 @@
       "cmakeCommandArgs": "",
       "buildCommandArgs": "-v",
       "ctestCommandArgs": "",
-      "variables": [
-        {
-          "name": "CE_CONFIGURATION",
-          "value": "Release"
-        },
-        {
-          "name": "CE_PLATFORM",
-          "value": "Win32"
-        }
-      ]
+      "variables": []
     },
     {
       "name": "x64-Debug",
@@ -53,16 +35,7 @@
       "cmakeCommandArgs": "",
       "buildCommandArgs": "-v",
       "ctestCommandArgs": "",
-      "variables": [
-        {
-          "name": "CE_CONFIGURATION",
-          "value": "Debug"
-        },
-        {
-          "name": "CE_PLATFORM",
-          "value": "x64"
-        }
-      ]
+      "variables": []
     },
     {
       "name": "x64-Release",
@@ -74,16 +47,7 @@
       "cmakeCommandArgs": "",
       "buildCommandArgs": "-v",
       "ctestCommandArgs": "",
-      "variables": [
-        {
-          "name": "CE_CONFIGURATION",
-          "value": "Release"
-        },
-        {
-          "name": "CE_PLATFORM",
-          "value": "x64"
-        }
-      ]
+      "variables": []
     }
   ]
 }

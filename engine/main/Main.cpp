@@ -1346,7 +1346,6 @@ int main(int argc, char* argv[])
 	if (!Initialize())
 	{
 		printf("Failed to initialize.\n");
-		getchar();
 		return -1;
 	}
 

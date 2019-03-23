@@ -11,19 +11,19 @@ set(GLEW_ROOT_DIR "${EXTERN_DIR}/${GLEW_VERSION_STRING}")
 set(GLEW_BUILD_DIR "${GLEW_ROOT_DIR}/build")
 set(GLEW_MSVC_DIR "${GLEW_BUILD_DIR}/vc12")
 
-if(${CE_CONFIGURATION} STREQUAL "Debug")
+if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
 	set(GLEW_CONFIGURATION "Debug")
 	set(GLEW_LIB_CONFIGURATION "d")
-elseif(${CE_CONFIGURATION} STREQUAL "Release")
+elseif(${CMAKE_BUILD_TYPE} STREQUAL "Release")
 	set(GLEW_CONFIGURATION "Release")
 	set(GLEW_LIB_CONFIGURATION "")
 endif()
 
 if(OS_WINDOWS)
-	if(${CE_PLATFORM} STREQUAL "Win32")
-		set(GLEW_PLATFORM "Win32")
-	elseif(${CE_PLATFORM} STREQUAL "x64")
+	if(CMAKE_SIZEOF_VOID_P MATCHES 8)
 		set(GLEW_PLATFORM "x64")
+	else()
+		set(GLEW_PLATFORM "Win32")
 	endif()
 endif()
 
@@ -33,8 +33,8 @@ if(OS_WINDOWS)
 		MSBuild
 			"${GLEW_MSVC_DIR}/glew.sln"
 			/p:PlatformToolset=v142 # Default: v120
-			/p:Configuration=${CE_CONFIGURATION}
-			/p:Platform=${CE_PLATFORM}
+			/p:Configuration=${CMAKE_BUILD_TYPE}
+			/p:Platform=${GLEW_PLATFORM}
 			/m
 	)
 	if(GLEW_STATIC)
