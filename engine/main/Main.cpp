@@ -494,6 +494,8 @@ void Render()
 
 std::string ReadFile(const char *file)
 {
+
+#ifdef __APPLE__
 	std::string fileString(file);
 
 	std::string directoryName;
@@ -529,8 +531,11 @@ std::string ReadFile(const char *file)
 
 	UInt8 realFileName[1024];
 	CFURLGetFileSystemRepresentation(fileUrl, true, realFileName, 1024);
+#else
+	const char* realFileName = file;
+#endif
 
-	std::ifstream stream((char *)realFileName);
+	std::ifstream stream((const char *)realFileName);
 
 	if (!stream.is_open())
 	{

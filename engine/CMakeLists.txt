@@ -29,12 +29,13 @@ source_group(TREE ${CMAKE_SOURCE_DIR} FILES ${ENGINE_SRC_FILES})
 include_directories(${ENGINE_SRC_DIR})
 include_directories(${UI_SRC_DIR})
 
-# TODO: ONLY FOR DEBUG BUILDS (AND NOT ON WINDOWS?)
-target_compile_options(CompositeEngine PRIVATE -g)
 
 if(OS_WINDOWS)
 	target_compile_options(CompositeEngine PRIVATE /W3 /WX)
 elseif(OS_MACOSX)
+	# TODO: ONLY FOR DEBUG BUILDS
+	target_compile_options(CompositeEngine PRIVATE -g)
+
 	find_library(CORE_FOUNDATION_LIBRARY CoreFoundation)
 	target_link_libraries(CompositeEngine PRIVATE ${CORE_FOUNDATION_LIBRARY})
 endif()
