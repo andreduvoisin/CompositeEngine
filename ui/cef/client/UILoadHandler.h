@@ -3,6 +3,8 @@
 
 #include "include/cef_load_handler.h"
 
+#include <SDL_timer.h>
+
 class UILoadHandler : public CefLoadHandler
 {
 public:
@@ -14,6 +16,10 @@ public:
 		bool canGoForward) override;
 
 private:
+	static uint32_t ReloadBrowserCallback(uint32_t intervalMillis, void* param);
+
+	SDL_TimerID reloadTimerId;
+
 	// IMPLEMENT_* macros set access modifiers, so they must come last.
 	IMPLEMENT_REFCOUNTING(UILoadHandler);
 };
