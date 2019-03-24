@@ -48,6 +48,10 @@
 #include "include/wrapper/cef_message_router.h"
 #endif
 
+#ifdef __APPLE__
+#include "CoreFoundation/CoreFoundation.h"
+#endif
+
 const int SCREEN_WIDTH = 1280;
 const int SCREEN_HEIGHT = 720;
 
@@ -83,17 +87,17 @@ GLuint g_uiTextureLocation = -1;
 GLuint g_uiTextureUnit = -1;
 GLuint g_uiTextureID = -1;
 
-//const char* g_assetName = "/Users/andreduvoisin/Development/CompositeEngine/assets/Stand Up.ceasset";
-//const char* g_assetName = "/Users/andreduvoisin/Development/CompositeEngine/assets/Thriller Part 2.ceasset";
-//const char* g_assetName = "/Users/andreduvoisin/Development/CompositeEngine/assets/jla_wonder_woman.ceasset";
-//const char* g_assetName = "/Users/andreduvoisin/Development/CompositeEngine/assets/Quarterback Pass.ceasset";
-//const char* g_fbxName = "/Users/andreduvoisin/Development/CompositeEngine/assets/Soldier_animated_jump.fbx";
-//const char* g_assetName = "/Users/andreduvoisin/Development/CompositeEngine/assets/Standing Walk Forward.ceasset";
+//const char* g_assetName = "assets/Stand Up.ceasset";
+//const char* g_assetName = "assets/Thriller Part 2.ceasset";
+//const char* g_assetName = "assets/jla_wonder_woman.ceasset";
+//const char* g_assetName = "assets/Quarterback Pass.ceasset";
+//const char* g_fbxName = "assets/Soldier_animated_jump.fbx";
+//const char* g_assetName = "assets/Standing Walk Forward.ceasset";
 
 std::vector<const char*> g_assetNames = {
-	"/Users/andreduvoisin/Development/CompositeEngine/assets/Quarterback Pass.ceasset",
-	//"/Users/andreduvoisin/Development/CompositeEngine/assets/Thriller Part 2.ceasset",
-	//"/Users/andreduvoisin/Development/CompositeEngine/assets/Standing Walk Forward.ceasset"
+	"assets/Quarterback Pass.ceasset",
+	//"assets/Thriller Part 2.ceasset",
+	//"assets/Standing Walk Forward.ceasset"
 };
 
 CE::AssetImporter* g_assetImporter;
@@ -488,13 +492,54 @@ void Render()
 	RenderUI();
 }
 
-std::string ReadFile(const char* file)
+std::string ReadFile(const char *file)
 {
-	std::ifstream stream(file);
+
+#ifdef __APPLE__
+	std::string fileString(file);
+
+	std::string directoryName;
+	std::string fileName;
+	std::string fileTitle;
+	std::string fileExtension;
+
+	size_t slashPos = fileString.find_last_of('/');
+	if (slashPos == std::string::npos)
+	{
+		directoryName = std::string();
+		fileName = fileString;
+	}
+	else
+	{
+		directoryName = fileString.substr(0, slashPos);
+		fileName = fileString.substr(slashPos + 1);
+	}
+	size_t dotPos = fileName.find_last_of('.');
+	fileTitle = fileName.substr(0, dotPos);
+	fileExtension = fileName.substr(dotPos + 1);
+
+	CFStringRef fileTitleStringRef = CFStringCreateWithCStringNoCopy(NULL, fileTitle.c_str(), kCFStringEncodingASCII, kCFAllocatorNull);
+	CFStringRef fileExtensionStringRef = CFStringCreateWithCStringNoCopy(NULL, fileExtension.c_str(), kCFStringEncodingASCII, kCFAllocatorNull);
+	CFStringRef directoryNameStringRef = directoryName.empty() ? NULL : CFStringCreateWithCStringNoCopy(NULL, directoryName.c_str(), kCFStringEncodingASCII, kCFAllocatorNull);
+
+	CFBundleRef mainBundle = CFBundleGetMainBundle();
+	CFURLRef fileUrl = CFBundleCopyResourceURL(
+		mainBundle,
+		fileTitleStringRef,
+		fileExtensionStringRef,
+		directoryNameStringRef);
+
+	UInt8 realFileName[1024];
+	CFURLGetFileSystemRepresentation(fileUrl, true, realFileName, 1024);
+#else
+	const char* realFileName = file;
+#endif
+
+	std::ifstream stream((const char *)realFileName);
 
 	if (!stream.is_open())
 	{
-		printf("Error Opening File: %s\n", file);
+		printf("Error Opening File: %s\n", realFileName);
 		return std::string();
 	}
 
@@ -510,7 +555,7 @@ bool CreateProgram2()
 	// TODO: Copy shaders in CMAKE to .exe dir (or subdir next to .exe).
 
 	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	std::string vertexShaderSource = ReadFile("/Users/andreduvoisin/Development/CompositeEngine/engine/graphics/shaders/SkeletonShader.vert");
+	std::string vertexShaderSource = ReadFile("shaders/SkeletonShader.vert");
 	const char* vertexShaderSourceStr = vertexShaderSource.c_str();
 	glShaderSource(vertexShader, 1, &vertexShaderSourceStr, NULL);
 	glCompileShader(vertexShader);
@@ -529,7 +574,7 @@ bool CreateProgram2()
 	//{
 	//	"#version 410\nout vec4 LFragment; void main() { LFragment = vec4(1.0, 1.0, 1.0, 1.0); }"
 	//};
-	std::string fragmentShaderSource = ReadFile("/Users/andreduvoisin/Development/CompositeEngine/engine/graphics/shaders/FragmentShader.frag");
+	std::string fragmentShaderSource = ReadFile("shaders/FragmentShader.frag");
 	const char* fragmentShaderSourceStr = fragmentShaderSource.c_str();
 	glShaderSource(fragmentShader, 1, &fragmentShaderSourceStr, NULL);
 	glCompileShader(fragmentShader);
@@ -563,7 +608,7 @@ bool CreateProgram4()
 	// TODO: Copy shaders in CMAKE to .exe dir (or subdir next to .exe).
 
 	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	std::string vertexShaderSource = ReadFile("/Users/andreduvoisin/Development/CompositeEngine/engine/graphics/shaders/UIShader.vert");
+	std::string vertexShaderSource = ReadFile("shaders/UIShader.vert");
 	const char* vertexShaderSourceStr = vertexShaderSource.c_str();
 	glShaderSource(vertexShader, 1, &vertexShaderSourceStr, NULL);
 	glCompileShader(vertexShader);
@@ -582,7 +627,7 @@ bool CreateProgram4()
 	//{
 	//	"#version 410\nout vec4 LFragment; void main() { LFragment = vec4(1.0, 1.0, 1.0, 1.0); }"
 	//};
-	std::string fragmentShaderSource = ReadFile("/Users/andreduvoisin/Development/CompositeEngine/engine/graphics/shaders/UIShader.frag");
+	std::string fragmentShaderSource = ReadFile("shaders/UIShader.frag");
 	const char* fragmentShaderSourceStr = fragmentShaderSource.c_str();
 	glShaderSource(fragmentShader, 1, &fragmentShaderSourceStr, NULL);
 	glCompileShader(fragmentShader);
@@ -616,7 +661,7 @@ bool CreateProgram5()
 	// TODO: Copy shaders in CMAKE to .exe dir (or subdir next to .exe).
 
 	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	std::string vertexShaderSource = ReadFile("/Users/andreduvoisin/Development/CompositeEngine/engine/graphics/shaders/GridShader.vert");
+	std::string vertexShaderSource = ReadFile("shaders/GridShader.vert");
 	const char* vertexShaderSourceStr = vertexShaderSource.c_str();
 	glShaderSource(vertexShader, 1, &vertexShaderSourceStr, NULL);
 	glCompileShader(vertexShader);
@@ -635,7 +680,7 @@ bool CreateProgram5()
 	//{
 	//	"#version 410\nout vec4 LFragment; void main() { LFragment = vec4(1.0, 1.0, 1.0, 1.0); }"
 	//};
-	std::string fragmentShaderSource = ReadFile("/Users/andreduvoisin/Development/CompositeEngine/engine/graphics/shaders/GridShader.frag");
+	std::string fragmentShaderSource = ReadFile("shaders/GridShader.frag");
 	const char* fragmentShaderSourceStr = fragmentShaderSource.c_str();
 	glShaderSource(fragmentShader, 1, &fragmentShaderSourceStr, NULL);
 	glCompileShader(fragmentShader);
@@ -669,7 +714,7 @@ bool InitializeOpenGL()
 	// TODO: Copy shaders in CMAKE to .exe dir (or subdir next to .exe).
 
 	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	std::string vertexShaderSource = ReadFile("/Users/andreduvoisin/Development/CompositeEngine/engine/graphics/shaders/SkinnedMeshShader.vert");
+	std::string vertexShaderSource = ReadFile("shaders/SkinnedMeshShader.vert");
 	const char* vertexShaderSourceStr = vertexShaderSource.c_str();
 	glShaderSource(vertexShader, 1, &vertexShaderSourceStr, NULL);
 	glCompileShader(vertexShader);
@@ -688,7 +733,7 @@ bool InitializeOpenGL()
 	//{
 	//	"#version 410\nout vec4 LFragment; void main() { LFragment = vec4(1.0, 1.0, 1.0, 1.0); }"
 	//};
-	std::string fragmentShaderSource = ReadFile("/Users/andreduvoisin/Development/CompositeEngine/engine/graphics/shaders/DiffuseTextureShader.frag");
+	std::string fragmentShaderSource = ReadFile("shaders/DiffuseTextureShader.frag");
 	const char* fragmentShaderSourceStr = fragmentShaderSource.c_str();
 	glShaderSource(fragmentShader, 1, &fragmentShaderSourceStr, NULL);
 	glCompileShader(fragmentShader);
@@ -805,7 +850,7 @@ bool StartCef()
 	settings.external_message_pump = true;
 	settings.windowless_rendering_enabled = true;
 	settings.remote_debugging_port = 3469;
-	CefString(&settings.browser_subprocess_path).FromASCII("../../ui/Debug/CompositeCefSubprocess.exe");
+	CefString(&settings.browser_subprocess_path).FromASCII("CompositeCefSubprocess.exe");
 	if (!CefInitialize(main_args, settings, app, NULL))
 	{
 		printf("CEF failed to initialize.\n");
@@ -1301,7 +1346,6 @@ int main(int argc, char* argv[])
 	if (!Initialize())
 	{
 		printf("Failed to initialize.\n");
-		getchar();
 		return -1;
 	}
 

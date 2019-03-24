@@ -1,6 +1,17 @@
-cmake_minimum_required(VERSION 3.7.2)
+cmake_minimum_required(VERSION 3.13.0)
 
 project(CompositeEngine)
+
+# Determine the platform.
+if("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
+	set(OS_MACOSX 1)
+	set(OS_POSIX 1)
+elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
+	set(OS_LINUX 1)
+	set(OS_POSIX 1)
+elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
+	set(OS_WINDOWS 1)
+endif()
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -17,10 +28,10 @@ file(GLOB_RECURSE ENGINE_SRC_FILES
 	"${ENGINE_SRC_DIR}/*.cpp"
 	"${UI_SRC_DIR}/cef/browser/*.cpp"
 	"${UI_SRC_DIR}/cef/client/*.cpp"
-	"${ENGINE_SRC_DIR}/*.manifest")
+	"${ENGINE_SRC_DIR}/CompositeEngine.manifest")
 file(GLOB_RECURSE CEF_SUBPROCESS_SRC_FILES
 	"${CEF_SUBPROCESS_SRC_DIR}/*.cpp"
-	"${ENGINE_SRC_DIR}/*.manifest")
+	"${UI_SRC_DIR}/CompositeCefSubprocess.manifest")
 file(GLOB_RECURSE ASSET_CONVERTER_SRC_FILES
 	"${ASSET_CONVERTER_SRC_DIR}/*.cpp"
 	"${ENGINE_SRC_DIR}/common/Math.cpp"

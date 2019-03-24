@@ -4,88 +4,116 @@ set(FBXSDK_YEAR "2018")
 set(FBXSDK_VERSION_NAME "2018.1.1")
 set(FBXSDK_VERSION_FILE_PREFIX "fbx20181_1")
 
-if("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
+# Swap this to change FBX SDK from a statically-linked library to a dynamically-linked library.
+set(FBXSDK_STATIC 1)
+#set(FBXSDK_DYNAMIC 1)
+
+if(OS_WINDOWS)
+	set(FBXSDK_FILE_NAME "${FBXSDK_VERSION_FILE_PREFIX}_fbxsdk_vs2015_win")
+	set(FBXSDK_FILE_EXTENSION ".exe")
+elseif(OS_MACOSX)
 	set(FBXSDK_FILE_NAME "${FBXSDK_VERSION_FILE_PREFIX}_fbxsdk_clang_mac")
 	set(FBXSDK_FILE_EXTENSION ".pkg.tgz")
 endif()
 
 set(FBXSDK_ROOT_DIR "${EXTERN_DIR}/${FBXSDK_FILE_NAME}")
 set(FBXSDK_CLANG_DIR "${FBXSDK_ROOT_DIR}/Contents/Applications/Autodesk/FBX SDK/${FBXSDK_VERSION_NAME}/lib/clang")
+set(FBXSDK_MSVC_DIR "${FBXSDK_ROOT_DIR}/lib/vs2015")
 
-if(${CE_CONFIGURATION} STREQUAL "Debug")
+if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
 	set(FBXSDK_CONFIGURATION "debug")
-elseif(${CE_CONFIGURATION} STREQUAL "Release")
+elseif(${CMAKE_BUILD_TYPE} STREQUAL "Release")
 	set(FBXSDK_CONFIGURATION "release")
 endif()
 
-if("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
-	if(${CE_PLATFORM} STREQUAL "Win32")
-		set(FBXSDK_PLATFORM "x86")
-	elseif(${CE_PLATFORM} STREQUAL "x64")
+if(OS_WINDOWS)
+	if(CMAKE_SIZEOF_VOID_P MATCHES 8)
 		set(FBXSDK_PLATFORM "x64")
+	else()
+		set(FBXSDK_PLATFORM "x86")
 	endif()
 endif()
 
-# Windows: https://en.wikipedia.org/wiki/Nullsoft_Scriptable_Install_System
-function(BuildFBXSDK)
-	ExternalProject_Add(
-		FBXSDK
-		PREFIX ${FBXSDK_FILE_NAME}
+if(OS_WINDOWS)
+	# References:
+	# https://en.wikipedia.org/wiki/Nullsoft_Scriptable_Install_System
+	# https://nsis.sourceforge.io/Docs/Chapter3.html
+		
+	string(REPLACE "/" "\\" FBXSDK_ROOT_DIR_WIN_BACKSLASH ${FBXSDK_ROOT_DIR})
 
-		DOWNLOAD_DIR ${EXTERN_DIR}
-		URL "http://download.autodesk.com/us/fbx/${FBXSDK_YEAR}/${FBXSDK_VERSION_NAME}/${FBXSDK_FILE_NAME}${FBXSDK_FILE_EXTENSION}"
+	set(DOWNLOAD_NO_EXTRACT TRUE)
+	set(BINARY_DIR ${FBXSDK_ROOT_DIR})
+	set(CONFIGURE_COMMAND ${EXTERN_DIR}/${FBXSDK_FILE_NAME}${FBXSDK_FILE_EXTENSION} /S /D=${FBXSDK_ROOT_DIR_WIN_BACKSLASH})
+	set(BUILD_BYPRODUCTS "${FBXSDK_MSVC_DIR}/${FBXSDK_PLATFORM}/${FBXSDK_CONFIGURATION}/libfbxsdk-md.lib")
+elseif(OS_MACOSX)
+	unset(DOWNLOAD_NO_EXTRACT)
+	set(BINARY_DIR "${FBXSDK_ROOT_DIR}/Contents")
+	set(CONFIGURE_COMMAND ${CMAKE_COMMAND} -E tar xzf "${FBXSDK_ROOT_DIR}/Contents/Archive.pax.gz")
+	set(BUILD_BYPRODUCTS "${FBXSDK_CLANG_DIR}/${FBXSDK_CONFIGURATION}/libfbxsdk.a")
+endif()
 
-		SOURCE_DIR ${FBXSDK_ROOT_DIR}
-		BINARY_DIR "${FBXSDK_ROOT_DIR}/Contents"
+ExternalProject_Add(
+	FBXSDKExternal
+	PREFIX ${FBXSDK_FILE_NAME}
 
-		CONFIGURE_COMMAND ${CMAKE_COMMAND} -E tar xzf "${FBXSDK_ROOT_DIR}/Contents/Archive.pax.gz"
-		BUILD_COMMAND ""
-		INSTALL_COMMAND ""
+	DOWNLOAD_DIR ${EXTERN_DIR}
+	URL "https://download.autodesk.com/us/fbx/${FBXSDK_YEAR}/${FBXSDK_VERSION_NAME}/${FBXSDK_FILE_NAME}${FBXSDK_FILE_EXTENSION}"
+	DOWNLOAD_NO_EXTRACT ${DOWNLOAD_NO_EXTRACT}
 
-		BUILD_BYPRODUCTS
-			"${FBXSDK_CLANG_DIR}/${FBXSDK_CONFIGURATION}/libfbxsdk.a"
-	)
-endfunction()
+	SOURCE_DIR ${FBXSDK_ROOT_DIR}
+	BINARY_DIR ${BINARY_DIR}
 
-function(BootstrapFBXSDK TARGET_NAME EXECUTABLE_SUBDIR)
-	IncludeFBXSDK()
-	LinkFBXSDK(${TARGET_NAME})
-	CopyFBXSDKFiles(${EXECUTABLE_SUBDIR})
-endfunction()
+	CONFIGURE_COMMAND "${CONFIGURE_COMMAND}"
+	BUILD_COMMAND ""
+	INSTALL_COMMAND ""
 
-function(IncludeFBXSDK)
-	include_directories("${FBXSDK_ROOT_DIR}/Contents/Applications/Autodesk/FBX SDK/${FBXSDK_VERSION_NAME}/include")
-endfunction()
+	BUILD_BYPRODUCTS ${BUILD_BYPRODUCTS}
+)
 
-# FBX SDK can be linked statically (with either /MD or /MT) or dynamically.
-# opengl32.lib (and glu32.lib) link with /MD, so we can't link with /MT.
-# /MD[d] is included in CMAKE_CXX_FLAGS[_*] by default.
-function(LinkFBXSDK TARGET_NAME)
-	if("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
-		# Statically-Linked Library (/MD)
-		target_link_libraries(${TARGET_NAME} "${FBXSDK_MSVC_DIR}/${FBXSDK_PLATFORM}/${FBXSDK_CONFIGURATION}/libfbxsdk-md.lib")
+add_library(FBXSDK INTERFACE)
+add_dependencies(FBXSDK FBXSDKExternal)
 
-		# Dynamically-Linked Library
-		#target_compile_definitions(${TARGET_NAME} PRIVATE FBXSDK_SHARED)
-		#target_link_libraries(${TARGET_NAME} "${FBXSDK_MSVC_DIR}/${FBXSDK_PLATFORM}/${FBXSDK_CONFIGURATION}/libfbxsdk.lib")
-	elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
-		# Statically-Linked Library
+if(OS_WINDOWS)
+	set(INCLUDE_DIR "${FBXSDK_ROOT_DIR}/include")
+elseif(OS_MACOSX)
+	set(INCLUDE_DIR "${FBXSDK_ROOT_DIR}/Contents/Applications/Autodesk/FBX SDK/${FBXSDK_VERSION_NAME}/include")
+endif()
+
+target_include_directories(FBXSDK INTERFACE ${INCLUDE_DIR})
+
+if(FBXSDK_STATIC)
+	if(OS_WINDOWS)
+		# FBX SDK can be linked statically with either /MD or /MT.
+		# opengl32.lib (and glu32.lib) link with /MD, so we can't link with /MT.
+		# /MD[d] is included in CMAKE_CXX_FLAGS[_*] by default.
+		set(LIBRARIES_STATIC "${FBXSDK_MSVC_DIR}/${FBXSDK_PLATFORM}/${FBXSDK_CONFIGURATION}/libfbxsdk-md.lib")
+	elseif(OS_MACOSX)
 		find_library(CORE_FOUNDATION_LIBRARY CoreFoundation)
-		target_link_libraries(${TARGET_NAME} ${CORE_FOUNDATION_LIBRARY})
-		target_link_libraries(${TARGET_NAME} "${FBXSDK_CLANG_DIR}/${FBXSDK_CONFIGURATION}/libfbxsdk.a")
-
-		# Dynamically-Linked Library
-		#target_link_libraries(${TARGET_NAME} "${FBXSDK_CLANG_DIR}/${FBXSDK_CONFIGURATION}/libfbxsdk.dylib")
+		set(LIBRARIES_STATIC ${CORE_FOUNDATION_LIBRARY} "${FBXSDK_CLANG_DIR}/${FBXSDK_CONFIGURATION}/libfbxsdk.a")
 	endif()
-endfunction()
-
-function(CopyFBXSDKFiles EXECUTABLE_SUBDIR)
-	if("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
-		# Dynamically-Linked Library
-		#configure_file(
-		#	"${FBXSDK_MSVC_DIR}/${FBXSDK_PLATFORM}/${FBXSDK_CONFIGURATION}/libfbxsdk.dll"
-		#	"${PROJECT_BINARY_DIR}/${EXECUTABLE_SUBDIR}/${CE_CONFIGURATION}/libfbxsdk.dll"
-		#	COPYONLY
-		#)
+		
+	target_link_libraries(FBXSDK INTERFACE ${LIBRARIES_STATIC})
+elseif(FBXSDK_DYNAMIC)
+	if(OS_WINDOWS)
+		set(LIBRARY_DYNAMIC "${FBXSDK_MSVC_DIR}/${FBXSDK_PLATFORM}/${FBXSDK_CONFIGURATION}/libfbxsdk.lib")
+		target_compile_definitions(FBXSDK INTERFACE FBXSDK_SHARED)
+	elseif(OS_MACOSX)
+		set(LIBRARY_DYNAMIC "${FBXSDK_CLANG_DIR}/${FBXSDK_CONFIGURATION}/libfbxsdk.dylib")
 	endif()
-endfunction()
+		
+	target_link_libraries(FBXSDK INTERFACE ${LIBRARY_DYNAMIC})
+endif()
+
+if(FBXSDK_DYNAMIC)
+	if(OS_WINDOWS)
+		install(
+			FILES "${FBXSDK_MSVC_DIR}/${FBXSDK_PLATFORM}/${FBXSDK_CONFIGURATION}/libfbxsdk.dll"
+			DESTINATION "${CMAKE_INSTALL_PREFIX}"
+		)
+	elseif(OS_MACOSX)
+		install(
+			FILES "${FBXSDK_CLANG_DIR}/${FBXSDK_CONFIGURATION}/libfbxsdk.dylib"
+			DESTINATION "${CMAKE_INSTALL_PREFIX}/CompositeEngine.app/Contents/Frameworks"
+		)
+	endif()
+endif()

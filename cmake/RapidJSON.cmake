@@ -5,27 +5,22 @@ set(RAPIDJSON_VERSION_STRING "rapidjson-${RAPIDJSON_VERSION}")
 
 set(RAPIDJSON_ROOT_DIR "${EXTERN_DIR}/${RAPIDJSON_VERSION_STRING}")
 
-function(BuildRapidJSON)
-	ExternalProject_Add(
-		RapidJSON
-		PREFIX ${RAPIDJSON_VERSION_STRING}
+ExternalProject_Add(
+	RapidJSONExternal
+	PREFIX ${RAPIDJSON_VERSION_STRING}
 
-		DOWNLOAD_DIR ${EXTERN_DIR}
-		GIT_REPOSITORY "https://github.com/Tencent/rapidjson.git"
-		GIT_TAG ${RAPIDJSON_VERSION}
+	DOWNLOAD_DIR ${EXTERN_DIR}
+	GIT_REPOSITORY "https://github.com/Tencent/rapidjson.git"
+	GIT_TAG ${RAPIDJSON_VERSION}
 
-		SOURCE_DIR ${RAPIDJSON_ROOT_DIR}
+	SOURCE_DIR ${RAPIDJSON_ROOT_DIR}
 
-		CONFIGURE_COMMAND ""
-		BUILD_COMMAND ""
-		INSTALL_COMMAND ""
-	)
-endfunction()
+	CONFIGURE_COMMAND ""
+	BUILD_COMMAND ""
+	INSTALL_COMMAND ""
+)
 
-function(BootstrapRapidJSON)
-	IncludeRapidJSON()
-endfunction()
+add_library(RapidJSON INTERFACE)
+add_dependencies(RapidJSON RapidJSONExternal)
 
-function(IncludeRapidJSON)
-	include_directories("${RAPIDJSON_ROOT_DIR}/include")
-endfunction()
+target_include_directories(RapidJSON INTERFACE "${RAPIDJSON_ROOT_DIR}/include")
