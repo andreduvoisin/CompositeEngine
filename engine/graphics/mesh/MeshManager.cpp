@@ -1,9 +1,7 @@
 #include "MeshManager.h"
 
 #include "Mesh.h"
-#include "graphics\File3DImporter.h"
-
-#include <string>
+#include "graphics/File3DImporter.h"
 
 namespace CE
 {

@@ -1,9 +1,7 @@
 #include "SkeletonManager.h"
 
 #include "Skeleton.h"
-#include "graphics\File3DImporter.h"
-
-#include <string>
+#include "graphics/File3DImporter.h"
 
 namespace CE
 {

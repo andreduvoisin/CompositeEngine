@@ -1,8 +1,9 @@
 #ifndef _CE_SKELETON_H_
 #define _CE_SKELETON_H_
 
-#include <glm\glm.hpp>
+#include <glm/glm.hpp>
 
+#include <string>
 #include <vector>
 
 namespace CE

@@ -1,6 +1,6 @@
 #include "STBImageImporter.h"
 
-#include "graphics\texture\Texture.h"
+#include "graphics/texture/Texture.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>

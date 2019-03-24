@@ -1,21 +1,37 @@
-include("${CMAKE_DIR}/GLM.cmake")
-include("${CMAKE_DIR}/STBImage.cmake")
-include("${CMAKE_DIR}/FBXSDK.cmake")
 
-add_executable(CompositeAssetConverter ${ASSET_CONVERTER_SRC_FILES}
-	"${ENGINE_SRC_DIR}/common/Math.cpp"
-	"${ENGINE_SRC_DIR}/graphics/ceasset/AssetTraits.cpp"
-	"${ENGINE_SRC_DIR}/graphics/ceasset/output/AssetExporter.cpp"
-	"${ENGINE_SRC_DIR}/graphics/ceasset/output/AssetSerializer.cpp"
-	"${ENGINE_SRC_DIR}/graphics/ceasset/output/OutputFileStream.cpp")
+if(${CMAKE_GENERATOR} STREQUAL "Ninja" OR ${CMAKE_GENERATOR} STREQUAL "Unix Makefiles")
+	# By default Ninja and Make builds don't create a subdirectory named after
+	# the configuration.
+	set(CE_TARGET_OUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}")
 
-include_directories(${ASSET_CONVERTER_SRC_DIR})
-include_directories(${ENGINE_SRC_DIR})
+	# Output binaries (executables, libraries) to the correct directory.
+	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CE_TARGET_OUT_DIR})
+	set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CE_TARGET_OUT_DIR})
+else()
+	set(CE_TARGET_OUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>")
+endif()
 
-if(WIN32)
+add_executable(CompositeAssetConverter ${ASSET_CONVERTER_SRC_FILES})
+
+target_link_libraries(CompositeAssetConverter PRIVATE FBXSDK GLM STB)
+
+source_group(TREE ${CMAKE_SOURCE_DIR} FILES ${ASSET_CONVERTER_SRC_FILES})
+
+target_include_directories(CompositeAssetConverter PRIVATE ${ASSET_CONVERTER_SRC_DIR})
+target_include_directories(CompositeAssetConverter PRIVATE ${ENGINE_SRC_DIR})
+
+if(OS_WINDOWS)
 	target_compile_options(CompositeAssetConverter PRIVATE /W3 /WX)
 endif()
 
-BootstrapGLM()
-BootstrapSTBImage()
-BootstrapFBXSDK(CompositeAssetConverter "asset-converter")
+install(
+	TARGETS CompositeAssetConverter
+	RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}"
+)
+if(OS_WINDOWS)
+	install(
+		FILES $<TARGET_PDB_FILE:CompositeAssetConverter>
+		DESTINATION "${CMAKE_INSTALL_PREFIX}"
+		OPTIONAL
+	)
+endif()

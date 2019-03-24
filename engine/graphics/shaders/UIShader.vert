@@ -1,7 +1,7 @@
 #version 410
 
-in vec2 vertexPosition;
-in vec2 vertexTextureCoordinate;
+layout(location = 0) in vec2 vertexPosition;
+layout(location = 1) in vec2 vertexTextureCoordinate;
 
 out vec2 textureCoordinate;
 

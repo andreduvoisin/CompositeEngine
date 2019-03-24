@@ -1,9 +1,7 @@
 #include "TextureManager.h"
 
 #include "Texture.h"
-#include "graphics\File2DImporter.h"
-
-#include <string>
+#include "graphics/File2DImporter.h"
 
 namespace CE
 {

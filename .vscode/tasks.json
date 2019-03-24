@@ -1,0 +1,73 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Create Build Folder",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "-E",
+                "make_directory",
+                "build"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            }
+        },
+        {
+            "label": "Create Install Folder",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "-E",
+                "make_directory",
+                "install"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            }
+        },
+        {
+            "label": "Generate Composite Engine",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "-G",
+                "Ninja",
+                "-DCMAKE_BUILD_TYPE=\"Debug\"",
+                "-DCMAKE_INSTALL_PREFIX=\"${workspaceFolder}/install\"",
+                ".."
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/build"
+            },
+            "dependsOn": [
+                "Create Build Folder",
+                "Create Install Folder"
+            ]
+        },
+        {
+            "label": "Build Composite Engine",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                ".",
+                "--target",
+                "install"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/build"
+            },
+            "dependsOn": [
+                "Generate Composite Engine"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        }
+    ]
+}

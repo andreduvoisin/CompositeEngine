@@ -1,30 +1,40 @@
 #include <SDL.h>
 #include <SDL_syswm.h>
-#include <GL\glew.h>
+#include <GL/glew.h>
 #include <SDL_opengl.h>
-#include <glm\glm.hpp>
-#include <glm\gtc\matrix_transform.hpp>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include <string>
 #include <cstdio>
 #include <fstream>
 #include <sstream>
 
-#include "graphics\animation\AnimationComponent.h"
-#include "graphics\animation\AnimationManager.h"
-#include "graphics\mesh\Mesh.h"
-#include "graphics\mesh\Vertex.h"
-#include "graphics\mesh\MeshManager.h"
-#include "graphics\mesh\MeshComponent.h"
-#include "graphics\skeleton\Skeleton.h"
-#include "graphics\skeleton\SkeletonManager.h"
-#include "graphics\texture\TextureManager.h"
-#include "graphics\texture\Texture.h"
+#include "graphics/animation/AnimationComponent.h"
+#include "graphics/animation/AnimationManager.h"
+#include "graphics/mesh/Mesh.h"
+#include "graphics/mesh/Vertex.h"
+#include "graphics/mesh/MeshManager.h"
+#include "graphics/mesh/MeshComponent.h"
+#include "graphics/skeleton/Skeleton.h"
+#include "graphics/skeleton/SkeletonManager.h"
+#include "graphics/texture/TextureManager.h"
+#include "graphics/texture/Texture.h"
 
-#include "graphics\ceasset\input\AssetImporter.h"
+#include "graphics/ceasset/input/AssetImporter.h"
 
-#include <glm\gtx\matrix_decompose.hpp>
+#include <glm/gtx/matrix_decompose.hpp>
 
+#include "core/Engine.h"
+#include "core/FpsCounter.h"
+#include "common/debug/AssertThread.h"
+#include "core/clock/RealTimeClock.h"
+#include "core/clock/GameTimeClock.h"
+#include "event/ToggleBindPoseEvent.h"
+#include "event/SetRenderModeEvent.h"
+#include "core/Camera.h"
+
+#ifdef _WIN32
 #include "include/cef_app.h"
 #include "cef/client/UIClient.h"
 #include "cef/client/UIRenderHandler.h"
@@ -33,19 +43,17 @@
 #include "cef/client/UIRequestHandler.h"
 #include "cef/client/UILifeSpanHandler.h"
 #include "cef/browser/UIQueryHandler.h"
-#include "core/Engine.h"
 #include "cef/browser/UIQueryResponder.h"
 #include "cef/browser/UIExternalMessagePump.h"
-#include "core/FpsCounter.h"
-#include "common/debug/AssertThread.h"
-#include "core/clock/RealTimeClock.h"
-#include "core/clock/GameTimeClock.h"
-#include "event/ToggleBindPoseEvent.h"
-#include "core/Camera.h"
 #include "include/wrapper/cef_message_router.h"
+#endif
 
-const int SCREEN_WIDTH = 1920;
-const int SCREEN_HEIGHT = 1080;
+#ifdef __APPLE__
+#include "CoreFoundation/CoreFoundation.h"
+#endif
+
+const int SCREEN_WIDTH = 1280;
+const int SCREEN_HEIGHT = 720;
 
 SDL_Window* g_window = NULL;
 SDL_GLContext g_context;
@@ -79,17 +87,17 @@ GLuint g_uiTextureLocation = -1;
 GLuint g_uiTextureUnit = -1;
 GLuint g_uiTextureID = -1;
 
-//const char* g_assetName = "..\\..\\..\\..\\assets\\Stand Up.ceasset";
-//const char* g_assetName = "..\\..\\..\\..\\assets\\Thriller Part 2.ceasset";
-//const char* g_assetName = "..\\..\\..\\..\\assets\\jla_wonder_woman.ceasset";
-//const char* g_assetName = "..\\..\\..\\..\\assets\\Quarterback Pass.ceasset";
-//const char* g_fbxName = "..\\..\\..\\..\\assets\\Soldier_animated_jump.fbx";
-//const char* g_assetName = "..\\..\\..\\..\\assets\\Standing Walk Forward.ceasset";
+//const char* g_assetName = "assets/Stand Up.ceasset";
+//const char* g_assetName = "assets/Thriller Part 2.ceasset";
+//const char* g_assetName = "assets/jla_wonder_woman.ceasset";
+//const char* g_assetName = "assets/Quarterback Pass.ceasset";
+//const char* g_fbxName = "assets/Soldier_animated_jump.fbx";
+//const char* g_assetName = "assets/Standing Walk Forward.ceasset";
 
 std::vector<const char*> g_assetNames = {
-	"..\\..\\..\\..\\assets\\Quarterback Pass.ceasset",
-	//"..\\..\\..\\..\\assets\\Thriller Part 2.ceasset",
-	//"..\\..\\..\\..\\assets\\Standing Walk Forward.ceasset"
+	"assets/Quarterback Pass.ceasset",
+	//"assets/Thriller Part 2.ceasset",
+	//"assets/Standing Walk Forward.ceasset"
 };
 
 CE::AssetImporter* g_assetImporter;
@@ -97,13 +105,15 @@ CE::AssetImporter* g_assetImporter;
 std::vector<CE::MeshComponent*> g_meshComponents;
 std::vector<CE::AnimationComponent*> g_animationComponents;
 
+#ifdef _WIN32
 CefRefPtr<UIClient> g_uiClient;
 CefRefPtr<CefBrowser> g_browser;
+UIQueryHandler* queryHandler;
+UIExternalMessagePump* externalMessagePump;
+#endif
 
 EventSystem* eventSystem;
 CE::Engine* engine;
-UIQueryHandler* queryHandler;
-UIExternalMessagePump* externalMessagePump;
 
 CE::FpsCounter* g_fpsCounter;
 
@@ -186,12 +196,12 @@ void RenderMesh(CE::MeshComponent& meshComponent, CE::AnimationComponent& animat
 	glEnableVertexAttribArray(3);
 
 	glUniformMatrix4fv(g_projectionViewModelMatrixID, 1, GL_FALSE, &projectionViewModel[0][0]);
-
+	
 	if (engine->IsRenderBindPose())
 	{
 		animationComponent.ResetMatrixPalette();
 	}
-
+	
 	animationComponent.BindMatrixPalette(
 		g_paletteTextureUnit,
 		g_paletteGenTex,
@@ -222,18 +232,24 @@ void RenderSkeleton(CE::AnimationComponent& animationComponent, const glm::mat4&
 	{
 		glm::vec3 position;
 		glm::vec3 color;
-		int jointIndex;
+		unsigned jointIndex;
 	};
 
 	unsigned stride = sizeof(DebugSkeletonVertex);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(offsetof(DebugSkeletonVertex, position)));
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(offsetof(DebugSkeletonVertex, color)));
-	glVertexAttribIPointer(2, 1, GL_INT, stride, reinterpret_cast<void*>(offsetof(DebugSkeletonVertex, jointIndex)));
+	glVertexAttribIPointer(2, 1, GL_UNSIGNED_INT, stride, reinterpret_cast<void*>(offsetof(DebugSkeletonVertex, jointIndex)));
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
 	glEnableVertexAttribArray(2);
 
 	glUniformMatrix4fv(g_projectionViewModelMatrixID2, 1, GL_FALSE, &projectionViewModel[0][0]);
+    
+	if (engine->IsRenderBindPose())
+	{
+		animationComponent.ResetMatrixPalette();
+	}
+    
 	animationComponent.BindMatrixPalette(
 		g_paletteTextureUnit,
 		g_paletteGenTex,
@@ -369,6 +385,7 @@ void RenderGrid(const glm::mat4& projectionViewModel)
 
 void RenderUI()
 {
+#ifdef _WIN32
 	glUseProgram(g_programID4);
 
 	struct UIVertex
@@ -442,6 +459,7 @@ void RenderUI()
 
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
+#endif
 }
 
 void Render()
@@ -456,13 +474,13 @@ void Render()
 	glm::mat4 view = g_camera->CreateViewMatrix();
 	glm::mat4 model = glm::mat4(1.0f);
 	glm::mat4 projectionViewModel = projection * view * model;
-
+	
 	for (size_t i = 0; i < g_assetNames.size(); ++i)
 	{
 		RenderMesh(*g_meshComponents[i], *g_animationComponents[i], projectionViewModel);
 		RenderSkeleton(*g_animationComponents[i], projectionViewModel);
 	}
-
+	
 	RenderGrid(projectionViewModel);
 
 	// Because of depth testing, and because the UI is currently rendered as
@@ -474,13 +492,54 @@ void Render()
 	RenderUI();
 }
 
-std::string ReadFile(const char* file)
+std::string ReadFile(const char *file)
 {
-	std::ifstream stream(file);
+
+#ifdef __APPLE__
+	std::string fileString(file);
+
+	std::string directoryName;
+	std::string fileName;
+	std::string fileTitle;
+	std::string fileExtension;
+
+	size_t slashPos = fileString.find_last_of('/');
+	if (slashPos == std::string::npos)
+	{
+		directoryName = std::string();
+		fileName = fileString;
+	}
+	else
+	{
+		directoryName = fileString.substr(0, slashPos);
+		fileName = fileString.substr(slashPos + 1);
+	}
+	size_t dotPos = fileName.find_last_of('.');
+	fileTitle = fileName.substr(0, dotPos);
+	fileExtension = fileName.substr(dotPos + 1);
+
+	CFStringRef fileTitleStringRef = CFStringCreateWithCStringNoCopy(NULL, fileTitle.c_str(), kCFStringEncodingASCII, kCFAllocatorNull);
+	CFStringRef fileExtensionStringRef = CFStringCreateWithCStringNoCopy(NULL, fileExtension.c_str(), kCFStringEncodingASCII, kCFAllocatorNull);
+	CFStringRef directoryNameStringRef = directoryName.empty() ? NULL : CFStringCreateWithCStringNoCopy(NULL, directoryName.c_str(), kCFStringEncodingASCII, kCFAllocatorNull);
+
+	CFBundleRef mainBundle = CFBundleGetMainBundle();
+	CFURLRef fileUrl = CFBundleCopyResourceURL(
+		mainBundle,
+		fileTitleStringRef,
+		fileExtensionStringRef,
+		directoryNameStringRef);
+
+	UInt8 realFileName[1024];
+	CFURLGetFileSystemRepresentation(fileUrl, true, realFileName, 1024);
+#else
+	const char* realFileName = file;
+#endif
+
+	std::ifstream stream((const char *)realFileName);
 
 	if (!stream.is_open())
 	{
-		printf("Error Opening File: %s\n", file);
+		printf("Error Opening File: %s\n", realFileName);
 		return std::string();
 	}
 
@@ -496,7 +555,7 @@ bool CreateProgram2()
 	// TODO: Copy shaders in CMAKE to .exe dir (or subdir next to .exe).
 
 	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	std::string vertexShaderSource = ReadFile("..\\..\\..\\..\\engine\\graphics\\shaders\\SkeletonShader.vert");
+	std::string vertexShaderSource = ReadFile("shaders/SkeletonShader.vert");
 	const char* vertexShaderSourceStr = vertexShaderSource.c_str();
 	glShaderSource(vertexShader, 1, &vertexShaderSourceStr, NULL);
 	glCompileShader(vertexShader);
@@ -515,7 +574,7 @@ bool CreateProgram2()
 	//{
 	//	"#version 410\nout vec4 LFragment; void main() { LFragment = vec4(1.0, 1.0, 1.0, 1.0); }"
 	//};
-	std::string fragmentShaderSource = ReadFile("..\\..\\..\\..\\engine\\graphics\\shaders\\FragmentShader.frag");
+	std::string fragmentShaderSource = ReadFile("shaders/FragmentShader.frag");
 	const char* fragmentShaderSourceStr = fragmentShaderSource.c_str();
 	glShaderSource(fragmentShader, 1, &fragmentShaderSourceStr, NULL);
 	glCompileShader(fragmentShader);
@@ -549,7 +608,7 @@ bool CreateProgram4()
 	// TODO: Copy shaders in CMAKE to .exe dir (or subdir next to .exe).
 
 	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	std::string vertexShaderSource = ReadFile("..\\..\\..\\..\\engine\\graphics\\shaders\\UIShader.vert");
+	std::string vertexShaderSource = ReadFile("shaders/UIShader.vert");
 	const char* vertexShaderSourceStr = vertexShaderSource.c_str();
 	glShaderSource(vertexShader, 1, &vertexShaderSourceStr, NULL);
 	glCompileShader(vertexShader);
@@ -568,7 +627,7 @@ bool CreateProgram4()
 	//{
 	//	"#version 410\nout vec4 LFragment; void main() { LFragment = vec4(1.0, 1.0, 1.0, 1.0); }"
 	//};
-	std::string fragmentShaderSource = ReadFile("..\\..\\..\\..\\engine\\graphics\\shaders\\UIShader.frag");
+	std::string fragmentShaderSource = ReadFile("shaders/UIShader.frag");
 	const char* fragmentShaderSourceStr = fragmentShaderSource.c_str();
 	glShaderSource(fragmentShader, 1, &fragmentShaderSourceStr, NULL);
 	glCompileShader(fragmentShader);
@@ -602,7 +661,7 @@ bool CreateProgram5()
 	// TODO: Copy shaders in CMAKE to .exe dir (or subdir next to .exe).
 
 	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	std::string vertexShaderSource = ReadFile("..\\..\\..\\..\\engine\\graphics\\shaders\\GridShader.vert");
+	std::string vertexShaderSource = ReadFile("shaders/GridShader.vert");
 	const char* vertexShaderSourceStr = vertexShaderSource.c_str();
 	glShaderSource(vertexShader, 1, &vertexShaderSourceStr, NULL);
 	glCompileShader(vertexShader);
@@ -621,7 +680,7 @@ bool CreateProgram5()
 	//{
 	//	"#version 410\nout vec4 LFragment; void main() { LFragment = vec4(1.0, 1.0, 1.0, 1.0); }"
 	//};
-	std::string fragmentShaderSource = ReadFile("..\\..\\..\\..\\engine\\graphics\\shaders\\GridShader.frag");
+	std::string fragmentShaderSource = ReadFile("shaders/GridShader.frag");
 	const char* fragmentShaderSourceStr = fragmentShaderSource.c_str();
 	glShaderSource(fragmentShader, 1, &fragmentShaderSourceStr, NULL);
 	glCompileShader(fragmentShader);
@@ -655,7 +714,7 @@ bool InitializeOpenGL()
 	// TODO: Copy shaders in CMAKE to .exe dir (or subdir next to .exe).
 
 	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	std::string vertexShaderSource = ReadFile("..\\..\\..\\..\\engine\\graphics\\shaders\\SkinnedMeshShader.vert");
+	std::string vertexShaderSource = ReadFile("shaders/SkinnedMeshShader.vert");
 	const char* vertexShaderSourceStr = vertexShaderSource.c_str();
 	glShaderSource(vertexShader, 1, &vertexShaderSourceStr, NULL);
 	glCompileShader(vertexShader);
@@ -674,7 +733,7 @@ bool InitializeOpenGL()
 	//{
 	//	"#version 410\nout vec4 LFragment; void main() { LFragment = vec4(1.0, 1.0, 1.0, 1.0); }"
 	//};
-	std::string fragmentShaderSource = ReadFile("..\\..\\..\\..\\engine\\graphics\\shaders\\DiffuseTextureShader.frag");
+	std::string fragmentShaderSource = ReadFile("shaders/DiffuseTextureShader.frag");
 	const char* fragmentShaderSourceStr = fragmentShaderSource.c_str();
 	glShaderSource(fragmentShader, 1, &fragmentShaderSourceStr, NULL);
 	glCompileShader(fragmentShader);
@@ -734,14 +793,14 @@ bool InitializeOpenGL()
 		CE::Meshes* meshes = new CE::Meshes();
 		CE::Animations* animations = new CE::Animations();
 		CE::Textures* textures = new CE::Textures();
-
+		
 		CE::AssetImporter::ImportSkeletonMeshesAnimationsTextures(
 			g_assetNames[i],
 			*skeleton,
 			*meshes,
 			*animations,
 			*textures);
-
+		
 		g_meshComponents.push_back(new CE::MeshComponent(meshes, textures));
 		g_animationComponents.push_back(new CE::AnimationComponent(skeleton, animations, eventSystem));
 	}
@@ -780,6 +839,7 @@ bool InitializeOpenGL()
 
 bool StartCef()
 {
+#ifdef _WIN32
 	CefMainArgs main_args(::GetModuleHandle(NULL));
 
 	externalMessagePump = new UIExternalMessagePump();
@@ -790,7 +850,7 @@ bool StartCef()
 	settings.external_message_pump = true;
 	settings.windowless_rendering_enabled = true;
 	settings.remote_debugging_port = 3469;
-	CefString(&settings.browser_subprocess_path).FromASCII("../../ui/Debug/CompositeCefSubprocess.exe");
+	CefString(&settings.browser_subprocess_path).FromASCII("CompositeCefSubprocess.exe");
 	if (!CefInitialize(main_args, settings, app, NULL))
 	{
 		printf("CEF failed to initialize.\n");
@@ -831,12 +891,14 @@ bool StartCef()
 		"http://localhost:3000", // "about:blank"
 		browserSettings,
 		nullptr);
+#endif
 
 	return true;
 }
 
 void ToggleDevToolsWindow()
 {
+#ifdef _WIN32
 	if (g_browser->GetHost()->HasDevTools())
 	{
 		g_browser->GetHost()->CloseDevTools();
@@ -855,8 +917,10 @@ void ToggleDevToolsWindow()
 		windowInfo.SetAsPopup(sysInfo.info.win.window, "DevTools");
 		g_browser->GetHost()->ShowDevTools(windowInfo, g_uiClient, browserSettings, CefPoint(0, 0));
 	}
+#endif
 }
 
+#ifdef _WIN32
 bool IsKeyDown(WPARAM wparam) {
 	return (GetKeyState((int)wparam) & 0x8000) != 0;
 }
@@ -984,6 +1048,7 @@ void WindowsMessageHook(
 		}
 	}
 }
+#endif
 
 bool Initialize()
 {
@@ -1026,7 +1091,9 @@ bool Initialize()
 		return false;
 	}
 
+#ifdef _WIN32
 	SDL_SetWindowsMessageHook(&WindowsMessageHook, nullptr);
+#endif
 
 	// Initialize GLEW
 	//glewExperimental = GL_TRUE;
@@ -1051,7 +1118,10 @@ bool Initialize()
 
 	eventSystem = new EventSystem();
 	engine = new CE::Engine(eventSystem);
+	
+#ifdef _WIN32
 	queryHandler = new UIQueryHandler(eventSystem, new UIQueryResponder(eventSystem));
+#endif
 
 	g_fpsCounter = new CE::FpsCounter(eventSystem);
 
@@ -1101,6 +1171,7 @@ bool Initialize()
 
 void StopCef()
 {
+#ifdef _WIN32
 	externalMessagePump->Shutdown();
 
 	g_browser->GetHost()->CloseBrowser(true);
@@ -1109,6 +1180,7 @@ void StopCef()
 	g_uiClient = nullptr;
 
 	CefShutdown();
+#endif
 }
 
 void Destroy()
@@ -1128,6 +1200,7 @@ void Destroy()
 
 // TODO: Either convert this to native or convert GetCefKeyboardModifiers to SDL.
 // osr_window_win.cc
+#ifdef _WIN32
 unsigned GetCefMouseModifiers(const SDL_Event& event)
 {
 	unsigned modifiers = 0;
@@ -1264,6 +1337,7 @@ unsigned GetCefMouseModifiers(const SDL_Event& event)
 
 	return modifiers;
 }
+#endif
 
 int main(int argc, char* argv[])
 {
@@ -1272,7 +1346,6 @@ int main(int argc, char* argv[])
 	if (!Initialize())
 	{
 		printf("Failed to initialize.\n");
-		getchar();
 		return -1;
 	}
 
@@ -1297,7 +1370,9 @@ int main(int argc, char* argv[])
 
 		while (SDL_PollEvent(&event) != 0)
 		{
+#ifdef _WIN32
 			externalMessagePump->ProcessEvent(event);
+#endif
 
 			// TODO: Haven't done focus events for Cef (see CefBrowserHost). Do I need these?
 			switch (event.type)
@@ -1317,7 +1392,15 @@ int main(int argc, char* argv[])
 							eventSystem->EnqueueEvent(ToggleBindPoseEvent());
 							break;
 						}
-
+						
+						case SDLK_e:
+						{
+							SetRenderModeEvent setRenderModeEvent;
+							setRenderModeEvent.mode = (engine->RenderMode() + 1) % 3;
+							eventSystem->EnqueueEvent(setRenderModeEvent);
+							break;
+						}
+						
 						case SDLK_w:
 						{
 							g_camera->MoveForward(1000 * CE::RealTimeClock::Get().GetDeltaSeconds());
@@ -1353,6 +1436,7 @@ int main(int argc, char* argv[])
 					break;
 				}
 
+#ifdef _WIN32
 				// osr_window_win.cc
 				case SDL_MOUSEMOTION:
 				{
@@ -1459,6 +1543,7 @@ int main(int argc, char* argv[])
 
 					break;
 				}
+#endif
 			}
 		}
 
