@@ -1,6 +1,8 @@
 #ifndef _CE_FBX_SKELETON_IMPORTER_H_
 #define _CE_FBX_SKELETON_IMPORTER_H_
 
+#include <cstddef>
+
 namespace fbxsdk
 {
 	class FbxManager;

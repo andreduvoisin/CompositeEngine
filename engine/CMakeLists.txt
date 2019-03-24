@@ -1,122 +1,80 @@
-cmake_minimum_required(VERSION 3.7.2)
 
-add_executable(CompositeEngine ${ENGINE_SRC_FILES})
+if(OS_MACOSX)
+	set(COMPOSITE_ENGINE_EXECUTABLE_ARGS MACOSX_BUNDLE)
+endif()
+
+if(${CMAKE_GENERATOR} STREQUAL "Ninja" OR ${CMAKE_GENERATOR} STREQUAL "Unix Makefiles")
+	# By default Ninja and Make builds don't create a subdirectory named after
+	# the configuration.
+	set(CE_TARGET_OUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}")
+
+	# Output binaries (executables, libraries) to the correct directory.
+	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CE_TARGET_OUT_DIR})
+	set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CE_TARGET_OUT_DIR})
+else()
+	set(CE_TARGET_OUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>")
+endif()
+
+add_executable(CompositeEngine ${COMPOSITE_ENGINE_EXECUTABLE_ARGS} ${ENGINE_SRC_FILES})
+
+add_dependencies(
+	CompositeEngine
+		CompositeCefSubprocess
+)
+
+target_link_libraries(CompositeEngine PRIVATE CEF GLEW GLM OpenGL RapidJSON SDL)
+
+source_group(TREE ${CMAKE_SOURCE_DIR} FILES ${ENGINE_SRC_FILES})
 
 include_directories(${ENGINE_SRC_DIR})
+include_directories(${UI_SRC_DIR})
 
-if(WIN32)
+
+if(OS_WINDOWS)
 	target_compile_options(CompositeEngine PRIVATE /W3 /WX)
+elseif(OS_MACOSX)
+	# TODO: ONLY FOR DEBUG BUILDS
+	target_compile_options(CompositeEngine PRIVATE -g)
+
+	find_library(CORE_FOUNDATION_LIBRARY CoreFoundation)
+	target_link_libraries(CompositeEngine PRIVATE ${CORE_FOUNDATION_LIBRARY})
 endif()
 
-# OpenGL
-if(WIN32)
-	target_link_libraries(CompositeEngine opengl32) # glu32 gdi32 winmm user32 glut32
-endif()
-
-# SDL
-if(WIN32)
-	set(SDL_ROOT_DIR "${EXTERN_DIR}/SDL2-2.0.8")
-	set(SDL_MSVC_DIR "${SDL_ROOT_DIR}/VisualC")
-
-	include_directories("${SDL_ROOT_DIR}/include")
-	
-	if(${CE_CONFIGURATION} STREQUAL "Debug")
-		set(SDL_CONFIGURATION "Debug")
-	elseif(${CE_CONFIGURATION} STREQUAL "Release")
-		set(SDL_CONFIGURATION "Release")
-	endif()
-
-	if(${CE_PLATFORM} STREQUAL "Win32")
-		set(SDL_PLATFORM "Win32")
-	elseif(${CE_PLATFORM} STREQUAL "x64")
-		set(SDL_PLATFORM "x64")
-	endif()
-
-	target_link_libraries(CompositeEngine "${SDL_MSVC_DIR}/${SDL_PLATFORM}/${SDL_CONFIGURATION}/SDL2.lib")
-	target_link_libraries(CompositeEngine "${SDL_MSVC_DIR}/${SDL_PLATFORM}/${SDL_CONFIGURATION}/SDL2main.lib")
-
-	configure_file(
-		"${SDL_MSVC_DIR}/${SDL_PLATFORM}/${SDL_CONFIGURATION}/SDL2.dll"
-		"${PROJECT_BINARY_DIR}/engine/${CE_CONFIGURATION}/SDL2.dll"
-		COPYONLY
+install(
+	TARGETS CompositeEngine
+	RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}"
+	BUNDLE DESTINATION "${CMAKE_INSTALL_PREFIX}"
+)
+if(OS_WINDOWS)
+	install(
+		FILES $<TARGET_PDB_FILE:CompositeEngine>
+		DESTINATION "${CMAKE_INSTALL_PREFIX}"
+		OPTIONAL
 	)
-endif()
-
-# GLEW
-if(WIN32)
-	set(GLEW_ROOT_DIR "${EXTERN_DIR}/glew-2.1.0")
-	
-	if(${CE_CONFIGURATION} STREQUAL "Debug")
-		set(GLEW_CONFIGURATION "Debug")
-		set(GLEW_LIB_CONFIGURATION "d")
-	elseif(${CE_CONFIGURATION} STREQUAL "Release")
-		set(GLEW_CONFIGURATION "Release")
-		set(GLEW_LIB_CONFIGURATION "")
-	endif()
-
-	if(${CE_PLATFORM} STREQUAL "Win32")
-		set(GLEW_PLATFORM "Win32")
-	elseif(${CE_PLATFORM} STREQUAL "x64")
-		set(GLEW_PLATFORM "x64")
-	endif()
-
-	include_directories("${GLEW_ROOT_DIR}/include")
-
-	# Statically-Linked Library
-	target_compile_definitions(CompositeEngine PRIVATE GLEW_STATIC)
-	target_link_libraries(CompositeEngine "${GLEW_ROOT_DIR}/lib/${GLEW_CONFIGURATION}/${GLEW_PLATFORM}/glew32s${GLEW_LIB_CONFIGURATION}.lib")
-
-	# Dynamically-Linked Library
-	#target_link_libraries(CompositeEngine "${GLEW_ROOT_DIR}/lib/${GLEW_CONFIGURATION}/${GLEW_PLATFORM}/glew32${GLEW_LIB_CONFIGURATION}.lib")
-	#configure_file(
-	#	"${GLEW_ROOT_DIR}/bin/${GLEW_CONFIGURATION}/${GLEW_PLATFORM}/glew32${GLEW_LIB_CONFIGURATION}.dll"
-	#	"${PROJECT_BINARY_DIR}/engine/${CE_CONFIGURATION}/glew32${GLEW_LIB_CONFIGURATION}.dll"
-	#	COPYONLY
-	#)
-endif()
-
-# GLM
-include_directories("${EXTERN_DIR}/glm-0.9.8.5")
-
-# CEF
-if(WIN32)
-	set(CEF_VERSION_DIR_NAME "cef_binary_3.3440.1805.gbe070f9")
-	set(CEF_PLATFORM_DIR_NAME "windows64")
-
-	set(CEF_ROOT_DIR "${EXTERN_DIR}/${CEF_VERSION_DIR_NAME}")
-	set(CEF_PLATFORM_DIR "${CEF_ROOT_DIR}/${CEF_PLATFORM_DIR_NAME}")
-
-	include_directories("${CEF_PLATFORM_DIR}")
-	
-	if(${CE_CONFIGURATION} STREQUAL "Debug")
-		set(CEF_CONFIGURATION "Debug")
-	elseif(${CE_CONFIGURATION} STREQUAL "Release")
-		set(CEF_CONFIGURATION "Release")
-	endif()
-
-	if(${CE_PLATFORM} STREQUAL "Win32")
-		set(CEF_PLATFORM "Win32")
-	elseif(${CE_PLATFORM} STREQUAL "x64")
-		set(CEF_PLATFORM "x64")
-	endif()
-
-	target_link_libraries(CompositeEngine "${PROJECT_BINARY_DIR}/extern/${CEF_VERSION_DIR_NAME}/${CEF_PLATFORM_DIR_NAME}/libcef_dll_wrapper/${CEF_CONFIGURATION}/libcef_dll_wrapper.lib")
-	target_link_libraries(CompositeEngine "${CEF_PLATFORM_DIR}/${CEF_CONFIGURATION}/libcef.lib")
-	#target_link_libraries(CompositeEngine "${CEF_PLATFORM_DIR}/${CEF_CONFIGURATION}/cef_sandbox.lib")
-
-	file(GLOB CEF_BINARY_FILES "${CEF_PLATFORM_DIR}/${CEF_CONFIGURATION}/*")
-	file(
-		COPY ${CEF_BINARY_FILES}
-		DESTINATION "${PROJECT_BINARY_DIR}/engine/${CE_CONFIGURATION}"
+	install(
+		DIRECTORY "${CMAKE_SOURCE_DIR}/engine/graphics/shaders"
+		DESTINATION "${CMAKE_INSTALL_PREFIX}"
 		FILES_MATCHING
-			PATTERN "*.dll"
-			PATTERN "*.bin"
+			PATTERN "*.frag"
+			PATTERN "*.vert"
 	)
-
-	file(GLOB CEF_RESOURCE_FILES "${CEF_PLATFORM_DIR}/Resources/*")
-	file(
-		COPY ${CEF_RESOURCE_FILES}
-		DESTINATION "${PROJECT_BINARY_DIR}/engine/${CE_CONFIGURATION}"
+	# TODO: This would be much better as a symlink, which CMake supports, but I can't get it to work.
+	install(
+		DIRECTORY "${CMAKE_SOURCE_DIR}/assets"
+		DESTINATION "${CMAKE_INSTALL_PREFIX}"
+	)
+elseif(OS_MACOSX)
+	install(
+		DIRECTORY "${CMAKE_SOURCE_DIR}/engine/graphics/shaders"
+		DESTINATION "${CMAKE_INSTALL_PREFIX}/CompositeEngine.app/Contents/Resources"
+		FILES_MATCHING
+			PATTERN "*.frag"
+			PATTERN "*.vert"
+	)
+	# TODO: This would be much better as a symlink, which CMake supports, but I can't get it to work.
+	install(
+		DIRECTORY "${CMAKE_SOURCE_DIR}/assets"
+		DESTINATION "${CMAKE_INSTALL_PREFIX}/CompositeEngine.app/Contents/Resources"
 	)
 endif()
 

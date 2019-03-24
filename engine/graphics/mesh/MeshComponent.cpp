@@ -1,16 +1,16 @@
 #include "MeshComponent.h"
 
 #include "Mesh.h"
-#include "graphics\texture\Texture.h"
-#include "graphics\texture\TextureManager.h"
+#include "graphics/texture/Texture.h"
+#include "graphics/texture/TextureManager.h"
 
-#include <GL\glew.h>
+#include <GL/glew.h>
 
 namespace CE
 {
-	MeshComponent::MeshComponent(Meshes* meshes, Texture* texture)
+	MeshComponent::MeshComponent(Meshes* meshes, Textures* textures)
 		: m_meshes(meshes)
-		, m_testTexture(texture)
+		, m_textures(textures)
 	{
 
 	}
@@ -22,7 +22,7 @@ namespace CE
 		GLuint g_diffuseTextureLocation,
 		GLuint g_diffuseTextureUnit)
 	{
-		for (int i = 0; i < m_meshes->size(); ++i)
+		for (size_t i = 0; i < m_meshes->size(); ++i)
 		{
 			DrawMesh(
 				m_meshes->at(i),
@@ -48,7 +48,7 @@ namespace CE
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_ibo);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh.m_indices.size() * sizeof(unsigned int), mesh.m_indices.data(), GL_STATIC_DRAW);
 
-		Texture* texture = m_testTexture;// TextureManager::Get().GetTexture(mesh.m_diffuseMapName.c_str());
+		const Texture& texture = (*m_textures)[mesh.m_diffuseIndex];
 
 		// TODO: How much of this has to be done every Draw() call?
 		glBindTexture(GL_TEXTURE_2D, g_diffuseTextureID);
@@ -56,8 +56,8 @@ namespace CE
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		unsigned int glChannels = texture->channels == 3 ? GL_RGB : GL_RGBA;
-		glTexImage2D(GL_TEXTURE_2D, 0, glChannels, texture->width, texture->height, 0, glChannels, GL_UNSIGNED_BYTE, texture->data);
+		unsigned int glChannels = texture.channels == 3 ? GL_RGB : GL_RGBA;
+		glTexImage2D(GL_TEXTURE_2D, 0, glChannels, texture.width, texture.height, 0, glChannels, GL_UNSIGNED_BYTE, texture.data);
 		glGenerateMipmap(GL_TEXTURE_2D);
 		glUniform1i(g_diffuseTextureLocation, g_diffuseTextureUnit);
 

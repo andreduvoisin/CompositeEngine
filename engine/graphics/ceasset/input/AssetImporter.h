@@ -11,16 +11,17 @@ namespace CE
 	struct Animation;
 	typedef std::vector<Animation> Animations;
 	struct Texture;
+	typedef std::vector<Texture> Textures;
 
 	class AssetImporter
 	{
 	public:
-		static bool ImportSkeletonMeshesAnimationsTexture(
+		static bool ImportSkeletonMeshesAnimationsTextures(
 			const char* fileName,
 			Skeleton& outSkeleton,
 			Meshes& outMeshes,
 			Animations& outAnimations,
-			Texture& outTexture);
+			Textures& outTextures);
 	};
 }
 

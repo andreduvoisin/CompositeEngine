@@ -1,0 +1,26 @@
+include(ExternalProject)
+
+set(RAPIDJSON_VERSION "67fac85e96220f69076121d569abd15471abb6bf")
+set(RAPIDJSON_VERSION_STRING "rapidjson-${RAPIDJSON_VERSION}")
+
+set(RAPIDJSON_ROOT_DIR "${EXTERN_DIR}/${RAPIDJSON_VERSION_STRING}")
+
+ExternalProject_Add(
+	RapidJSONExternal
+	PREFIX ${RAPIDJSON_VERSION_STRING}
+
+	DOWNLOAD_DIR ${EXTERN_DIR}
+	GIT_REPOSITORY "https://github.com/Tencent/rapidjson.git"
+	GIT_TAG ${RAPIDJSON_VERSION}
+
+	SOURCE_DIR ${RAPIDJSON_ROOT_DIR}
+
+	CONFIGURE_COMMAND ""
+	BUILD_COMMAND ""
+	INSTALL_COMMAND ""
+)
+
+add_library(RapidJSON INTERFACE)
+add_dependencies(RapidJSON RapidJSONExternal)
+
+target_include_directories(RapidJSON INTERFACE "${RAPIDJSON_ROOT_DIR}/include")

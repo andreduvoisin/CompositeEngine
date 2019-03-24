@@ -2,13 +2,41 @@
 
 ### How do I get set up?
 
+#### After Cloning
+
+This repository requires [Git Large File Storage (Git LFS)](https://git-lfs.github.com/).
+
+* Install [Git LFS](https://git-lfs.github.com/).
+	* This must be done once for your machine.
+* Run `git lfs install` in the repository directory.
+	* This must be done once per repository clone.
+
 #### Windows
 
-* Install VS2017.
-	* VS2017: https://www.visualstudio.com/downloads/
-		* Include "Visual C++ tools for CMake" under "Desktop development with C++".
-	* If necessary, add MSBuild.exe to PATH.
-		* C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\MSBuild\15.0\Bin
+* Install [Visual Studio 2019](https://www.visualstudio.com/downloads/).
+	* Include `Desktop development with C++` and `Game development with C++`
+
+#### Mac
+
+* Install [CMake](https://cmake.org/download/).
+
+* Install [Ninja](https://ninja-build.org).
+
+* Install Xcode. Then:
+
+```sh
+# Install the command line tools.
+xcode-select --install
+
+# Switch to Xcode's command line tools.
+sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
+```
+
+#### Visual Studio Code
+
+* Install the [C/C++ Extension from Microsoft](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools).
+
+* On Windows, open with Developer Command Prompt.
 
 #### All Platforms
 
@@ -17,11 +45,13 @@
 ### Dependencies
 
 * SDL: https://www.libsdl.org/
-	* 2.0.5: https://www.libsdl.org/download-2.0.php
+	* Version in SDL.cmake
+	* Versions: https://www.libsdl.org/download-2.0.php
 	* Reference: http://wiki.libsdl.org/FrontPage
 
 * GLEW: http://glew.sourceforge.net/
-	* 2.1.0: https://sourceforge.net/projects/glew/files/glew/2.1.0/
+	* Version in GLEW.cmake
+	* Repository: https://github.com/nigels-com/glew
 	* Reference: See Above (sidebar)
 
 * GLM: https://glm.g-truc.net/
@@ -29,7 +59,7 @@
 	* Reference: See Above (sidebar)
 
 * FBX SDK: https://www.autodesk.com/products/fbx/overview
-	* 2018.1.1: http://usa.autodesk.com/adsk/servlet/pc/item?siteID=123112&id=26416130
+	* 2018.1.1: https://www.autodesk.com/developer-network/platform-technologies/fbx-sdk-2018-1-1
 	* Reference: http://help.autodesk.com/view/FBX/2018/ENU/
 
 * stb_image: https://github.com/nothings/stb
@@ -37,8 +67,13 @@
 	* Reference: See File
 
 * Chromium Embedded Framework: https://bitbucket.org/chromiumembedded/cef/src/master/
-	* CEF 3.3440.1805.gbe070f9 / Chromium 68.0.3440.84: http://opensource.spotify.com/cefbuilds/index.html
+	* Version in CEF.cmake
+	* Build Index: http://opensource.spotify.com/cefbuilds/index.html
 	* Reference: https://bitbucket.org/chromiumembedded/cef/wiki/Home
+
+* RapidJSON: https://github.com/Tencent/rapidjson
+	* 67fac85 (master): https://github.com/Tencent/rapidjson/tree/67fac85e96220f69076121d569abd15471abb6bf
+	* Reference: http://rapidjson.org/
 
 ### Resources
 
@@ -79,6 +114,7 @@
 * SDL and OpenGL Tutorials: http://lazyfoo.net/
 
 * Lang's FBX SDK Guide: https://www.gamedev.net/articles/programming/graphics/how-to-work-with-fbx-sdk-r3582/
+
 * C++ Skeletal Animation Library: http://guillaumeblanc.github.io/ozz-animation/
 	* https://github.com/guillaumeblanc/ozz-animation
 

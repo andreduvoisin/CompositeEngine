@@ -3,6 +3,7 @@
 
 #include "Vertex.h"
 
+#include <string>
 #include <vector>
 
 namespace CE
@@ -15,6 +16,10 @@ namespace CE
 		std::string m_diffuseMapName;
 		std::string m_specularMapName;
 		std::string m_normalMapName;
+
+		uint8_t m_diffuseIndex;
+		uint8_t m_specularIndex;
+		uint8_t m_normalIndex;
 	};
 
 	typedef std::vector<Mesh> Meshes;

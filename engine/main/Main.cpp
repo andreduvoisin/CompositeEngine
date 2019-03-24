@@ -1,43 +1,58 @@
 #include <SDL.h>
-#include <GL\glew.h>
+#include <SDL_syswm.h>
+#include <GL/glew.h>
 #include <SDL_opengl.h>
-#include <glm\glm.hpp>
-#include <glm\gtc\matrix_transform.hpp>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include <string>
 #include <cstdio>
 #include <fstream>
 #include <sstream>
 
-#include "graphics\animation\AnimationComponent.h"
-#include "graphics\animation\AnimationManager.h"
-#include "graphics\mesh\Mesh.h"
-#include "graphics\mesh\Vertex.h"
-#include "graphics\mesh\MeshManager.h"
-#include "graphics\mesh\MeshComponent.h"
-#include "graphics\skeleton\Skeleton.h"
-#include "graphics\skeleton\SkeletonManager.h"
-#include "graphics\texture\TextureManager.h"
-#include "graphics\texture\Texture.h"
+#include "graphics/animation/AnimationComponent.h"
+#include "graphics/animation/AnimationManager.h"
+#include "graphics/mesh/Mesh.h"
+#include "graphics/mesh/Vertex.h"
+#include "graphics/mesh/MeshManager.h"
+#include "graphics/mesh/MeshComponent.h"
+#include "graphics/skeleton/Skeleton.h"
+#include "graphics/skeleton/SkeletonManager.h"
+#include "graphics/texture/TextureManager.h"
+#include "graphics/texture/Texture.h"
 
-#include "network\ClientService.h"
+#include "network/ClientService.h"
 
-#include "graphics\ceasset\input\AssetImporter.h"
+#include "graphics/ceasset/input/AssetImporter.h"
 
-#include <glm\gtx\matrix_decompose.hpp>
+#include <glm/gtx/matrix_decompose.hpp>
 
-//#include "ui/simple_app.h"
-//#include "ui/simple_handler.h"
-//#include "include/cef_sandbox_win.h"
-//#include "include/internal/cef_win.h"
-//#include "include/internal/cef_types_wrappers.h"
-//#include "include/internal/cef_ptr.h"
-//#include "SDL_syswm.h"
+#include "core/Engine.h"
+#include "core/FpsCounter.h"
+#include "common/debug/AssertThread.h"
+#include "core/clock/RealTimeClock.h"
+#include "core/clock/GameTimeClock.h"
+#include "event/ToggleBindPoseEvent.h"
+#include "event/SetRenderModeEvent.h"
+#include "core/Camera.h"
 
+#ifdef _WIN32
 #include "include/cef_app.h"
-#include "ui/UIClient.h"
-#include "ui/UIRenderHandler.h"
-#include "SDL_syswm.h"
+#include "cef/client/UIClient.h"
+#include "cef/client/UIRenderHandler.h"
+#include "cef/browser/UIAppBrowser.h"
+#include "cef/browser/UIBrowserProcessHandler.h"
+#include "cef/client/UIRequestHandler.h"
+#include "cef/client/UILifeSpanHandler.h"
+#include "cef/browser/UIQueryHandler.h"
+#include "cef/browser/UIQueryResponder.h"
+#include "cef/browser/UIExternalMessagePump.h"
+#include "include/wrapper/cef_message_router.h"
+#endif
+
+#ifdef __APPLE__
+#include "CoreFoundation/CoreFoundation.h"
+#endif
 
 const int SCREEN_WIDTH = 1280;
 const int SCREEN_HEIGHT = 720;
@@ -46,7 +61,6 @@ SDL_Window* g_window = NULL;
 SDL_GLContext g_context;
 
 bool g_renderQuad = true;
-bool g_renderBindPose = false;
 
 GLuint g_programID = 0;
 GLuint g_vbo = 0;
@@ -56,6 +70,7 @@ GLuint g_tbo = 0;
 
 GLuint g_programID2 = 0;
 GLuint g_programID4 = 0;
+GLuint g_programID5 = 0;
 
 GLuint g_projectionViewModelMatrixID = -1;
 GLuint g_paletteID = -1;
@@ -68,25 +83,43 @@ GLuint g_diffuseTextureID = -1;
 GLuint g_projectionViewModelMatrixID2 = -1;
 GLuint g_paletteID2 = -1;
 
+GLuint g_projectionViewModelMatrixID5 = -1;
+
 GLuint g_uiTextureLocation = -1;
 GLuint g_uiTextureUnit = -1;
 GLuint g_uiTextureID = -1;
 
-//const char* g_assetName = "..\\..\\..\\..\\assets\\Stand Up.ceasset";
-//const char* g_assetName = "..\\..\\..\\..\\assets\\Thriller Part 2.ceasset";
-//const char* g_assetName = "..\\..\\..\\..\\assets\\jla_wonder_woman.ceasset";
-const char* g_assetName = "..\\..\\..\\..\\assets\\Quarterback Pass.ceasset";
-//const char* g_fbxName = "..\\..\\..\\..\\assets\\Soldier_animated_jump.fbx";
+//const char* g_assetName = "assets/Stand Up.ceasset";
+//const char* g_assetName = "assets/Thriller Part 2.ceasset";
+//const char* g_assetName = "assets/jla_wonder_woman.ceasset";
+//const char* g_assetName = "assets/Quarterback Pass.ceasset";
+//const char* g_fbxName = "assets/Soldier_animated_jump.fbx";
+//const char* g_assetName = "assets/Standing Walk Forward.ceasset";
+
+std::vector<const char*> g_assetNames = {
+	"assets/Quarterback Pass.ceasset",
+	//"assets/Thriller Part 2.ceasset",
+	//"assets/Standing Walk Forward.ceasset"
+};
 
 CE::AssetImporter* g_assetImporter;
 
-CE::MeshComponent* g_meshComponent;
-CE::AnimationComponent* g_animationComponent;
+std::vector<CE::MeshComponent*> g_meshComponents;
+std::vector<CE::AnimationComponent*> g_animationComponents;
 
-int g_renderType = 0;
-
+#ifdef _WIN32
 CefRefPtr<UIClient> g_uiClient;
 CefRefPtr<CefBrowser> g_browser;
+UIQueryHandler* queryHandler;
+UIExternalMessagePump* externalMessagePump;
+#endif
+
+EventSystem* eventSystem;
+CE::Engine* engine;
+
+CE::FpsCounter* g_fpsCounter;
+
+CE::Camera* g_camera;
 
 // The socket that the client binds to;
 SOCKET client_socket;
@@ -153,52 +186,9 @@ void printShaderLog(GLuint shader)
 	delete[] infoLog;
 }
 
-void HandleKeys(unsigned char key, int x, int y)
+void RenderMesh(CE::MeshComponent& meshComponent, CE::AnimationComponent& animationComponent, const glm::mat4& projectionViewModel)
 {
-	if (key == 'q')
-	{
-		g_renderQuad = !g_renderQuad;
-		g_renderType += 1;
-		g_renderType %= 3;
-	}
-
-	if (key == 'w')
-	{
-		g_renderBindPose = !g_renderBindPose;
-	}
-
-	if (key == 't')
-	{
-		
-		CE::ClientService::MakeRequest("T", client_socket);
-	}
-}
-
-void Update()
-{
-	(void)0;
-}
-
-std::vector<unsigned char> red;
-void MakeRed()
-{
-	red.reserve(SCREEN_WIDTH * SCREEN_HEIGHT * 4);
-	for (int i = 0; i < SCREEN_WIDTH * SCREEN_HEIGHT; ++i)
-	{
-		red.push_back((unsigned char)0);
-		red.push_back((unsigned char)0);
-		red.push_back((unsigned char)255);
-		red.push_back((unsigned char)0);
-	}
-}
-
-void Render()
-{
-	//Clear color buffer
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 	glUseProgram(g_programID);
-	glBindVertexArray(g_vao);
 
 	unsigned int stride = sizeof(CE::Vertex1P1UV4J);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(offsetof(CE::Vertex1P1UV4J, position)));
@@ -210,30 +200,22 @@ void Render()
 	glEnableVertexAttribArray(2);
 	glEnableVertexAttribArray(3);
 
-	glm::mat4 projection = glm::perspective(glm::pi<float>() * 0.25f, (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 1000.0f);
-	//glm::mat4 view = glm::lookAt(glm::vec3(0, 100, 400), glm::vec3(0, 100, 0), glm::vec3(0, 1, 0)); // paladin
-	//glm::mat4 view = glm::lookAt(glm::vec3(0, 200, 400), glm::vec3(0, 100, 0), glm::vec3(0, 1, 0)); // solider
-	glm::mat4 view = glm::lookAt(glm::vec3(0, 200, 700), glm::vec3(0, 50, 0), glm::vec3(0, 1, 0)); // thriller
-	//glm::mat4 view = glm::lookAt(glm::vec3(0, 2, 8), glm::vec3(0, 2, 0), glm::vec3(0, 1, 0)); // wonder woman
-	//glm::mat4 view = glm::lookAt(glm::vec3(0, 0, 1), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
-	glm::mat4 model = glm::mat4(1.0f);
-	glm::mat4 projectionViewModel = projection * view * model;
 	glUniformMatrix4fv(g_projectionViewModelMatrixID, 1, GL_FALSE, &projectionViewModel[0][0]);
-
-	if (g_renderBindPose)
+	
+	if (engine->IsRenderBindPose())
 	{
-		g_animationComponent->ResetMatrixPalette();
+		animationComponent.ResetMatrixPalette();
 	}
-
-	g_animationComponent->BindMatrixPalette(
-		g_paletteTextureUnit, 
+	
+	animationComponent.BindMatrixPalette(
+		g_paletteTextureUnit,
 		g_paletteGenTex,
 		g_tbo,
 		g_paletteID);
 
-	if (g_renderType == 0 || g_renderType == 2)
+	if (engine->RenderMode() == 0 || engine->RenderMode() == 2)
 	{
-		g_meshComponent->Draw(
+		meshComponent.Draw(
 			g_vbo,
 			g_ibo,
 			g_diffuseTextureID,
@@ -245,33 +227,41 @@ void Render()
 	glDisableVertexAttribArray(1);
 	glDisableVertexAttribArray(2);
 	glDisableVertexAttribArray(3);
+}
 
-
+void RenderSkeleton(CE::AnimationComponent& animationComponent, const glm::mat4& projectionViewModel)
+{
 	glUseProgram(g_programID2);
 
 	struct DebugSkeletonVertex
 	{
 		glm::vec3 position;
 		glm::vec3 color;
-		int jointIndex;
+		unsigned jointIndex;
 	};
 
-	stride = sizeof(DebugSkeletonVertex);
+	unsigned stride = sizeof(DebugSkeletonVertex);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(offsetof(DebugSkeletonVertex, position)));
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(offsetof(DebugSkeletonVertex, color)));
-	glVertexAttribIPointer(2, 1, GL_INT, stride, reinterpret_cast<void*>(offsetof(DebugSkeletonVertex, jointIndex)));
+	glVertexAttribIPointer(2, 1, GL_UNSIGNED_INT, stride, reinterpret_cast<void*>(offsetof(DebugSkeletonVertex, jointIndex)));
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
 	glEnableVertexAttribArray(2);
 
 	glUniformMatrix4fv(g_projectionViewModelMatrixID2, 1, GL_FALSE, &projectionViewModel[0][0]);
-	g_animationComponent->BindMatrixPalette(
+    
+	if (engine->IsRenderBindPose())
+	{
+		animationComponent.ResetMatrixPalette();
+	}
+    
+	animationComponent.BindMatrixPalette(
 		g_paletteTextureUnit,
 		g_paletteGenTex,
 		g_tbo,
 		g_paletteID2);
 
-	const CE::Skeleton* skeleton = g_animationComponent->GetSkeleton();// CE::SkeletonManager::Get().GetSkeleton(g_fbxName);
+	const CE::Skeleton* skeleton = animationComponent.GetSkeleton();// CE::SkeletonManager::Get().GetSkeleton(g_fbxName);
 
 	std::vector<DebugSkeletonVertex> debugVertices;
 	std::vector<unsigned> debugJointIndices;
@@ -311,7 +301,7 @@ void Render()
 		}
 	}
 
-	if (g_renderType == 1 || g_renderType == 2)
+	if (engine->RenderMode() == 1 || engine->RenderMode() == 2)
 	{
 		glBindBuffer(GL_ARRAY_BUFFER, g_vbo);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(DebugSkeletonVertex) * debugVertices.size(), debugVertices.data(), GL_STATIC_DRAW);
@@ -320,7 +310,7 @@ void Render()
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned) * debugJointIndices.size(), debugJointIndices.data(), GL_STATIC_DRAW);
 
 		glPointSize(5.f);
-		glDrawElements(GL_POINTS, (GLsizei) debugJointIndices.size(), GL_UNSIGNED_INT, NULL);
+		glDrawElements(GL_POINTS, (GLsizei)debugJointIndices.size(), GL_UNSIGNED_INT, NULL);
 
 		for (unsigned i = 0; i < skeleton->joints.size(); ++i)
 		{
@@ -331,13 +321,76 @@ void Render()
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned) * debugLineIndices.size(), debugLineIndices.data(), GL_STATIC_DRAW);
 
 		glLineWidth(1.f);
-		glDrawElements(GL_LINES, (GLsizei) debugLineIndices.size(), GL_UNSIGNED_INT, NULL);
+		glDrawElements(GL_LINES, (GLsizei)debugLineIndices.size(), GL_UNSIGNED_INT, NULL);
 	}
 
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
 	glDisableVertexAttribArray(2);
+}
 
+void RenderGrid(const glm::mat4& projectionViewModel)
+{
+	glUseProgram(g_programID5);
+
+	struct GridVertex
+	{
+		glm::vec3 position;
+		// color is hardcoded in GridShader.frag
+	};
+
+	unsigned stride = sizeof(GridVertex);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(offsetof(GridVertex, position)));
+	glEnableVertexAttribArray(0);
+
+	glUniformMatrix4fv(g_projectionViewModelMatrixID5, 1, GL_FALSE, &projectionViewModel[0][0]);
+
+	std::vector<GridVertex> gridVertices;
+	std::vector<unsigned> gridIndices;
+
+	int sideLength = 2000;
+	int halfSideLength = sideLength / 2;
+	int increment = 100;
+
+	for (int i = -halfSideLength; i <= halfSideLength; i += increment)
+	{
+		GridVertex gridVertexMaxZ;
+		gridVertexMaxZ.position = glm::vec3(i, 0, halfSideLength);
+		gridVertices.push_back(gridVertexMaxZ);
+		gridIndices.push_back(static_cast<unsigned>(gridIndices.size()));
+
+		GridVertex gridVertexMinZ;
+		gridVertexMinZ.position = glm::vec3(i, 0, -halfSideLength);
+		gridVertices.push_back(gridVertexMinZ);
+		gridIndices.push_back(static_cast<unsigned>(gridIndices.size()));
+
+
+		GridVertex gridVertexMaxX;
+		gridVertexMaxX.position = glm::vec3(halfSideLength, 0, i);
+		gridVertices.push_back(gridVertexMaxX);
+		gridIndices.push_back(static_cast<unsigned>(gridIndices.size()));
+
+		GridVertex gridVertexMinX;
+		gridVertexMinX.position = glm::vec3(-halfSideLength, 0, i);
+		gridVertices.push_back(gridVertexMinX);
+		gridIndices.push_back(static_cast<unsigned>(gridIndices.size()));
+	}
+
+	glBindBuffer(GL_ARRAY_BUFFER, g_vbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(GridVertex) * gridVertices.size(), gridVertices.data(), GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_ibo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned) * gridIndices.size(), gridIndices.data(), GL_STATIC_DRAW);
+
+	glLineWidth(1.f);
+	glDrawElements(GL_LINES, (GLsizei)gridIndices.size(), GL_UNSIGNED_INT, NULL);
+
+	glDisableVertexAttribArray(0);
+}
+
+void RenderUI()
+{
+#ifdef _WIN32
 	glUseProgram(g_programID4);
 
 	struct UIVertex
@@ -346,7 +399,7 @@ void Render()
 		float uv[2];
 	};
 
-	stride = sizeof(UIVertex);
+	unsigned stride = sizeof(UIVertex);
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(offsetof(UIVertex, position)));
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(offsetof(UIVertex, uv)));
 	glEnableVertexAttribArray(0);
@@ -396,24 +449,102 @@ void Render()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	char* buffer = ((UIRenderHandler*)(g_uiClient->GetRenderHandler().get()))->getBuffer();// red.data();
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, SCREEN_WIDTH, SCREEN_HEIGHT, 0, GL_BGRA, GL_UNSIGNED_BYTE, buffer);
+	char* viewBuffer = ((UIRenderHandler*)(g_uiClient->GetRenderHandler().get()))->GetViewBuffer();
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, SCREEN_WIDTH, SCREEN_HEIGHT, 0, GL_BGRA, GL_UNSIGNED_BYTE, viewBuffer);
+	char* popupBuffer = ((UIRenderHandler*)(g_uiClient->GetRenderHandler().get()))->GetPopupBuffer();
+	if (popupBuffer != nullptr)
+	{
+		const CefRect& popupRect = ((UIRenderHandler*)(g_uiClient->GetRenderHandler().get()))->GetPopupRect();
+		glTexSubImage2D(GL_TEXTURE_2D, 0, popupRect.x, popupRect.y, popupRect.width, popupRect.height, GL_BGRA, GL_UNSIGNED_BYTE, popupBuffer);
+	}
 	glGenerateMipmap(GL_TEXTURE_2D);
 	glUniform1i(g_uiTextureLocation, g_uiTextureUnit);
 
-	glDrawElements(GL_TRIANGLES, (GLsizei) uiIndices.size(), GL_UNSIGNED_INT, NULL);
+	glDrawElements(GL_TRIANGLES, (GLsizei)uiIndices.size(), GL_UNSIGNED_INT, NULL);
 
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
+#endif
 }
 
-std::string ReadFile(const char* file)
+void Render()
 {
-	std::ifstream stream(file);
+	//Clear color buffer
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	// TODO: Is this required? Works without it?
+	glBindVertexArray(g_vao);
+
+	glm::mat4 projection = glm::perspective(glm::pi<float>() * 0.25f, (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 10000.0f);
+	glm::mat4 view = g_camera->CreateViewMatrix();
+	glm::mat4 model = glm::mat4(1.0f);
+	glm::mat4 projectionViewModel = projection * view * model;
+	
+	for (size_t i = 0; i < g_assetNames.size(); ++i)
+	{
+		RenderMesh(*g_meshComponents[i], *g_animationComponents[i], projectionViewModel);
+		RenderSkeleton(*g_animationComponents[i], projectionViewModel);
+	}
+	
+	RenderGrid(projectionViewModel);
+
+	// Because of depth testing, and because the UI is currently rendered as
+	// one giant texture the size of the screen instead of just its visible parts,
+	// we must render the UI last. Otherwise, everything fails the depth test.
+	//
+	// Once we render only visible parts, we could render the UI first.
+	// Then, everything behind the UI will fail the depth test, but for good reason.
+	RenderUI();
+}
+
+std::string ReadFile(const char *file)
+{
+
+#ifdef __APPLE__
+	std::string fileString(file);
+
+	std::string directoryName;
+	std::string fileName;
+	std::string fileTitle;
+	std::string fileExtension;
+
+	size_t slashPos = fileString.find_last_of('/');
+	if (slashPos == std::string::npos)
+	{
+		directoryName = std::string();
+		fileName = fileString;
+	}
+	else
+	{
+		directoryName = fileString.substr(0, slashPos);
+		fileName = fileString.substr(slashPos + 1);
+	}
+	size_t dotPos = fileName.find_last_of('.');
+	fileTitle = fileName.substr(0, dotPos);
+	fileExtension = fileName.substr(dotPos + 1);
+
+	CFStringRef fileTitleStringRef = CFStringCreateWithCStringNoCopy(NULL, fileTitle.c_str(), kCFStringEncodingASCII, kCFAllocatorNull);
+	CFStringRef fileExtensionStringRef = CFStringCreateWithCStringNoCopy(NULL, fileExtension.c_str(), kCFStringEncodingASCII, kCFAllocatorNull);
+	CFStringRef directoryNameStringRef = directoryName.empty() ? NULL : CFStringCreateWithCStringNoCopy(NULL, directoryName.c_str(), kCFStringEncodingASCII, kCFAllocatorNull);
+
+	CFBundleRef mainBundle = CFBundleGetMainBundle();
+	CFURLRef fileUrl = CFBundleCopyResourceURL(
+		mainBundle,
+		fileTitleStringRef,
+		fileExtensionStringRef,
+		directoryNameStringRef);
+
+	UInt8 realFileName[1024];
+	CFURLGetFileSystemRepresentation(fileUrl, true, realFileName, 1024);
+#else
+	const char* realFileName = file;
+#endif
+
+	std::ifstream stream((const char *)realFileName);
 
 	if (!stream.is_open())
 	{
-		printf("Error Opening File: %s\n", file);
+		printf("Error Opening File: %s\n", realFileName);
 		return std::string();
 	}
 
@@ -429,7 +560,7 @@ bool CreateProgram2()
 	// TODO: Copy shaders in CMAKE to .exe dir (or subdir next to .exe).
 
 	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	std::string vertexShaderSource = ReadFile("..\\..\\..\\..\\engine\\graphics\\shaders\\SkeletonShader.vert");
+	std::string vertexShaderSource = ReadFile("shaders/SkeletonShader.vert");
 	const char* vertexShaderSourceStr = vertexShaderSource.c_str();
 	glShaderSource(vertexShader, 1, &vertexShaderSourceStr, NULL);
 	glCompileShader(vertexShader);
@@ -448,7 +579,7 @@ bool CreateProgram2()
 	//{
 	//	"#version 410\nout vec4 LFragment; void main() { LFragment = vec4(1.0, 1.0, 1.0, 1.0); }"
 	//};
-	std::string fragmentShaderSource = ReadFile("..\\..\\..\\..\\engine\\graphics\\shaders\\FragmentShader.frag");
+	std::string fragmentShaderSource = ReadFile("shaders/FragmentShader.frag");
 	const char* fragmentShaderSourceStr = fragmentShaderSource.c_str();
 	glShaderSource(fragmentShader, 1, &fragmentShaderSourceStr, NULL);
 	glCompileShader(fragmentShader);
@@ -482,7 +613,7 @@ bool CreateProgram4()
 	// TODO: Copy shaders in CMAKE to .exe dir (or subdir next to .exe).
 
 	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	std::string vertexShaderSource = ReadFile("..\\..\\..\\..\\engine\\graphics\\shaders\\UIShader.vert");
+	std::string vertexShaderSource = ReadFile("shaders/UIShader.vert");
 	const char* vertexShaderSourceStr = vertexShaderSource.c_str();
 	glShaderSource(vertexShader, 1, &vertexShaderSourceStr, NULL);
 	glCompileShader(vertexShader);
@@ -501,7 +632,7 @@ bool CreateProgram4()
 	//{
 	//	"#version 410\nout vec4 LFragment; void main() { LFragment = vec4(1.0, 1.0, 1.0, 1.0); }"
 	//};
-	std::string fragmentShaderSource = ReadFile("..\\..\\..\\..\\engine\\graphics\\shaders\\UIShader.frag");
+	std::string fragmentShaderSource = ReadFile("shaders/UIShader.frag");
 	const char* fragmentShaderSourceStr = fragmentShaderSource.c_str();
 	glShaderSource(fragmentShader, 1, &fragmentShaderSourceStr, NULL);
 	glCompileShader(fragmentShader);
@@ -528,6 +659,59 @@ bool CreateProgram4()
 	return true;
 }
 
+bool CreateProgram5()
+{
+	g_programID5 = glCreateProgram();
+
+	// TODO: Copy shaders in CMAKE to .exe dir (or subdir next to .exe).
+
+	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+	std::string vertexShaderSource = ReadFile("shaders/GridShader.vert");
+	const char* vertexShaderSourceStr = vertexShaderSource.c_str();
+	glShaderSource(vertexShader, 1, &vertexShaderSourceStr, NULL);
+	glCompileShader(vertexShader);
+	GLint vShaderCompiled = GL_FALSE;
+	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &vShaderCompiled);
+	printShaderLog(vertexShader);
+	if (vShaderCompiled != GL_TRUE)
+	{
+		printf("Unable to compile vertex shader %d!\n", vertexShader);
+		return false;
+	}
+	glAttachShader(g_programID5, vertexShader);
+
+	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+	//const GLchar* fragmentShaderSource[] =
+	//{
+	//	"#version 410\nout vec4 LFragment; void main() { LFragment = vec4(1.0, 1.0, 1.0, 1.0); }"
+	//};
+	std::string fragmentShaderSource = ReadFile("shaders/GridShader.frag");
+	const char* fragmentShaderSourceStr = fragmentShaderSource.c_str();
+	glShaderSource(fragmentShader, 1, &fragmentShaderSourceStr, NULL);
+	glCompileShader(fragmentShader);
+	GLint fShaderCompiled = GL_FALSE;
+	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &fShaderCompiled);
+	printShaderLog(fragmentShader);
+	if (fShaderCompiled != GL_TRUE)
+	{
+		printf("Unable to compile fragment shader %d!\n", fragmentShader);
+		return false;
+	}
+	glAttachShader(g_programID5, fragmentShader);
+
+	glLinkProgram(g_programID5);
+	GLint programSuccess = GL_TRUE;
+	glGetProgramiv(g_programID5, GL_LINK_STATUS, &programSuccess);
+	printProgramLog(g_programID5);
+	if (programSuccess != GL_TRUE)
+	{
+		printf("Error linking program %d!\n", g_programID5);
+		return false;
+	}
+
+	return true;
+}
+
 bool InitializeOpenGL()
 {
 	g_programID = glCreateProgram();
@@ -535,7 +719,7 @@ bool InitializeOpenGL()
 	// TODO: Copy shaders in CMAKE to .exe dir (or subdir next to .exe).
 
 	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	std::string vertexShaderSource = ReadFile("..\\..\\..\\..\\engine\\graphics\\shaders\\SkinnedMeshShader.vert");
+	std::string vertexShaderSource = ReadFile("shaders/SkinnedMeshShader.vert");
 	const char* vertexShaderSourceStr = vertexShaderSource.c_str();
 	glShaderSource(vertexShader, 1, &vertexShaderSourceStr, NULL);
 	glCompileShader(vertexShader);
@@ -554,7 +738,7 @@ bool InitializeOpenGL()
 	//{
 	//	"#version 410\nout vec4 LFragment; void main() { LFragment = vec4(1.0, 1.0, 1.0, 1.0); }"
 	//};
-	std::string fragmentShaderSource = ReadFile("..\\..\\..\\..\\engine\\graphics\\shaders\\DiffuseTextureShader.frag");
+	std::string fragmentShaderSource = ReadFile("shaders/DiffuseTextureShader.frag");
 	const char* fragmentShaderSourceStr = fragmentShaderSource.c_str();
 	glShaderSource(fragmentShader, 1, &fragmentShaderSourceStr, NULL);
 	glCompileShader(fragmentShader);
@@ -588,7 +772,14 @@ bool InitializeOpenGL()
 		return false;
 	}
 
+	if (!CreateProgram5())
+	{
+		return false;
+	}
+
 	g_uiTextureLocation = glGetUniformLocation(g_programID4, "uiTexture");
+
+	g_projectionViewModelMatrixID5 = glGetUniformLocation(g_programID5, "projectionViewModel");
 
 	g_projectionViewModelMatrixID2 = glGetUniformLocation(g_programID2, "projectionViewModel");
 	g_paletteID2 = glGetUniformLocation(g_programID2, "palette");
@@ -599,21 +790,25 @@ bool InitializeOpenGL()
 
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
-	// TODO: bad
-	CE::Skeleton* skeleton = new CE::Skeleton();
-	CE::Meshes* meshes = new CE::Meshes();
-	CE::Animations* animations = new CE::Animations();
-	CE::Texture* texture = new CE::Texture();
-
-	CE::AssetImporter::ImportSkeletonMeshesAnimationsTexture(
-		g_assetName,
-		*skeleton,
-		*meshes,
-		*animations,
-		*texture);
-
-	g_meshComponent = new CE::MeshComponent(meshes, texture);
-	g_animationComponent = new CE::AnimationComponent(skeleton, animations);
+	// TODO: what if there are dupes
+	for (size_t i = 0; i < g_assetNames.size(); ++i)
+	{
+		// TODO: bad
+		CE::Skeleton* skeleton = new CE::Skeleton();
+		CE::Meshes* meshes = new CE::Meshes();
+		CE::Animations* animations = new CE::Animations();
+		CE::Textures* textures = new CE::Textures();
+		
+		CE::AssetImporter::ImportSkeletonMeshesAnimationsTextures(
+			g_assetNames[i],
+			*skeleton,
+			*meshes,
+			*animations,
+			*textures);
+		
+		g_meshComponents.push_back(new CE::MeshComponent(meshes, textures));
+		g_animationComponents.push_back(new CE::AnimationComponent(skeleton, animations, eventSystem));
+	}
 
 	glGenVertexArrays(1, &g_vao);
 	glBindVertexArray(g_vao);
@@ -647,36 +842,42 @@ bool InitializeOpenGL()
 	return true;
 }
 
-int InitializeCef()
-{
-	HINSTANCE hInstance = GetModuleHandle(NULL);
-	CefMainArgs main_args(hInstance);
-
-	int exitCode = CefExecuteProcess(main_args, NULL, NULL);
-	if (exitCode >= 0)
-	{
-		printf("CEF subprocess has exited. Exit code: %i\n", exitCode);
-		return exitCode;
-	}
-
-	CefSettings settings;
-	settings.remote_debugging_port = 3469;
-	if (!CefInitialize(main_args, settings, NULL, NULL))
-	{
-		printf("CEF failed to initialize.\n");
-		return 0;
-	}
-
-	return -1;
-}
-
 bool StartCef()
 {
-	CefBrowserSettings browserSettings;
-	CefWindowInfo windowInfo;
+#ifdef _WIN32
+	CefMainArgs main_args(::GetModuleHandle(NULL));
 
+	externalMessagePump = new UIExternalMessagePump();
+	CefRefPtr<UIBrowserProcessHandler> browserProcessHandler = new UIBrowserProcessHandler(externalMessagePump);
+	CefRefPtr<UIAppBrowser> app = new UIAppBrowser(browserProcessHandler);
+
+	CefSettings settings;
+	settings.external_message_pump = true;
+	settings.windowless_rendering_enabled = true;
+	settings.remote_debugging_port = 3469;
+	CefString(&settings.browser_subprocess_path).FromASCII("CompositeCefSubprocess.exe");
+	if (!CefInitialize(main_args, settings, app, NULL))
+	{
+		printf("CEF failed to initialize.\n");
+		return false;
+	}
+
+	CefMessageRouterConfig messageRouterConfig;
+	CefRefPtr<CefMessageRouterBrowserSide> messageRouterBrowserSide = CefMessageRouterBrowserSide::Create(messageRouterConfig);
+	messageRouterBrowserSide->AddHandler(queryHandler, true);
+
+	CefRefPtr<UIContextMenuHandler> contextMenuHandler = new UIContextMenuHandler();
 	CefRefPtr<UIRenderHandler> renderHandler = new UIRenderHandler(SCREEN_WIDTH, SCREEN_HEIGHT);
-	g_uiClient = new UIClient(renderHandler);
+	CefRefPtr<UILifeSpanHandler> lifeSpanHandler = new UILifeSpanHandler(messageRouterBrowserSide);
+	CefRefPtr<UILoadHandler> loadHandler = new UILoadHandler();
+	CefRefPtr<UIRequestHandler> requestHandler = new UIRequestHandler(messageRouterBrowserSide);
+	g_uiClient = new UIClient(
+		contextMenuHandler,
+		renderHandler,
+		lifeSpanHandler,
+		loadHandler,
+		requestHandler,
+		messageRouterBrowserSide);
 
 	SDL_SysWMinfo sysInfo;
 	SDL_VERSION(&sysInfo.version);
@@ -685,51 +886,178 @@ bool StartCef()
 		return false;
 	}
 
-	//RECT rect;
-	//rect.left = SCREEN_WIDTH / 2;
-	//rect.top = SCREEN_HEIGHT / 2;
-	//rect.right = SCREEN_WIDTH;
-	//rect.bottom = SCREEN_HEIGHT;
-
-	//windowInfo.SetAsChild(sysInfo.info.win.window, rect);
-	//CefBrowserHost::CreateBrowserSync(windowInfo, g_cefHandler.get(), "http://code.google.com", browserSettings, NULL);
-	//CefBrowserHost::CreateBrowserSync(windowInfo, g_cefHandler.get(), "http://www.github.com", browserSettings, NULL);
-
+	CefBrowserSettings browserSettings;
+	CefWindowInfo windowInfo;
 	windowInfo.SetAsWindowless(sysInfo.info.win.window);
+
 	g_browser = CefBrowserHost::CreateBrowserSync(
 		windowInfo,
 		g_uiClient,
-		"about:blank",
+		"http://localhost:3000", // "about:blank"
 		browserSettings,
 		nullptr);
-	CefRefPtr<CefFrame> frame = g_browser->GetMainFrame();
-	std::string source = ReadFile("..\\..\\..\\..\\engine\\ui\\KevinsABitch.html");
-	frame->LoadString(source, "about:blank");
-
-	//windowInfo.SetAsChild(sysInfo.info.win.window, rect);
-	//CefRefPtr<CefBrowser> browser = CefBrowserHost::CreateBrowserSync(
-	//	windowInfo,
-	//	g_uiClient,
-	//	"about:blank",
-	//	browserSettings,
-	//	NULL);
-	//CefRefPtr<CefFrame> frame = browser->GetMainFrame();
-	//std::string source = ReadFile("..\\..\\..\\..\\engine\\ui\\KevinReactThingy.html");
-	//frame->LoadString(source, "about:blank");
-	//frame->LoadString("<head></head><body></body>", "about:blank");//<button type=\"button\">SICK NASTY</button>
-
-	//std::string source = ReadFile("..\\..\\..\\..\\engine\\ui\\KevinsABitch.js");
-	//frame->ExecuteJavaScript(
-	//	source.c_str(),
-	//	frame->GetURL(),
-	//	0);
+#endif
 
 	return true;
 }
 
+void ToggleDevToolsWindow()
+{
+#ifdef _WIN32
+	if (g_browser->GetHost()->HasDevTools())
+	{
+		g_browser->GetHost()->CloseDevTools();
+	}
+	else
+	{
+		SDL_SysWMinfo sysInfo;
+		SDL_VERSION(&sysInfo.version);
+		if (!SDL_GetWindowWMInfo(g_window, &sysInfo))
+		{
+			return;
+		}
+
+		CefBrowserSettings browserSettings;
+		CefWindowInfo windowInfo;
+		windowInfo.SetAsPopup(sysInfo.info.win.window, "DevTools");
+		g_browser->GetHost()->ShowDevTools(windowInfo, g_uiClient, browserSettings, CefPoint(0, 0));
+	}
+#endif
+}
+
+#ifdef _WIN32
+bool IsKeyDown(WPARAM wparam) {
+	return (GetKeyState((int)wparam) & 0x8000) != 0;
+}
+
+// TODO: Either convert this to SDL or convert GetCefMouseModifiers to native.
+int GetCefKeyboardModifiers(WPARAM wparam, LPARAM lparam) {
+	int modifiers = 0;
+	if (IsKeyDown(VK_SHIFT))
+		modifiers |= EVENTFLAG_SHIFT_DOWN;
+	if (IsKeyDown(VK_CONTROL))
+		modifiers |= EVENTFLAG_CONTROL_DOWN;
+	if (IsKeyDown(VK_MENU))
+		modifiers |= EVENTFLAG_ALT_DOWN;
+
+	// Low bit set from GetKeyState indicates "toggled".
+	if (::GetKeyState(VK_NUMLOCK) & 1)
+		modifiers |= EVENTFLAG_NUM_LOCK_ON;
+	if (::GetKeyState(VK_CAPITAL) & 1)
+		modifiers |= EVENTFLAG_CAPS_LOCK_ON;
+
+	switch (wparam) {
+	case VK_RETURN:
+		if ((lparam >> 16) & KF_EXTENDED)
+			modifiers |= EVENTFLAG_IS_KEY_PAD;
+		break;
+	case VK_INSERT:
+	case VK_DELETE:
+	case VK_HOME:
+	case VK_END:
+	case VK_PRIOR:
+	case VK_NEXT:
+	case VK_UP:
+	case VK_DOWN:
+	case VK_LEFT:
+	case VK_RIGHT:
+		if (!((lparam >> 16) & KF_EXTENDED))
+			modifiers |= EVENTFLAG_IS_KEY_PAD;
+		break;
+	case VK_NUMLOCK:
+	case VK_NUMPAD0:
+	case VK_NUMPAD1:
+	case VK_NUMPAD2:
+	case VK_NUMPAD3:
+	case VK_NUMPAD4:
+	case VK_NUMPAD5:
+	case VK_NUMPAD6:
+	case VK_NUMPAD7:
+	case VK_NUMPAD8:
+	case VK_NUMPAD9:
+	case VK_DIVIDE:
+	case VK_MULTIPLY:
+	case VK_SUBTRACT:
+	case VK_ADD:
+	case VK_DECIMAL:
+	case VK_CLEAR:
+		modifiers |= EVENTFLAG_IS_KEY_PAD;
+		break;
+	case VK_SHIFT:
+		if (IsKeyDown(VK_LSHIFT))
+			modifiers |= EVENTFLAG_IS_LEFT;
+		else if (IsKeyDown(VK_RSHIFT))
+			modifiers |= EVENTFLAG_IS_RIGHT;
+		break;
+	case VK_CONTROL:
+		if (IsKeyDown(VK_LCONTROL))
+			modifiers |= EVENTFLAG_IS_LEFT;
+		else if (IsKeyDown(VK_RCONTROL))
+			modifiers |= EVENTFLAG_IS_RIGHT;
+		break;
+	case VK_MENU:
+		if (IsKeyDown(VK_LMENU))
+			modifiers |= EVENTFLAG_IS_LEFT;
+		else if (IsKeyDown(VK_RMENU))
+			modifiers |= EVENTFLAG_IS_RIGHT;
+		break;
+	case VK_LWIN:
+		modifiers |= EVENTFLAG_IS_LEFT;
+		break;
+	case VK_RWIN:
+		modifiers |= EVENTFLAG_IS_RIGHT;
+		break;
+	}
+	return modifiers;
+}
+
+void WindowsMessageHook(
+		void* userdata,
+		void* hWnd,
+		unsigned int message,
+		Uint64 wParam,
+		Sint64 lParam)
+{
+	switch (message)
+	{
+		case WM_SYSCHAR:
+		case WM_SYSKEYDOWN:
+		case WM_SYSKEYUP:
+		case WM_KEYDOWN:
+		case WM_KEYUP:
+		case WM_CHAR:
+		{
+			CefKeyEvent keyEvent;
+			keyEvent.windows_key_code = static_cast<int>(wParam);
+			keyEvent.native_key_code = static_cast<int>(lParam);
+			keyEvent.is_system_key = message == WM_SYSCHAR
+				|| message == WM_SYSKEYDOWN
+				|| message == WM_SYSKEYUP;
+			if (message == WM_KEYDOWN || message == WM_SYSKEYDOWN)
+			{
+				keyEvent.type = KEYEVENT_RAWKEYDOWN;
+			}
+			else if (message == WM_KEYUP || message == WM_SYSKEYUP)
+			{
+				keyEvent.type = KEYEVENT_KEYUP;
+			}
+			else
+			{
+				keyEvent.type = KEYEVENT_CHAR;
+			}
+			keyEvent.modifiers = GetCefKeyboardModifiers(static_cast<WPARAM>(wParam), static_cast<LPARAM>(lParam));
+
+			g_browser->GetHost()->SendKeyEvent(keyEvent);
+
+			break;
+		}
+	}
+}
+#endif
+
 bool Initialize()
 {
-	if (SDL_Init(SDL_INIT_VIDEO) < 0)
+	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) < 0)
 	{
 		printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
 		return false;
@@ -741,6 +1069,10 @@ bool Initialize()
 
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+
+	// Enable MSAA.
+	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
 
 	g_window = SDL_CreateWindow(
 		"Composite Engine",
@@ -764,6 +1096,10 @@ bool Initialize()
 		return false;
 	}
 
+#ifdef _WIN32
+	SDL_SetWindowsMessageHook(&WindowsMessageHook, nullptr);
+#endif
+
 	// Initialize GLEW
 	//glewExperimental = GL_TRUE;
 	GLenum glewError = glewInit();
@@ -772,16 +1108,33 @@ bool Initialize()
 		printf("Error initializing GLEW! %s\n", glewGetErrorString(glewError));
 	}
 
-	// Use VSync
-	if (SDL_GL_SetSwapInterval(1) < 0)
+	// Disable VSync
+	if (SDL_GL_SetSwapInterval(0) < 0)
 	{
-		printf("Warning: Unable to set VSync! SDL_Error: %s\n", SDL_GetError());
+		printf("Warning: Unable to set immediate updates for VSync! SDL_Error: %s\n", SDL_GetError());
 	}
+
+	SDL_SetHint(SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH, "1");
 
 	//CE::MeshManager::Get().Initialize(g_fbxImporter);
 	//CE::AnimationManager::Get().Initialize(g_fbxImporter);
 	//CE::SkeletonManager::Get().Initialize(g_fbxImporter);
 	//CE::TextureManager::Get().Initialize(g_stbiImporter);
+
+	eventSystem = new EventSystem();
+	engine = new CE::Engine(eventSystem);
+	
+#ifdef _WIN32
+	queryHandler = new UIQueryHandler(eventSystem, new UIQueryResponder(eventSystem));
+#endif
+
+	g_fpsCounter = new CE::FpsCounter(eventSystem);
+
+	//g_camera = new CE::Camera(glm::vec3(0, 100, 400), glm::vec3(0, 100, 0)); // paladin
+	//g_camera = new CE::Camera(glm::vec3(0, 200, 400), glm::vec3(0, 100, 0)); // solider
+	g_camera = new CE::Camera(glm::vec3(0, 100, 700), glm::vec3(0, 0, -1)); // thriller, quarterback
+	//g_camera = new CE::Camera(glm::vec3(0, 2, 8), glm::vec3(0, 2, 0)); // wonder woman
+	//g_camera = new CE::Camera(glm::vec3(0, 0, 1), glm::vec3(0, 0, 0));
 
 	if (!InitializeOpenGL())
 	{
@@ -802,6 +1155,9 @@ bool Initialize()
 	// tell GL to only draw onto a pixel if the shape is closer to the viewer
 	glEnable(GL_DEPTH_TEST); // enable depth-testing
 	glDepthFunc(GL_LESS); // depth-testing interprets a smaller value as "closer"
+
+	// Enable MSAA.
+	glEnable(GL_MULTISAMPLE);
 
 	// enable alpha blending (allows transparent textures)
 	// https://gamedev.stackexchange.com/questions/29492/opengl-blending-gui-textures
@@ -828,12 +1184,16 @@ bool Initialize()
 
 void StopCef()
 {
+#ifdef _WIN32
+	externalMessagePump->Shutdown();
+
 	g_browser->GetHost()->CloseBrowser(true);
 
 	g_browser = nullptr;
 	g_uiClient = nullptr;
 
 	CefShutdown();
+#endif
 }
 
 void Destroy()
@@ -851,7 +1211,9 @@ void Destroy()
 	SDL_Quit();
 }
 
+// TODO: Either convert this to native or convert GetCefKeyboardModifiers to SDL.
 // osr_window_win.cc
+#ifdef _WIN32
 unsigned GetCefMouseModifiers(const SDL_Event& event)
 {
 	unsigned modifiers = 0;
@@ -988,77 +1350,112 @@ unsigned GetCefMouseModifiers(const SDL_Event& event)
 
 	return modifiers;
 }
+#endif
 
 int main(int argc, char* argv[])
 {
-	// For now, this must come first because of the CEF subprocess architecture.
-	// TODO: Look into spawning subprocesses via a separate executable. Do we need this?
-	int exitCode = InitializeCef();
-	if (exitCode >= 0)
-	{
-		return exitCode;
-	}
+	CE_SET_MAIN_THREAD();
 
 	if (!Initialize())
 	{
 		printf("Failed to initialize.\n");
-		getchar();
 		return -1;
 	}
 
-	MakeRed();
+	uint64_t currentTicks = SDL_GetPerformanceCounter();
+	uint64_t previousTicks = 0;
+
+	CE::RealTimeClock::Get().Initialize(currentTicks);
+	CE::GameTimeClock::Get().Initialize(currentTicks);
 
 	bool quit = false;
-	SDL_Event event;
-
-	SDL_StartTextInput();
-
-	unsigned long long now = SDL_GetPerformanceCounter();
-	unsigned long long last = 0;
-	float deltaTime = 0;
 
 	while (!quit)
 	{
-		last = now;
-		now = SDL_GetPerformanceCounter();
-		deltaTime = float((now - last) * 1000) / SDL_GetPerformanceFrequency();
+		previousTicks = currentTicks;
+		currentTicks = SDL_GetPerformanceCounter();
+
+		uint64_t deltaTicks = currentTicks - previousTicks;
+		CE::RealTimeClock::Get().Update(deltaTicks);
+		CE::GameTimeClock::Get().Update(deltaTicks);
+
+		SDL_Event event;
 
 		while (SDL_PollEvent(&event) != 0)
 		{
+#ifdef _WIN32
+			externalMessagePump->ProcessEvent(event);
+#endif
+
+			// TODO: Haven't done focus events for Cef (see CefBrowserHost). Do I need these?
 			switch (event.type)
 			{
-				case SDL_KEYDOWN:
-				{
-					//switch (event.key.keysym.sym)
-					//{
-					//	case SDLK_UP:
-					//		break;
-					//	case SDLK_DOWN:
-					//		break;
-					//	case SDLK_LEFT:
-					//		break;
-					//	case SDLK_RIGHT:
-					//		break;
-					//	default:
-					//		break;
-					//}
-					break;
-				}
-
-				case SDL_TEXTINPUT:
-				{
-					int x = 0, y = 0;
-					SDL_GetMouseState(&x, &y);
-					HandleKeys(event.text.text[0], x, y);
-					break;
-				}
-
 				case SDL_QUIT:
 				{
 					quit = true;
 					break;
 				}
 
+				case SDL_KEYDOWN:
+				{
+					switch (event.key.keysym.sym)
+					{
+						case SDLK_q:
+						{
+							eventSystem->EnqueueEvent(ToggleBindPoseEvent());
+							break;
+						}
+						
+						case SDLK_e:
+						{
+							SetRenderModeEvent setRenderModeEvent;
+							setRenderModeEvent.mode = (engine->RenderMode() + 1) % 3;
+							eventSystem->EnqueueEvent(setRenderModeEvent);
+							break;
+						}
+						
+						case SDLK_w:
+						{
+							g_camera->MoveForward(1000 * CE::RealTimeClock::Get().GetDeltaSeconds());
+							break;
+						}
+
+						case SDLK_a:
+						{
+							g_camera->MoveLeft(1000 * CE::RealTimeClock::Get().GetDeltaSeconds());
+							break;
+						}
+
+						case SDLK_s:
+						{
+							g_camera->MoveBackward(1000 * CE::RealTimeClock::Get().GetDeltaSeconds());
+							break;
+						}
+
+						case SDLK_d:
+						{
+							g_camera->MoveRight(1000 * CE::RealTimeClock::Get().GetDeltaSeconds());
+							break;
+						}
+
+						case SDLK_t:
+						{
+							CE::ClientService::MakeRequest("T", client_socket);
+							break;
+						}
+
+						case SDLK_F11:
+						case SDLK_F12:
+						{
+							ToggleDevToolsWindow();
+							break;
+						}
+					}
+
+					break;
+				}
+
+#ifdef _WIN32
 				// osr_window_win.cc
 				case SDL_MOUSEMOTION:
 				{
@@ -1068,11 +1465,6 @@ int main(int argc, char* argv[])
 					mouseEvent.modifiers = GetCefMouseModifiers(event);
 
 					g_browser->GetHost()->SendMouseMoveEvent(mouseEvent, false);
-
-					printf("SDL_MOUSEMOTION: %i, %i, 0x%08x\n",
-						mouseEvent.x,
-						mouseEvent.y,
-						mouseEvent.modifiers);
 
 					break;
 				}
@@ -1105,13 +1497,6 @@ int main(int argc, char* argv[])
 
 					g_browser->GetHost()->SendMouseClickEvent(mouseEvent, mouseButtonType, false, event.button.clicks);
 
-					printf("SDL_MOUSEBUTTONDOWN: %i, %i, 0x%08x, %i, %i\n",
-						mouseEvent.x,
-						mouseEvent.y,
-						mouseEvent.modifiers,
-						mouseButtonType,
-						event.button.clicks);
-
 					break;
 				}
 
@@ -1143,13 +1528,6 @@ int main(int argc, char* argv[])
 
 					g_browser->GetHost()->SendMouseClickEvent(mouseEvent, mouseButtonType, true, event.button.clicks);
 
-					printf("SDL_MOUSEBUTTONUP: %i, %i, 0x%08x, %i, %i\n",
-						mouseEvent.x,
-						mouseEvent.y,
-						mouseEvent.modifiers,
-						mouseButtonType,
-						event.button.clicks);
-
 					break;
 				}
 
@@ -1159,16 +1537,8 @@ int main(int argc, char* argv[])
 					CefMouseEvent mouseEvent;
 					SDL_GetMouseState(&mouseEvent.x, &mouseEvent.y);
 					mouseEvent.modifiers = GetCefMouseModifiers(event);
-
-					// TODO: This crashes in debug, but I don't know why. :(
-					//g_browser->GetHost()->SendMouseWheelEvent(mouseEvent, event.wheel.x, event.wheel.y);
-
-					printf("SDL_MOUSEWHEEL: %i, %i, 0x%08x, %i, %i\n",
-						mouseEvent.x,
-						mouseEvent.y,
-						mouseEvent.modifiers,
-						event.wheel.x,
-						event.wheel.y);
+					
+					g_browser->GetHost()->SendMouseWheelEvent(mouseEvent, event.wheel.x, event.wheel.y);
 
 					break;
 				}
@@ -1186,30 +1556,29 @@ int main(int argc, char* argv[])
 
 							g_browser->GetHost()->SendMouseMoveEvent(mouseEvent, true);
 
-							printf("SDL_WINDOWEVENT_LEAVE: %i, %i, 0x%08x\n",
-								mouseEvent.x,
-								mouseEvent.y,
-								mouseEvent.modifiers);
-
 							break;
 						}
 					}
 
 					break;
 				}
+#endif
 			}
 		}
 
-		g_animationComponent->Update(deltaTime);
+		for (CE::AnimationComponent* animationComponent : g_animationComponents)
+		{
+			animationComponent->Update(CE::GameTimeClock::Get().GetDeltaSeconds());
+		}
+		g_fpsCounter->Update(CE::RealTimeClock::Get().GetDeltaSeconds());
 
-		CefDoMessageLoopWork();
+		// TODO: Where does this go?
+		eventSystem->DispatchEvents(CE::RealTimeClock::Get().GetCurrentTicks());
 
 		Render();
 
 		SDL_GL_SwapWindow(g_window);
 	}
-
-	SDL_StopTextInput();
 
 	Destroy();
 

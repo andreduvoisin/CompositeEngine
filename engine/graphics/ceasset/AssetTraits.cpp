@@ -1,5 +1,6 @@
 #include "AssetTraits.h"
 
+#include <cstddef>
 #include <cstring>
 
 namespace CE

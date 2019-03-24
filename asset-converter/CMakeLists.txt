@@ -1,57 +1,37 @@
-cmake_minimum_required(VERSION 3.7.2)
 
-add_executable(AssetConverter ${ASSET_CONVERTER_SRC_FILES}
-	"${ENGINE_SRC_DIR}/common/Math.cpp"
-	"${ENGINE_SRC_DIR}/graphics/ceasset/AssetTraits.cpp"
-	"${ENGINE_SRC_DIR}/graphics/ceasset/output/AssetExporter.cpp"
-	"${ENGINE_SRC_DIR}/graphics/ceasset/output/AssetSerializer.cpp"
-	"${ENGINE_SRC_DIR}/graphics/ceasset/output/OutputFileStream.cpp")
+if(${CMAKE_GENERATOR} STREQUAL "Ninja" OR ${CMAKE_GENERATOR} STREQUAL "Unix Makefiles")
+	# By default Ninja and Make builds don't create a subdirectory named after
+	# the configuration.
+	set(CE_TARGET_OUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}")
 
-include_directories(${ASSET_CONVERTER_SRC_DIR})
-include_directories(${ENGINE_SRC_DIR})
-
-if(WIN32)
-	target_compile_options(AssetConverter PRIVATE /W3 /WX)
+	# Output binaries (executables, libraries) to the correct directory.
+	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CE_TARGET_OUT_DIR})
+	set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CE_TARGET_OUT_DIR})
+else()
+	set(CE_TARGET_OUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>")
 endif()
 
-# GLM
-include_directories("${EXTERN_DIR}/glm-0.9.8.5")
+add_executable(CompositeAssetConverter ${ASSET_CONVERTER_SRC_FILES})
 
-# stb_image
-include_directories("${EXTERN_DIR}/stb_image-2.16")
+target_link_libraries(CompositeAssetConverter PRIVATE FBXSDK GLM STB)
 
-# FBX SDK
-if(WIN32)
-	set(FBXSDK_ROOT_DIR "${EXTERN_DIR}/FBX SDK/2018.1.1")
-	set(FBXSDK_MSVC_DIR "${FBXSDK_ROOT_DIR}/lib/vs2015")
-	
-	if(${CE_CONFIGURATION} STREQUAL "Debug")
-		set(FBXSDK_CONFIGURATION "debug")
-	elseif(${CE_CONFIGURATION} STREQUAL "Release")
-		set(FBXSDK_CONFIGURATION "release")
-	endif()
+source_group(TREE ${CMAKE_SOURCE_DIR} FILES ${ASSET_CONVERTER_SRC_FILES})
 
-	if(${CE_PLATFORM} STREQUAL "Win32")
-		set(FBXSDK_PLATFORM "x86")
-	elseif(${CE_PLATFORM} STREQUAL "x64")
-		set(FBXSDK_PLATFORM "x64")
-	endif()
+target_include_directories(CompositeAssetConverter PRIVATE ${ASSET_CONVERTER_SRC_DIR})
+target_include_directories(CompositeAssetConverter PRIVATE ${ENGINE_SRC_DIR})
 
-	include_directories("${FBXSDK_ROOT_DIR}/include")
+if(OS_WINDOWS)
+	target_compile_options(CompositeAssetConverter PRIVATE /W3 /WX)
+endif()
 
-	# FBX SDK can be linked statically (with either /MD or /MT) or dynamically.
-	# opengl32.lib (and glu32.lib) link with /MD, so we can't link with /MT.
-	# /MD[d] is included in CMAKE_CXX_FLAGS[_*] by default.
-
-	# Statically-Linked Library (/MD)
-	target_link_libraries(AssetConverter "${FBXSDK_MSVC_DIR}/${FBXSDK_PLATFORM}/${FBXSDK_CONFIGURATION}/libfbxsdk-md.lib")
-
-	# Dynamically-Linked Library
-	#target_compile_definitions(AssetConverter PRIVATE FBXSDK_SHARED)
-	#target_link_libraries(AssetConverter "${FBXSDK_MSVC_DIR}/${FBXSDK_PLATFORM}/${FBXSDK_CONFIGURATION}/libfbxsdk.lib")
-	#configure_file(
-	#	"${FBXSDK_MSVC_DIR}/${FBXSDK_PLATFORM}/${FBXSDK_CONFIGURATION}/libfbxsdk.dll"
-	#	"${PROJECT_BINARY_DIR}/asset-converter/${CE_CONFIGURATION}/libfbxsdk.dll"
-	#	COPYONLY
-	#)
+install(
+	TARGETS CompositeAssetConverter
+	RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}"
+)
+if(OS_WINDOWS)
+	install(
+		FILES $<TARGET_PDB_FILE:CompositeAssetConverter>
+		DESTINATION "${CMAKE_INSTALL_PREFIX}"
+		OPTIONAL
+	)
 endif()

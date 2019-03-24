@@ -1,12 +1,12 @@
 #include "AssetDeserializer.h"
 
-#include "graphics\ceasset\AssetTraits.h"
+#include "graphics/ceasset/AssetTraits.h"
 #include "InputFileStream.h"
 
-#include "graphics\skeleton\Skeleton.h"
-#include "graphics\mesh\Mesh.h"
-#include "graphics\animation\Animation.h"
-#include "graphics\texture\Texture.h"
+#include "graphics/skeleton/Skeleton.h"
+#include "graphics/mesh/Mesh.h"
+#include "graphics/animation/Animation.h"
+#include "graphics/texture/Texture.h"
 
 namespace CE
 {
@@ -53,6 +53,10 @@ namespace CE
 		stream >> outMesh.m_diffuseMapName;
 		stream >> outMesh.m_specularMapName;
 		stream >> outMesh.m_normalMapName;
+
+		stream >> outMesh.m_diffuseIndex;
+		stream >> outMesh.m_specularIndex;
+		stream >> outMesh.m_normalIndex;
 	}
 
 	void AssetDeserializer::ReadAnimation(Animation& outAnimation)

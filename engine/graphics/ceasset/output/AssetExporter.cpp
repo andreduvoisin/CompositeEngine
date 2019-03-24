@@ -6,12 +6,12 @@
 
 namespace CE
 {
-	bool AssetExporter::ExportSkeletonMeshesAnimationsTexture(
+	bool AssetExporter::ExportSkeletonMeshesAnimationsTextures(
 		const char* fileName,
 		const Skeleton& skeleton,
 		const Meshes& meshes,
 		const Animations& animations,
-		const Texture& texture)
+		const Textures& textures)
 	{
 		OutputFileStream stream(fileName);
 
@@ -25,7 +25,7 @@ namespace CE
 		serializer.WriteSkeleton(skeleton);
 		serializer.WriteMeshes(meshes);
 		serializer.WriteAnimations(animations);
-		serializer.WriteTexture(texture);
+		serializer.WriteTextures(textures);
 
 		return stream.IsValid();
 	}

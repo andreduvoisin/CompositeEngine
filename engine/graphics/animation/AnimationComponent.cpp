@@ -1,20 +1,23 @@
 #include "AnimationComponent.h"
 
 #include "Animation.h"
-#include "graphics\skeleton\Skeleton.h"
+#include "graphics/skeleton/Skeleton.h"
 
-#include "common\Math.h"
+#include "event/core/EventSystem.h"
+#include "common/Math.h"
 
-#include <GL\glew.h>
+#include <GL/glew.h>
 
 #include <algorithm>
 
 namespace CE
 {
 	AnimationComponent::AnimationComponent(
-			Skeleton* skeleton, 
-			Animations* animations)
-		: m_skeleton(skeleton)
+			Skeleton* skeleton,
+			Animations* animations,
+			EventSystem* eventSystem)
+		: animationEventHandler(eventSystem, this)
+		, m_skeleton(skeleton)
 		, m_animations(animations)
 		, m_currentAnimation(0)
 	{
@@ -47,7 +50,7 @@ namespace CE
 		}
 	}
 
-	void AnimationComponent::FindInterpolationKeys(int currentJoint)
+	void AnimationComponent::FindInterpolationKeys(size_t currentJoint)
 	{
 		Animation& animation = m_animations->at(m_currentAnimation);
 		AnimationCache& animationCache = m_animationCaches[m_currentAnimation];
@@ -131,7 +134,7 @@ namespace CE
 		}
 	}
 
-	void AnimationComponent::Update(float deltaTime)
+	void AnimationComponent::Update(float deltaSeconds)
 	{
 		if (m_animations->empty())
 		{
@@ -141,7 +144,7 @@ namespace CE
 		Animation* animation = &m_animations->at(m_currentAnimation);
 		AnimationCache* animationCache = &m_animationCaches[m_currentAnimation];
 
-		animationCache->currTime += deltaTime * .001f;
+		animationCache->currTime += deltaSeconds;
 
 		if (animationCache->currTime > animation->duration)
 		{
@@ -155,7 +158,7 @@ namespace CE
 			animationCache = &m_animationCaches[m_currentAnimation];
 		}
 
-		for (int i = 0; i < m_skeleton->joints.size(); ++i)
+		for (size_t i = 0; i < m_skeleton->joints.size(); ++i)
 		{
 			FindInterpolationKeys(i);
 
@@ -195,10 +198,12 @@ namespace CE
 			}
 		}
 
-		for (int i = 0; i < m_skeleton->joints.size(); ++i)
+		for (size_t i = 0; i < m_skeleton->joints.size(); ++i)
 		{
 			m_palette[i] = m_palette[i] * m_skeleton->joints[i].inverseBindPose;
 		}
+
+		animationEventHandler.SendAnimationStateEvent();
 	}
 
 	void AnimationComponent::BindMatrixPalette(
@@ -222,7 +227,7 @@ namespace CE
 
 	void AnimationComponent::ResetMatrixPalette()
 	{
-		for (int i = 0; i < m_skeleton->joints.size(); ++i)
+		for (size_t i = 0; i < m_skeleton->joints.size(); ++i)
 		{
 			m_palette[i] = glm::mat4(1.f);
 		}

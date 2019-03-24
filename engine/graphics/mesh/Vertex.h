@@ -1,7 +1,7 @@
 #ifndef _CE_VERTEX_H_
 #define _CE_VERTEX_H_
 
-#include <glm\glm.hpp>
+#include <glm/glm.hpp>
 
 namespace CE
 {

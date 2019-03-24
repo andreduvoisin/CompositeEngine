@@ -1,6 +1,8 @@
 #ifndef _CE_ASSET_TRAITS_H_
 #define _CE_ASSET_TRAITS_H_
 
+#include <cstddef>
+
 namespace CE
 {
 	extern const char* const ASSET_FILE_HEADER;

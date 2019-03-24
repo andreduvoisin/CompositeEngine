@@ -2,11 +2,11 @@
 
 #include "OutputFileStream.h"
 
-#include "graphics\ceasset\AssetTraits.h"
-#include "graphics\skeleton\Skeleton.h"
-#include "graphics\mesh\Mesh.h"
-#include "graphics\animation\Animation.h"
-#include "graphics\texture\Texture.h"
+#include "graphics/ceasset/AssetTraits.h"
+#include "graphics/skeleton/Skeleton.h"
+#include "graphics/mesh/Mesh.h"
+#include "graphics/animation/Animation.h"
+#include "graphics/texture/Texture.h"
 
 namespace CE
 {
@@ -48,6 +48,10 @@ namespace CE
 		stream.Write(mesh.m_diffuseMapName.data(), mesh.m_diffuseMapName.size() + 1);
 		stream.Write(mesh.m_specularMapName.data(), mesh.m_specularMapName.size() + 1);
 		stream.Write(mesh.m_normalMapName.data(), mesh.m_normalMapName.size() + 1);
+
+		stream << mesh.m_diffuseIndex;
+		stream << mesh.m_specularIndex;
+		stream << mesh.m_normalIndex;
 	}
 
 	void AssetSerializer::WriteMeshes(const Meshes& meshes)
@@ -87,6 +91,14 @@ namespace CE
 		stream << texture.height;
 		stream << texture.channels;
 		stream.Write(texture.data, texture.width * texture.height * texture.channels);
+	}
+
+	void AssetSerializer::WriteTextures(const Textures& textures)
+	{
+		for (const Texture& texture : textures)
+		{
+			WriteTexture(texture);
+		}
 	}
 
 	template<typename T>

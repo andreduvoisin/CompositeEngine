@@ -1,13 +1,13 @@
 #include "FBXAnimationImporter.h"
 
 #include "FBXValidator.h"
-#include "graphics\animation\Animation.h"
-#include "graphics\skeleton\Skeleton.h"
+#include "graphics/animation/Animation.h"
+#include "graphics/skeleton/Skeleton.h"
 
 #include <fbxsdk.h>
 
-#include <glm\glm.hpp>
-#include <glm\gtx\matrix_decompose.hpp>
+#include <glm/glm.hpp>
+#include <glm/gtx/matrix_decompose.hpp>
 
 namespace CE
 {
@@ -86,7 +86,7 @@ namespace CE
 
 			double period = 1.f / 24.f; // todo: make variable, it's all over this file
 
-			for (int j = 0; j < m_skeleton.joints.size(); ++j)
+			for (size_t j = 0; j < m_skeleton.joints.size(); ++j)
 			{
 				FbxNode* joint = scene->FindNodeByName(m_skeleton.joints[j].name.c_str());
 
