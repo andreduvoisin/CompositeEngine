@@ -3,79 +3,51 @@
   "configurations": [
     {
       "name": "x86-Debug",
-      "generator": "Visual Studio 15 2017",
+      "generator": "Ninja",
       "configurationType": "Debug",
+      "inheritEnvironments": [ "msvc_x86" ],
       "buildRoot": "${projectDir}\\build\\${name}",
+      "installRoot": "${projectDir}\\install\\${name}",
       "cmakeCommandArgs": "",
-      "buildCommandArgs": "-m -v:minimal",
+      "buildCommandArgs": "-v",
       "ctestCommandArgs": "",
-      "variables": [
-        {
-          "name": "CE_CONFIGURATION",
-          "value": "Debug"
-        },
-        {
-          "name": "CE_PLATFORM",
-          "value": "Win32"
-        }
-      ]
+      "variables": []
     },
     {
       "name": "x86-Release",
-      "generator": "Visual Studio 15 2017",
+      "generator": "Ninja",
       "configurationType": "Release",
+      "inheritEnvironments": [ "msvc_x86" ],
       "buildRoot": "${projectDir}\\build\\${name}",
+      "installRoot": "${projectDir}\\install\\${name}",
       "cmakeCommandArgs": "",
-      "buildCommandArgs": "-m -v:minimal",
+      "buildCommandArgs": "-v",
       "ctestCommandArgs": "",
-      "variables": [
-        {
-          "name": "CE_CONFIGURATION",
-          "value": "Release"
-        },
-        {
-          "name": "CE_PLATFORM",
-          "value": "Win32"
-        }
-      ]
+      "variables": []
     },
     {
       "name": "x64-Debug",
-      "generator": "Visual Studio 15 2017 Win64",
+      "generator": "Ninja",
       "configurationType": "Debug",
+      "inheritEnvironments": [ "msvc_x64" ],
       "buildRoot": "${projectDir}\\build\\${name}",
+      "installRoot": "${projectDir}\\install\\${name}",
       "cmakeCommandArgs": "",
-      "buildCommandArgs": "-m -v:minimal",
+      "buildCommandArgs": "-v",
       "ctestCommandArgs": "",
-      "variables": [
-        {
-          "name": "CE_CONFIGURATION",
-          "value": "Debug"
-        },
-        {
-          "name": "CE_PLATFORM",
-          "value": "x64"
-        }
-      ]
+      "variables": []
     },
     {
       "name": "x64-Release",
-      "generator": "Visual Studio 15 2017 Win64",
+      "generator": "Ninja",
       "configurationType": "Release",
+      "inheritEnvironments": [ "msvc_x64" ],
       "buildRoot": "${projectDir}\\build\\${name}",
+      "installRoot": "${projectDir}\\install\\${name}",
       "cmakeCommandArgs": "",
-      "buildCommandArgs": "-m -v:minimal",
+      "buildCommandArgs": "-v",
       "ctestCommandArgs": "",
-      "variables": [
-        {
-          "name": "CE_CONFIGURATION",
-          "value": "Release"
-        },
-        {
-          "name": "CE_PLATFORM",
-          "value": "x64"
-        }
-      ]
+      "variables": []
     }
   ]
 }

@@ -7,27 +7,22 @@ set(STB_ROOT_DIR "${EXTERN_DIR}/${STB_VERSION_STRING}")
 
 # Currently, only stb_image is used. However, it is
 # easiest to simply clone the whole git repository.
-function(BuildSTB)
-	ExternalProject_Add(
-		STB
-		PREFIX ${STB_VERSION_STRING}
+ExternalProject_Add(
+	STBExternal
+	PREFIX ${STB_VERSION_STRING}
 
-		DOWNLOAD_DIR ${EXTERN_DIR}
-		GIT_REPOSITORY "https://github.com/nothings/stb.git"
-		GIT_TAG ${STB_VERSION}
+	DOWNLOAD_DIR ${EXTERN_DIR}
+	GIT_REPOSITORY "https://github.com/nothings/stb.git"
+	GIT_TAG ${STB_VERSION}
 
-		SOURCE_DIR ${STB_ROOT_DIR}
+	SOURCE_DIR ${STB_ROOT_DIR}
 
-		CONFIGURE_COMMAND ""
-		BUILD_COMMAND ""
-		INSTALL_COMMAND ""
-	)
-endfunction()
+	CONFIGURE_COMMAND ""
+	BUILD_COMMAND ""
+	INSTALL_COMMAND ""
+)
 
-function(BootstrapSTB)
-	IncludeSTB()
-endfunction()
+add_library(STB INTERFACE)
+add_dependencies(STB STBExternal)
 
-function(IncludeSTB)
-	include_directories("${STB_ROOT_DIR}")
-endfunction()
+target_include_directories(STB INTERFACE "${STB_ROOT_DIR}")

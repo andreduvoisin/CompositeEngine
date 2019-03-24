@@ -9,7 +9,7 @@ namespace CE
 	class InputFileStream
 	{
 	public:
-		InputFileStream(const char* fileName);
+		InputFileStream(const char* file);
 		~InputFileStream();
 
 		bool IsValid();

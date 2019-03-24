@@ -6,11 +6,16 @@
 # Build Folder
 build/
 
+# Install Folder
+install/
+
 # Visual Studio
 .vs
 
 # VS Code
-.vscode
+.vscode/*
+!.vscode/tasks.json
+!.vscode/launch.json
 
 # Intellij Idea
 .idea
@@ -46,4 +51,5 @@ extern/glm-*.zip
 
 # FBX SDK
 extern/*_fbxsdk_*/
+extern/*_fbxsdk_*.exe
 extern/*_fbxsdk_*.pkg.tgz
