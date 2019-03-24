@@ -1,10 +1,10 @@
 #include "MeshComponent.h"
 
 #include "Mesh.h"
-#include "graphics\texture\Texture.h"
-#include "graphics\texture\TextureManager.h"
+#include "graphics/texture/Texture.h"
+#include "graphics/texture/TextureManager.h"
 
-#include <GL\glew.h>
+#include <GL/glew.h>
 
 namespace CE
 {

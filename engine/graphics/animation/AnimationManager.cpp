@@ -1,9 +1,7 @@
 #include "AnimationManager.h"
 
 #include "Animation.h"
-#include "graphics\File3DImporter.h"
-
-#include <string>
+#include "graphics/File3DImporter.h"
 
 namespace CE
 {

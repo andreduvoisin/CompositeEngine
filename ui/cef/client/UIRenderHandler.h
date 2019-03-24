@@ -12,7 +12,7 @@ public:
 	void Render();
 
 	// CefRenderHandler Interface
-	void GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) override;
+	bool GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) override;
 	void OnPopupShow(CefRefPtr<CefBrowser> browser, bool show) override;
 	void OnPopupSize(CefRefPtr<CefBrowser> browser, const CefRect& rect) override;
 	void OnPaint(

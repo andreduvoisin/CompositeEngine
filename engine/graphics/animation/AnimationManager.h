@@ -1,8 +1,9 @@
 #ifndef _CE_ANIMATION_MANAGER_H_
 #define _CE_ANIMATION_MANAGER_H_
 
-#include "common\Singleton.h"
+#include "common/Singleton.h"
 
+#include <string>
 #include <unordered_map>
 #include <vector>
 

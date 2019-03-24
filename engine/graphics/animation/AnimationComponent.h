@@ -1,9 +1,10 @@
 #ifndef _CE_ANIMATION_COMPONENT_H_
 #define _CE_ANIMATION_COMPONENT_H_
 
+#include "Animation.h"
 #include "AnimationEventHandler.h"
 
-#include <glm\glm.hpp>
+#include <glm/glm.hpp>
 
 #include <vector>
 
@@ -13,8 +14,6 @@ typedef unsigned int GLuint;
 namespace CE
 {
 	struct Skeleton;
-	struct Animation;
-	typedef std::vector<Animation> Animations;
 
 	struct AnimationCache
 	{

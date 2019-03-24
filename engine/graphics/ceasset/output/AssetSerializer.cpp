@@ -2,11 +2,11 @@
 
 #include "OutputFileStream.h"
 
-#include "graphics\ceasset\AssetTraits.h"
-#include "graphics\skeleton\Skeleton.h"
-#include "graphics\mesh\Mesh.h"
-#include "graphics\animation\Animation.h"
-#include "graphics\texture\Texture.h"
+#include "graphics/ceasset/AssetTraits.h"
+#include "graphics/skeleton/Skeleton.h"
+#include "graphics/mesh/Mesh.h"
+#include "graphics/animation/Animation.h"
+#include "graphics/texture/Texture.h"
 
 namespace CE
 {

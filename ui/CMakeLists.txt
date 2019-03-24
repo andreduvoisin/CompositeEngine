@@ -1,14 +1,42 @@
-include("${CMAKE_DIR}/CEF.cmake")
 
-set(UI_CEF_SUBPROCESS_SRC_DIR "${UI_SRC_DIR}/cef/subprocess")
-file(GLOB_RECURSE UI_CEF_SUBPROCESS_SRC_FILES "${UI_CEF_SUBPROCESS_SRC_DIR}/*.cpp" "${ENGINE_SRC_DIR}/*.manifest")
+if("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
+	set(COMPOSITE_CEF_SUBPROCESS_EXECUTABLE_ARGS MACOSX_BUNDLE)
+endif()
 
-add_executable(CompositeCefSubprocess ${UI_CEF_SUBPROCESS_SRC_FILES})
+# TODO: Is this needed?
+if(${CMAKE_GENERATOR} STREQUAL "Ninja" OR ${CMAKE_GENERATOR} STREQUAL "Unix Makefiles")
+	# By default Ninja and Make builds don't create a subdirectory named after
+	# the configuration.
+	set(CE_CEF_SUBPROCESS_TARGET_OUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}")
 
-include_directories(${UI_CEF_SUBPROCESS_SRC_DIR})
+	# Output binaries (executables, libraries) to the correct directory.
+	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CE_CEF_SUBPROCESS_TARGET_OUT_DIR})
+	set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CE_CEF_SUBPROCESS_TARGET_OUT_DIR})
+else()
+	set(CE_CEF_SUBPROCESS_TARGET_OUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>")
+endif()
 
-if(WIN32)
+add_executable(CompositeCefSubprocess ${COMPOSITE_CEF_SUBPROCESS_EXECUTABLE_ARGS} ${CEF_SUBPROCESS_SRC_FILES})
+
+target_link_libraries(CompositeCefSubprocess PRIVATE CEF)
+
+source_group(TREE ${CMAKE_SOURCE_DIR} FILES ${CEF_SUBPROCESS_SRC_FILES})
+
+include_directories(${CEF_SUBPROCESS_SRC_DIR})
+
+if(OS_WINDOWS)
 	target_compile_options(CompositeCefSubprocess PRIVATE /W3 /WX)
 endif()
 
-BootstrapCEF(CompositeCefSubprocess "ui")
+install(
+	TARGETS CompositeCefSubprocess
+	RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}"
+	BUNDLE DESTINATION "${CMAKE_INSTALL_PREFIX}"
+)
+if(OS_WINDOWS)
+	install(
+		FILES $<TARGET_PDB_FILE:CompositeCefSubprocess>
+		DESTINATION "${CMAKE_INSTALL_PREFIX}"
+		OPTIONAL
+	)
+endif()

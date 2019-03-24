@@ -1,16 +1,23 @@
+include(ExternalProject)
+
+cmake_policy(SET CMP0074 NEW)
+if(POLICY CMP0077)
+	cmake_policy(SET CMP0077 NEW)
+endif()
+
 # Specify the CEF distribution version.
-set(CEF_VERSION "3.3578.1860.g36610bd")
+set(CEF_VERSION "3.3538.1852.gcb937fc")
 
 # Determine the platform.
-if("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
+if(OS_MACOSX)
 	set(CEF_PLATFORM "macosx64")
-elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
+elseif(OS_LINUX)
 	if(CMAKE_SIZEOF_VOID_P MATCHES 8)
 		set(CEF_PLATFORM "linux64")
 	else()
 		set(CEF_PLATFORM "linux32")
 	endif()
-elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
+elseif(OS_WINDOWS)
 	if(CMAKE_SIZEOF_VOID_P MATCHES 8)
 		set(CEF_PLATFORM "windows64")
 	else()
@@ -18,69 +25,40 @@ elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
 	endif()
 endif()
 
-if(${CE_CONFIGURATION} STREQUAL "Debug")
+set(CEF_DISTRIBUTION "cef_binary_${CEF_VERSION}_${CEF_PLATFORM}")
+set(CEF_ROOT "${EXTERN_DIR}/${CEF_DISTRIBUTION}")
+
+if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
 	set(CEF_CONFIGURATION "Debug")
-elseif(${CE_CONFIGURATION} STREQUAL "Release")
+elseif(${CMAKE_BUILD_TYPE} STREQUAL "Release")
 	set(CEF_CONFIGURATION "Release")
 endif()
-
-# Reference: https://bitbucket.org/chromiumembedded/cef-project/src/master/cmake/DownloadCEF.cmake
-#
-# Download the CEF binary distribution for |CEF_PLATFORM| and |CEF_VERSION| to
-# |DOWNLOAD_DIR|. The |CEF_ROOT| variable will be set in global scope pointing
-# to the extracted location.
-# Visit http://opensource.spotify.com/cefbuilds/index.html for the list of
-# supported platforms and versions.
-function(DownloadCEF DOWNLOAD_DIR)
-	# Specify the binary distribution type and download directory.
-	set(CEF_DISTRIBUTION "cef_binary_${CEF_VERSION}_${CEF_PLATFORM}")
-	set(CEF_DOWNLOAD_DIR "${DOWNLOAD_DIR}")
-
-	# The location where we expect the extracted binary distribution.
-	set(CEF_ROOT "${CEF_DOWNLOAD_DIR}/${CEF_DISTRIBUTION}" CACHE INTERNAL "CEF_ROOT")
-
-	# Download and/or extract the binary distribution if necessary.
-	if(NOT IS_DIRECTORY "${CEF_ROOT}")
-		set(CEF_DOWNLOAD_FILENAME "${CEF_DISTRIBUTION}.tar.bz2")
-		set(CEF_DOWNLOAD_PATH "${CEF_DOWNLOAD_DIR}/${CEF_DOWNLOAD_FILENAME}")
-		if(NOT EXISTS "${CEF_DOWNLOAD_PATH}")
-			set(CEF_DOWNLOAD_URL "http://opensource.spotify.com/cefbuilds/${CEF_DOWNLOAD_FILENAME}")
-
-			# Download the SHA1 hash for the binary distribution.
-			message(STATUS "Downloading ${CEF_DOWNLOAD_PATH}.sha1...")
-			file(DOWNLOAD "${CEF_DOWNLOAD_URL}.sha1" "${CEF_DOWNLOAD_PATH}.sha1")
-			file(READ "${CEF_DOWNLOAD_PATH}.sha1" CEF_SHA1)
-
-			# Download the binary distribution and verify the hash.
-			message(STATUS "Downloading ${CEF_DOWNLOAD_PATH}...")
-			file(
-				DOWNLOAD "${CEF_DOWNLOAD_URL}" "${CEF_DOWNLOAD_PATH}"
-				EXPECTED_HASH SHA1=${CEF_SHA1}
-				SHOW_PROGRESS
-			)
-		endif()
-
-		# Extract the binary distribution.
-		message(STATUS "Extracting ${CEF_DOWNLOAD_PATH}...")
-		execute_process(
-			COMMAND ${CMAKE_COMMAND} -E tar xzf "${CEF_DOWNLOAD_DIR}/${CEF_DOWNLOAD_FILENAME}"
-			WORKING_DIRECTORY ${CEF_DOWNLOAD_DIR}
-		)
-	endif()
-endfunction(DownloadCEF)
 
 # CMake Reference:
 # https://bitbucket.org/chromiumembedded/cef-project/src/master/CMakeLists.txt
 # https://bitbucket.org/chromiumembedded/cef/src/master/CMakeLists.txt.in
-function(BuildCEF)
-	# Only generate Debug and Release configuration types.
-	set(CMAKE_CONFIGURATION_TYPES Debug Release)
+if(OS_WINDOWS)
+	set(BUILD_BYPRODUCTS
+		"${CEF_ROOT}/libcef_dll_wrapper/libcef_dll_wrapper.dll"
+		"${CEF_ROOT}/libcef_dll_wrapper/libcef_dll_wrapper.lib"
+		"${CEF_ROOT}/${CEF_CONFIGURATION}/libcef.lib"
+	)
+elseif(OS_MACOSX)
+	set(BUILD_BYPRODUCTS
+		"${CEF_ROOT}/libcef_dll_wrapper/libcef_dll_wrapper.a"
+		"${CEF_ROOT}/${CEF_CONFIGURATION}/Chromium Embedded Framework.framework"
+	)
+endif()
+	
+ExternalProject_Add(
+	CEFExternal
+	PREFIX ${CEF_DISTRIBUTION}
 
-	# Use folders in the resulting project files.
-	set_property(GLOBAL PROPERTY OS_FOLDERS ON)
+	DOWNLOAD_DIR ${EXTERN_DIR}
+	URL "http://opensource.spotify.com/cefbuilds/${CEF_DISTRIBUTION}.tar.bz2"
 
-	# Download and extract the CEF binary distribution.
-	DownloadCEF(${EXTERN_DIR})
+	SOURCE_DIR ${CEF_ROOT}
+	BINARY_DIR ${CEF_ROOT}
 
 	# Custom configuration for Composite Engine.
 	#
@@ -90,60 +68,60 @@ function(BuildCEF)
 	# Also, to maintain our sanity, we would like to avoid having to build Chromium and CEF.
 	#
 	# Sandbox Reference: https://magpcss.org/ceforum/viewtopic.php?f=6&t=15482
-	set(CEF_RUNTIME_LIBRARY_FLAG "/MD")
-	set(USE_SANDBOX OFF)
+	CMAKE_ARGS
+		-DCMAKE_MAKE_PROGRAM=ninja
+		-DCEF_RUNTIME_LIBRARY_FLAG=/MD
+		-DUSE_SANDBOX=OFF
 
-	# Add the CEF binary distribution's cmake/ directory to the module path.
-	set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CEF_ROOT}/cmake")
+	BUILD_COMMAND ninja
+	INSTALL_COMMAND ""
 
-	# Load the CEF configuration (executes FindCEF.cmake).
-	find_package(CEF REQUIRED)
+	BUILD_BYPRODUCTS ${BUILD_BYPRODUCTS}
+)
 
-	# Include the libcef_dll_wrapper target (executes libcef_dll/CMakeLists.txt).
-	add_subdirectory(${CEF_LIBCEF_DLL_WRAPPER_PATH} libcef_dll_wrapper)
+add_library(CEF INTERFACE)
+add_dependencies(CEF CEFExternal)
 
-	# Include CEF's test application targets (executes <target>/CMakeLists.txt).
-	#add_subdirectory(${CEF_ROOT}/tests/cefclient)
-	#add_subdirectory(${CEF_ROOT}/tests/cefsimple)
-	#add_subdirectory(${CEF_ROOT}/tests/gtest)
-	#add_subdirectory(${CEF_ROOT}/tests/ceftests)
+target_include_directories(CEF INTERFACE ${CEF_ROOT})
 
-	# Display configuration settings.
-	PRINT_CEF_CONFIG()
-endfunction(BuildCEF)
+# Reference: https://bitbucket.org/chromiumembedded/cef/wiki/LinkingDifferentRunTimeLibraries.md
+# Sandbox support (linking cef_sandbox.lib) is only possible when your application is built with the /MT flag.
+if(OS_WINDOWS)
+	set(LIBRARIES
+		"${CEF_ROOT}/libcef_dll_wrapper/libcef_dll_wrapper.lib"
+		"${CEF_ROOT}/${CEF_CONFIGURATION}/libcef.lib"
+	)
+	#set(LIBRARIES ${LIBRARIES} "${CEF_ROOT}/${CEF_CONFIGURATION}/cef_sandbox.lib")
+elseif(OS_MACOSX)
+	set(LIBRARIES
+		"${CEF_ROOT}/libcef_dll_wrapper/libcef_dll_wrapper.a"
+		"${CEF_ROOT}/${CEF_CONFIGURATION}/Chromium Embedded Framework.framework"
+	)
+	#set(LIBRARIES ${LIBRARIES} "${CEF_ROOT}/${CEF_CONFIGURATION}/cef_sandbox.a")
+endif()
 
-function(BootstrapCEF TARGET_NAME EXECUTABLE_SUBDIR)
-	IncludeCEF()
-	LinkCEF(${TARGET_NAME})
-	CopyCEFFiles(${EXECUTABLE_SUBDIR})
-endfunction(BootstrapCEF)
+target_link_libraries(CEF INTERFACE ${LIBRARIES})
 
-function(IncludeCEF)
-	include_directories(${CEF_ROOT})
-endfunction(IncludeCEF)
-
-function(LinkCEF TARGET_NAME)
-	target_link_libraries(${TARGET_NAME} "${PROJECT_BINARY_DIR}/extern/libcef_dll_wrapper/${CEF_CONFIGURATION}/libcef_dll_wrapper.lib")
-	target_link_libraries(${TARGET_NAME} "${CEF_ROOT}/${CEF_CONFIGURATION}/libcef.lib")
-
-	# Reference: https://bitbucket.org/chromiumembedded/cef/wiki/LinkingDifferentRunTimeLibraries.md
-	# Sandbox support (linking cef_sandbox.lib) is only possible when your application is built with the /MT flag.
-	#target_link_libraries(${TARGET_NAME} "${CEF_ROOT}/${CEF_CONFIGURATION}/cef_sandbox.lib")
-endfunction(LinkCEF)
-
-function(CopyCEFFiles EXECUTABLE_SUBDIR)
-	file(GLOB CEF_BINARY_FILES "${CEF_ROOT}/${CEF_CONFIGURATION}/*")
-	file(
-		COPY ${CEF_BINARY_FILES}
-		DESTINATION "${PROJECT_BINARY_DIR}/${EXECUTABLE_SUBDIR}/${CE_CONFIGURATION}"
+if(OS_WINDOWS)
+	# The trailing slashes are important.
+	# Reference: https://cmake.org/cmake/help/v3.12/command/install.html#installing-directories
+	# "The last component of each directory name is appended to the destination directory but
+	# a trailing slash may be used to avoid this because it leaves the last component empty."
+	install(
+		DIRECTORY "${CEF_ROOT}/${CEF_CONFIGURATION}/"
+		DESTINATION "${CMAKE_INSTALL_PREFIX}"
 		FILES_MATCHING
 			PATTERN "*.dll"
 			PATTERN "*.bin"
 	)
-
-	file(GLOB CEF_RESOURCE_FILES "${CEF_ROOT}/Resources/*")
-	file(
-		COPY ${CEF_RESOURCE_FILES}
-		DESTINATION "${PROJECT_BINARY_DIR}/${EXECUTABLE_SUBDIR}/${CE_CONFIGURATION}"
+	install(
+		DIRECTORY "${CEF_ROOT}/Resources/"
+		DESTINATION "${CMAKE_INSTALL_PREFIX}"
 	)
-endfunction(CopyCEFFiles)
+elseif(OS_MACOSX)
+	# TODO: This should use EXECUTABLE_SUBDIR?
+	install(
+		DIRECTORY "${CEF_ROOT}/${CEF_CONFIGURATION}/Chromium Embedded Framework.framework"
+		DESTINATION "${CMAKE_INSTALL_PREFIX}/CompositeEngine.app/Contents/Frameworks"
+	)
+endif()

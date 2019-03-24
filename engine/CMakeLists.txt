@@ -1,22 +1,79 @@
-include("${CMAKE_DIR}/OpenGL.cmake")
-include("${CMAKE_DIR}/SDL.cmake")
-include("${CMAKE_DIR}/GLEW.cmake")
-include("${CMAKE_DIR}/GLM.cmake")
-include("${CMAKE_DIR}/CEF.cmake")
-include("${CMAKE_DIR}/RapidJSON.cmake")
 
-add_executable(CompositeEngine ${ENGINE_SRC_FILES})
+if(OS_MACOSX)
+	set(COMPOSITE_ENGINE_EXECUTABLE_ARGS MACOSX_BUNDLE)
+endif()
+
+if(${CMAKE_GENERATOR} STREQUAL "Ninja" OR ${CMAKE_GENERATOR} STREQUAL "Unix Makefiles")
+	# By default Ninja and Make builds don't create a subdirectory named after
+	# the configuration.
+	set(CE_TARGET_OUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}")
+
+	# Output binaries (executables, libraries) to the correct directory.
+	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CE_TARGET_OUT_DIR})
+	set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CE_TARGET_OUT_DIR})
+else()
+	set(CE_TARGET_OUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>")
+endif()
+
+add_executable(CompositeEngine ${COMPOSITE_ENGINE_EXECUTABLE_ARGS} ${ENGINE_SRC_FILES})
+
+add_dependencies(
+	CompositeEngine
+		CompositeCefSubprocess
+)
+
+target_link_libraries(CompositeEngine PRIVATE CEF GLEW GLM OpenGL RapidJSON SDL)
+
+source_group(TREE ${CMAKE_SOURCE_DIR} FILES ${ENGINE_SRC_FILES})
 
 include_directories(${ENGINE_SRC_DIR})
 include_directories(${UI_SRC_DIR})
 
-if(WIN32)
+
+if(OS_WINDOWS)
 	target_compile_options(CompositeEngine PRIVATE /W3 /WX)
+elseif(OS_MACOSX)
+	# TODO: ONLY FOR DEBUG BUILDS
+	target_compile_options(CompositeEngine PRIVATE -g)
+
+	find_library(CORE_FOUNDATION_LIBRARY CoreFoundation)
+	target_link_libraries(CompositeEngine PRIVATE ${CORE_FOUNDATION_LIBRARY})
 endif()
 
-BootstrapOpenGL(CompositeEngine)
-BootstrapSDL(CompositeEngine "engine")
-BootstrapGLEW(CompositeEngine "engine")
-BootstrapGLM()
-BootstrapCEF(CompositeEngine "engine")
-BootstrapRapidJSON()
+install(
+	TARGETS CompositeEngine
+	RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}"
+	BUNDLE DESTINATION "${CMAKE_INSTALL_PREFIX}"
+)
+if(OS_WINDOWS)
+	install(
+		FILES $<TARGET_PDB_FILE:CompositeEngine>
+		DESTINATION "${CMAKE_INSTALL_PREFIX}"
+		OPTIONAL
+	)
+	install(
+		DIRECTORY "${CMAKE_SOURCE_DIR}/engine/graphics/shaders"
+		DESTINATION "${CMAKE_INSTALL_PREFIX}"
+		FILES_MATCHING
+			PATTERN "*.frag"
+			PATTERN "*.vert"
+	)
+	# TODO: This would be much better as a symlink, which CMake supports, but I can't get it to work.
+	install(
+		DIRECTORY "${CMAKE_SOURCE_DIR}/assets"
+		DESTINATION "${CMAKE_INSTALL_PREFIX}"
+	)
+elseif(OS_MACOSX)
+	install(
+		DIRECTORY "${CMAKE_SOURCE_DIR}/engine/graphics/shaders"
+		DESTINATION "${CMAKE_INSTALL_PREFIX}/CompositeEngine.app/Contents/Resources"
+		FILES_MATCHING
+			PATTERN "*.frag"
+			PATTERN "*.vert"
+	)
+	# TODO: This would be much better as a symlink, which CMake supports, but I can't get it to work.
+	install(
+		DIRECTORY "${CMAKE_SOURCE_DIR}/assets"
+		DESTINATION "${CMAKE_INSTALL_PREFIX}/CompositeEngine.app/Contents/Resources"
+	)
+endif()

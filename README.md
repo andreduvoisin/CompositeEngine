@@ -13,11 +13,30 @@ This repository requires [Git Large File Storage (Git LFS)](https://git-lfs.gith
 
 #### Windows
 
-* Install VS2017.
-	* VS2017: https://www.visualstudio.com/downloads/
-		* Include "Visual C++ tools for CMake" under "Desktop development with C++".
-	* If necessary, add MSBuild.exe to PATH.
-		* C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\MSBuild\15.0\Bin
+* Install [Visual Studio 2019](https://www.visualstudio.com/downloads/).
+	* Include `Desktop development with C++` and `Game development with C++`
+
+#### Mac
+
+* Install [CMake](https://cmake.org/download/).
+
+* Install [Ninja](https://ninja-build.org).
+
+* Install Xcode. Then:
+
+```sh
+# Install the command line tools.
+xcode-select --install
+
+# Switch to Xcode's command line tools.
+sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
+```
+
+#### Visual Studio Code
+
+* Install the [C/C++ Extension from Microsoft](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools).
+
+* On Windows, open with Developer Command Prompt.
 
 #### All Platforms
 
@@ -26,11 +45,13 @@ This repository requires [Git Large File Storage (Git LFS)](https://git-lfs.gith
 ### Dependencies
 
 * SDL: https://www.libsdl.org/
-	* 2.0.5: https://www.libsdl.org/download-2.0.php
+	* Version in SDL.cmake
+	* Versions: https://www.libsdl.org/download-2.0.php
 	* Reference: http://wiki.libsdl.org/FrontPage
 
 * GLEW: http://glew.sourceforge.net/
-	* 2.1.0: https://sourceforge.net/projects/glew/files/glew/2.1.0/
+	* Version in GLEW.cmake
+	* Repository: https://github.com/nigels-com/glew
 	* Reference: See Above (sidebar)
 
 * GLM: https://glm.g-truc.net/
@@ -38,7 +59,7 @@ This repository requires [Git Large File Storage (Git LFS)](https://git-lfs.gith
 	* Reference: See Above (sidebar)
 
 * FBX SDK: https://www.autodesk.com/products/fbx/overview
-	* 2018.1.1: http://usa.autodesk.com/adsk/servlet/pc/item?siteID=123112&id=26416130
+	* 2018.1.1: https://www.autodesk.com/developer-network/platform-technologies/fbx-sdk-2018-1-1
 	* Reference: http://help.autodesk.com/view/FBX/2018/ENU/
 
 * stb_image: https://github.com/nothings/stb
