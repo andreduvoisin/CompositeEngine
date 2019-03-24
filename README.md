@@ -6,7 +6,7 @@
 
 This repository requires [Git Large File Storage (Git LFS)](https://git-lfs.github.com/).
 
-* Install Git LFS: https://git-lfs.github.com/
+* Install [Git LFS](https://git-lfs.github.com/).
 	* This must be done once for your machine.
 * Run `git lfs install` in the repository directory.
 	* This must be done once per repository clone.
