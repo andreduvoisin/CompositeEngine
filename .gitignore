@@ -1,6 +1,6 @@
 # .gitignore
 
-# macOS
+# Mac OS X
 .DS_Store
 
 # Build Folder
@@ -19,6 +19,9 @@ install/
 
 # Intellij Idea
 .idea
+
+# VIM (crashes)
+vim.exe.stackdump
 
 # Shader Generated Header Files
 src/shaders/*.h
