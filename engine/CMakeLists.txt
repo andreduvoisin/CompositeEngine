@@ -32,6 +32,8 @@ include_directories(${UI_SRC_DIR})
 
 if(OS_WINDOWS)
 	target_compile_options(CompositeEngine PRIVATE /W3 /WX)
+
+	target_link_libraries(CompositeEngine PRIVATE ws2_32)
 elseif(OS_MACOSX)
 	# TODO: ONLY FOR DEBUG BUILDS
 	target_compile_options(CompositeEngine PRIVATE -g)
@@ -76,8 +78,4 @@ elseif(OS_MACOSX)
 		DIRECTORY "${CMAKE_SOURCE_DIR}/assets"
 		DESTINATION "${CMAKE_INSTALL_PREFIX}/CompositeEngine.app/Contents/Resources"
 	)
-endif()
-
-if(WIN32)
-	target_link_libraries(CompositeEngine ws2_32)
 endif()

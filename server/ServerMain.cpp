@@ -31,7 +31,7 @@ void main()
 		printf("socket failed: %d\n", WSAGetLastError());
 		return;
 	}
-	printf("socket is: %llu\n", sock);
+	printf("socket is: %u\n", sock);
 
 
 	SOCKADDR_IN local_address;
