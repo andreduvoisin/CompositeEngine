@@ -28,10 +28,10 @@ file(GLOB_RECURSE ENGINE_SRC_FILES
 	"${ENGINE_SRC_DIR}/*.cpp"
 	"${UI_SRC_DIR}/cef/browser/*.cpp"
 	"${UI_SRC_DIR}/cef/client/*.cpp"
-	"${ENGINE_SRC_DIR}/*.manifest")
+	"${ENGINE_SRC_DIR}/CompositeEngine.manifest")
 file(GLOB_RECURSE CEF_SUBPROCESS_SRC_FILES
 	"${CEF_SUBPROCESS_SRC_DIR}/*.cpp"
-	"${UI_SRC_DIR}/*.manifest")
+	"${UI_SRC_DIR}/CompositeCefSubprocess.manifest")
 file(GLOB_RECURSE ASSET_CONVERTER_SRC_FILES
 	"${ASSET_CONVERTER_SRC_DIR}/*.cpp"
 	"${ENGINE_SRC_DIR}/common/Math.cpp"
