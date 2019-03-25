@@ -5,26 +5,44 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Launch Composite Engine (Windows)",
-            "type": "cppvsdbg",
+            "name": "Composite Engine (Debug)",
+            "type": "cppdbg", // This must exist to appease VS Code even though it gets overwritten in the per-OS config.
             "request": "launch",
-            "program": "${workspaceFolder}/install/CompositeEngine.exe",
-            "cwd": "${workspaceFolder}/install",
             "externalConsole": false,
             "stopAtEntry": false,
-            "preLaunchTask": "Build Composite Engine"
+            "preLaunchTask": "Build and Install (Debug)",
+            "windows": {
+                "type": "cppvsdbg",
+                "program": "${workspaceFolder}/install/Debug/CompositeEngine.exe",
+                "cwd": "${workspaceFolder}/install/Debug",
+            },
+            "osx": {
+                "type": "cppdbg",
+                "program": "${workspaceFolder}/install/Debug/CompositeEngine.app/Contents/MacOS/CompositeEngine",
+                "cwd": "${workspaceFolder}/install/Debug/CompositeEngine.app/Contents/MacOS",
+                "MIMode": "lldb",
+                "miDebuggerPath": "/Applications/Xcode.app/Contents/Developer/usr/bin/lldb-mi",
+            }
         },
         {
-            "name": "Launch Composite Engine (Mac)",
-            "type": "cppdbg",
+            "name": "Composite Engine (Release)",
+            "type": "cppdbg", // This must exist to appease VS Code even though it gets overwritten in the per-OS config.
             "request": "launch",
-            "program": "${workspaceFolder}/install/CompositeEngine.app/Contents/MacOS/CompositeEngine",
-            "cwd": "${workspaceFolder}/install/CompositeEngine.app/Contents/MacOS",
-            "MIMode": "lldb",
-            "miDebuggerPath": "/Applications/Xcode.app/Contents/Developer/usr/bin/lldb-mi",
             "externalConsole": false,
             "stopAtEntry": false,
-            "preLaunchTask": "Build Composite Engine"
+            "preLaunchTask": "Build and Install (Release)",
+            "windows": {
+                "type": "cppvsdbg",
+                "program": "${workspaceFolder}/install/Release/CompositeEngine.exe",
+                "cwd": "${workspaceFolder}/install/Release",
+            },
+            "osx": {
+                "type": "cppdbg",
+                "program": "${workspaceFolder}/install/Release/CompositeEngine.app/Contents/MacOS/CompositeEngine",
+                "cwd": "${workspaceFolder}/install/Release/CompositeEngine.app/Contents/MacOS",
+                "MIMode": "lldb",
+                "miDebuggerPath": "/Applications/Xcode.app/Contents/Developer/usr/bin/lldb-mi",
+            }
         }
     ]
 }

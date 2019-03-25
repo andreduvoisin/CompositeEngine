@@ -36,7 +36,7 @@ sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
 
 * Install the [C/C++ Extension from Microsoft](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools).
 
-* On Windows, open with Developer Command Prompt.
+* On Windows, open with `x64 Native Tools Command Prompt`.
 
 #### All Platforms
 

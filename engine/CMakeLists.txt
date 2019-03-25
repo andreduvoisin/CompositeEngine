@@ -1,34 +1,13 @@
 
-if(OS_MACOSX)
-	set(COMPOSITE_ENGINE_EXECUTABLE_ARGS MACOSX_BUNDLE)
-endif()
-
-if(${CMAKE_GENERATOR} STREQUAL "Ninja" OR ${CMAKE_GENERATOR} STREQUAL "Unix Makefiles")
-	# By default Ninja and Make builds don't create a subdirectory named after
-	# the configuration.
-	set(CE_TARGET_OUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}")
-
-	# Output binaries (executables, libraries) to the correct directory.
-	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CE_TARGET_OUT_DIR})
-	set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CE_TARGET_OUT_DIR})
-else()
-	set(CE_TARGET_OUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>")
-endif()
-
-add_executable(CompositeEngine ${COMPOSITE_ENGINE_EXECUTABLE_ARGS} ${ENGINE_SRC_FILES})
-
-add_dependencies(
-	CompositeEngine
-		CompositeCefSubprocess
-)
-
-target_link_libraries(CompositeEngine PRIVATE CEF GLEW GLM OpenGL RapidJSON SDL)
+add_executable(CompositeEngine MACOSX_BUNDLE ${ENGINE_SRC_FILES})
 
 source_group(TREE ${CMAKE_SOURCE_DIR} FILES ${ENGINE_SRC_FILES})
 
-include_directories(${ENGINE_SRC_DIR})
-include_directories(${UI_SRC_DIR})
+add_dependencies(CompositeEngine CompositeCefSubprocess)
 
+target_link_libraries(CompositeEngine PRIVATE CEF GLEW GLM OpenGL RapidJSON SDL)
+
+target_include_directories(CompositeEngine PRIVATE ${ENGINE_SRC_DIR} ${UI_SRC_DIR})
 
 if(OS_WINDOWS)
 	target_compile_options(CompositeEngine PRIVATE /W3 /WX)

@@ -70,6 +70,7 @@ ExternalProject_Add(
 	# Sandbox Reference: https://magpcss.org/ceforum/viewtopic.php?f=6&t=15482
 	CMAKE_ARGS
 		-DCMAKE_MAKE_PROGRAM=ninja
+		-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
 		-DCEF_RUNTIME_LIBRARY_FLAG=/MD
 		-DUSE_SANDBOX=OFF
 
