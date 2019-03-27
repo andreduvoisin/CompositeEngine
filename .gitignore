@@ -23,11 +23,11 @@ install/
 # VIM (crashes)
 vim.exe.stackdump
 
-# Shader Generated Header Files
-src/shaders/*.h
-
 # Extracted FBX Media
 *.fbm
+
+# CMake Temporary Download Directories
+extern/ex-*/
 
 # SDL
 extern/SDL2-*/
