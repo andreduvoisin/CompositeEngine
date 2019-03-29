@@ -22,5 +22,4 @@ ExternalProject_Add(
 
 add_library(RapidJSON INTERFACE)
 add_dependencies(RapidJSON RapidJSONExternal)
-
 target_include_directories(RapidJSON INTERFACE "${RAPIDJSON_ROOT_DIR}/include")

@@ -21,5 +21,4 @@ ExternalProject_Add(
 
 add_library(GLM INTERFACE)
 add_dependencies(GLM GLMExternal)
-
 target_include_directories(GLM INTERFACE "${GLM_ROOT_DIR}")

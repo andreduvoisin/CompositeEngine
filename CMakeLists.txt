@@ -2,15 +2,14 @@ cmake_minimum_required(VERSION 3.13.0)
 
 project(CompositeEngine)
 
-# Determine the platform.
-if("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
-	set(OS_MACOSX 1)
-	set(OS_POSIX 1)
-elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
-	set(OS_LINUX 1)
-	set(OS_POSIX 1)
-elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
+if(NOT CMAKE_SIZEOF_VOID_P MATCHES 8)
+	message(FATAL_ERROR "Composite Engine only supports 64-bit builds.")
+endif()
+
+if("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
 	set(OS_WINDOWS 1)
+elseif("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
+	set(OS_MACOSX 1)
 endif()
 
 set(CMAKE_CXX_STANDARD 17)

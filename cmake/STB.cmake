@@ -24,5 +24,4 @@ ExternalProject_Add(
 
 add_library(STB INTERFACE)
 add_dependencies(STB STBExternal)
-
 target_include_directories(STB INTERFACE "${STB_ROOT_DIR}")
