@@ -4,27 +4,18 @@ add_executable(CompositeEngine MACOSX_BUNDLE ${ENGINE_SRC_FILES})
 source_group(TREE ${CMAKE_SOURCE_DIR} FILES ${ENGINE_SRC_FILES})
 
 add_dependencies(CompositeEngine CompositeCefSubprocess)
-
 target_link_libraries(CompositeEngine PRIVATE CEF GLEW GLM OpenGL RapidJSON SDL)
-
 target_include_directories(CompositeEngine PRIVATE ${ENGINE_SRC_DIR} ${UI_SRC_DIR})
-
-if(OS_WINDOWS)
-	target_compile_options(CompositeEngine PRIVATE /W3 /WX)
-elseif(OS_MACOSX)
-	# TODO: ONLY FOR DEBUG BUILDS
-	target_compile_options(CompositeEngine PRIVATE -g)
-
-	find_library(CORE_FOUNDATION_LIBRARY CoreFoundation)
-	target_link_libraries(CompositeEngine PRIVATE ${CORE_FOUNDATION_LIBRARY})
-endif()
 
 install(
 	TARGETS CompositeEngine
 	RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}"
 	BUNDLE DESTINATION "${CMAKE_INSTALL_PREFIX}"
 )
+
 if(OS_WINDOWS)
+	target_compile_options(CompositeEngine PRIVATE /W3 /WX)
+	
 	install(
 		FILES $<TARGET_PDB_FILE:CompositeEngine>
 		DESTINATION "${CMAKE_INSTALL_PREFIX}"
@@ -42,7 +33,15 @@ if(OS_WINDOWS)
 		DIRECTORY "${CMAKE_SOURCE_DIR}/assets"
 		DESTINATION "${CMAKE_INSTALL_PREFIX}"
 	)
-elseif(OS_MACOSX)
+endif()
+
+if(OS_MACOSX)
+	# TODO: ONLY FOR DEBUG BUILDS
+	target_compile_options(CompositeEngine PRIVATE -g)
+
+	find_library(CORE_FOUNDATION_LIBRARY CoreFoundation)
+	target_link_libraries(CompositeEngine PRIVATE ${CORE_FOUNDATION_LIBRARY})
+	
 	install(
 		DIRECTORY "${CMAKE_SOURCE_DIR}/engine/graphics/shaders"
 		DESTINATION "${CMAKE_INSTALL_PREFIX}/CompositeEngine.app/Contents/Resources"
