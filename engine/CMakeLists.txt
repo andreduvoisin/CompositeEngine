@@ -16,11 +16,13 @@ install(
 if(OS_WINDOWS)
 	target_compile_options(CompositeEngine PRIVATE /W3 /WX)
 	
+	# TODO: ONLY FOR DEBUG BUILDS
 	install(
 		FILES $<TARGET_PDB_FILE:CompositeEngine>
 		DESTINATION "${CMAKE_INSTALL_PREFIX}"
 		OPTIONAL
 	)
+	
 	install(
 		DIRECTORY "${CMAKE_SOURCE_DIR}/engine/graphics/shaders"
 		DESTINATION "${CMAKE_INSTALL_PREFIX}"
