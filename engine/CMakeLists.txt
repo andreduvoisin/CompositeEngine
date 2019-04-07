@@ -43,6 +43,11 @@ if(OS_MACOSX)
 
 	find_library(CORE_FOUNDATION_LIBRARY CoreFoundation)
 	target_link_libraries(CompositeEngine PRIVATE ${CORE_FOUNDATION_LIBRARY})
+
+	set_target_properties(CompositeEngine
+		PROPERTIES
+			MACOSX_BUNDLE_GUI_IDENTIFIER
+			"com.composite.engine")
 	
 	install(
 		DIRECTORY "${CMAKE_SOURCE_DIR}/engine/graphics/shaders"

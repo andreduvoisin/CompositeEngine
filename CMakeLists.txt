@@ -27,6 +27,7 @@ file(GLOB_RECURSE ENGINE_SRC_FILES
 	"${ENGINE_SRC_DIR}/*.cpp"
 	"${UI_SRC_DIR}/cef/browser/*.cpp"
 	"${UI_SRC_DIR}/cef/client/*.cpp"
+	"${UI_SRC_DIR}/cef/*.mm"
 	"${ENGINE_SRC_DIR}/CompositeEngine.manifest")
 file(GLOB_RECURSE CEF_SUBPROCESS_SRC_FILES
 	"${CEF_SUBPROCESS_SRC_DIR}/*.cpp"

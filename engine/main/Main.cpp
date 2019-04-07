@@ -34,7 +34,6 @@
 #include "event/SetRenderModeEvent.h"
 #include "core/Camera.h"
 
-#ifdef _WIN32
 #include "include/cef_app.h"
 #include "cef/client/UIClient.h"
 #include "cef/client/UIRenderHandler.h"
@@ -46,10 +45,13 @@
 #include "cef/browser/UIQueryResponder.h"
 #include "cef/browser/UIExternalMessagePump.h"
 #include "include/wrapper/cef_message_router.h"
-#endif
 
 #ifdef __APPLE__
-#include "CoreFoundation/CoreFoundation.h"
+#include <CoreFoundation/CoreFoundation.h>
+
+#include "cef/WindowContentView.h"
+
+#include "include/wrapper/cef_library_loader.h"
 #endif
 
 const int SCREEN_WIDTH = 1280;
@@ -105,12 +107,10 @@ CE::AssetImporter* g_assetImporter;
 std::vector<CE::MeshComponent*> g_meshComponents;
 std::vector<CE::AnimationComponent*> g_animationComponents;
 
-#ifdef _WIN32
 CefRefPtr<UIClient> g_uiClient;
 CefRefPtr<CefBrowser> g_browser;
 UIQueryHandler* queryHandler;
 UIExternalMessagePump* externalMessagePump;
-#endif
 
 EventSystem* eventSystem;
 CE::Engine* engine;
@@ -385,7 +385,6 @@ void RenderGrid(const glm::mat4& projectionViewModel)
 
 void RenderUI()
 {
-#ifdef _WIN32
 	glUseProgram(g_programID4);
 
 	struct UIVertex
@@ -459,7 +458,6 @@ void RenderUI()
 
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
-#endif
 }
 
 void Render()
@@ -518,6 +516,8 @@ std::string ReadFile(const char *file)
 	fileTitle = fileName.substr(0, dotPos);
 	fileExtension = fileName.substr(dotPos + 1);
 
+	// TODO: Free? See https://developer.apple.com/library/archive/documentation/CoreFoundation/Conceptual/CFMemoryMgmt/Concepts/Ownership.html#//apple_ref/doc/uid/20001148-103029
+	// Also do this where this logic is copy/pasted.
 	CFStringRef fileTitleStringRef = CFStringCreateWithCStringNoCopy(NULL, fileTitle.c_str(), kCFStringEncodingASCII, kCFAllocatorNull);
 	CFStringRef fileExtensionStringRef = CFStringCreateWithCStringNoCopy(NULL, fileExtension.c_str(), kCFStringEncodingASCII, kCFAllocatorNull);
 	CFStringRef directoryNameStringRef = directoryName.empty() ? NULL : CFStringCreateWithCStringNoCopy(NULL, directoryName.c_str(), kCFStringEncodingASCII, kCFAllocatorNull);
@@ -837,20 +837,47 @@ bool InitializeOpenGL()
 	return true;
 }
 
-bool StartCef()
+bool StartCef(int argc, char* argv[])
 {
+#ifdef __APPLE__
+	CefScopedLibraryLoader libraryLoader;
+	if (!libraryLoader.LoadInMain())
+	{
+		printf("CEF failed to load framework in engine.\n");
+		return false;
+	}
+#endif
+
+	CefMainArgs main_args;
 #ifdef _WIN32
-	CefMainArgs main_args(::GetModuleHandle(NULL));
+	main_args = CefMainArgs(::GetModuleHandle(NULL));
+#elif __APPLE__
+	main_args = CefMainArgs(argc, argv);
+#endif
 
 	externalMessagePump = new UIExternalMessagePump();
 	CefRefPtr<UIBrowserProcessHandler> browserProcessHandler = new UIBrowserProcessHandler(externalMessagePump);
 	CefRefPtr<UIAppBrowser> app = new UIAppBrowser(browserProcessHandler);
 
 	CefSettings settings;
+	settings.no_sandbox = true;
 	settings.external_message_pump = true;
 	settings.windowless_rendering_enabled = true;
 	settings.remote_debugging_port = 3469;
+#ifdef _WIN32
 	CefString(&settings.browser_subprocess_path).FromASCII("CompositeCefSubprocess.exe");
+#elif __APPLE__
+	CFBundleRef mainBundle = CFBundleGetMainBundle();
+	// TODO: Free? See https://developer.apple.com/library/archive/documentation/CoreFoundation/Conceptual/CFMemoryMgmt/Concepts/Ownership.html#//apple_ref/doc/uid/20001148-103029
+	CFURLRef privateFrameworksUrl = CFBundleCopyPrivateFrameworksURL(mainBundle);
+	UInt8 privateFrameworksDirectoryName[1024];
+	CFURLGetFileSystemRepresentation(privateFrameworksUrl, true, privateFrameworksDirectoryName, 1024);
+
+	std::string subprocessFile = (char*) privateFrameworksDirectoryName;
+	subprocessFile += "/CompositeCefSubprocess.app/Contents/MacOS/CompositeCefSubprocess";
+	CefString(&settings.browser_subprocess_path).FromString(subprocessFile);
+#endif
+
 	if (!CefInitialize(main_args, settings, app, NULL))
 	{
 		printf("CEF failed to initialize.\n");
@@ -883,7 +910,12 @@ bool StartCef()
 
 	CefBrowserSettings browserSettings;
 	CefWindowInfo windowInfo;
+#ifdef _WIN32
 	windowInfo.SetAsWindowless(sysInfo.info.win.window);
+#elif __APPLE__
+	NSView* view = (NSView*) CE::GetWindowContentView(sysInfo.info.cocoa.window);
+	windowInfo.SetAsWindowless(view);
+#endif
 
 	g_browser = CefBrowserHost::CreateBrowserSync(
 		windowInfo,
@@ -891,8 +923,7 @@ bool StartCef()
 		"http://localhost:3000", // "about:blank"
 		browserSettings,
 		nullptr);
-#endif
-
+	
 	return true;
 }
 
@@ -1050,7 +1081,7 @@ void WindowsMessageHook(
 }
 #endif
 
-bool Initialize()
+bool Initialize(int argc, char* argv[])
 {
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) < 0)
 	{
@@ -1119,9 +1150,7 @@ bool Initialize()
 	eventSystem = new EventSystem();
 	engine = new CE::Engine(eventSystem);
 	
-#ifdef _WIN32
 	queryHandler = new UIQueryHandler(eventSystem, new UIQueryResponder(eventSystem));
-#endif
 
 	g_fpsCounter = new CE::FpsCounter(eventSystem);
 
@@ -1160,7 +1189,7 @@ bool Initialize()
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	if (!StartCef())
+	if (!StartCef(argc, argv))
 	{
 		printf("CEF failed to start!\n");
 		return false;
@@ -1171,7 +1200,6 @@ bool Initialize()
 
 void StopCef()
 {
-#ifdef _WIN32
 	externalMessagePump->Shutdown();
 
 	g_browser->GetHost()->CloseBrowser(true);
@@ -1180,7 +1208,6 @@ void StopCef()
 	g_uiClient = nullptr;
 
 	CefShutdown();
-#endif
 }
 
 void Destroy()
@@ -1343,10 +1370,10 @@ int main(int argc, char* argv[])
 {
 	CE_SET_MAIN_THREAD();
 
-	if (!Initialize())
+	if (!Initialize(argc, argv))
 	{
 		printf("Failed to initialize.\n");
-		return -1;
+		return 1;
 	}
 
 	uint64_t currentTicks = SDL_GetPerformanceCounter();
@@ -1370,9 +1397,7 @@ int main(int argc, char* argv[])
 
 		while (SDL_PollEvent(&event) != 0)
 		{
-#ifdef _WIN32
 			externalMessagePump->ProcessEvent(event);
-#endif
 
 			// TODO: Haven't done focus events for Cef (see CefBrowserHost). Do I need these?
 			switch (event.type)

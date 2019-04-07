@@ -5,7 +5,7 @@ if(POLICY CMP0077)
 	cmake_policy(SET CMP0077 NEW)
 endif()
 
-set(CEF_VERSION "3.3538.1852.gcb937fc")
+set(CEF_VERSION "3.3683.1920.g9f41a27")
 
 if(OS_WINDOWS)
 	set(CEF_PLATFORM "windows64")
@@ -49,15 +49,17 @@ if(OS_MACOSX)
 		"${CEF_ROOT}/libcef_dll_wrapper/libcef_dll_wrapper.a"
 		"${CEF_ROOT}/${CMAKE_BUILD_TYPE}/Chromium Embedded Framework.framework")
 	
-	set(LIBRARIES
-		"${CEF_ROOT}/libcef_dll_wrapper/libcef_dll_wrapper.a"
-		"${CEF_ROOT}/${CMAKE_BUILD_TYPE}/Chromium Embedded Framework.framework")
+	set(LIBRARIES "${CEF_ROOT}/libcef_dll_wrapper/libcef_dll_wrapper.a")
 	#set(LIBRARIES ${LIBRARIES} "${CEF_ROOT}/${CMAKE_BUILD_TYPE}/cef_sandbox.a")
 	
 	# TODO: This should use EXECUTABLE_SUBDIR?
 	install(
 		DIRECTORY "${CEF_ROOT}/${CMAKE_BUILD_TYPE}/Chromium Embedded Framework.framework"
 		DESTINATION "${CMAKE_INSTALL_PREFIX}/CompositeEngine.app/Contents/Frameworks")
+	# TODO: Shouldn't be including this framework twice...
+	install(
+		DIRECTORY "${CEF_ROOT}/${CMAKE_BUILD_TYPE}/Chromium Embedded Framework.framework"
+		DESTINATION "${CMAKE_INSTALL_PREFIX}/CompositeEngine.app/Contents/Frameworks/CompositeCefSubprocess.app/Contents/Frameworks")
 endif()
 	
 ExternalProject_Add(
