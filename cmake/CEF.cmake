@@ -21,7 +21,7 @@ endif()
 set(CEF_DISTRIBUTION "cef_binary_${CEF_VERSION}_${CEF_PLATFORM}")
 set(CEF_ROOT "${EXTERN_DIR}/${CEF_DISTRIBUTION}")
 
-# The CEF build server requires the URL to be encoded, returning a 403 otherwise.
+# The CEF build server requires the URL to be encoded, returning a 403 Forbidden otherwise.
 set(CEF_URL "http://opensource.spotify.com/cefbuilds/${CEF_DISTRIBUTION}.tar.bz2")
 string(REPLACE "+" "%2B" CEF_ENCODED_URL ${CEF_URL})
 
