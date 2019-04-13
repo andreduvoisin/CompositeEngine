@@ -5,7 +5,13 @@ if(POLICY CMP0077)
 	cmake_policy(SET CMP0077 NEW)
 endif()
 
-set(CEF_VERSION "73.1.12+gee4b49f+chromium-73.0.3683.75")
+# Off-screen rendering on CEF builds using Chromium 73 are currently broken.
+# References:
+# 	https://magpcss.org/ceforum/viewtopic.php?f=6&t=16608
+# 	https://magpcss.org/ceforum/viewtopic.php?f=6&t=16675
+# 	https://bitbucket.org/chromiumembedded/cef/issues/2618
+# This may be fixed once PR #222 solving issue 2618 (above) is merged.
+set(CEF_VERSION "3.3626.1895.g7001d56")
 
 if(OS_WINDOWS)
 	set(CEF_PLATFORM "windows64")
