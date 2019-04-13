@@ -5,7 +5,7 @@ if(POLICY CMP0077)
 	cmake_policy(SET CMP0077 NEW)
 endif()
 
-set(CEF_VERSION "3.3683.1920.g9f41a27")
+set(CEF_VERSION "73.1.12+gee4b49f+chromium-73.0.3683.75")
 
 if(OS_WINDOWS)
 	set(CEF_PLATFORM "windows64")
@@ -14,6 +14,10 @@ elseif(OS_MACOSX)
 endif()
 set(CEF_DISTRIBUTION "cef_binary_${CEF_VERSION}_${CEF_PLATFORM}")
 set(CEF_ROOT "${EXTERN_DIR}/${CEF_DISTRIBUTION}")
+
+# The CEF build server requires the URL to be encoded, returning a 403 otherwise.
+set(CEF_URL "http://opensource.spotify.com/cefbuilds/${CEF_DISTRIBUTION}.tar.bz2")
+string(REPLACE "+" "%2B" CEF_ENCODED_URL ${CEF_URL})
 
 # CMake Reference:
 # https://bitbucket.org/chromiumembedded/cef-project/src/master/CMakeLists.txt
@@ -67,7 +71,7 @@ ExternalProject_Add(
 	PREFIX ${CEF_DISTRIBUTION}
 
 	DOWNLOAD_DIR ${EXTERN_DIR}
-	URL "http://opensource.spotify.com/cefbuilds/${CEF_DISTRIBUTION}.tar.bz2"
+	URL ${CEF_ENCODED_URL}
 
 	SOURCE_DIR ${CEF_ROOT}
 	BINARY_DIR ${CEF_ROOT}
