@@ -5,7 +5,7 @@ if(POLICY CMP0077)
 	cmake_policy(SET CMP0077 NEW)
 endif()
 
-# Off-screen rendering on CEF builds using Chromium 73 are currently broken.
+# Off-screen rendering on CEF builds using Chromium 73 are currently broken (at least on Mac).
 # References:
 # 	https://magpcss.org/ceforum/viewtopic.php?f=6&t=16608
 # 	https://magpcss.org/ceforum/viewtopic.php?f=6&t=16675
