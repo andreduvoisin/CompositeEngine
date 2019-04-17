@@ -927,9 +927,9 @@ bool StartCef(int argc, char* argv[])
 	return true;
 }
 
+#ifdef _WIN32
 void ToggleDevToolsWindow()
 {
-#ifdef _WIN32
 	if (g_browser->GetHost()->HasDevTools())
 	{
 		g_browser->GetHost()->CloseDevTools();
@@ -948,8 +948,8 @@ void ToggleDevToolsWindow()
 		windowInfo.SetAsPopup(sysInfo.info.win.window, "DevTools");
 		g_browser->GetHost()->ShowDevTools(windowInfo, g_uiClient, browserSettings, CefPoint(0, 0));
 	}
-#endif
 }
+#endif
 
 #ifdef _WIN32
 // util_win.cc
@@ -1282,7 +1282,6 @@ void Destroy()
 }
 
 // osr_window_win.cc
-#ifdef _WIN32
 unsigned GetSdlCefInputModifiers(const SDL_Event& event)
 {
 	unsigned modifiers = 0;
@@ -1510,7 +1509,6 @@ unsigned GetSdlCefInputModifiers(const SDL_Event& event)
 
 	return modifiers;
 }
-#endif
 
 int main(int argc, char* argv[])
 {
@@ -1595,19 +1593,19 @@ int main(int argc, char* argv[])
 							g_camera->MoveRight(1000 * CE::RealTimeClock::Get().GetDeltaSeconds());
 							break;
 						}
-
+#ifdef _WIN32
 						case SDLK_F11:
 						case SDLK_F12:
 						{
 							ToggleDevToolsWindow();
 							break;
 						}
+#endif
 					}
 
 					break;
 				}
 
-#ifdef _WIN32
 				// osr_window_win.cc
 				case SDL_MOUSEMOTION:
 				{
@@ -1714,7 +1712,6 @@ int main(int argc, char* argv[])
 
 					break;
 				}
-#endif
 			}
 		}
 
