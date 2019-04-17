@@ -952,97 +952,153 @@ void ToggleDevToolsWindow()
 }
 
 #ifdef _WIN32
-bool IsKeyDown(WPARAM wparam) {
-	return (GetKeyState((int)wparam) & 0x8000) != 0;
+// util_win.cc
+bool IsKeyDown(WPARAM wparam)
+{
+	return (::GetKeyState(static_cast<int>(wparam)) & 0x8000) != 0;
 }
 
-// TODO: Either convert this to SDL or convert GetCefMouseModifiers to native.
-int GetCefKeyboardModifiers(WPARAM wparam, LPARAM lparam) {
+// util_win.cc
+int GetCefKeyboardModifiers(WPARAM wparam, LPARAM lparam)
+{
 	int modifiers = 0;
+
 	if (IsKeyDown(VK_SHIFT))
+	{
 		modifiers |= EVENTFLAG_SHIFT_DOWN;
+	}
 	if (IsKeyDown(VK_CONTROL))
+	{
 		modifiers |= EVENTFLAG_CONTROL_DOWN;
+	}
 	if (IsKeyDown(VK_MENU))
+	{
 		modifiers |= EVENTFLAG_ALT_DOWN;
+	}
 
 	// Low bit set from GetKeyState indicates "toggled".
 	if (::GetKeyState(VK_NUMLOCK) & 1)
+	{
 		modifiers |= EVENTFLAG_NUM_LOCK_ON;
-	if (::GetKeyState(VK_CAPITAL) & 1)
-		modifiers |= EVENTFLAG_CAPS_LOCK_ON;
-
-	switch (wparam) {
-	case VK_RETURN:
-		if ((lparam >> 16) & KF_EXTENDED)
-			modifiers |= EVENTFLAG_IS_KEY_PAD;
-		break;
-	case VK_INSERT:
-	case VK_DELETE:
-	case VK_HOME:
-	case VK_END:
-	case VK_PRIOR:
-	case VK_NEXT:
-	case VK_UP:
-	case VK_DOWN:
-	case VK_LEFT:
-	case VK_RIGHT:
-		if (!((lparam >> 16) & KF_EXTENDED))
-			modifiers |= EVENTFLAG_IS_KEY_PAD;
-		break;
-	case VK_NUMLOCK:
-	case VK_NUMPAD0:
-	case VK_NUMPAD1:
-	case VK_NUMPAD2:
-	case VK_NUMPAD3:
-	case VK_NUMPAD4:
-	case VK_NUMPAD5:
-	case VK_NUMPAD6:
-	case VK_NUMPAD7:
-	case VK_NUMPAD8:
-	case VK_NUMPAD9:
-	case VK_DIVIDE:
-	case VK_MULTIPLY:
-	case VK_SUBTRACT:
-	case VK_ADD:
-	case VK_DECIMAL:
-	case VK_CLEAR:
-		modifiers |= EVENTFLAG_IS_KEY_PAD;
-		break;
-	case VK_SHIFT:
-		if (IsKeyDown(VK_LSHIFT))
-			modifiers |= EVENTFLAG_IS_LEFT;
-		else if (IsKeyDown(VK_RSHIFT))
-			modifiers |= EVENTFLAG_IS_RIGHT;
-		break;
-	case VK_CONTROL:
-		if (IsKeyDown(VK_LCONTROL))
-			modifiers |= EVENTFLAG_IS_LEFT;
-		else if (IsKeyDown(VK_RCONTROL))
-			modifiers |= EVENTFLAG_IS_RIGHT;
-		break;
-	case VK_MENU:
-		if (IsKeyDown(VK_LMENU))
-			modifiers |= EVENTFLAG_IS_LEFT;
-		else if (IsKeyDown(VK_RMENU))
-			modifiers |= EVENTFLAG_IS_RIGHT;
-		break;
-	case VK_LWIN:
-		modifiers |= EVENTFLAG_IS_LEFT;
-		break;
-	case VK_RWIN:
-		modifiers |= EVENTFLAG_IS_RIGHT;
-		break;
 	}
+	if (::GetKeyState(VK_CAPITAL) & 1)
+	{
+		modifiers |= EVENTFLAG_CAPS_LOCK_ON;
+	}
+
+	switch (wparam)
+	{
+		case VK_RETURN:
+		{
+			if ((lparam >> 16) & KF_EXTENDED)
+			{
+				modifiers |= EVENTFLAG_IS_KEY_PAD;
+			}
+			break;
+		}
+
+		case VK_INSERT:
+		case VK_DELETE:
+		case VK_HOME:
+		case VK_END:
+		case VK_PRIOR:
+		case VK_NEXT:
+		case VK_UP:
+		case VK_DOWN:
+		case VK_LEFT:
+		case VK_RIGHT:
+		{
+			if (!((lparam >> 16) & KF_EXTENDED))
+			{
+				modifiers |= EVENTFLAG_IS_KEY_PAD;
+			}
+			break;
+		}
+
+		case VK_NUMLOCK:
+		case VK_NUMPAD0:
+		case VK_NUMPAD1:
+		case VK_NUMPAD2:
+		case VK_NUMPAD3:
+		case VK_NUMPAD4:
+		case VK_NUMPAD5:
+		case VK_NUMPAD6:
+		case VK_NUMPAD7:
+		case VK_NUMPAD8:
+		case VK_NUMPAD9:
+		case VK_DIVIDE:
+		case VK_MULTIPLY:
+		case VK_SUBTRACT:
+		case VK_ADD:
+		case VK_DECIMAL:
+		case VK_CLEAR:
+		{
+			modifiers |= EVENTFLAG_IS_KEY_PAD;
+			break;
+		}
+
+		case VK_SHIFT:
+		{
+			if (IsKeyDown(VK_LSHIFT))
+			{
+				modifiers |= EVENTFLAG_IS_LEFT;
+			}
+			else if (IsKeyDown(VK_RSHIFT))
+			{
+				modifiers |= EVENTFLAG_IS_RIGHT;
+			}
+			break;
+		}
+
+		case VK_CONTROL:
+		{
+			if (IsKeyDown(VK_LCONTROL))
+			{
+				modifiers |= EVENTFLAG_IS_LEFT;
+			}
+			else if (IsKeyDown(VK_RCONTROL))
+			{
+				modifiers |= EVENTFLAG_IS_RIGHT;
+			}
+			break;
+		}
+
+		case VK_MENU:
+		{
+			if (IsKeyDown(VK_LMENU))
+			{
+				modifiers |= EVENTFLAG_IS_LEFT;
+			}
+			else if (IsKeyDown(VK_RMENU))
+			{
+				modifiers |= EVENTFLAG_IS_RIGHT;
+			}
+			break;
+		}
+
+		case VK_LWIN:
+		{
+			modifiers |= EVENTFLAG_IS_LEFT;
+			break;
+		}
+
+		case VK_RWIN:
+		{
+			modifiers |= EVENTFLAG_IS_RIGHT;
+			break;
+		}
+	}
+
 	return modifiers;
 }
 
+// osr_window_win.cc
 void WindowsMessageHook(
 		void* userdata,
-		void* hWnd,
+		void* hwnd,
 		unsigned int message,
-		Uint64 wParam,
-		Sint64 lParam)
+		Uint64 wparam,
+		Sint64 lparam)
 {
 	switch (message)
 	{
@@ -1054,8 +1110,8 @@ void WindowsMessageHook(
 		case WM_CHAR:
 		{
 			CefKeyEvent keyEvent;
-			keyEvent.windows_key_code = static_cast<int>(wParam);
-			keyEvent.native_key_code = static_cast<int>(lParam);
+			keyEvent.windows_key_code = static_cast<int>(wparam);
+			keyEvent.native_key_code = static_cast<int>(lparam);
 			keyEvent.is_system_key = message == WM_SYSCHAR
 				|| message == WM_SYSKEYDOWN
 				|| message == WM_SYSKEYUP;
@@ -1071,8 +1127,8 @@ void WindowsMessageHook(
 			{
 				keyEvent.type = KEYEVENT_CHAR;
 			}
-			keyEvent.modifiers = GetCefKeyboardModifiers(static_cast<WPARAM>(wParam), static_cast<LPARAM>(lParam));
-
+			keyEvent.modifiers = GetCefKeyboardModifiers(static_cast<WPARAM>(wparam), static_cast<LPARAM>(lparam));
+			
 			g_browser->GetHost()->SendKeyEvent(keyEvent);
 
 			break;
@@ -1225,10 +1281,9 @@ void Destroy()
 	SDL_Quit();
 }
 
-// TODO: Either convert this to native or convert GetCefKeyboardModifiers to SDL.
 // osr_window_win.cc
 #ifdef _WIN32
-unsigned GetCefMouseModifiers(const SDL_Event& event)
+unsigned GetCefInputModifiers(const SDL_Event& event)
 {
 	unsigned modifiers = 0;
 
@@ -1266,8 +1321,99 @@ unsigned GetCefMouseModifiers(const SDL_Event& event)
 	}
 #endif
 
+	if (keymod & KMOD_LSHIFT
+		|| keymod & KMOD_LCTRL
+		|| keymod & KMOD_LALT
+		|| keymod & KMOD_LGUI)
+	{
+		modifiers |= EVENTFLAG_IS_LEFT;
+	}
+
+	if (keymod & KMOD_RSHIFT
+		|| keymod & KMOD_RCTRL
+		|| keymod & KMOD_RALT
+		|| keymod & KMOD_RGUI)
+	{
+		modifiers |= EVENTFLAG_IS_RIGHT;
+	}
+
 	switch (event.type)
 	{
+		case SDL_KEYDOWN:
+		case SDL_KEYUP:
+		{
+			switch(event.key.keysym.sym)
+			{
+				case SDLK_KP_DIVIDE:
+				case SDLK_KP_MULTIPLY:
+				case SDLK_KP_MINUS:
+				case SDLK_KP_PLUS:
+				case SDLK_KP_ENTER:
+				case SDLK_KP_1:
+				case SDLK_KP_2:
+				case SDLK_KP_3:
+				case SDLK_KP_4:
+				case SDLK_KP_5:
+				case SDLK_KP_6:
+				case SDLK_KP_7:
+				case SDLK_KP_8:
+				case SDLK_KP_9:
+				case SDLK_KP_0:
+				case SDLK_KP_PERIOD:
+				case SDLK_KP_EQUALS:
+				case SDLK_KP_COMMA:
+				case SDLK_KP_EQUALSAS400:
+				case SDLK_KP_00:
+				case SDLK_KP_000:
+				case SDLK_KP_LEFTPAREN:
+				case SDLK_KP_RIGHTPAREN:
+				case SDLK_KP_LEFTBRACE:
+				case SDLK_KP_RIGHTBRACE:
+				case SDLK_KP_TAB:
+				case SDLK_KP_BACKSPACE:
+				case SDLK_KP_A:
+				case SDLK_KP_B:
+				case SDLK_KP_C:
+				case SDLK_KP_D:
+				case SDLK_KP_E:
+				case SDLK_KP_F:
+				case SDLK_KP_XOR:
+				case SDLK_KP_POWER:
+				case SDLK_KP_PERCENT:
+				case SDLK_KP_LESS:
+				case SDLK_KP_GREATER:
+				case SDLK_KP_AMPERSAND:
+				case SDLK_KP_DBLAMPERSAND:
+				case SDLK_KP_VERTICALBAR:
+				case SDLK_KP_DBLVERTICALBAR:
+				case SDLK_KP_COLON:
+				case SDLK_KP_HASH:
+				case SDLK_KP_SPACE:
+				case SDLK_KP_AT:
+				case SDLK_KP_EXCLAM:
+				case SDLK_KP_MEMSTORE:
+				case SDLK_KP_MEMRECALL:
+				case SDLK_KP_MEMCLEAR:
+				case SDLK_KP_MEMADD:
+				case SDLK_KP_MEMSUBTRACT:
+				case SDLK_KP_MEMMULTIPLY:
+				case SDLK_KP_MEMDIVIDE:
+				case SDLK_KP_PLUSMINUS:
+				case SDLK_KP_CLEAR:
+				case SDLK_KP_CLEARENTRY:
+				case SDLK_KP_BINARY:
+				case SDLK_KP_OCTAL:
+				case SDLK_KP_DECIMAL:
+				case SDLK_KP_HEXADECIMAL:
+				{
+					modifiers |= EVENTFLAG_IS_KEY_PAD;
+					break;
+				}
+			}
+
+			break;
+		}
+
 		case SDL_MOUSEMOTION:
 		{
 			if (event.motion.state & SDL_BUTTON_LMASK)
@@ -1468,7 +1614,7 @@ int main(int argc, char* argv[])
 					CefMouseEvent mouseEvent;
 					mouseEvent.x = event.motion.x;
 					mouseEvent.y = event.motion.y;
-					mouseEvent.modifiers = GetCefMouseModifiers(event);
+					mouseEvent.modifiers = GetCefInputModifiers(event);
 
 					g_browser->GetHost()->SendMouseMoveEvent(mouseEvent, false);
 
@@ -1499,7 +1645,7 @@ int main(int argc, char* argv[])
 					CefMouseEvent mouseEvent;
 					mouseEvent.x = event.button.x;
 					mouseEvent.y = event.button.y;
-					mouseEvent.modifiers = GetCefMouseModifiers(event);
+					mouseEvent.modifiers = GetCefInputModifiers(event);
 
 					g_browser->GetHost()->SendMouseClickEvent(mouseEvent, mouseButtonType, false, event.button.clicks);
 
@@ -1530,7 +1676,7 @@ int main(int argc, char* argv[])
 					CefMouseEvent mouseEvent;
 					mouseEvent.x = event.button.x;
 					mouseEvent.y = event.button.y;
-					mouseEvent.modifiers = GetCefMouseModifiers(event);
+					mouseEvent.modifiers = GetCefInputModifiers(event);
 
 					g_browser->GetHost()->SendMouseClickEvent(mouseEvent, mouseButtonType, true, event.button.clicks);
 
@@ -1542,7 +1688,7 @@ int main(int argc, char* argv[])
 				{
 					CefMouseEvent mouseEvent;
 					SDL_GetMouseState(&mouseEvent.x, &mouseEvent.y);
-					mouseEvent.modifiers = GetCefMouseModifiers(event);
+					mouseEvent.modifiers = GetCefInputModifiers(event);
 					
 					g_browser->GetHost()->SendMouseWheelEvent(mouseEvent, event.wheel.x, event.wheel.y);
 
@@ -1558,7 +1704,7 @@ int main(int argc, char* argv[])
 						{
 							CefMouseEvent mouseEvent;
 							SDL_GetMouseState(&mouseEvent.x, &mouseEvent.y);
-							mouseEvent.modifiers = GetCefMouseModifiers(event);
+							mouseEvent.modifiers = GetCefInputModifiers(event);
 
 							g_browser->GetHost()->SendMouseMoveEvent(mouseEvent, true);
 
