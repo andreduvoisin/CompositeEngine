@@ -959,7 +959,7 @@ bool IsKeyDown(WPARAM wparam)
 }
 
 // util_win.cc
-int GetCefKeyboardModifiers(WPARAM wparam, LPARAM lparam)
+int GetNativeCefKeyboardModifiers(WPARAM wparam, LPARAM lparam)
 {
 	int modifiers = 0;
 
@@ -1127,7 +1127,7 @@ void WindowsMessageHook(
 			{
 				keyEvent.type = KEYEVENT_CHAR;
 			}
-			keyEvent.modifiers = GetCefKeyboardModifiers(static_cast<WPARAM>(wparam), static_cast<LPARAM>(lparam));
+			keyEvent.modifiers = GetNativeCefKeyboardModifiers(static_cast<WPARAM>(wparam), static_cast<LPARAM>(lparam));
 			
 			g_browser->GetHost()->SendKeyEvent(keyEvent);
 
@@ -1283,7 +1283,7 @@ void Destroy()
 
 // osr_window_win.cc
 #ifdef _WIN32
-unsigned GetCefInputModifiers(const SDL_Event& event)
+unsigned GetSdlCefInputModifiers(const SDL_Event& event)
 {
 	unsigned modifiers = 0;
 
@@ -1614,7 +1614,7 @@ int main(int argc, char* argv[])
 					CefMouseEvent mouseEvent;
 					mouseEvent.x = event.motion.x;
 					mouseEvent.y = event.motion.y;
-					mouseEvent.modifiers = GetCefInputModifiers(event);
+					mouseEvent.modifiers = GetSdlCefInputModifiers(event);
 
 					g_browser->GetHost()->SendMouseMoveEvent(mouseEvent, false);
 
@@ -1645,7 +1645,7 @@ int main(int argc, char* argv[])
 					CefMouseEvent mouseEvent;
 					mouseEvent.x = event.button.x;
 					mouseEvent.y = event.button.y;
-					mouseEvent.modifiers = GetCefInputModifiers(event);
+					mouseEvent.modifiers = GetSdlCefInputModifiers(event);
 
 					g_browser->GetHost()->SendMouseClickEvent(mouseEvent, mouseButtonType, false, event.button.clicks);
 
@@ -1676,7 +1676,7 @@ int main(int argc, char* argv[])
 					CefMouseEvent mouseEvent;
 					mouseEvent.x = event.button.x;
 					mouseEvent.y = event.button.y;
-					mouseEvent.modifiers = GetCefInputModifiers(event);
+					mouseEvent.modifiers = GetSdlCefInputModifiers(event);
 
 					g_browser->GetHost()->SendMouseClickEvent(mouseEvent, mouseButtonType, true, event.button.clicks);
 
@@ -1688,7 +1688,7 @@ int main(int argc, char* argv[])
 				{
 					CefMouseEvent mouseEvent;
 					SDL_GetMouseState(&mouseEvent.x, &mouseEvent.y);
-					mouseEvent.modifiers = GetCefInputModifiers(event);
+					mouseEvent.modifiers = GetSdlCefInputModifiers(event);
 					
 					g_browser->GetHost()->SendMouseWheelEvent(mouseEvent, event.wheel.x, event.wheel.y);
 
@@ -1704,7 +1704,7 @@ int main(int argc, char* argv[])
 						{
 							CefMouseEvent mouseEvent;
 							SDL_GetMouseState(&mouseEvent.x, &mouseEvent.y);
-							mouseEvent.modifiers = GetCefInputModifiers(event);
+							mouseEvent.modifiers = GetSdlCefInputModifiers(event);
 
 							g_browser->GetHost()->SendMouseMoveEvent(mouseEvent, true);
 
