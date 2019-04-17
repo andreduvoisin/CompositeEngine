@@ -26,12 +26,20 @@ set(ASSET_CONVERTER_SRC_DIR "${CMAKE_CURRENT_LIST_DIR}/asset-converter")
 file(GLOB_RECURSE ENGINE_SRC_FILES
 	"${ENGINE_SRC_DIR}/*.cpp"
 	"${UI_SRC_DIR}/cef/browser/*.cpp"
-	"${UI_SRC_DIR}/cef/client/*.cpp"
-	"${UI_SRC_DIR}/cef/*.mm"
-	"${ENGINE_SRC_DIR}/CompositeEngine.manifest")
+	"${UI_SRC_DIR}/cef/client/*.cpp")
+if (OS_WINDOWS)
+	set(ENGINE_SRC_FILES ${ENGINE_SRC_FILES} "${ENGINE_SRC_DIR}/CompositeEngine.manifest")
+endif()
+if (OS_MACOSX)
+	set(ENGINE_SRC_FILES ${ENGINE_SRC_FILES} "${UI_SRC_DIR}/cef/*.mm")
+endif()
+
 file(GLOB_RECURSE CEF_SUBPROCESS_SRC_FILES
-	"${CEF_SUBPROCESS_SRC_DIR}/*.cpp"
-	"${UI_SRC_DIR}/CompositeCefSubprocess.manifest")
+	"${CEF_SUBPROCESS_SRC_DIR}/*.cpp")
+if (OS_WINDOWS)
+	set(CEF_SUBPROCESS_SRC_FILES ${CEF_SUBPROCESS_SRC_FILES} "${UI_SRC_DIR}/CompositeCefSubprocess.manifest")
+endif()
+
 file(GLOB_RECURSE ASSET_CONVERTER_SRC_FILES
 	"${ASSET_CONVERTER_SRC_DIR}/*.cpp"
 	"${ENGINE_SRC_DIR}/common/Math.cpp"
