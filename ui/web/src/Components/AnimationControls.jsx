@@ -27,13 +27,6 @@ const AnimationControlsButton = styled.div`
   }
 `;
 
-const AnimationControlsFps = styled.div`
-  border: solid 1px ${props => props.theme.colors.borders.button};
-  border-radius: 3px;
-  padding: 3px;
-  margin-right: 3px;
-`;
-
 const AnimationControlsIcon = styled.i`
   margin-right: auto;
   margin-left: auto;
@@ -83,11 +76,6 @@ export default class AnimationControls extends React.Component {
         'is-paused': !props.isPlaying
       })}>
         <AnimationControlsListItem>
-          <AnimationControlsFps>
-            <span>{props.animationState.fps}</span><span style={{ marginLeft: '3px' }}>FPS</span>
-          </AnimationControlsFps>
-        </AnimationControlsListItem>
-        <AnimationControlsListItem>
           {this.renderPlayButton()}
         </AnimationControlsListItem>
         <AnimationControlsListItem>
@@ -104,10 +92,18 @@ export default class AnimationControls extends React.Component {
           />
         </AnimationControlsListItem>
         <AnimationControlsListItem>
+          <label style={{
+              marginLeft: '10px'
+          }}>
+            Draw Mode:
+          </label>
           <select
             defaultValue={0}
             value={props.renderMode}
             onChange={props.setRenderMode}
+            style={{
+              marginLeft: '10px'
+            }}
           >
             <option value={0}>Mesh</option>
             <option value={1}>Skeleton</option>
