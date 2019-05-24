@@ -21,7 +21,7 @@ namespace CE
 	public:
 		FBXAnimationImporter(
 			fbxsdk::FbxManager* fbxManager,
-			const char* szFileName,
+			const char* fileName,
 			const Skeleton& skeleton,
 			Animations* outAnimations);
 
@@ -31,10 +31,10 @@ namespace CE
 		void ProcessAnimation(fbxsdk::FbxNode* node, fbxsdk::FbxScene* scene);
 
 	private:
-		fbxsdk::FbxManager* m_fbxManager;
-		const char* m_szFileName;
-		const Skeleton& m_skeleton;
-		Animations* m_outAnimations;
+		fbxsdk::FbxManager* fbxManager;
+		const char* fileName;
+		const Skeleton& skeleton;
+		Animations* outAnimations;
 	};
 }
 

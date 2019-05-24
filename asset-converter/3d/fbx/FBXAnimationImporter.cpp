@@ -13,47 +13,47 @@ namespace CE
 {
 	FBXAnimationImporter::FBXAnimationImporter(
 			FbxManager* fbxManager,
-			const char* szFileName,
+			const char* fileName,
 			const Skeleton& skeleton,
 			Animations* outAnimations)
-		: m_fbxManager(fbxManager)
-		, m_szFileName(szFileName)
-		, m_skeleton(skeleton)
-		, m_outAnimations(outAnimations)
+		: fbxManager(fbxManager)
+		, fileName(fileName)
+		, skeleton(skeleton)
+		, outAnimations(outAnimations)
 	{
 
 	}
 
 	bool FBXAnimationImporter::LoadAnimations()
 	{
-		FBXValidator validator(m_fbxManager, m_szFileName);
+		FBXValidator validator(fbxManager, fileName);
 		if (!validator.Validate())
 		{
 			return false;
 		}
 
-		FbxImporter* pImporter = FbxImporter::Create(m_fbxManager, "");
-		FbxScene* pFbxScene = FbxScene::Create(m_fbxManager, "");
+		FbxImporter* importer = FbxImporter::Create(fbxManager, "");
+		FbxScene* scene = FbxScene::Create(fbxManager, "");
 
-		if (!pImporter->Initialize(m_szFileName, -1, m_fbxManager->GetIOSettings()))
+		if (!importer->Initialize(fileName, -1, fbxManager->GetIOSettings()))
 		{
 			return false;
 		}
 
-		if (!pImporter->Import(pFbxScene))
+		if (!importer->Import(scene))
 		{
 			return false;
 		}
 
-		pImporter->Destroy();
+		importer->Destroy();
 
-		FbxNode* pFbxRootNode = pFbxScene->GetRootNode();
-		if (!pFbxRootNode)
+		FbxNode* rootNode = scene->GetRootNode();
+		if (!rootNode)
 		{
 			return false;
 		}
 
-		ProcessAnimation(pFbxRootNode, pFbxScene);
+		ProcessAnimation(rootNode, scene);
 
 		return true;
 	}
@@ -61,15 +61,15 @@ namespace CE
 	void FBXAnimationImporter::ProcessAnimation(FbxNode* node, FbxScene* scene)
 	{
 		const int animationCount = scene->GetSrcObjectCount<FbxAnimStack>();
-		m_outAnimations->resize(animationCount);
+		outAnimations->resize(animationCount);
 
 		for (int i = 0; i < animationCount; ++i)
 		{
-			Animation& animation = m_outAnimations->at(i);
+			Animation& animation = outAnimations->at(i);
 
-			animation.translations.resize(m_skeleton.joints.size());
-			animation.rotations.resize(m_skeleton.joints.size());
-			animation.scales.resize(m_skeleton.joints.size());
+			animation.translations.resize(skeleton.joints.size());
+			animation.rotations.resize(skeleton.joints.size());
+			animation.scales.resize(skeleton.joints.size());
 
 			// Single-take animation information.
 			FbxAnimStack* currAnimStack = scene->GetSrcObject<FbxAnimStack>(i);
@@ -86,9 +86,9 @@ namespace CE
 
 			double period = 1.f / 24.f; // todo: make variable, it's all over this file
 
-			for (size_t j = 0; j < m_skeleton.joints.size(); ++j)
+			for (size_t j = 0; j < skeleton.joints.size(); ++j)
 			{
-				FbxNode* joint = scene->FindNodeByName(m_skeleton.joints[j].name.c_str());
+				FbxNode* joint = scene->FindNodeByName(skeleton.joints[j].name.c_str());
 
 				// didn't find it, add bind pose
 				if (!joint)
@@ -100,7 +100,7 @@ namespace CE
 					glm::vec3 skew;
 					glm::vec4 perspective;
 					glm::decompose(
-						glm::inverse(m_skeleton.joints[j].inverseBindPose),
+						glm::inverse(skeleton.joints[j].inverseBindPose),
 						scale,
 						orientation,
 						translation,
@@ -144,7 +144,7 @@ namespace CE
 					//FbxAMatrix localPose = currentTransformOffset.Inverse() * evaluator->GetNodeLocalTransform(joint, currTime);
 
 					FbxAMatrix localPose =
-						m_skeleton.joints[j].parentIndex == -1 ?
+						skeleton.joints[j].parentIndex == -1 ?
 						evaluator->GetNodeGlobalTransform(joint, currTime) :
 						evaluator->GetNodeLocalTransform(joint, currTime);
 
