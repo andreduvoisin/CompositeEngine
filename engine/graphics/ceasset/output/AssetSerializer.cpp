@@ -45,9 +45,9 @@ namespace CE
 		stream << static_cast<unsigned>(mesh.m_indices.size());
 		stream.Write(mesh.m_indices.data(), mesh.m_indices.size());
 
-		stream.Write(mesh.m_diffuseMapName.data(), mesh.m_diffuseMapName.size() + 1);
-		stream.Write(mesh.m_specularMapName.data(), mesh.m_specularMapName.size() + 1);
-		stream.Write(mesh.m_normalMapName.data(), mesh.m_normalMapName.size() + 1);
+		stream.Write(mesh.diffuseFileName.data(), mesh.diffuseFileName.size() + 1);
+		stream.Write(mesh.specularFileName.data(), mesh.specularFileName.size() + 1);
+		stream.Write(mesh.normalFileName.data(), mesh.normalFileName.size() + 1);
 
 		stream << mesh.m_diffuseIndex;
 		stream << mesh.m_specularIndex;

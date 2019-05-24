@@ -50,9 +50,9 @@ int main(int argc, char* argv[])
 		{
 			textures.push_back(CE::Texture());
 			CE::Texture& texture = textures.back();
-			if (!stbImageImporter.ExtractTexture(mesh.m_diffuseMapName.c_str(), &texture))
+			if (!stbImageImporter.ExtractTexture(mesh.diffuseFileName.c_str(), &texture))
 			{
-				printf("Extracting Texture Failed: %s\n", mesh.m_diffuseMapName.c_str());
+				printf("Extracting Texture Failed: %s\n", mesh.diffuseFileName.c_str());
 				textureSuccess = false;
 			}
 			mesh.m_diffuseIndex = static_cast<uint8_t>(textures.size() - 1);

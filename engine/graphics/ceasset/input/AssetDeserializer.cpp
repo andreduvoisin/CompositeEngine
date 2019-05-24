@@ -50,9 +50,9 @@ namespace CE
 		outMesh.m_indices.resize(indicesCount);
 		stream.Read(outMesh.m_indices.data(), indicesCount);
 
-		stream >> outMesh.m_diffuseMapName;
-		stream >> outMesh.m_specularMapName;
-		stream >> outMesh.m_normalMapName;
+		stream >> outMesh.diffuseFileName;
+		stream >> outMesh.specularFileName;
+		stream >> outMesh.normalFileName;
 
 		stream >> outMesh.m_diffuseIndex;
 		stream >> outMesh.m_specularIndex;
