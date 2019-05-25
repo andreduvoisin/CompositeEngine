@@ -19,21 +19,21 @@ namespace CE
 	public:
 		FBXSkeletonImporter(
 			fbxsdk::FbxManager* fbxManager,
-			const char* szFileName,
+			const char* fileName,
 			Skeleton* outSkeleton);
 
 		bool LoadSkeleton();
 
 	private:
-		void ProcessSkeletonHierarchy(fbxsdk::FbxNode* inRootNode, fbxsdk::FbxScene* pFbxScene);
-		void ProcessSkeletonHierarchyRecursively(fbxsdk::FbxNode* inNode, size_t myIndex, size_t inParentIndex);
+		void ProcessSkeletonHierarchy(fbxsdk::FbxNode* rootNode, fbxsdk::FbxScene* scene);
+		void ProcessSkeletonHierarchyRecursively(fbxsdk::FbxNode* node, size_t index, size_t parentIndex);
 		bool JointHasChild(size_t index);
 		void RemoveJoint(size_t index);
 
 	private:
-		fbxsdk::FbxManager* m_fbxManager;
-		const char* m_szFileName;
-		Skeleton* m_outSkeleton;
+		fbxsdk::FbxManager* fbxManager;
+		const char* fileName;
+		Skeleton* outSkeleton;
 	};
 }
 

@@ -9,94 +9,94 @@ namespace CE
 {
 	FBXSkeletonImporter::FBXSkeletonImporter(
 			FbxManager* fbxManager,
-			const char* szFileName,
+			const char* fileName,
 			Skeleton* outSkeleton)
-		: m_fbxManager(fbxManager)
-		, m_szFileName(szFileName)
-		, m_outSkeleton(outSkeleton)
+		: fbxManager(fbxManager)
+		, fileName(fileName)
+		, outSkeleton(outSkeleton)
 	{
 
 	}
 
 	bool FBXSkeletonImporter::LoadSkeleton()
 	{
-		FBXValidator validator(m_fbxManager, m_szFileName);
+		FBXValidator validator(fbxManager, fileName);
 		if (!validator.Validate())
 		{
 			return false;
 		}
 
-		FbxImporter* pImporter = FbxImporter::Create(m_fbxManager, "");
-		FbxScene* pFbxScene = FbxScene::Create(m_fbxManager, "");
+		FbxImporter* importer = FbxImporter::Create(fbxManager, "");
+		FbxScene* scene = FbxScene::Create(fbxManager, "");
 
-		if (!pImporter->Initialize(m_szFileName, -1, m_fbxManager->GetIOSettings()))
+		if (!importer->Initialize(fileName, -1, fbxManager->GetIOSettings()))
 		{
 			return false;
 		}
 
-		if (!pImporter->Import(pFbxScene))
+		if (!importer->Import(scene))
 		{
 			return false;
 		}
 
-		pImporter->Destroy();
+		importer->Destroy();
 
-		FbxNode* pFbxRootNode = pFbxScene->GetRootNode();
-		if (!pFbxRootNode)
+		FbxNode* rootNode = scene->GetRootNode();
+		if (!rootNode)
 		{
 			return false;
 		}
 
-		ProcessSkeletonHierarchy(pFbxRootNode, pFbxScene);
+		ProcessSkeletonHierarchy(rootNode, scene);
 
 		return true;
 	}
 
-	void FBXSkeletonImporter::ProcessSkeletonHierarchy(FbxNode* inRootNode, FbxScene* pFbxScene)
+	void FBXSkeletonImporter::ProcessSkeletonHierarchy(FbxNode* rootNode, FbxScene* scene)
 	{
-		for (int childIndex = 0; childIndex < inRootNode->GetChildCount(); ++childIndex)
+		for (int childIndex = 0; childIndex < rootNode->GetChildCount(); ++childIndex)
 		{
-			FbxNode* currNode = inRootNode->GetChild(childIndex);
-			ProcessSkeletonHierarchyRecursively(currNode, 0, -1);
+			FbxNode* node = rootNode->GetChild(childIndex);
+			ProcessSkeletonHierarchyRecursively(node, 0, -1);
 		}
 
 
 		std::vector<bool> isJointUsed;
-		isJointUsed.resize(m_outSkeleton->joints.size(), false);
+		isJointUsed.resize(outSkeleton->joints.size(), false);
 
-		const int meshCount = pFbxScene->GetSrcObjectCount<FbxMesh>();
+		const int meshCount = scene->GetSrcObjectCount<FbxMesh>();
 		for (int meshIndex = 0; meshIndex < meshCount; meshIndex++)
 		{
-			FbxMesh* currMesh = pFbxScene->GetSrcObject<FbxMesh>(meshIndex);
+			FbxMesh* mesh = scene->GetSrcObject<FbxMesh>(meshIndex);
 
-			unsigned int numOfDeformers = currMesh->GetDeformerCount();
+			unsigned int deformerCount = mesh->GetDeformerCount();
 
-			for (unsigned deformerIndex = 0; deformerIndex < numOfDeformers; ++deformerIndex)
+			for (unsigned deformerIndex = 0; deformerIndex < deformerCount; ++deformerIndex)
 			{
-				FbxSkin* currSkin = reinterpret_cast<FbxSkin*>(currMesh->GetDeformer(deformerIndex, FbxDeformer::eSkin));
-				if (!currSkin)
+				FbxSkin* skin = reinterpret_cast<FbxSkin*>(mesh->GetDeformer(deformerIndex, FbxDeformer::eSkin));
+				if (!skin)
 				{
 					continue;
 				}
 
-				unsigned numOfClusters = currSkin->GetClusterCount();
-				for (unsigned clusterIndex = 0; clusterIndex < numOfClusters; ++clusterIndex)
+				unsigned clusterCount = skin->GetClusterCount();
+				for (unsigned clusterIndex = 0; clusterIndex < clusterCount; ++clusterIndex)
 				{
-					FbxCluster* currCluster = currSkin->GetCluster(clusterIndex);
-					std::string currJointName = currCluster->GetLink()->GetName();
+					FbxCluster* cluster = skin->GetCluster(clusterIndex);
+					std::string jointName = cluster->GetLink()->GetName();
 
-					unsigned int currJointIndex = -1;
-					for (unsigned i = 0; i < m_outSkeleton->joints.size(); ++i)
+					unsigned int jointIndex = -1;
+					for (unsigned i = 0; i < outSkeleton->joints.size(); ++i)
 					{
-						if (m_outSkeleton->joints[i].name == currJointName)
+						if (outSkeleton->joints[i].name == jointName)
 						{
-							currJointIndex = i;
+							jointIndex = i;
 							break;
 						}
 					}
 
 					// TODO: Swap to ozz-animation way of doing this?
-					if (currJointIndex == -1)
+					if (jointIndex == -1)
 					{
 						printf("Couldn't find joint index.\n");
 						continue; // should this break? or return even?
@@ -105,41 +105,41 @@ namespace CE
 					// TransformLink refers to global initial transform of the link node.
 					// TransformLink is the global transform of the bone(link) at the binding moment.
 					// In the future, if local transform is needed (instead of global), you must multiply up the chain with inverses.
-					FbxAMatrix transform_link_matrix;
-					transform_link_matrix = currCluster->GetTransformLinkMatrix(transform_link_matrix);
+					FbxAMatrix transformLinkMatrix;
+					transformLinkMatrix = cluster->GetTransformLinkMatrix(transformLinkMatrix);
 
-					const FbxAMatrix inverse_bind_pose = transform_link_matrix.Inverse();
+					const FbxAMatrix inverseBindPose = transformLinkMatrix.Inverse();
 
 					for (unsigned i = 0; i < 16; ++i)
 					{
-						m_outSkeleton->joints[currJointIndex].inverseBindPose[i / 4][i % 4] = (float) inverse_bind_pose.Get(i / 4, i % 4);
+						outSkeleton->joints[jointIndex].inverseBindPose[i / 4][i % 4] = (float) inverseBindPose.Get(i / 4, i % 4);
 					}
 
-					unsigned int numOfIndices = currCluster->GetControlPointIndicesCount();
-					if (numOfIndices > 0)
+					unsigned int indexCount = cluster->GetControlPointIndicesCount();
+					if (indexCount > 0)
 					{
-						isJointUsed[currJointIndex] = true;
+						isJointUsed[jointIndex] = true;
 					}
 				}
 			}
 		}
 
-		size_t numJointsRemoved = 0;
+		size_t jointsRemoved = 0;
 		for (size_t i = 0; i < isJointUsed.size(); ++i)
 		{
-			if (!isJointUsed[i] && !JointHasChild(i - numJointsRemoved))
+			if (!isJointUsed[i] && !JointHasChild(i - jointsRemoved))
 			{
-				RemoveJoint(i - numJointsRemoved);
-				++numJointsRemoved;
+				RemoveJoint(i - jointsRemoved);
+				++jointsRemoved;
 			}
 		}
 	}
 
 	bool FBXSkeletonImporter::JointHasChild(size_t index)
 	{
-		for (size_t i = 0; i < m_outSkeleton->joints.size(); ++i)
+		for (size_t i = 0; i < outSkeleton->joints.size(); ++i)
 		{
-			if (m_outSkeleton->joints[i].parentIndex == index)
+			if (outSkeleton->joints[i].parentIndex == index)
 			{
 				return true;
 			}
@@ -150,33 +150,34 @@ namespace CE
 
 	void FBXSkeletonImporter::RemoveJoint(size_t index)
 	{
-		m_outSkeleton->joints.erase(m_outSkeleton->joints.begin() + index);
+		outSkeleton->joints.erase(outSkeleton->joints.begin() + index);
 
-		for (size_t i = index; i < m_outSkeleton->joints.size(); ++i)
+		for (size_t i = index; i < outSkeleton->joints.size(); ++i)
 		{
-			if (m_outSkeleton->joints[i].parentIndex > static_cast<short>(index))
+			if (outSkeleton->joints[i].parentIndex > static_cast<short>(index))
 			{
-				--m_outSkeleton->joints[i].parentIndex;
+				--outSkeleton->joints[i].parentIndex;
 			}
 		}
 	}
 
-	void FBXSkeletonImporter::ProcessSkeletonHierarchyRecursively(FbxNode* inNode, size_t myIndex, size_t inParentIndex)
+	void FBXSkeletonImporter::ProcessSkeletonHierarchyRecursively(FbxNode* node, size_t index, size_t parentIndex)
 	{
-		if (inNode->GetNodeAttribute()
-			&& inNode->GetNodeAttribute()->GetAttributeType()
-			&& inNode->GetNodeAttribute()->GetAttributeType() == FbxNodeAttribute::eSkeleton)
+		if (node->GetNodeAttribute()
+			&& node->GetNodeAttribute()->GetAttributeType()
+			&& node->GetNodeAttribute()->GetAttributeType() == FbxNodeAttribute::eSkeleton)
 		{
-			Joint currJoint;
-			currJoint.parentIndex = (short) inParentIndex;
-			currJoint.name = inNode->GetName();
-			currJoint.inverseBindPose = glm::mat4(1.f);
+			Joint joint;
+			joint.parentIndex = (short) parentIndex;
+			joint.name = node->GetName();
+			joint.inverseBindPose = glm::mat4(1.f);
 
-			m_outSkeleton->joints.push_back(currJoint);
+			outSkeleton->joints.push_back(joint);
 		}
-		for (int i = 0; i < inNode->GetChildCount(); i++)
+
+		for (int i = 0; i < node->GetChildCount(); i++)
 		{
-			ProcessSkeletonHierarchyRecursively(inNode->GetChild(i), m_outSkeleton->joints.size(), myIndex);
+			ProcessSkeletonHierarchyRecursively(node->GetChild(i), outSkeleton->joints.size(), index);
 		}
 	}
 }
