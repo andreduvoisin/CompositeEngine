@@ -66,25 +66,25 @@ namespace CE
 
 		for (int i = 0; i < meshCount; i++)
 		{
-			FbxMesh* pMesh = scene->GetSrcObject<FbxMesh>(i);
-			FbxNode* pNode = pMesh->GetNode();
+			FbxMesh* fbxMesh = scene->GetSrcObject<FbxMesh>(i);
+			FbxNode* node = fbxMesh->GetNode();
 
-			Mesh& currentMesh = outMeshes->at(i);
-			m_controlPointToVertices.clear();
+			Mesh& mesh = outMeshes->at(i);
+			controlPointToVertices.clear();
 
-			unsigned int materialCount = pNode->GetMaterialCount();
+			unsigned int materialCount = node->GetMaterialCount();
 			for (unsigned int i = 0; i < materialCount; ++i)
 			{
-				FbxSurfaceMaterial* surfaceMaterial = pNode->GetMaterial(i);
-				ProcessMaterialTexture(currentMesh, surfaceMaterial);
+				FbxSurfaceMaterial* surfaceMaterial = node->GetMaterial(i);
+				ProcessMaterialTexture(mesh, surfaceMaterial);
 			}
 
-			ProcessVertices(currentMesh, pMesh);
-			ProcessSkinnedMesh(currentMesh, pNode, scene);
+			ProcessVertices(mesh, fbxMesh);
+			ProcessSkinnedMesh(mesh, node, scene);
 
-			printf("currentMesh.diffuseFileName: %s\n", currentMesh.diffuseFileName.c_str());
-			printf("currentMesh.specularFileName: %s\n", currentMesh.specularFileName.c_str());
-			printf("currentMesh.normalFileName: %s\n", currentMesh.normalFileName.c_str());
+			printf("currentMesh.diffuseFileName: %s\n", mesh.diffuseFileName.c_str());
+			printf("currentMesh.specularFileName: %s\n", mesh.specularFileName.c_str());
+			printf("currentMesh.normalFileName: %s\n", mesh.normalFileName.c_str());
 		}
 	}
 
@@ -208,7 +208,7 @@ namespace CE
 					if (index == currentMesh.m_vertices.size())
 					{
 						currentMesh.m_vertices.push_back(vertex);
-						m_controlPointToVertices[polyVertIndex].push_back((int) currentMesh.m_vertices.size() - 1);
+						controlPointToVertices[polyVertIndex].push_back((int) currentMesh.m_vertices.size() - 1);
 					}
 
 					currentMesh.m_indices.push_back(index);
@@ -316,7 +316,7 @@ namespace CE
 				unsigned int numOfIndices = currCluster->GetControlPointIndicesCount();
 				for (unsigned controlPointIndex = 0; controlPointIndex < numOfIndices; ++controlPointIndex)
 				{
-					const auto& verticesForControlPoint = m_controlPointToVertices[currCluster->GetControlPointIndices()[controlPointIndex]];
+					const auto& verticesForControlPoint = controlPointToVertices[currCluster->GetControlPointIndices()[controlPointIndex]];
 					for (unsigned vertexIndex = 0; vertexIndex < verticesForControlPoint.size(); ++vertexIndex)
 					{
 						JointIndexWeightPair jointIndexWeightPair;

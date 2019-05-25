@@ -42,7 +42,7 @@ namespace CE
 		const Skeleton& skeleton;
 		Meshes* outMeshes;
 
-		std::unordered_map<int, std::vector<int>> m_controlPointToVertices;
+		std::unordered_map<int, std::vector<int>> controlPointToVertices;
 	};
 }
 
