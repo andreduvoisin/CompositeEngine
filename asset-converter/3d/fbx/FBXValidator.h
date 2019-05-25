@@ -13,7 +13,7 @@ namespace CE
 	{
 	public:
 		FBXValidator(
-			fbxsdk::FbxManager* manager,
+			fbxsdk::FbxManager* fbxManager,
 			const char* fileName);
 
 		bool Validate();
@@ -25,7 +25,7 @@ namespace CE
 		bool ValidateChildren(fbxsdk::FbxNode* node);
 
 	private:
-		fbxsdk::FbxManager* manager;
+		fbxsdk::FbxManager* fbxManager;
 		const char* fileName;
 	};
 }

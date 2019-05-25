@@ -8,16 +8,16 @@
 namespace CE
 {
 	AnimationOptimizer::AnimationOptimizer(Animations* animations)
-		: m_animations(animations)
+		: animations(animations)
 	{
 
 	}
 
 	void AnimationOptimizer::OptimizeAnimations()
 	{
-		for (size_t i = 0; i < m_animations->size(); ++i)
+		for (size_t i = 0; i < animations->size(); ++i)
 		{
-			OptimizeAnimation((*m_animations)[i]);
+			OptimizeAnimation((*animations)[i]);
 		}
 	}
 

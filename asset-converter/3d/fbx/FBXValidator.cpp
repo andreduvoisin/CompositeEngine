@@ -5,9 +5,9 @@
 namespace CE
 {
 	FBXValidator::FBXValidator(
-			FbxManager* manager, 
+			FbxManager* fbxManager, 
 			const char* fileName)
-		: manager(manager)
+		: fbxManager(fbxManager)
 		, fileName(fileName)
 	{
 		
@@ -15,10 +15,10 @@ namespace CE
 
 	bool FBXValidator::Validate()
 	{
-		FbxImporter* importer = FbxImporter::Create(manager, "");
-		FbxScene* scene = FbxScene::Create(manager, "");
+		FbxImporter* importer = FbxImporter::Create(fbxManager, "");
+		FbxScene* scene = FbxScene::Create(fbxManager, "");
 
-		if (!importer->Initialize(fileName, -1, manager->GetIOSettings()))
+		if (!importer->Initialize(fileName, -1, fbxManager->GetIOSettings()))
 		{
 			return false;
 		}

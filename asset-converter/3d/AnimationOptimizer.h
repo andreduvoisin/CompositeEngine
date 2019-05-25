@@ -19,7 +19,7 @@ namespace CE
 		void OptimizeAnimation(Animation& animation);
 
 	private:
-		Animations* m_animations;
+		Animations* animations;
 	};
 }
 
