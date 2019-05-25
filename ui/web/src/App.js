@@ -11,6 +11,7 @@ import Toolbar from './Components/Toolbar';
 import Sidebar from './Components/Sidebar';
 import AnimationControls from './Containers/AnimationControls';
 import theme from './theme';
+import FpsCounter from "./Containers/FpsCounter";
 
 const debugLayout = false;
 
@@ -18,7 +19,7 @@ class App extends Component {
   render() {
     return (
       <ThemeProvider theme={theme}>
-        <React.Fragment>
+        <>
           {(debugLayout) ? <DebugStyles /> : null}
           <GlobalStyles />
           <Toolbar></Toolbar>
@@ -37,7 +38,8 @@ class App extends Component {
               </Layout.Sidebar> */}
           </Layout.FullHeightContainer>
           <ToastContainer toastClassName="Toast" />
-        </React.Fragment>
+          <FpsCounter />
+        </>
       </ThemeProvider>
     );
   }
