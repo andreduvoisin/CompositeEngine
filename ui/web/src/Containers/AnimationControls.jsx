@@ -1,7 +1,12 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import AnimationControls from '../Components/AnimationControls';
-import { toggleAnimation, setAnimationTime, setRenderSkeletonMode } from "../redux/actions";
+import {
+  toggleAnimation,
+  setAnimationTime,
+  setRenderSkeletonMode,
+  setAnimation
+} from '../redux/actions';
 
 const mapStateToProps = (state) => {
   return state;
@@ -17,6 +22,9 @@ const mapDispatchToProps = (dispatch) => {
     },
     setRenderMode: (event) => {
       dispatch(setRenderSkeletonMode(event.target.value));
+    },
+    setAnimation: (event) => {
+      dispatch(setAnimation(event.target.value));
     }
   };
 };
@@ -30,6 +38,7 @@ export default connect(
       isPlaying={props.animationState.isPlaying}
       currentTime={props.animationState.currentTime}
       duration={props.animationState.duration}
+      animations={props.animationState.availableAnimations}
       {...props}
     />
   );

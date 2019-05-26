@@ -24,6 +24,12 @@ void JsonSerializer::WriteUint32(const char* key, uint32_t value)
 	writer.Uint(value);
 }
 
+void JsonSerializer::WriteString(const char* key, std::string value)
+{
+	writer.Key(key);
+	writer.String(value.c_str());
+}
+
 const char* JsonSerializer::ToString()
 {
 	writer.EndObject();

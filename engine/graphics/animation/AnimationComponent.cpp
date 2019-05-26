@@ -19,7 +19,7 @@ namespace CE
 		: animationEventHandler(eventSystem, this)
 		, m_skeleton(skeleton)
 		, m_animations(animations)
-		, m_currentAnimation(0)
+		, m_currentAnimation(1)
 	{
 		InitializeAnimationCache();
 		InitializePalette();
@@ -149,13 +149,13 @@ namespace CE
 		if (animationCache->currTime > animation->duration)
 		{
 			// use this to loop one animation
-			//animationCache->currTime = fmod(animationCache->currTime, animation->duration);
+			animationCache->currTime = fmod(animationCache->currTime, animation->duration);
 
 			// use this to loop all animations
-			animationCache->currTime = 0;
-			m_currentAnimation = ++m_currentAnimation % m_animations->size();
-			animation = &m_animations->at(m_currentAnimation);
-			animationCache = &m_animationCaches[m_currentAnimation];
+			//animationCache->currTime = 0;
+			//m_currentAnimation = ++m_currentAnimation % m_animations->size();
+			//animation = &m_animations->at(m_currentAnimation);
+			//animationCache = &m_animationCaches[m_currentAnimation];
 		}
 
 		for (size_t i = 0; i < m_skeleton->joints.size(); ++i)

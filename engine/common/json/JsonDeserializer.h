@@ -3,6 +3,8 @@
 
 #include "rapidjson/document.h"
 
+#include <vector>
+
 class JsonDeserializer
 {
 public:
@@ -11,6 +13,7 @@ public:
 	bool GetBool(const char* key) const;
 	uint32_t GetUint32(const char* key) const;
 	float GetFloat(const char* key) const;
+	std::string GetString(const char* key) const;
 
 private:
 	rapidjson::Document document;

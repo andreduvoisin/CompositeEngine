@@ -22,3 +22,9 @@ float JsonDeserializer::GetFloat(const char* key) const
 	const rapidjson::Value& value = document[key];
 	return value.GetFloat();
 }
+
+std::string JsonDeserializer::GetString(const char* key) const
+{
+	const rapidjson::Value& value = document[key];
+	return value.GetString();
+}

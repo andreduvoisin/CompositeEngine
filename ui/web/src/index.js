@@ -11,13 +11,15 @@ import reducer from './redux/reducers/index';
 import {
   updatePauseState,
   updateAnimationState,
-  updateFpsCounterState
+  updateFpsCounterState,
+  updateAvailableAnimations
 } from './redux/actions';
 import rootSaga from './redux/sagas';
 import {
   subscribeToPauseState,
   subscribeToAnimationState,
-  subscribeToFpsCounterState
+  subscribeToFpsCounterState,
+  subscribeToAvailableAnimation
 } from './ipc';
 
 // create the saga middleware
@@ -45,6 +47,10 @@ subscribeToAnimationState((state) => {
 
 subscribeToFpsCounterState((state) => {
   store.dispatch(updateFpsCounterState(state));
+});
+
+subscribeToAvailableAnimation((state) => {
+  store.dispatch(updateAvailableAnimations(state));
 });
 
 ReactDOM.render(

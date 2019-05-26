@@ -21,6 +21,7 @@ namespace CE
 
 	private:
 		void HandleSetAnimationTimeEvent(const Event& event);
+		void HandleSetAnimation(const Event& event);
 
 		EventSystem* eventSystem;
 		AnimationComponent* animationComponent;

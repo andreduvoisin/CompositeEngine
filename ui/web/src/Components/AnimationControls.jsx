@@ -110,6 +110,29 @@ export default class AnimationControls extends React.Component {
             <option value={2}>Mesh w/ Skeleton</option>
           </select>
         </AnimationControlsListItem>
+        <AnimationControlsListItem>
+          <label style={{
+              marginLeft: '10px'
+          }}>
+            Animation:
+          </label>
+          <select
+            defaultValue={0}
+            value={props.renderMode}
+            onChange={props.setAnimation}
+            style={{
+              marginLeft: '10px'
+            }}
+          >
+            {props.animations.map(({
+              name, duration
+            }, i) => {
+              return (
+                <option value={name} key={i}>{name} ({duration}s)</option>
+              );
+            })}
+          </select>
+        </AnimationControlsListItem>
       </AnimationControlsList>
     );
   }

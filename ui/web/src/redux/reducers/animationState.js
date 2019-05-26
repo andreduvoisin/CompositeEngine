@@ -4,7 +4,8 @@ const initialState = {
   isPlaying: true,
   currentTime: 0,
   duration: 0,
-  fps: 0
+  fps: 0,
+  availableAnimations: []
 };
 
 export default (
@@ -21,10 +22,22 @@ export default (
       };
 
     case AnimationMutationTypes.ANIMATION_STATE_UPDATE:
+      const availableAnimations = [
+        {
+          name: action.payload.availableAnimationName1,
+          duration: action.payload.availableAnimationDuration1.toFixed(2)
+        },
+        {
+          name: action.payload.availableAnimationName2,
+          duration: action.payload.availableAnimationDuration2.toFixed(2)
+        }
+      ];
+
       return {
         ...state,
         currentTime: action.payload.currentTime,
-        duration: action.payload.duration
+        duration: action.payload.duration,
+        availableAnimations
       };
 
     case AnimationMutationTypes.FPS_COUNTER_STATE_UPDATE:
@@ -38,6 +51,22 @@ export default (
         ...state,
         renderMode: action.payload.mode
       };
+
+    case AnimationMutationTypes.AVAILABLE_ANIMATIONS_UPDATE:
+      {
+        const availableAnimation = {
+          name: action.payload.name,
+          duration: action.payload.duration
+        };
+
+        const availableAnimations = [...state.availableAnimations];
+        availableAnimations.push(availableAnimation);
+
+        return {
+          ...state,
+          availableAnimations
+        };
+      }
 
     default:
       return state;

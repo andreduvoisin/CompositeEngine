@@ -10,6 +10,10 @@ struct AnimationStateEvent : Event
 
 	float currentTime;
 	float duration;
+	std::string availableAnimationName1;
+	float availableAnimationDuration1;
+	std::string availableAnimationName2;
+	float availableAnimationDuration2;
 
 protected:
 	void SerializeInternal(JsonSerializer& serializer) const override;

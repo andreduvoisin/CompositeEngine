@@ -9,7 +9,11 @@ const MessageTypes = Object.freeze({
   PAUSE_STATE: 5,
   SET_RENDER_MODE: 6,
   REQUEST_FPS_STATE: 7,
-  FPS_STATE: 8
+  FPS_STATE: 8,
+  TOGGLE_BIND_POSE: 9,
+	AVAILABLE_ANIMATION: 10,
+  REQUEST_AVAILABLE_ANIMATION: 11,
+  SET_ANIMATION: 12,
 });
 
 export const sendMessage = (action) => {
@@ -52,6 +56,16 @@ export const sendSetAnimationTime = (time) => {
   });
 };
 
+export const sendSetAnimationRequest = (animationName) => {
+  const message = {
+    type: MessageTypes.SET_ANIMATION,
+    name: animationName
+  };
+  return sendMessage(JSON.stringify(message)).then((data) => {
+    return JSON.parse(data);
+  });
+};
+
 export const subscribeToPauseState = (handler) => {
   const message = {
     type: MessageTypes.REQUEST_PAUSE_STATE
@@ -87,6 +101,22 @@ export const subscribeToAnimationState = (handler) => {
 export const subscribeToFpsCounterState = (handler) => {
   const message = {
     type: MessageTypes.REQUEST_FPS_STATE
+  };
+  window.cefQuery({
+    request: JSON.stringify(message),
+    persistent: true,
+    onSuccess: (data) => {
+      handler(JSON.parse(data));
+    },
+    onFailure: (data) => {
+      console.log(data);
+    }
+  });
+};
+
+export const subscribeToAvailableAnimation = (handler) => {
+  const message = {
+    type: MessageTypes.REQUEST_AVAILABLE_ANIMATION
   };
   window.cefQuery({
     request: JSON.stringify(message),

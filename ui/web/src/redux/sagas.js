@@ -7,13 +7,15 @@ import {
 import {
   sendToggleAnimationRequest,
   sendSetAnimationTime,
-  sendSetRenderModeRequest
+  sendSetAnimationRequest,
+  sendSetRenderModeRequest,
 } from "../ipc";
 
 const {
   TOGGLE_ANIMATION_REQUEST,
   SET_RENDER_MODE,
-  SET_ANIMATION_TIME
+  SET_ANIMATION_TIME,
+  SET_ANIMATION
 } = AnimationMutationTypes;
 
 function* requestToggleAnimationStateAsync() {
@@ -33,6 +35,10 @@ function* requestToggleRenderSkeleton(action) {
   yield sendSetRenderModeRequest(action.payload.mode);
 }
 
+function* requestSetAnimation(action) {
+  yield sendSetAnimationRequest(action.payload);
+}
+
 function* watchToggleAnimation() {
   yield takeEvery(TOGGLE_ANIMATION_REQUEST, requestToggleAnimationStateAsync);
 };
@@ -45,10 +51,15 @@ function* watchToggleRenderSkeleton() {
   yield takeEvery(SET_RENDER_MODE, requestToggleRenderSkeleton);
 };
 
+function* watchSetAnimation() {
+  yield takeEvery(SET_ANIMATION, requestSetAnimation);
+};
+
 export default function* root() {
   yield all([
     fork(watchToggleAnimation),
     fork(watchSetAnimationTime),
-    fork(watchToggleRenderSkeleton)
+    fork(watchSetAnimation),
+    fork(watchToggleRenderSkeleton),
   ]);
 };

@@ -8,8 +8,6 @@
 #include "event/core/EventSystem.h"
 #include "event/PauseStateEvent.h"
 #include "event/AnimationStateEvent.h"
-#include "event/AvailableAnimationEvent.h"
-#include "event/SetAnimationEvent.h"
 
 #include "common/json/JsonDeserializer.h"
 #include "event/FpsStateEvent.h"
@@ -87,20 +85,6 @@ bool UIQueryHandler::OnQuery(
 		case EventType::TOGGLE_BIND_POSE:
 		{
 			SendEvent<SetRenderModeEvent>(deserializer);
-			SendSuccessResponse(callback);
-			return true;
-		}
-
-		case EventType::REQUEST_AVAILABLE_ANIMATION:
-		{
-			SendEvent<RequestAvailableAnimationEvent>(deserializer);
-			AddQueryToResponder(type, queryId, persistent, callback);
-			return true;
-		}
-
-		case EventType::SET_ANIMATION:
-		{
-			SendEvent<SetAnimationEvent>(deserializer);
 			SendSuccessResponse(callback);
 			return true;
 		}

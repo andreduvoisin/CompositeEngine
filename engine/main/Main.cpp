@@ -32,6 +32,7 @@
 #include "core/clock/GameTimeClock.h"
 #include "event/ToggleBindPoseEvent.h"
 #include "event/SetRenderModeEvent.h"
+#include "event/AvailableAnimationEvent.h"
 #include "core/Camera.h"
 
 #ifdef _WIN32
@@ -95,8 +96,8 @@ GLuint g_uiTextureID = -1;
 //const char* g_assetName = "assets/Standing Walk Forward.ceasset";
 
 std::vector<const char*> g_assetNames = {
-	"assets/Quarterback Pass.ceasset",
-	//"assets/Thriller Part 2.ceasset",
+	//"assets/Quarterback Pass.ceasset",
+	"assets/Thriller Part 2.ceasset",
 	//"assets/Standing Walk Forward.ceasset"
 };
 
@@ -803,6 +804,14 @@ bool InitializeOpenGL()
 		
 		g_meshComponents.push_back(new CE::MeshComponent(meshes, textures));
 		g_animationComponents.push_back(new CE::AnimationComponent(skeleton, animations, eventSystem));
+
+		for (const CE::Animation& ceAnimation : *animations)
+		{
+			AvailableAnimationEvent availableAnimationEvent;
+			availableAnimationEvent.name = ceAnimation.name;
+			availableAnimationEvent.duration = ceAnimation.duration;
+			eventSystem->EnqueueEvent(availableAnimationEvent);
+		}
 	}
 
 	glGenVertexArrays(1, &g_vao);

@@ -11,8 +11,11 @@ export const AnimationMutationTypes = {
   FPS_COUNTER_STATE_UPDATE: 'FPS_COUNTER_STATE_UPDATE',
 
   SET_ANIMATION_TIME: 'SET_ANIMATION_TIME',
+  SET_ANIMATION: 'SET_ANIMATION',
 
   SET_RENDER_MODE: 'SET_RENDER_MODE',
+
+  AVAILABLE_ANIMATIONS_UPDATE: 'AVAILABLE_ANIMATIONS_UPDATE',
 };
 
 export const toggleAnimation = () => {
@@ -69,5 +72,19 @@ export const updateFpsCounterState = (fpsCounterState) => {
   return {
     type: AnimationMutationTypes.FPS_COUNTER_STATE_UPDATE,
     payload: fpsCounterState
+  };
+};
+
+export const updateAvailableAnimations = (availableAnimation) => {
+  return {
+    type: AnimationMutationTypes.AVAILABLE_ANIMATIONS_UPDATE,
+    payload: availableAnimation
+  };
+};
+
+export const setAnimation = (animation) => {
+  return {
+    type: AnimationMutationTypes.SET_ANIMATION,
+    payload: animation
   };
 };

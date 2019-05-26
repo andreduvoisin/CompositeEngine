@@ -5,6 +5,7 @@
 
 #include "event/core/Event.h"
 #include "event/SetAnimationTimeEvent.h"
+#include "event/SetAnimationEvent.h"
 #include "core/clock/RealTimeClock.h"
 
 namespace CE
@@ -17,6 +18,7 @@ namespace CE
 	{
 		eventSystem->RegisterListener(this, EventType::REQUEST_ANIMATION_STATE);
 		eventSystem->RegisterListener(this, EventType::SET_ANIMATION_TIME);
+		eventSystem->RegisterListener(this, EventType::SET_ANIMATION);
 	}
 
 	void AnimationEventHandler::OnEvent(const Event& event)
@@ -34,6 +36,12 @@ namespace CE
 				HandleSetAnimationTimeEvent(event);
 				break;
 			}
+
+			case EventType::SET_ANIMATION:
+			{
+				HandleSetAnimation(event);
+				break;
+			}
 		}
 	}
 
@@ -47,6 +55,10 @@ namespace CE
 		AnimationStateEvent animationStateEvent;
 		animationStateEvent.currentTime = animationCache->currTime;
 		animationStateEvent.duration = animation->duration;
+		animationStateEvent.availableAnimationName1 = animationComponent->m_animations->at(0).name;
+		animationStateEvent.availableAnimationDuration1 = animationComponent->m_animations->at(0).duration;
+		animationStateEvent.availableAnimationName2 = animationComponent->m_animations->at(1).name;
+		animationStateEvent.availableAnimationDuration2 = animationComponent->m_animations->at(1).duration;
 
 		eventSystem->EnqueueEventThrottled(animationStateEvent, throttleTicks);
 	}
@@ -58,6 +70,25 @@ namespace CE
 		// TODO: There's definitely more to do here. I think this should also do a FindInterpolationKeys?
 		AnimationCache* animationCache = &animationComponent->m_animationCaches[animationComponent->m_currentAnimation];
 		animationCache->currTime = setAnimationTimeEvent.time;
+
+		SendAnimationStateEvent();
+	}
+
+	void AnimationEventHandler::HandleSetAnimation(const Event& event)
+	{
+		const SetAnimationEvent& setAnimationEvent = reinterpret_cast<const SetAnimationEvent&>(event);
+
+		for (int i = 0; i < animationComponent->m_animations->size(); ++i)
+		{
+			if (animationComponent->m_animations->at(i).name == setAnimationEvent.name)
+			{
+				AnimationCache* animationCache = &animationComponent->m_animationCaches[animationComponent->m_currentAnimation];
+				animationCache->currTime = 0.f;
+
+				animationComponent->m_currentAnimation = i;
+				break;
+			}
+		}
 
 		SendAnimationStateEvent();
 	}
