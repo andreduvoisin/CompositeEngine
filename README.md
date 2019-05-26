@@ -124,5 +124,6 @@ sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
 
 ### Contributors
 
-Andre Duvoisin - @andreduvoisin
-Kevin Viglucci - @viglucci
+Andre Duvoisin - [Website](https://andreduvoisin.com/), [GitHub](https://github.com/andreduvoisin), [Twitter](https://twitter.com/andreduvoisin)
+
+Kevin Viglucci - [Website](https://viglucci.io/), [GitHub](https://github.com/viglucci), [Twitter](https://twitter.com/vigs072)
