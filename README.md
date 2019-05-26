@@ -1,5 +1,13 @@
 # Composite Engine
 
+Composite Engine is a C++ game engine for Windows and Mac featuring OpenGL, a CMake build system,
+and Chromium Embedded Framework (CEF) for a JavaScript user interface layer. Features include:
+* Graphics engine with rendering, texturing, skinning, and animations in OpenGL
+* Animation processing tool to import via FBX SDK and export to a custom format
+* CEF integration for a JavaScript user interface with React and Redux
+* Event system to marshal events between different engine systems
+* CMake build system for Windows and Mac that also handles dependency management
+
 ### How do I get set up?
 
 #### After Cloning
