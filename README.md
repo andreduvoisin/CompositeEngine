@@ -1,5 +1,13 @@
 # Composite Engine
 
+Composite Engine is a C++ game engine for Windows and Mac featuring OpenGL, a CMake build system,
+and Chromium Embedded Framework (CEF) for a JavaScript user interface layer. Features include:
+* Graphics engine with rendering, texturing, skinning, and animations in OpenGL
+* Animation processing tool to import via FBX SDK and export to a custom format
+* CEF integration for a JavaScript user interface with React and Redux
+* Event system to marshal events between different engine systems
+* CMake build system for Windows and Mac that also handles dependency management
+
 ### How do I get set up?
 
 #### After Cloning
@@ -121,3 +129,9 @@ sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
 
 * NVIDIA Nsight: http://www.nvidia.com/object/nsight.html
 	* Reference: http://docs.nvidia.com/nsight-visual-studio-edition/5.4/Nsight_Visual_Studio_Edition_User_Guide.htm
+
+### Contributors
+
+Andre Duvoisin - [Website](https://andreduvoisin.com/), [GitHub](https://github.com/andreduvoisin), [Twitter](https://twitter.com/andreduvoisin)
+
+Kevin Viglucci - [Website](https://viglucci.io/), [GitHub](https://github.com/viglucci), [Twitter](https://twitter.com/vigs072)
