@@ -69,6 +69,7 @@ GLuint g_tbo = 0;
 GLuint g_programID2 = 0;
 GLuint g_programID4 = 0;
 GLuint g_programID5 = 0;
+GLuint g_programID6 = 0;
 
 GLuint g_projectionViewModelMatrixID = -1;
 GLuint g_paletteID = -1;
@@ -80,6 +81,10 @@ GLuint g_diffuseTextureID = -1;
 
 GLuint g_projectionViewModelMatrixID2 = -1;
 GLuint g_paletteID2 = -1;
+
+GLuint g_projectionViewModelMatrixID6 = -1;
+GLuint g_paletteID6 = -1;
+GLuint g_diffuseTextureLocation6 = -1;
 
 GLuint g_projectionViewModelMatrixID5 = -1;
 
@@ -183,7 +188,29 @@ void printShaderLog(GLuint shader)
 
 void RenderMesh(CE::MeshComponent& meshComponent, CE::AnimationComponent& animationComponent, const glm::mat4& projectionViewModel)
 {
-	glUseProgram(g_programID);
+	// bool renderWireFrameOnly = engine->RenderMode() == 3;
+	bool renderWireFrameOnly = true;
+	GLuint activeProgramID = -1;
+	GLuint activeProjectionViewModelMatrixID = -1;
+	GLuint activePaletteID = -1;
+	GLuint activeDiffuseTextureLocation = -1;
+
+	if (renderWireFrameOnly)
+	{
+		activeProgramID = g_programID6;
+		activeProjectionViewModelMatrixID = g_projectionViewModelMatrixID6;
+		activePaletteID = g_paletteID6;
+		activeDiffuseTextureLocation = g_diffuseTextureLocation6;
+	}
+	else
+	{
+		activeProgramID = g_programID;
+		activeProjectionViewModelMatrixID = g_projectionViewModelMatrixID;
+		activePaletteID = g_paletteID;
+		activeDiffuseTextureLocation = g_diffuseTextureLocation;
+	}
+
+	glUseProgram(activeProgramID);
 
 	unsigned int stride = sizeof(CE::Vertex1P1UV4J);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(offsetof(CE::Vertex1P1UV4J, position)));
@@ -195,26 +222,26 @@ void RenderMesh(CE::MeshComponent& meshComponent, CE::AnimationComponent& animat
 	glEnableVertexAttribArray(2);
 	glEnableVertexAttribArray(3);
 
-	glUniformMatrix4fv(g_projectionViewModelMatrixID, 1, GL_FALSE, &projectionViewModel[0][0]);
-	
+	glUniformMatrix4fv(activeProjectionViewModelMatrixID, 1, GL_FALSE, &projectionViewModel[0][0]);
+
 	if (engine->IsRenderBindPose())
 	{
 		animationComponent.ResetMatrixPalette();
 	}
-	
+
 	animationComponent.BindMatrixPalette(
 		g_paletteTextureUnit,
 		g_paletteGenTex,
 		g_tbo,
-		g_paletteID);
+		activePaletteID);
 
-	if (engine->RenderMode() == 0 || engine->RenderMode() == 2)
+	if (engine->RenderMode() == 0 || engine->RenderMode() == 2 || renderWireFrameOnly)
 	{
 		meshComponent.Draw(
 			g_vbo,
 			g_ibo,
 			g_diffuseTextureID,
-			g_diffuseTextureLocation,
+			activeDiffuseTextureLocation,
 			g_diffuseTextureUnit);
 	}
 
@@ -244,12 +271,12 @@ void RenderSkeleton(CE::AnimationComponent& animationComponent, const glm::mat4&
 	glEnableVertexAttribArray(2);
 
 	glUniformMatrix4fv(g_projectionViewModelMatrixID2, 1, GL_FALSE, &projectionViewModel[0][0]);
-    
+
 	if (engine->IsRenderBindPose())
 	{
 		animationComponent.ResetMatrixPalette();
 	}
-    
+
 	animationComponent.BindMatrixPalette(
 		g_paletteTextureUnit,
 		g_paletteGenTex,
@@ -474,13 +501,13 @@ void Render()
 	glm::mat4 view = g_camera->CreateViewMatrix();
 	glm::mat4 model = glm::mat4(1.0f);
 	glm::mat4 projectionViewModel = projection * view * model;
-	
+
 	for (size_t i = 0; i < g_assetNames.size(); ++i)
 	{
 		RenderMesh(*g_meshComponents[i], *g_animationComponents[i], projectionViewModel);
 		RenderSkeleton(*g_animationComponents[i], projectionViewModel);
 	}
-	
+
 	RenderGrid(projectionViewModel);
 
 	// Because of depth testing, and because the UI is currently rendered as
@@ -707,6 +734,60 @@ bool CreateProgram5()
 	return true;
 }
 
+bool CreateProgram6()
+{
+	g_programID6 = glCreateProgram();
+
+	// TODO: Copy shaders in CMAKE to .exe dir (or subdir next to .exe).
+
+	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+	std::string vertexShaderSource = ReadFile("shaders/SkinnedMeshShader.vert");
+	const char* vertexShaderSourceStr = vertexShaderSource.c_str();
+	glShaderSource(vertexShader, 1, &vertexShaderSourceStr, NULL);
+	glCompileShader(vertexShader);
+	GLint vShaderCompiled = GL_FALSE;
+	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &vShaderCompiled);
+	printShaderLog(vertexShader);
+	if (vShaderCompiled != GL_TRUE)
+	{
+		printf("Unable to compile vertex shader %d!\n", vertexShader);
+		return false;
+	}
+	glAttachShader(g_programID6, vertexShader);
+
+	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+	//const GLchar* fragmentShaderSource[] =
+	//{
+	//	"#version 410\nout vec4 LFragment; void main() { LFragment = vec4(1.0, 1.0, 1.0, 1.0); }"
+	//};
+	std::string fragmentShaderSource = ReadFile("shaders/WireFrameShader.frag");
+	const char* fragmentShaderSourceStr = fragmentShaderSource.c_str();
+	glShaderSource(fragmentShader, 1, &fragmentShaderSourceStr, NULL);
+	glCompileShader(fragmentShader);
+	GLint fShaderCompiled = GL_FALSE;
+	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &fShaderCompiled);
+	printShaderLog(fragmentShader);
+	if (fShaderCompiled != GL_TRUE)
+	{
+		printf("Unable to compile fragment shader %d!\n", fragmentShader);
+		return false;
+	}
+	glAttachShader(g_programID6, fragmentShader);
+
+	glLinkProgram(g_programID6);
+	GLint programSuccess = GL_TRUE;
+	glGetProgramiv(g_programID6, GL_LINK_STATUS, &programSuccess);
+	printProgramLog(g_programID6);
+	if (programSuccess != GL_TRUE)
+	{
+		printf("Error linking program %d!\n", g_programID6);
+		return false;
+	}
+
+	return true;
+}
+
+
 bool InitializeOpenGL()
 {
 	g_programID = glCreateProgram();
@@ -772,12 +853,21 @@ bool InitializeOpenGL()
 		return false;
 	}
 
+	if (!CreateProgram6())
+	{
+		return false;
+	}
+
 	g_uiTextureLocation = glGetUniformLocation(g_programID4, "uiTexture");
 
 	g_projectionViewModelMatrixID5 = glGetUniformLocation(g_programID5, "projectionViewModel");
 
 	g_projectionViewModelMatrixID2 = glGetUniformLocation(g_programID2, "projectionViewModel");
 	g_paletteID2 = glGetUniformLocation(g_programID2, "palette");
+
+	g_projectionViewModelMatrixID6 = glGetUniformLocation(g_programID6, "projectionViewModel");
+	g_paletteID6 = glGetUniformLocation(g_programID6, "palette");
+	g_diffuseTextureLocation6 = glGetUniformLocation(g_programID6, "diffuseTexture");
 
 	g_projectionViewModelMatrixID = glGetUniformLocation(g_programID, "projectionViewModel");
 	g_paletteID = glGetUniformLocation(g_programID, "palette");
@@ -793,14 +883,14 @@ bool InitializeOpenGL()
 		CE::Meshes* meshes = new CE::Meshes();
 		CE::Animations* animations = new CE::Animations();
 		CE::Textures* textures = new CE::Textures();
-		
+
 		CE::AssetImporter::ImportSkeletonMeshesAnimationsTextures(
 			g_assetNames[i],
 			*skeleton,
 			*meshes,
 			*animations,
 			*textures);
-		
+
 		g_meshComponents.push_back(new CE::MeshComponent(meshes, textures));
 		g_animationComponents.push_back(new CE::AnimationComponent(skeleton, animations, eventSystem));
 	}
@@ -1118,7 +1208,7 @@ bool Initialize()
 
 	eventSystem = new EventSystem();
 	engine = new CE::Engine(eventSystem);
-	
+
 #ifdef _WIN32
 	queryHandler = new UIQueryHandler(eventSystem, new UIQueryResponder(eventSystem));
 #endif
@@ -1392,7 +1482,7 @@ int main(int argc, char* argv[])
 							eventSystem->EnqueueEvent(ToggleBindPoseEvent());
 							break;
 						}
-						
+
 						case SDLK_e:
 						{
 							SetRenderModeEvent setRenderModeEvent;
@@ -1400,7 +1490,7 @@ int main(int argc, char* argv[])
 							eventSystem->EnqueueEvent(setRenderModeEvent);
 							break;
 						}
-						
+
 						case SDLK_w:
 						{
 							g_camera->MoveForward(1000 * CE::RealTimeClock::Get().GetDeltaSeconds());
@@ -1518,7 +1608,7 @@ int main(int argc, char* argv[])
 					CefMouseEvent mouseEvent;
 					SDL_GetMouseState(&mouseEvent.x, &mouseEvent.y);
 					mouseEvent.modifiers = GetCefMouseModifiers(event);
-					
+
 					g_browser->GetHost()->SendMouseWheelEvent(mouseEvent, event.wheel.x, event.wheel.y);
 
 					break;
