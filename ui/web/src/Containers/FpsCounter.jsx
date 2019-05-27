@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import Portal from '../Components/Portal';
+import Portal from '../components/Portal/Portal';
 import withFps from './withFps';
 
 const Container = styled.div`

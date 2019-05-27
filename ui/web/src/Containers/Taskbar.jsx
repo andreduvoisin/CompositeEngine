@@ -1,5 +1,5 @@
 import { connect } from 'react-redux';
-import Toolbar from '../Components/Toolbar';
+import Toolbar from '../components/Toolbar/Toolbar';
 import { toggleAnimation } from "../redux/actions";
 
 const mapStateToProps = (state) => {

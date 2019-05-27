@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import AnimationControls from '../Components/AnimationControls';
+import AnimationControls from '../components/AnimationControls/AnimationControls';
 import { toggleAnimation, setAnimationTime, setRenderSkeletonMode } from "../redux/actions";
 
 const mapStateToProps = (state) => {

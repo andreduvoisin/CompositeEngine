@@ -7,10 +7,10 @@ import { State, Store } from "@sambego/storybook-state";
 
 import { Welcome } from '@storybook/react/demo';
 
-import AnimationControls from '../src/Components/AnimationControls';
-import Slider from '../src/Components/Slider';
-import Toolbar from '../src/Components/Toolbar';
-import Layout from '../src/Components/Layout';
+import AnimationControls from '../src/components/AnimationControls';
+import Slider from '../src/components/Slider/Slider';
+import Toolbar from '../src/components/Toolbar/Toolbar';
+import Layout from '../src/components/Layout/Layout';
 
 storiesOf('Welcome', module).add('to Storybook', () => <Welcome showApp={linkTo('Button')} />);
 
