@@ -126,63 +126,49 @@ CE::Camera* g_camera;
 
 void PrintProgramLog(GLuint program)
 {
-	//Make sure name is shader
 	if (!glIsProgram(program))
 	{
-		printf("Name %d is not a program\n", program);
+		printf("GLuint %d is not a program\n", program);
 		return;
 	}
 
-	//Program log length
-	int infoLogLength = 0;
-	int maxLength = infoLogLength;
-
-	//Get info string length
+	GLint maxLength = 0;
 	glGetProgramiv(program, GL_INFO_LOG_LENGTH, &maxLength);
 
-	//Allocate string
 	char* infoLog = new char[maxLength];
 
-	//Get info log
+	GLint infoLogLength = 0;
 	glGetProgramInfoLog(program, maxLength, &infoLogLength, infoLog);
 	if (infoLogLength > 0)
 	{
-		//Print Log
+		printf("program log:\n");
 		printf("%s\n", infoLog);
 	}
 
-	//Deallocate string
 	delete[] infoLog;
 }
 
 void PrintShaderLog(GLuint shader)
 {
-	//Make sure name is shader
 	if (!glIsShader(shader))
 	{
-		printf("Name %d is not a shader\n", shader);
+		printf("GLuint %d is not a shader\n", shader);
 		return;
 	}
 
-	//Shader log length
-	int infoLogLength = 0;
-	int maxLength = infoLogLength;
-
-	//Get info string length
+	GLint maxLength = 0;
 	glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &maxLength);
 
-	//Allocate string
 	char* infoLog = new char[maxLength];
 
-	//Get info log
+	GLint infoLogLength = 0;
 	glGetShaderInfoLog(shader, maxLength, &infoLogLength, infoLog);
 	if (infoLogLength > 0)
 	{
-		//Print Log
+		printf("shader log:\n");
 		printf("%s\n", infoLog);
 	}
 
-	//Deallocate string
 	delete[] infoLog;
 }
 
