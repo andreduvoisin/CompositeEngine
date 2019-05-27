@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import classNames from 'classnames';
 import './AnimationControls.less';
-import Slider from "./Slider";
+import Slider from "../Slider/Slider";
 
 const AnimationControlsList = styled.ul`
   text-align: center;

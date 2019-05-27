@@ -1,17 +1,17 @@
 import 'font-awesome/css/font-awesome.min.css';
 import 'react-toastify/dist/ReactToastify.css';
-import './Components/Toast.less';
+import './components/Toast/Toast.less';
 import React, { Component } from 'react';
 import { ToastContainer } from 'react-toastify';
 import { ThemeProvider } from 'styled-components';
-import DebugStyles from './Components/DebugStyles';
-import GlobalStyles from './Components/GlobalStyles';
-import Layout from './Components/Layout';
-import Toolbar from './Components/Toolbar';
-import Sidebar from './Components/Sidebar';
-import AnimationControls from './Containers/AnimationControls';
+import DebugStyles from './components/Styles/DebugStyles';
+import GlobalStyles from './components/Styles/GlobalStyles';
+import Layout from './components/Layout/Layout';
+import Toolbar from './components/Toolbar/Toolbar';
+import Sidebar from './components/Sidebar/Sidebar';
+import AnimationControls from './containers/AnimationControls';
+import FpsCounter from "./containers/FpsCounter";
 import theme from './theme';
-import FpsCounter from "./Containers/FpsCounter";
 
 const debugLayout = false;
 
