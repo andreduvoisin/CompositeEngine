@@ -1,4 +1,4 @@
-'use strict';
+
 
 // Do this as the first thing so that any code reading it knows the right env.
 process.env.BABEL_ENV = 'development';
@@ -98,7 +98,7 @@ checkBrowsers(paths.appPath, isInteractive)
         clearConsole();
       }
       console.log(chalk.cyan('Starting the development server...\n'));
-      // don't open a broswer, because its annoying and we are a GAME ENGINE
+      // don't open a broswer, because its annoying and we are a GAME ENGINE NOT A WEBSITE
       openBrowser(urls.localUrlForBrowser);
     });
 
