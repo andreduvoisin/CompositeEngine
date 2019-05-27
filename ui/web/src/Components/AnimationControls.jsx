@@ -108,6 +108,7 @@ export default class AnimationControls extends React.Component {
             <option value={0}>Mesh</option>
             <option value={1}>Skeleton</option>
             <option value={2}>Mesh w/ Skeleton</option>
+            <option value={3}>Mesh w/ Wire Frame</option>
           </select>
         </AnimationControlsListItem>
       </AnimationControlsList>
