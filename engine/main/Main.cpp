@@ -92,13 +92,6 @@ GLuint g_uiTextureId = -1;
 GLuint g_uiTextureUnit = -1;
 GLuint g_uiTextureID = -1;
 
-//const char* g_assetName = "assets/Stand Up.ceasset";
-//const char* g_assetName = "assets/Thriller Part 2.ceasset";
-//const char* g_assetName = "assets/jla_wonder_woman.ceasset";
-//const char* g_assetName = "assets/Quarterback Pass.ceasset";
-//const char* g_fbxName = "assets/Soldier_animated_jump.fbx";
-//const char* g_assetName = "assets/Standing Walk Forward.ceasset";
-
 std::vector<const char*> g_assetNames = {
 	"assets/Quarterback Pass.ceasset",
 	"assets/Thriller Part 2.ceasset",
@@ -174,7 +167,7 @@ void PrintShaderLog(GLuint shader)
 
 void RenderMesh(CE::MeshComponent& meshComponent, CE::AnimationComponent& animationComponent, const glm::mat4& projectionViewModel)
 {
-	bool renderWireFrameOnly = engine->RenderMode() == 3;
+	bool renderWireFrameOnly = engine->GetRenderMode() == 3;
 	GLuint activeProgramID = -1;
 	GLuint activeProjectionViewModelMatrixID = -1;
 	GLuint activePaletteID = -1;
@@ -220,7 +213,7 @@ void RenderMesh(CE::MeshComponent& meshComponent, CE::AnimationComponent& animat
 		g_tbo,
 		activePaletteID);
 
-	if (engine->RenderMode() == 0 || engine->RenderMode() == 2 || renderWireFrameOnly)
+	if (engine->GetRenderMode() == 0 || engine->GetRenderMode() == 2 || renderWireFrameOnly)
 	{
 		meshComponent.Draw(
 			g_vbo,
@@ -268,7 +261,7 @@ void RenderSkeleton(CE::AnimationComponent& animationComponent, const glm::mat4&
 		g_tbo,
 		g_skeletonPaletteId);
 
-	const CE::Skeleton* skeleton = animationComponent.GetSkeleton();// CE::SkeletonManager::Get().GetSkeleton(g_fbxName);
+	const CE::Skeleton* skeleton = animationComponent.GetSkeleton();// CE::SkeletonManager::Get().GetSkeleton(g_assetNames[i]);
 
 	std::vector<DebugSkeletonVertex> debugVertices;
 	std::vector<unsigned> debugJointIndices;
@@ -308,7 +301,7 @@ void RenderSkeleton(CE::AnimationComponent& animationComponent, const glm::mat4&
 		}
 	}
 
-	if (engine->RenderMode() == 1 || engine->RenderMode() == 2)
+	if (engine->GetRenderMode() == 1 || engine->GetRenderMode() == 2)
 	{
 		glBindBuffer(GL_ARRAY_BUFFER, g_vbo);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(DebugSkeletonVertex) * debugVertices.size(), debugVertices.data(), GL_STATIC_DRAW);
@@ -1276,7 +1269,7 @@ int main(int argc, char* argv[])
 						case SDLK_e:
 						{
 							SetRenderModeEvent setRenderModeEvent;
-							setRenderModeEvent.mode = (engine->RenderMode() + 1) % 3;
+							setRenderModeEvent.mode = (engine->GetRenderMode() + 1) % 3;
 							eventSystem->EnqueueEvent(setRenderModeEvent);
 							break;
 						}
