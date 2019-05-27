@@ -759,7 +759,7 @@ bool CreateProgram6()
 	//{
 	//	"#version 410\nout vec4 LFragment; void main() { LFragment = vec4(1.0, 1.0, 1.0, 1.0); }"
 	//};
-	std::string fragmentShaderSource = ReadFile("shaders/WireFrameShader.frag");
+	std::string fragmentShaderSource = ReadFile("shaders/WireFrameDiffuseTextureShader.frag");
 	const char* fragmentShaderSourceStr = fragmentShaderSource.c_str();
 	glShaderSource(fragmentShader, 1, &fragmentShaderSourceStr, NULL);
 	glCompileShader(fragmentShader);
