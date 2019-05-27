@@ -188,8 +188,7 @@ void printShaderLog(GLuint shader)
 
 void RenderMesh(CE::MeshComponent& meshComponent, CE::AnimationComponent& animationComponent, const glm::mat4& projectionViewModel)
 {
-	// bool renderWireFrameOnly = engine->RenderMode() == 3;
-	bool renderWireFrameOnly = true;
+	bool renderWireFrameOnly = engine->RenderMode() == 3;
 	GLuint activeProgramID = -1;
 	GLuint activeProjectionViewModelMatrixID = -1;
 	GLuint activePaletteID = -1;
