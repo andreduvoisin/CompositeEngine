@@ -132,16 +132,5 @@
             ],
             "group": "build"
         },
-        {
-            "label": "UI Run",
-            "type": "shell",
-            "command": "npm",
-            "args": [
-                "start",
-            ],
-            "options": {
-                "cwd": "${workspaceFolder}/ui/web"
-            },
-        }
     ]
 }
