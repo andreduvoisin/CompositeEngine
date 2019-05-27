@@ -124,7 +124,7 @@ CE::FpsCounter* g_fpsCounter;
 
 CE::Camera* g_camera;
 
-void printProgramLog(GLuint program)
+void PrintProgramLog(GLuint program)
 {
 	//Make sure name is shader
 	if (!glIsProgram(program))
@@ -155,7 +155,7 @@ void printProgramLog(GLuint program)
 	delete[] infoLog;
 }
 
-void printShaderLog(GLuint shader)
+void PrintShaderLog(GLuint shader)
 {
 	//Make sure name is shader
 	if (!glIsShader(shader))
@@ -574,285 +574,95 @@ std::string ReadFile(const char *file)
 	return buffer.str();
 }
 
-bool CreateProgram2()
+GLuint CreateShader(GLenum shaderType, const char* shaderFileName)
 {
-	g_programID2 = glCreateProgram();
+	GLuint shader = glCreateShader(shaderType);
 
-	// TODO: Copy shaders in CMAKE to .exe dir (or subdir next to .exe).
+	std::string shaderSource = ReadFile(shaderFileName);
+	const char* shaderSourceStr = shaderSource.c_str();
+	glShaderSource(shader, 1, &shaderSourceStr, NULL);
 
-	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	std::string vertexShaderSource = ReadFile("shaders/SkeletonShader.vert");
-	const char* vertexShaderSourceStr = vertexShaderSource.c_str();
-	glShaderSource(vertexShader, 1, &vertexShaderSourceStr, NULL);
-	glCompileShader(vertexShader);
-	GLint vShaderCompiled = GL_FALSE;
-	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &vShaderCompiled);
-	printShaderLog(vertexShader);
-	if (vShaderCompiled != GL_TRUE)
+	glCompileShader(shader);
+
+	PrintShaderLog(shader);
+
+	GLint isShaderCompiled = GL_FALSE;
+	glGetShaderiv(shader, GL_COMPILE_STATUS, &isShaderCompiled);
+	if (isShaderCompiled != GL_TRUE)
 	{
-		printf("Unable to compile vertex shader %d!\n", vertexShader);
-		return false;
-	}
-	glAttachShader(g_programID2, vertexShader);
-
-	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	//const GLchar* fragmentShaderSource[] =
-	//{
-	//	"#version 410\nout vec4 LFragment; void main() { LFragment = vec4(1.0, 1.0, 1.0, 1.0); }"
-	//};
-	std::string fragmentShaderSource = ReadFile("shaders/FragmentShader.frag");
-	const char* fragmentShaderSourceStr = fragmentShaderSource.c_str();
-	glShaderSource(fragmentShader, 1, &fragmentShaderSourceStr, NULL);
-	glCompileShader(fragmentShader);
-	GLint fShaderCompiled = GL_FALSE;
-	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &fShaderCompiled);
-	printShaderLog(fragmentShader);
-	if (fShaderCompiled != GL_TRUE)
-	{
-		printf("Unable to compile fragment shader %d!\n", fragmentShader);
-		return false;
-	}
-	glAttachShader(g_programID2, fragmentShader);
-
-	glLinkProgram(g_programID2);
-	GLint programSuccess = GL_TRUE;
-	glGetProgramiv(g_programID2, GL_LINK_STATUS, &programSuccess);
-	printProgramLog(g_programID2);
-	if (programSuccess != GL_TRUE)
-	{
-		printf("Error linking program %d!\n", g_programID2);
-		return false;
+		printf("unable to compile shader %s\n", shaderFileName);
+		return -1;
 	}
 
-	return true;
+	return shader;
 }
 
-bool CreateProgram4()
+GLuint CreateProgram(const char* vertexShaderFileName, const char* fragmentShaderFileName)
 {
-	g_programID4 = glCreateProgram();
+	GLuint programId = glCreateProgram();
 
-	// TODO: Copy shaders in CMAKE to .exe dir (or subdir next to .exe).
-
-	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	std::string vertexShaderSource = ReadFile("shaders/UIShader.vert");
-	const char* vertexShaderSourceStr = vertexShaderSource.c_str();
-	glShaderSource(vertexShader, 1, &vertexShaderSourceStr, NULL);
-	glCompileShader(vertexShader);
-	GLint vShaderCompiled = GL_FALSE;
-	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &vShaderCompiled);
-	printShaderLog(vertexShader);
-	if (vShaderCompiled != GL_TRUE)
+	GLuint vertexShader = CreateShader(GL_VERTEX_SHADER, vertexShaderFileName);
+	if (vertexShader == -1)
 	{
-		printf("Unable to compile vertex shader %d!\n", vertexShader);
-		return false;
+		return -1;
 	}
-	glAttachShader(g_programID4, vertexShader);
+	glAttachShader(programId, vertexShader);
 
-	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	//const GLchar* fragmentShaderSource[] =
-	//{
-	//	"#version 410\nout vec4 LFragment; void main() { LFragment = vec4(1.0, 1.0, 1.0, 1.0); }"
-	//};
-	std::string fragmentShaderSource = ReadFile("shaders/UIShader.frag");
-	const char* fragmentShaderSourceStr = fragmentShaderSource.c_str();
-	glShaderSource(fragmentShader, 1, &fragmentShaderSourceStr, NULL);
-	glCompileShader(fragmentShader);
-	GLint fShaderCompiled = GL_FALSE;
-	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &fShaderCompiled);
-	printShaderLog(fragmentShader);
-	if (fShaderCompiled != GL_TRUE)
+	GLuint fragmentShader = CreateShader(GL_FRAGMENT_SHADER, fragmentShaderFileName);
+	if (fragmentShader == -1)
 	{
-		printf("Unable to compile fragment shader %d!\n", fragmentShader);
-		return false;
+		return -1;
 	}
-	glAttachShader(g_programID4, fragmentShader);
+	glAttachShader(programId, fragmentShader);
 
-	glLinkProgram(g_programID4);
+	glLinkProgram(programId);
+
+	PrintProgramLog(programId);
+
 	GLint programSuccess = GL_TRUE;
-	glGetProgramiv(g_programID4, GL_LINK_STATUS, &programSuccess);
-	printProgramLog(g_programID4);
+	glGetProgramiv(programId, GL_LINK_STATUS, &programSuccess);
 	if (programSuccess != GL_TRUE)
 	{
-		printf("Error linking program %d!\n", g_programID4);
-		return false;
+		printf(
+			"error linking program %d for shaders %s and %s\n",
+			programId,
+			vertexShaderFileName,
+			fragmentShaderFileName);
+		return -1;
 	}
 
-	return true;
-}
-
-bool CreateProgram5()
-{
-	g_programID5 = glCreateProgram();
-
-	// TODO: Copy shaders in CMAKE to .exe dir (or subdir next to .exe).
-
-	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	std::string vertexShaderSource = ReadFile("shaders/GridShader.vert");
-	const char* vertexShaderSourceStr = vertexShaderSource.c_str();
-	glShaderSource(vertexShader, 1, &vertexShaderSourceStr, NULL);
-	glCompileShader(vertexShader);
-	GLint vShaderCompiled = GL_FALSE;
-	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &vShaderCompiled);
-	printShaderLog(vertexShader);
-	if (vShaderCompiled != GL_TRUE)
-	{
-		printf("Unable to compile vertex shader %d!\n", vertexShader);
-		return false;
-	}
-	glAttachShader(g_programID5, vertexShader);
-
-	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	//const GLchar* fragmentShaderSource[] =
-	//{
-	//	"#version 410\nout vec4 LFragment; void main() { LFragment = vec4(1.0, 1.0, 1.0, 1.0); }"
-	//};
-	std::string fragmentShaderSource = ReadFile("shaders/GridShader.frag");
-	const char* fragmentShaderSourceStr = fragmentShaderSource.c_str();
-	glShaderSource(fragmentShader, 1, &fragmentShaderSourceStr, NULL);
-	glCompileShader(fragmentShader);
-	GLint fShaderCompiled = GL_FALSE;
-	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &fShaderCompiled);
-	printShaderLog(fragmentShader);
-	if (fShaderCompiled != GL_TRUE)
-	{
-		printf("Unable to compile fragment shader %d!\n", fragmentShader);
-		return false;
-	}
-	glAttachShader(g_programID5, fragmentShader);
-
-	glLinkProgram(g_programID5);
-	GLint programSuccess = GL_TRUE;
-	glGetProgramiv(g_programID5, GL_LINK_STATUS, &programSuccess);
-	printProgramLog(g_programID5);
-	if (programSuccess != GL_TRUE)
-	{
-		printf("Error linking program %d!\n", g_programID5);
-		return false;
-	}
-
-	return true;
-}
-
-bool CreateProgram6()
-{
-	g_programID6 = glCreateProgram();
-
-	// TODO: Copy shaders in CMAKE to .exe dir (or subdir next to .exe).
-
-	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	std::string vertexShaderSource = ReadFile("shaders/SkinnedMeshShader.vert");
-	const char* vertexShaderSourceStr = vertexShaderSource.c_str();
-	glShaderSource(vertexShader, 1, &vertexShaderSourceStr, NULL);
-	glCompileShader(vertexShader);
-	GLint vShaderCompiled = GL_FALSE;
-	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &vShaderCompiled);
-	printShaderLog(vertexShader);
-	if (vShaderCompiled != GL_TRUE)
-	{
-		printf("Unable to compile vertex shader %d!\n", vertexShader);
-		return false;
-	}
-	glAttachShader(g_programID6, vertexShader);
-
-	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	//const GLchar* fragmentShaderSource[] =
-	//{
-	//	"#version 410\nout vec4 LFragment; void main() { LFragment = vec4(1.0, 1.0, 1.0, 1.0); }"
-	//};
-	std::string fragmentShaderSource = ReadFile("shaders/WireFrameDiffuseTextureShader.frag");
-	const char* fragmentShaderSourceStr = fragmentShaderSource.c_str();
-	glShaderSource(fragmentShader, 1, &fragmentShaderSourceStr, NULL);
-	glCompileShader(fragmentShader);
-	GLint fShaderCompiled = GL_FALSE;
-	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &fShaderCompiled);
-	printShaderLog(fragmentShader);
-	if (fShaderCompiled != GL_TRUE)
-	{
-		printf("Unable to compile fragment shader %d!\n", fragmentShader);
-		return false;
-	}
-	glAttachShader(g_programID6, fragmentShader);
-
-	glLinkProgram(g_programID6);
-	GLint programSuccess = GL_TRUE;
-	glGetProgramiv(g_programID6, GL_LINK_STATUS, &programSuccess);
-	printProgramLog(g_programID6);
-	if (programSuccess != GL_TRUE)
-	{
-		printf("Error linking program %d!\n", g_programID6);
-		return false;
-	}
-
-	return true;
+	return programId;
 }
 
 
 bool InitializeOpenGL()
 {
-	g_programID = glCreateProgram();
-
-	// TODO: Copy shaders in CMAKE to .exe dir (or subdir next to .exe).
-
-	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	std::string vertexShaderSource = ReadFile("shaders/SkinnedMeshShader.vert");
-	const char* vertexShaderSourceStr = vertexShaderSource.c_str();
-	glShaderSource(vertexShader, 1, &vertexShaderSourceStr, NULL);
-	glCompileShader(vertexShader);
-	GLint vShaderCompiled = GL_FALSE;
-	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &vShaderCompiled);
-	printShaderLog(vertexShader);
-	if (vShaderCompiled != GL_TRUE)
-	{
-		printf("Unable to compile vertex shader %d!\n", vertexShader);
-		return false;
-	}
-	glAttachShader(g_programID, vertexShader);
-
-	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	//const GLchar* fragmentShaderSource[] =
-	//{
-	//	"#version 410\nout vec4 LFragment; void main() { LFragment = vec4(1.0, 1.0, 1.0, 1.0); }"
-	//};
-	std::string fragmentShaderSource = ReadFile("shaders/DiffuseTextureShader.frag");
-	const char* fragmentShaderSourceStr = fragmentShaderSource.c_str();
-	glShaderSource(fragmentShader, 1, &fragmentShaderSourceStr, NULL);
-	glCompileShader(fragmentShader);
-	GLint fShaderCompiled = GL_FALSE;
-	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &fShaderCompiled);
-	printShaderLog(fragmentShader);
-	if (fShaderCompiled != GL_TRUE)
-	{
-		printf("Unable to compile fragment shader %d!\n", fragmentShader);
-		return false;
-	}
-	glAttachShader(g_programID, fragmentShader);
-
-	glLinkProgram(g_programID);
-	GLint programSuccess = GL_TRUE;
-	glGetProgramiv(g_programID, GL_LINK_STATUS, &programSuccess);
-	printProgramLog(g_programID);
-	if (programSuccess != GL_TRUE)
-	{
-		printf("Error linking program %d!\n", g_programID);
-		return false;
-	}
-
-	if (!CreateProgram2())
+	g_programID = CreateProgram("shaders/SkinnedMeshShader.vert", "shaders/DiffuseTextureShader.frag");
+	if (g_programID == -1)
 	{
 		return false;
 	}
 
-	if (!CreateProgram4())
+	g_programID2 = CreateProgram("shaders/SkeletonShader.vert", "shaders/FragmentShader.frag");
+	if (g_programID2 == -1)
 	{
 		return false;
 	}
 
-	if (!CreateProgram5())
+	g_programID4 = CreateProgram("shaders/UIShader.vert", "shaders/UIShader.frag");
+	if (g_programID4 == -1)
 	{
 		return false;
 	}
 
-	if (!CreateProgram6())
+	g_programID5 = CreateProgram("shaders/GridShader.vert", "shaders/GridShader.frag");
+	if (g_programID5 == -1)
+	{
+		return false;
+	}
+
+	g_programID6 = CreateProgram("shaders/SkinnedMeshShader.vert", "shaders/WireFrameDiffuseTextureShader.frag");
+	if (g_programID6 == -1)
 	{
 		return false;
 	}
