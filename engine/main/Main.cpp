@@ -60,49 +60,42 @@ SDL_GLContext g_context;
 
 bool g_renderQuad = true;
 
-GLuint g_programID = 0;
+GLuint g_skinnedMeshDiffuseTextureProgramId = 0;
 GLuint g_vbo = 0;
 GLuint g_ibo = 0;
 GLuint g_vao = 0;
 GLuint g_tbo = 0;
 
-GLuint g_programID2 = 0;
-GLuint g_programID4 = 0;
-GLuint g_programID5 = 0;
-GLuint g_programID6 = 0;
+GLuint g_skeletonProgramId = 0;
+GLuint g_uiProgramId = 0;
+GLuint g_gridProgramId = 0;
+GLuint g_skinnedMeshWireFrameDiffuseTextureProgramId = 0;
 
-GLuint g_projectionViewModelMatrixID = -1;
-GLuint g_paletteID = -1;
+GLuint g_skinnedMeshDiffuseTextureProjectionViewModelMatrixId = -1;
+GLuint g_skinnedMeshDiffuseTexturePaletteId = -1;
 GLuint g_paletteTextureUnit = -1;
 GLuint g_paletteGenTex = -1;
-GLuint g_diffuseTextureLocation = -1;
+GLuint g_skinnedMeshDiffuseTextureDiffuseTextureId = -1;
 GLuint g_diffuseTextureUnit = -1;
 GLuint g_diffuseTextureID = -1;
 
-GLuint g_projectionViewModelMatrixID2 = -1;
-GLuint g_paletteID2 = -1;
+GLuint g_skeletonProjectionViewModelMatrixId = -1;
+GLuint g_skeletonPaletteId = -1;
 
-GLuint g_projectionViewModelMatrixID6 = -1;
-GLuint g_paletteID6 = -1;
-GLuint g_diffuseTextureLocation6 = -1;
+GLuint g_skinnedMeshWireFrameDiffuseTextureProjectionViewModelMatrixId = -1;
+GLuint g_skinnedMeshWireFrameDiffuseTexturePaletteId = -1;
+GLuint g_skinnedMeshWireFrameDiffuseTextureDiffuseTextureId = -1;
 
-GLuint g_projectionViewModelMatrixID5 = -1;
+GLuint g_gridProjectionViewModelMatrixId = -1;
 
-GLuint g_uiTextureLocation = -1;
+GLuint g_uiTextureId = -1;
 GLuint g_uiTextureUnit = -1;
 GLuint g_uiTextureID = -1;
 
-//const char* g_assetName = "assets/Stand Up.ceasset";
-//const char* g_assetName = "assets/Thriller Part 2.ceasset";
-//const char* g_assetName = "assets/jla_wonder_woman.ceasset";
-//const char* g_assetName = "assets/Quarterback Pass.ceasset";
-//const char* g_fbxName = "assets/Soldier_animated_jump.fbx";
-//const char* g_assetName = "assets/Standing Walk Forward.ceasset";
-
 std::vector<const char*> g_assetNames = {
 	"assets/Quarterback Pass.ceasset",
-	//"assets/Thriller Part 2.ceasset",
-	//"assets/Standing Walk Forward.ceasset"
+	// "assets/Thriller Part 2.ceasset",
+	// "assets/Standing Walk Forward.ceasset"
 };
 
 CE::AssetImporter* g_assetImporter;
@@ -124,71 +117,57 @@ CE::FpsCounter* g_fpsCounter;
 
 CE::Camera* g_camera;
 
-void printProgramLog(GLuint program)
+void PrintProgramLog(GLuint program)
 {
-	//Make sure name is shader
 	if (!glIsProgram(program))
 	{
-		printf("Name %d is not a program\n", program);
+		printf("GLuint %d is not a program\n", program);
 		return;
 	}
 
-	//Program log length
-	int infoLogLength = 0;
-	int maxLength = infoLogLength;
-
-	//Get info string length
+	GLint maxLength = 0;
 	glGetProgramiv(program, GL_INFO_LOG_LENGTH, &maxLength);
 
-	//Allocate string
 	char* infoLog = new char[maxLength];
 
-	//Get info log
+	GLint infoLogLength = 0;
 	glGetProgramInfoLog(program, maxLength, &infoLogLength, infoLog);
 	if (infoLogLength > 0)
 	{
-		//Print Log
+		printf("program log:\n");
 		printf("%s\n", infoLog);
 	}
 
-	//Deallocate string
 	delete[] infoLog;
 }
 
-void printShaderLog(GLuint shader)
+void PrintShaderLog(GLuint shader)
 {
-	//Make sure name is shader
 	if (!glIsShader(shader))
 	{
-		printf("Name %d is not a shader\n", shader);
+		printf("GLuint %d is not a shader\n", shader);
 		return;
 	}
 
-	//Shader log length
-	int infoLogLength = 0;
-	int maxLength = infoLogLength;
-
-	//Get info string length
+	GLint maxLength = 0;
 	glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &maxLength);
 
-	//Allocate string
 	char* infoLog = new char[maxLength];
 
-	//Get info log
+	GLint infoLogLength = 0;
 	glGetShaderInfoLog(shader, maxLength, &infoLogLength, infoLog);
 	if (infoLogLength > 0)
 	{
-		//Print Log
+		printf("shader log:\n");
 		printf("%s\n", infoLog);
 	}
 
-	//Deallocate string
 	delete[] infoLog;
 }
 
 void RenderMesh(CE::MeshComponent& meshComponent, CE::AnimationComponent& animationComponent, const glm::mat4& projectionViewModel)
 {
-	bool renderWireFrameOnly = engine->RenderMode() == 3;
+	bool renderWireFrameOnly = engine->GetRenderMode() == 3;
 	GLuint activeProgramID = -1;
 	GLuint activeProjectionViewModelMatrixID = -1;
 	GLuint activePaletteID = -1;
@@ -196,17 +175,17 @@ void RenderMesh(CE::MeshComponent& meshComponent, CE::AnimationComponent& animat
 
 	if (renderWireFrameOnly)
 	{
-		activeProgramID = g_programID6;
-		activeProjectionViewModelMatrixID = g_projectionViewModelMatrixID6;
-		activePaletteID = g_paletteID6;
-		activeDiffuseTextureLocation = g_diffuseTextureLocation6;
+		activeProgramID = g_skinnedMeshWireFrameDiffuseTextureProgramId;
+		activeProjectionViewModelMatrixID = g_skinnedMeshWireFrameDiffuseTextureProjectionViewModelMatrixId;
+		activePaletteID = g_skinnedMeshWireFrameDiffuseTexturePaletteId;
+		activeDiffuseTextureLocation = g_skinnedMeshWireFrameDiffuseTextureDiffuseTextureId;
 	}
 	else
 	{
-		activeProgramID = g_programID;
-		activeProjectionViewModelMatrixID = g_projectionViewModelMatrixID;
-		activePaletteID = g_paletteID;
-		activeDiffuseTextureLocation = g_diffuseTextureLocation;
+		activeProgramID = g_skinnedMeshDiffuseTextureProgramId;
+		activeProjectionViewModelMatrixID = g_skinnedMeshDiffuseTextureProjectionViewModelMatrixId;
+		activePaletteID = g_skinnedMeshDiffuseTexturePaletteId;
+		activeDiffuseTextureLocation = g_skinnedMeshDiffuseTextureDiffuseTextureId;
 	}
 
 	glUseProgram(activeProgramID);
@@ -234,7 +213,7 @@ void RenderMesh(CE::MeshComponent& meshComponent, CE::AnimationComponent& animat
 		g_tbo,
 		activePaletteID);
 
-	if (engine->RenderMode() == 0 || engine->RenderMode() == 2 || renderWireFrameOnly)
+	if (engine->GetRenderMode() == 0 || engine->GetRenderMode() == 2 || renderWireFrameOnly)
 	{
 		meshComponent.Draw(
 			g_vbo,
@@ -252,7 +231,7 @@ void RenderMesh(CE::MeshComponent& meshComponent, CE::AnimationComponent& animat
 
 void RenderSkeleton(CE::AnimationComponent& animationComponent, const glm::mat4& projectionViewModel)
 {
-	glUseProgram(g_programID2);
+	glUseProgram(g_skeletonProgramId);
 
 	struct DebugSkeletonVertex
 	{
@@ -269,7 +248,7 @@ void RenderSkeleton(CE::AnimationComponent& animationComponent, const glm::mat4&
 	glEnableVertexAttribArray(1);
 	glEnableVertexAttribArray(2);
 
-	glUniformMatrix4fv(g_projectionViewModelMatrixID2, 1, GL_FALSE, &projectionViewModel[0][0]);
+	glUniformMatrix4fv(g_skeletonProjectionViewModelMatrixId, 1, GL_FALSE, &projectionViewModel[0][0]);
 
 	if (engine->IsRenderBindPose())
 	{
@@ -280,9 +259,9 @@ void RenderSkeleton(CE::AnimationComponent& animationComponent, const glm::mat4&
 		g_paletteTextureUnit,
 		g_paletteGenTex,
 		g_tbo,
-		g_paletteID2);
+		g_skeletonPaletteId);
 
-	const CE::Skeleton* skeleton = animationComponent.GetSkeleton();// CE::SkeletonManager::Get().GetSkeleton(g_fbxName);
+	const CE::Skeleton* skeleton = animationComponent.GetSkeleton();// CE::SkeletonManager::Get().GetSkeleton(g_assetNames[i]);
 
 	std::vector<DebugSkeletonVertex> debugVertices;
 	std::vector<unsigned> debugJointIndices;
@@ -322,7 +301,7 @@ void RenderSkeleton(CE::AnimationComponent& animationComponent, const glm::mat4&
 		}
 	}
 
-	if (engine->RenderMode() == 1 || engine->RenderMode() == 2)
+	if (engine->GetRenderMode() == 1 || engine->GetRenderMode() == 2)
 	{
 		glBindBuffer(GL_ARRAY_BUFFER, g_vbo);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(DebugSkeletonVertex) * debugVertices.size(), debugVertices.data(), GL_STATIC_DRAW);
@@ -352,7 +331,7 @@ void RenderSkeleton(CE::AnimationComponent& animationComponent, const glm::mat4&
 
 void RenderGrid(const glm::mat4& projectionViewModel)
 {
-	glUseProgram(g_programID5);
+	glUseProgram(g_gridProgramId);
 
 	struct GridVertex
 	{
@@ -364,7 +343,7 @@ void RenderGrid(const glm::mat4& projectionViewModel)
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(offsetof(GridVertex, position)));
 	glEnableVertexAttribArray(0);
 
-	glUniformMatrix4fv(g_projectionViewModelMatrixID5, 1, GL_FALSE, &projectionViewModel[0][0]);
+	glUniformMatrix4fv(g_gridProjectionViewModelMatrixId, 1, GL_FALSE, &projectionViewModel[0][0]);
 
 	std::vector<GridVertex> gridVertices;
 	std::vector<unsigned> gridIndices;
@@ -412,7 +391,7 @@ void RenderGrid(const glm::mat4& projectionViewModel)
 void RenderUI()
 {
 #ifdef _WIN32
-	glUseProgram(g_programID4);
+	glUseProgram(g_uiProgramId);
 
 	struct UIVertex
 	{
@@ -479,7 +458,7 @@ void RenderUI()
 		glTexSubImage2D(GL_TEXTURE_2D, 0, popupRect.x, popupRect.y, popupRect.width, popupRect.height, GL_BGRA, GL_UNSIGNED_BYTE, popupBuffer);
 	}
 	glGenerateMipmap(GL_TEXTURE_2D);
-	glUniform1i(g_uiTextureLocation, g_uiTextureUnit);
+	glUniform1i(g_uiTextureId, g_uiTextureUnit);
 
 	glDrawElements(GL_TRIANGLES, (GLsizei)uiIndices.size(), GL_UNSIGNED_INT, NULL);
 
@@ -574,303 +553,108 @@ std::string ReadFile(const char *file)
 	return buffer.str();
 }
 
-bool CreateProgram2()
+GLuint CreateShader(GLenum shaderType, const char* shaderFileName)
 {
-	g_programID2 = glCreateProgram();
+	GLuint shader = glCreateShader(shaderType);
 
-	// TODO: Copy shaders in CMAKE to .exe dir (or subdir next to .exe).
+	std::string shaderSource = ReadFile(shaderFileName);
+	const char* shaderSourceStr = shaderSource.c_str();
+	glShaderSource(shader, 1, &shaderSourceStr, NULL);
 
-	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	std::string vertexShaderSource = ReadFile("shaders/SkeletonShader.vert");
-	const char* vertexShaderSourceStr = vertexShaderSource.c_str();
-	glShaderSource(vertexShader, 1, &vertexShaderSourceStr, NULL);
-	glCompileShader(vertexShader);
-	GLint vShaderCompiled = GL_FALSE;
-	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &vShaderCompiled);
-	printShaderLog(vertexShader);
-	if (vShaderCompiled != GL_TRUE)
+	glCompileShader(shader);
+
+	PrintShaderLog(shader);
+
+	GLint isShaderCompiled = GL_FALSE;
+	glGetShaderiv(shader, GL_COMPILE_STATUS, &isShaderCompiled);
+	if (isShaderCompiled != GL_TRUE)
 	{
-		printf("Unable to compile vertex shader %d!\n", vertexShader);
-		return false;
-	}
-	glAttachShader(g_programID2, vertexShader);
-
-	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	//const GLchar* fragmentShaderSource[] =
-	//{
-	//	"#version 410\nout vec4 LFragment; void main() { LFragment = vec4(1.0, 1.0, 1.0, 1.0); }"
-	//};
-	std::string fragmentShaderSource = ReadFile("shaders/FragmentShader.frag");
-	const char* fragmentShaderSourceStr = fragmentShaderSource.c_str();
-	glShaderSource(fragmentShader, 1, &fragmentShaderSourceStr, NULL);
-	glCompileShader(fragmentShader);
-	GLint fShaderCompiled = GL_FALSE;
-	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &fShaderCompiled);
-	printShaderLog(fragmentShader);
-	if (fShaderCompiled != GL_TRUE)
-	{
-		printf("Unable to compile fragment shader %d!\n", fragmentShader);
-		return false;
-	}
-	glAttachShader(g_programID2, fragmentShader);
-
-	glLinkProgram(g_programID2);
-	GLint programSuccess = GL_TRUE;
-	glGetProgramiv(g_programID2, GL_LINK_STATUS, &programSuccess);
-	printProgramLog(g_programID2);
-	if (programSuccess != GL_TRUE)
-	{
-		printf("Error linking program %d!\n", g_programID2);
-		return false;
+		printf("unable to compile shader %s\n", shaderFileName);
+		return -1;
 	}
 
-	return true;
+	return shader;
 }
 
-bool CreateProgram4()
+GLuint CreateProgram(const char* vertexShaderFileName, const char* fragmentShaderFileName)
 {
-	g_programID4 = glCreateProgram();
+	GLuint programId = glCreateProgram();
 
-	// TODO: Copy shaders in CMAKE to .exe dir (or subdir next to .exe).
-
-	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	std::string vertexShaderSource = ReadFile("shaders/UIShader.vert");
-	const char* vertexShaderSourceStr = vertexShaderSource.c_str();
-	glShaderSource(vertexShader, 1, &vertexShaderSourceStr, NULL);
-	glCompileShader(vertexShader);
-	GLint vShaderCompiled = GL_FALSE;
-	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &vShaderCompiled);
-	printShaderLog(vertexShader);
-	if (vShaderCompiled != GL_TRUE)
+	GLuint vertexShader = CreateShader(GL_VERTEX_SHADER, vertexShaderFileName);
+	if (vertexShader == -1)
 	{
-		printf("Unable to compile vertex shader %d!\n", vertexShader);
-		return false;
+		return -1;
 	}
-	glAttachShader(g_programID4, vertexShader);
+	glAttachShader(programId, vertexShader);
 
-	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	//const GLchar* fragmentShaderSource[] =
-	//{
-	//	"#version 410\nout vec4 LFragment; void main() { LFragment = vec4(1.0, 1.0, 1.0, 1.0); }"
-	//};
-	std::string fragmentShaderSource = ReadFile("shaders/UIShader.frag");
-	const char* fragmentShaderSourceStr = fragmentShaderSource.c_str();
-	glShaderSource(fragmentShader, 1, &fragmentShaderSourceStr, NULL);
-	glCompileShader(fragmentShader);
-	GLint fShaderCompiled = GL_FALSE;
-	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &fShaderCompiled);
-	printShaderLog(fragmentShader);
-	if (fShaderCompiled != GL_TRUE)
+	GLuint fragmentShader = CreateShader(GL_FRAGMENT_SHADER, fragmentShaderFileName);
+	if (fragmentShader == -1)
 	{
-		printf("Unable to compile fragment shader %d!\n", fragmentShader);
-		return false;
+		return -1;
 	}
-	glAttachShader(g_programID4, fragmentShader);
+	glAttachShader(programId, fragmentShader);
 
-	glLinkProgram(g_programID4);
+	glLinkProgram(programId);
+
+	PrintProgramLog(programId);
+
 	GLint programSuccess = GL_TRUE;
-	glGetProgramiv(g_programID4, GL_LINK_STATUS, &programSuccess);
-	printProgramLog(g_programID4);
+	glGetProgramiv(programId, GL_LINK_STATUS, &programSuccess);
 	if (programSuccess != GL_TRUE)
 	{
-		printf("Error linking program %d!\n", g_programID4);
-		return false;
+		printf(
+			"error linking program %d for shaders %s and %s\n",
+			programId,
+			vertexShaderFileName,
+			fragmentShaderFileName);
+		return -1;
 	}
 
-	return true;
-}
-
-bool CreateProgram5()
-{
-	g_programID5 = glCreateProgram();
-
-	// TODO: Copy shaders in CMAKE to .exe dir (or subdir next to .exe).
-
-	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	std::string vertexShaderSource = ReadFile("shaders/GridShader.vert");
-	const char* vertexShaderSourceStr = vertexShaderSource.c_str();
-	glShaderSource(vertexShader, 1, &vertexShaderSourceStr, NULL);
-	glCompileShader(vertexShader);
-	GLint vShaderCompiled = GL_FALSE;
-	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &vShaderCompiled);
-	printShaderLog(vertexShader);
-	if (vShaderCompiled != GL_TRUE)
-	{
-		printf("Unable to compile vertex shader %d!\n", vertexShader);
-		return false;
-	}
-	glAttachShader(g_programID5, vertexShader);
-
-	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	//const GLchar* fragmentShaderSource[] =
-	//{
-	//	"#version 410\nout vec4 LFragment; void main() { LFragment = vec4(1.0, 1.0, 1.0, 1.0); }"
-	//};
-	std::string fragmentShaderSource = ReadFile("shaders/GridShader.frag");
-	const char* fragmentShaderSourceStr = fragmentShaderSource.c_str();
-	glShaderSource(fragmentShader, 1, &fragmentShaderSourceStr, NULL);
-	glCompileShader(fragmentShader);
-	GLint fShaderCompiled = GL_FALSE;
-	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &fShaderCompiled);
-	printShaderLog(fragmentShader);
-	if (fShaderCompiled != GL_TRUE)
-	{
-		printf("Unable to compile fragment shader %d!\n", fragmentShader);
-		return false;
-	}
-	glAttachShader(g_programID5, fragmentShader);
-
-	glLinkProgram(g_programID5);
-	GLint programSuccess = GL_TRUE;
-	glGetProgramiv(g_programID5, GL_LINK_STATUS, &programSuccess);
-	printProgramLog(g_programID5);
-	if (programSuccess != GL_TRUE)
-	{
-		printf("Error linking program %d!\n", g_programID5);
-		return false;
-	}
-
-	return true;
-}
-
-bool CreateProgram6()
-{
-	g_programID6 = glCreateProgram();
-
-	// TODO: Copy shaders in CMAKE to .exe dir (or subdir next to .exe).
-
-	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	std::string vertexShaderSource = ReadFile("shaders/SkinnedMeshShader.vert");
-	const char* vertexShaderSourceStr = vertexShaderSource.c_str();
-	glShaderSource(vertexShader, 1, &vertexShaderSourceStr, NULL);
-	glCompileShader(vertexShader);
-	GLint vShaderCompiled = GL_FALSE;
-	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &vShaderCompiled);
-	printShaderLog(vertexShader);
-	if (vShaderCompiled != GL_TRUE)
-	{
-		printf("Unable to compile vertex shader %d!\n", vertexShader);
-		return false;
-	}
-	glAttachShader(g_programID6, vertexShader);
-
-	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	//const GLchar* fragmentShaderSource[] =
-	//{
-	//	"#version 410\nout vec4 LFragment; void main() { LFragment = vec4(1.0, 1.0, 1.0, 1.0); }"
-	//};
-	std::string fragmentShaderSource = ReadFile("shaders/WireFrameDiffuseTextureShader.frag");
-	const char* fragmentShaderSourceStr = fragmentShaderSource.c_str();
-	glShaderSource(fragmentShader, 1, &fragmentShaderSourceStr, NULL);
-	glCompileShader(fragmentShader);
-	GLint fShaderCompiled = GL_FALSE;
-	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &fShaderCompiled);
-	printShaderLog(fragmentShader);
-	if (fShaderCompiled != GL_TRUE)
-	{
-		printf("Unable to compile fragment shader %d!\n", fragmentShader);
-		return false;
-	}
-	glAttachShader(g_programID6, fragmentShader);
-
-	glLinkProgram(g_programID6);
-	GLint programSuccess = GL_TRUE;
-	glGetProgramiv(g_programID6, GL_LINK_STATUS, &programSuccess);
-	printProgramLog(g_programID6);
-	if (programSuccess != GL_TRUE)
-	{
-		printf("Error linking program %d!\n", g_programID6);
-		return false;
-	}
-
-	return true;
+	return programId;
 }
 
 
 bool InitializeOpenGL()
 {
-	g_programID = glCreateProgram();
-
-	// TODO: Copy shaders in CMAKE to .exe dir (or subdir next to .exe).
-
-	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	std::string vertexShaderSource = ReadFile("shaders/SkinnedMeshShader.vert");
-	const char* vertexShaderSourceStr = vertexShaderSource.c_str();
-	glShaderSource(vertexShader, 1, &vertexShaderSourceStr, NULL);
-	glCompileShader(vertexShader);
-	GLint vShaderCompiled = GL_FALSE;
-	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &vShaderCompiled);
-	printShaderLog(vertexShader);
-	if (vShaderCompiled != GL_TRUE)
-	{
-		printf("Unable to compile vertex shader %d!\n", vertexShader);
-		return false;
-	}
-	glAttachShader(g_programID, vertexShader);
-
-	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	//const GLchar* fragmentShaderSource[] =
-	//{
-	//	"#version 410\nout vec4 LFragment; void main() { LFragment = vec4(1.0, 1.0, 1.0, 1.0); }"
-	//};
-	std::string fragmentShaderSource = ReadFile("shaders/DiffuseTextureShader.frag");
-	const char* fragmentShaderSourceStr = fragmentShaderSource.c_str();
-	glShaderSource(fragmentShader, 1, &fragmentShaderSourceStr, NULL);
-	glCompileShader(fragmentShader);
-	GLint fShaderCompiled = GL_FALSE;
-	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &fShaderCompiled);
-	printShaderLog(fragmentShader);
-	if (fShaderCompiled != GL_TRUE)
-	{
-		printf("Unable to compile fragment shader %d!\n", fragmentShader);
-		return false;
-	}
-	glAttachShader(g_programID, fragmentShader);
-
-	glLinkProgram(g_programID);
-	GLint programSuccess = GL_TRUE;
-	glGetProgramiv(g_programID, GL_LINK_STATUS, &programSuccess);
-	printProgramLog(g_programID);
-	if (programSuccess != GL_TRUE)
-	{
-		printf("Error linking program %d!\n", g_programID);
-		return false;
-	}
-
-	if (!CreateProgram2())
+	g_skinnedMeshDiffuseTextureProgramId = CreateProgram("shaders/SkinnedMeshShader.vert", "shaders/DiffuseTextureShader.frag");
+	if (g_skinnedMeshDiffuseTextureProgramId == -1)
 	{
 		return false;
 	}
+	g_skinnedMeshDiffuseTextureProjectionViewModelMatrixId = glGetUniformLocation(g_skinnedMeshDiffuseTextureProgramId, "projectionViewModel");
+	g_skinnedMeshDiffuseTexturePaletteId = glGetUniformLocation(g_skinnedMeshDiffuseTextureProgramId, "palette");
+	g_skinnedMeshDiffuseTextureDiffuseTextureId = glGetUniformLocation(g_skinnedMeshDiffuseTextureProgramId, "diffuseTexture");
 
-	if (!CreateProgram4())
+	g_skeletonProgramId = CreateProgram("shaders/SkeletonShader.vert", "shaders/FragmentShader.frag");
+	if (g_skeletonProgramId == -1)
 	{
 		return false;
 	}
+	g_skeletonProjectionViewModelMatrixId = glGetUniformLocation(g_skeletonProgramId, "projectionViewModel");
+	g_skeletonPaletteId = glGetUniformLocation(g_skeletonProgramId, "palette");
 
-	if (!CreateProgram5())
+	g_uiProgramId = CreateProgram("shaders/UIShader.vert", "shaders/UIShader.frag");
+	if (g_uiProgramId == -1)
 	{
 		return false;
 	}
+	g_uiTextureId = glGetUniformLocation(g_uiProgramId, "uiTexture");
 
-	if (!CreateProgram6())
+	g_gridProgramId = CreateProgram("shaders/GridShader.vert", "shaders/GridShader.frag");
+	if (g_gridProgramId == -1)
 	{
 		return false;
 	}
+	g_gridProjectionViewModelMatrixId = glGetUniformLocation(g_gridProgramId, "projectionViewModel");
 
-	g_uiTextureLocation = glGetUniformLocation(g_programID4, "uiTexture");
-
-	g_projectionViewModelMatrixID5 = glGetUniformLocation(g_programID5, "projectionViewModel");
-
-	g_projectionViewModelMatrixID2 = glGetUniformLocation(g_programID2, "projectionViewModel");
-	g_paletteID2 = glGetUniformLocation(g_programID2, "palette");
-
-	g_projectionViewModelMatrixID6 = glGetUniformLocation(g_programID6, "projectionViewModel");
-	g_paletteID6 = glGetUniformLocation(g_programID6, "palette");
-	g_diffuseTextureLocation6 = glGetUniformLocation(g_programID6, "diffuseTexture");
-
-	g_projectionViewModelMatrixID = glGetUniformLocation(g_programID, "projectionViewModel");
-	g_paletteID = glGetUniformLocation(g_programID, "palette");
-	g_diffuseTextureLocation = glGetUniformLocation(g_programID, "diffuseTexture");
+	g_skinnedMeshWireFrameDiffuseTextureProgramId = CreateProgram("shaders/SkinnedMeshShader.vert", "shaders/WireFrameDiffuseTextureShader.frag");
+	if (g_skinnedMeshWireFrameDiffuseTextureProgramId == -1)
+	{
+		return false;
+	}
+	g_skinnedMeshWireFrameDiffuseTextureProjectionViewModelMatrixId = glGetUniformLocation(g_skinnedMeshWireFrameDiffuseTextureProgramId, "projectionViewModel");
+	g_skinnedMeshWireFrameDiffuseTexturePaletteId = glGetUniformLocation(g_skinnedMeshWireFrameDiffuseTextureProgramId, "palette");
+	g_skinnedMeshWireFrameDiffuseTextureDiffuseTextureId = glGetUniformLocation(g_skinnedMeshWireFrameDiffuseTextureProgramId, "diffuseTexture");
 
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
@@ -1485,7 +1269,7 @@ int main(int argc, char* argv[])
 						case SDLK_e:
 						{
 							SetRenderModeEvent setRenderModeEvent;
-							setRenderModeEvent.mode = (engine->RenderMode() + 1) % 3;
+							setRenderModeEvent.mode = (engine->GetRenderMode() + 1) % 3;
 							eventSystem->EnqueueEvent(setRenderModeEvent);
 							break;
 						}
