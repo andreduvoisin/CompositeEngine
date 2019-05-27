@@ -1172,6 +1172,9 @@ bool Initialize(int argc, char* argv[])
 
 	g_context = SDL_GL_CreateContext(g_window);
 
+	CefKeyEvent keyevent;
+	keyevent.unmodified_character = 0;
+
 	if (g_context == NULL)
 	{
 		printf("OpenGL context could not be created! SDL_Error: %s\n", SDL_GetError());
@@ -1282,6 +1285,7 @@ void Destroy()
 }
 
 // osr_window_win.cc
+// browser_window_osr_mac.mm
 unsigned GetSdlCefInputModifiers(const SDL_Event& event)
 {
 	unsigned modifiers = 0;
@@ -1320,6 +1324,7 @@ unsigned GetSdlCefInputModifiers(const SDL_Event& event)
 	}
 #endif
 
+	// todo: if mouse-only, still keep these two if's?
 	if (keymod & KMOD_LSHIFT
 		|| keymod & KMOD_LCTRL
 		|| keymod & KMOD_LALT
@@ -1338,6 +1343,7 @@ unsigned GetSdlCefInputModifiers(const SDL_Event& event)
 
 	switch (event.type)
 	{
+		// todo: remove and make this function mouse-only?
 		case SDL_KEYDOWN:
 		case SDL_KEYUP:
 		{
@@ -1607,6 +1613,7 @@ int main(int argc, char* argv[])
 				}
 
 				// osr_window_win.cc
+				// browser_window_osr_mac.mm
 				case SDL_MOUSEMOTION:
 				{
 					CefMouseEvent mouseEvent;
@@ -1620,6 +1627,7 @@ int main(int argc, char* argv[])
 				}
 
 				// osr_window_win.cc
+				// browser_window_osr_mac.mm
 				case SDL_MOUSEBUTTONDOWN:
 				{
 					CefBrowserHost::MouseButtonType mouseButtonType;
@@ -1651,6 +1659,7 @@ int main(int argc, char* argv[])
 				}
 
 				// osr_window_win.cc
+				// browser_window_osr_mac.mm
 				case SDL_MOUSEBUTTONUP:
 				{
 					CefBrowserHost::MouseButtonType mouseButtonType;
@@ -1682,6 +1691,7 @@ int main(int argc, char* argv[])
 				}
 
 				// osr_window_win.cc
+				// browser_window_osr_mac.mm
 				case SDL_MOUSEWHEEL:
 				{
 					CefMouseEvent mouseEvent;
@@ -1694,6 +1704,7 @@ int main(int argc, char* argv[])
 				}
 
 				// osr_window_win.cc
+				// browser_window_osr_mac.mm
 				case SDL_WINDOWEVENT:
 				{
 					switch (event.window.event)
