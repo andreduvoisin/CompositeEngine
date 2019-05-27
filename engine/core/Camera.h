@@ -9,7 +9,7 @@ namespace CE
 	class Camera
 	{
 	public:
-		Camera(const glm::vec3& location, const glm::vec3& forward);
+		Camera(const glm::vec3& location, const glm::vec3& forward, const glm::vec3& up);
 
 		void MoveForward(float delta);
 		void MoveBackward(float delta);
@@ -23,6 +23,7 @@ namespace CE
 
 		glm::vec3 location;
 		glm::vec3 forward;
+		glm::vec3 up;
 	};
 }
 

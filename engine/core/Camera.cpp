@@ -4,9 +4,10 @@
 
 namespace CE
 {
-	Camera::Camera(const glm::vec3& location, const glm::vec3& forward)
+	Camera::Camera(const glm::vec3& location, const glm::vec3& forward, const glm::vec3& up)
 		: location(location)
 		, forward(forward)
+		, up(up)
 	{
 
 	}
@@ -36,15 +37,11 @@ namespace CE
 	glm::mat4 Camera::CreateViewMatrix()
 	{
 		glm::vec3 at = location + forward;
-
-		glm::vec3 left = CreateLeftVector();
-		glm::vec3 up = glm::cross(forward, left);
-
 		return glm::lookAt(location, at, up);
 	}
 
 	glm::vec3 Camera::CreateLeftVector()
 	{
-		return glm::normalize(glm::cross(location, forward));
+		return glm::normalize(glm::cross(up, forward));
 	}
 }

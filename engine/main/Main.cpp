@@ -1000,7 +1000,7 @@ bool Initialize()
 
 	//g_camera = new CE::Camera(glm::vec3(0, 100, 400), glm::vec3(0, 100, 0)); // paladin
 	//g_camera = new CE::Camera(glm::vec3(0, 200, 400), glm::vec3(0, 100, 0)); // solider
-	g_camera = new CE::Camera(glm::vec3(0, 100, 700), glm::vec3(0, 0, -1)); // thriller, quarterback
+	g_camera = new CE::Camera(glm::vec3(0, 100, 700), glm::vec3(0, 0, -1), glm::vec3(0, 1, 0)); // thriller, quarterback
 	//g_camera = new CE::Camera(glm::vec3(0, 2, 8), glm::vec3(0, 2, 0)); // wonder woman
 	//g_camera = new CE::Camera(glm::vec3(0, 0, 1), glm::vec3(0, 0, 0));
 
