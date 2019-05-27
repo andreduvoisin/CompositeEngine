@@ -60,35 +60,35 @@ SDL_GLContext g_context;
 
 bool g_renderQuad = true;
 
-GLuint g_programID = 0;
+GLuint g_skinnedMeshDiffuseTextureProgramId = 0;
 GLuint g_vbo = 0;
 GLuint g_ibo = 0;
 GLuint g_vao = 0;
 GLuint g_tbo = 0;
 
-GLuint g_programID2 = 0;
-GLuint g_programID4 = 0;
-GLuint g_programID5 = 0;
-GLuint g_programID6 = 0;
+GLuint g_skeletonProgramId = 0;
+GLuint g_uiProgramId = 0;
+GLuint g_gridProgramId = 0;
+GLuint g_skinnedMeshWireFrameDiffuseTextureProgramId = 0;
 
-GLuint g_projectionViewModelMatrixID = -1;
-GLuint g_paletteID = -1;
+GLuint g_skinnedMeshDiffuseTextureProjectionViewModelMatrixId = -1;
+GLuint g_skinnedMeshDiffuseTexturePaletteId = -1;
 GLuint g_paletteTextureUnit = -1;
 GLuint g_paletteGenTex = -1;
-GLuint g_diffuseTextureLocation = -1;
+GLuint g_skinnedMeshDiffuseTextureDiffuseTextureId = -1;
 GLuint g_diffuseTextureUnit = -1;
 GLuint g_diffuseTextureID = -1;
 
-GLuint g_projectionViewModelMatrixID2 = -1;
-GLuint g_paletteID2 = -1;
+GLuint g_skeletonProjectionViewModelMatrixId = -1;
+GLuint g_skeletonPaletteId = -1;
 
-GLuint g_projectionViewModelMatrixID6 = -1;
-GLuint g_paletteID6 = -1;
-GLuint g_diffuseTextureLocation6 = -1;
+GLuint g_skinnedMeshWireFrameDiffuseTextureProjectionViewModelMatrixId = -1;
+GLuint g_skinnedMeshWireFrameDiffuseTexturePaletteId = -1;
+GLuint g_skinnedMeshWireFrameDiffuseTextureDiffuseTextureId = -1;
 
-GLuint g_projectionViewModelMatrixID5 = -1;
+GLuint g_gridProjectionViewModelMatrixId = -1;
 
-GLuint g_uiTextureLocation = -1;
+GLuint g_uiTextureId = -1;
 GLuint g_uiTextureUnit = -1;
 GLuint g_uiTextureID = -1;
 
@@ -196,17 +196,17 @@ void RenderMesh(CE::MeshComponent& meshComponent, CE::AnimationComponent& animat
 
 	if (renderWireFrameOnly)
 	{
-		activeProgramID = g_programID6;
-		activeProjectionViewModelMatrixID = g_projectionViewModelMatrixID6;
-		activePaletteID = g_paletteID6;
-		activeDiffuseTextureLocation = g_diffuseTextureLocation6;
+		activeProgramID = g_skinnedMeshWireFrameDiffuseTextureProgramId;
+		activeProjectionViewModelMatrixID = g_skinnedMeshWireFrameDiffuseTextureProjectionViewModelMatrixId;
+		activePaletteID = g_skinnedMeshWireFrameDiffuseTexturePaletteId;
+		activeDiffuseTextureLocation = g_skinnedMeshWireFrameDiffuseTextureDiffuseTextureId;
 	}
 	else
 	{
-		activeProgramID = g_programID;
-		activeProjectionViewModelMatrixID = g_projectionViewModelMatrixID;
-		activePaletteID = g_paletteID;
-		activeDiffuseTextureLocation = g_diffuseTextureLocation;
+		activeProgramID = g_skinnedMeshDiffuseTextureProgramId;
+		activeProjectionViewModelMatrixID = g_skinnedMeshDiffuseTextureProjectionViewModelMatrixId;
+		activePaletteID = g_skinnedMeshDiffuseTexturePaletteId;
+		activeDiffuseTextureLocation = g_skinnedMeshDiffuseTextureDiffuseTextureId;
 	}
 
 	glUseProgram(activeProgramID);
@@ -252,7 +252,7 @@ void RenderMesh(CE::MeshComponent& meshComponent, CE::AnimationComponent& animat
 
 void RenderSkeleton(CE::AnimationComponent& animationComponent, const glm::mat4& projectionViewModel)
 {
-	glUseProgram(g_programID2);
+	glUseProgram(g_skeletonProgramId);
 
 	struct DebugSkeletonVertex
 	{
@@ -269,7 +269,7 @@ void RenderSkeleton(CE::AnimationComponent& animationComponent, const glm::mat4&
 	glEnableVertexAttribArray(1);
 	glEnableVertexAttribArray(2);
 
-	glUniformMatrix4fv(g_projectionViewModelMatrixID2, 1, GL_FALSE, &projectionViewModel[0][0]);
+	glUniformMatrix4fv(g_skeletonProjectionViewModelMatrixId, 1, GL_FALSE, &projectionViewModel[0][0]);
 
 	if (engine->IsRenderBindPose())
 	{
@@ -280,7 +280,7 @@ void RenderSkeleton(CE::AnimationComponent& animationComponent, const glm::mat4&
 		g_paletteTextureUnit,
 		g_paletteGenTex,
 		g_tbo,
-		g_paletteID2);
+		g_skeletonPaletteId);
 
 	const CE::Skeleton* skeleton = animationComponent.GetSkeleton();// CE::SkeletonManager::Get().GetSkeleton(g_fbxName);
 
@@ -352,7 +352,7 @@ void RenderSkeleton(CE::AnimationComponent& animationComponent, const glm::mat4&
 
 void RenderGrid(const glm::mat4& projectionViewModel)
 {
-	glUseProgram(g_programID5);
+	glUseProgram(g_gridProgramId);
 
 	struct GridVertex
 	{
@@ -364,7 +364,7 @@ void RenderGrid(const glm::mat4& projectionViewModel)
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(offsetof(GridVertex, position)));
 	glEnableVertexAttribArray(0);
 
-	glUniformMatrix4fv(g_projectionViewModelMatrixID5, 1, GL_FALSE, &projectionViewModel[0][0]);
+	glUniformMatrix4fv(g_gridProjectionViewModelMatrixId, 1, GL_FALSE, &projectionViewModel[0][0]);
 
 	std::vector<GridVertex> gridVertices;
 	std::vector<unsigned> gridIndices;
@@ -412,7 +412,7 @@ void RenderGrid(const glm::mat4& projectionViewModel)
 void RenderUI()
 {
 #ifdef _WIN32
-	glUseProgram(g_programID4);
+	glUseProgram(g_uiProgramId);
 
 	struct UIVertex
 	{
@@ -479,7 +479,7 @@ void RenderUI()
 		glTexSubImage2D(GL_TEXTURE_2D, 0, popupRect.x, popupRect.y, popupRect.width, popupRect.height, GL_BGRA, GL_UNSIGNED_BYTE, popupBuffer);
 	}
 	glGenerateMipmap(GL_TEXTURE_2D);
-	glUniform1i(g_uiTextureLocation, g_uiTextureUnit);
+	glUniform1i(g_uiTextureId, g_uiTextureUnit);
 
 	glDrawElements(GL_TRIANGLES, (GLsizei)uiIndices.size(), GL_UNSIGNED_INT, NULL);
 
@@ -637,50 +637,45 @@ GLuint CreateProgram(const char* vertexShaderFileName, const char* fragmentShade
 
 bool InitializeOpenGL()
 {
-	g_programID = CreateProgram("shaders/SkinnedMeshShader.vert", "shaders/DiffuseTextureShader.frag");
-	if (g_programID == -1)
+	g_skinnedMeshDiffuseTextureProgramId = CreateProgram("shaders/SkinnedMeshShader.vert", "shaders/DiffuseTextureShader.frag");
+	if (g_skinnedMeshDiffuseTextureProgramId == -1)
 	{
 		return false;
 	}
+	g_skinnedMeshDiffuseTextureProjectionViewModelMatrixId = glGetUniformLocation(g_skinnedMeshDiffuseTextureProgramId, "projectionViewModel");
+	g_skinnedMeshDiffuseTexturePaletteId = glGetUniformLocation(g_skinnedMeshDiffuseTextureProgramId, "palette");
+	g_skinnedMeshDiffuseTextureDiffuseTextureId = glGetUniformLocation(g_skinnedMeshDiffuseTextureProgramId, "diffuseTexture");
 
-	g_programID2 = CreateProgram("shaders/SkeletonShader.vert", "shaders/FragmentShader.frag");
-	if (g_programID2 == -1)
+	g_skeletonProgramId = CreateProgram("shaders/SkeletonShader.vert", "shaders/FragmentShader.frag");
+	if (g_skeletonProgramId == -1)
 	{
 		return false;
 	}
+	g_skeletonProjectionViewModelMatrixId = glGetUniformLocation(g_skeletonProgramId, "projectionViewModel");
+	g_skeletonPaletteId = glGetUniformLocation(g_skeletonProgramId, "palette");
 
-	g_programID4 = CreateProgram("shaders/UIShader.vert", "shaders/UIShader.frag");
-	if (g_programID4 == -1)
+	g_uiProgramId = CreateProgram("shaders/UIShader.vert", "shaders/UIShader.frag");
+	if (g_uiProgramId == -1)
 	{
 		return false;
 	}
+	g_uiTextureId = glGetUniformLocation(g_uiProgramId, "uiTexture");
 
-	g_programID5 = CreateProgram("shaders/GridShader.vert", "shaders/GridShader.frag");
-	if (g_programID5 == -1)
+	g_gridProgramId = CreateProgram("shaders/GridShader.vert", "shaders/GridShader.frag");
+	if (g_gridProgramId == -1)
 	{
 		return false;
 	}
+	g_gridProjectionViewModelMatrixId = glGetUniformLocation(g_gridProgramId, "projectionViewModel");
 
-	g_programID6 = CreateProgram("shaders/SkinnedMeshShader.vert", "shaders/WireFrameDiffuseTextureShader.frag");
-	if (g_programID6 == -1)
+	g_skinnedMeshWireFrameDiffuseTextureProgramId = CreateProgram("shaders/SkinnedMeshShader.vert", "shaders/WireFrameDiffuseTextureShader.frag");
+	if (g_skinnedMeshWireFrameDiffuseTextureProgramId == -1)
 	{
 		return false;
 	}
-
-	g_uiTextureLocation = glGetUniformLocation(g_programID4, "uiTexture");
-
-	g_projectionViewModelMatrixID5 = glGetUniformLocation(g_programID5, "projectionViewModel");
-
-	g_projectionViewModelMatrixID2 = glGetUniformLocation(g_programID2, "projectionViewModel");
-	g_paletteID2 = glGetUniformLocation(g_programID2, "palette");
-
-	g_projectionViewModelMatrixID6 = glGetUniformLocation(g_programID6, "projectionViewModel");
-	g_paletteID6 = glGetUniformLocation(g_programID6, "palette");
-	g_diffuseTextureLocation6 = glGetUniformLocation(g_programID6, "diffuseTexture");
-
-	g_projectionViewModelMatrixID = glGetUniformLocation(g_programID, "projectionViewModel");
-	g_paletteID = glGetUniformLocation(g_programID, "palette");
-	g_diffuseTextureLocation = glGetUniformLocation(g_programID, "diffuseTexture");
+	g_skinnedMeshWireFrameDiffuseTextureProjectionViewModelMatrixId = glGetUniformLocation(g_skinnedMeshWireFrameDiffuseTextureProgramId, "projectionViewModel");
+	g_skinnedMeshWireFrameDiffuseTexturePaletteId = glGetUniformLocation(g_skinnedMeshWireFrameDiffuseTextureProgramId, "palette");
+	g_skinnedMeshWireFrameDiffuseTextureDiffuseTextureId = glGetUniformLocation(g_skinnedMeshWireFrameDiffuseTextureProgramId, "diffuseTexture");
 
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
