@@ -6,21 +6,11 @@ import { Welcome } from '@storybook/react/demo';
 import 'font-awesome/css/font-awesome.css';
 import React from 'react';
 import AnimationControls from '../src/Components/AnimationControls';
-import BnetAlert from '../src/Components/BnetAlert';
 import Slider from '../src/Components/Slider';
 import Toolbar from '../src/Components/Toolbar';
-import Layout from '../src/Components/Layout';
+import Layout from '../src/Components/Layout';;
 
 storiesOf('Welcome', module).add('to Storybook', () => <Welcome showApp={linkTo('Button')} />);
-
-storiesOf('BnetAlert', module)
-  .add('Default', () => {
-    return (
-      <BnetAlert title={'Attention'}>
-        <span>Proactively brand interactive convergence without.</span>
-      </BnetAlert>
-    );
-  });
 
 storiesOf('Toolbar', module)
   .add('Default', () => {
