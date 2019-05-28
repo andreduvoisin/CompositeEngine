@@ -1,13 +1,14 @@
 #include "Camera.h"
 
-#include "glm/gtc/matrix_transform.hpp"
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/quaternion.hpp>
 
 namespace CE
 {
 	Camera::Camera(const glm::vec3& location, const glm::vec3& forward, const glm::vec3& up)
 		: location(location)
-		, forward(forward)
-		, up(up)
+		, forward(glm::normalize(forward))
+		, up(glm::normalize(up))
 	{
 
 	}
@@ -30,8 +31,25 @@ namespace CE
 
 	void Camera::MoveRight(float delta)
 	{
+		glm::vec3 right = CreateRightVector();
+		location += right * delta;
+	}
+
+	void Camera::Swivel(int x, int y)
+	{
+		float rotationRadians = 0.005f;
+		glm::vec3 worldUp(0, 1, 0);
+
+		glm::quat quatX = glm::angleAxis(rotationRadians * x, worldUp);
+		glm::quat conjX = glm::conjugate(quatX);
+		forward = conjX * forward * quatX;
+		up = conjX * up * quatX;
+		
 		glm::vec3 left = CreateLeftVector();
-		location += -left * delta;
+		glm::quat quatY = glm::angleAxis(rotationRadians * y, left);
+		glm::quat conjY = glm::conjugate(quatY);
+		forward = conjY * forward * quatY;
+		up = conjY * up * quatY;
 	}
 
 	glm::mat4 Camera::CreateViewMatrix()
@@ -40,8 +58,13 @@ namespace CE
 		return glm::lookAt(location, at, up);
 	}
 
+	glm::vec3 Camera::CreateRightVector()
+	{
+		return glm::normalize(glm::cross(forward, up));
+	}
+
 	glm::vec3 Camera::CreateLeftVector()
 	{
-		return glm::normalize(glm::cross(up, forward));
+		return -CreateRightVector();
 	}
 }

@@ -16,9 +16,12 @@ namespace CE
 		void MoveLeft(float delta);
 		void MoveRight(float delta);
 
+		void Swivel(int x, int y);
+
 		glm::mat4 CreateViewMatrix();
 
 	private:
+		glm::vec3 CreateRightVector();
 		glm::vec3 CreateLeftVector();
 
 		glm::vec3 location;
