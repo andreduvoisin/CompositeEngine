@@ -16,7 +16,7 @@ namespace CE
 		void MoveLeft(float delta);
 		void MoveRight(float delta);
 
-		void Swivel(int x, int y);
+		void Swivel(int x, int y, float delta);
 
 		glm::mat4 CreateViewMatrix();
 

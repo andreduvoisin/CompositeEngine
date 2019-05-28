@@ -1241,6 +1241,48 @@ int main(int argc, char* argv[])
 
 		SDL_Event event;
 
+		int mouseX, mouseY;
+
+		if (SDL_GetMouseState(&mouseX, &mouseY) & SDL_BUTTON(SDL_BUTTON_RIGHT))
+		{
+			float movementDelta = 500.f * CE::GameTimeClock::Get().GetDeltaSeconds();
+
+			const Uint8* keyboardState = SDL_GetKeyboardState(NULL);
+
+			if (keyboardState[SDL_GetScancodeFromKey(SDLK_w)])
+			{
+				g_camera->MoveForward(movementDelta);
+			}
+			if (keyboardState[SDL_GetScancodeFromKey(SDLK_a)])
+			{
+				g_camera->MoveLeft(movementDelta);
+			}
+			if (keyboardState[SDL_GetScancodeFromKey(SDLK_s)])
+			{
+				g_camera->MoveBackward(movementDelta);
+			}
+			if (keyboardState[SDL_GetScancodeFromKey(SDLK_d)])
+			{
+				g_camera->MoveRight(movementDelta);
+			}
+
+			int centerX = SCREEN_WIDTH / 2;
+			int centerY = SCREEN_HEIGHT / 2;
+
+			bool isCenterWarp = mouseX == centerX && mouseY == centerY;
+
+			if (!isCenterWarp)
+			{
+				// because (0, 0) is upper left instead of lower left, negate the X delta
+				int deltaX = mouseX - centerX;
+				int deltaY = centerY - mouseY;
+
+				g_camera->Swivel(deltaX, deltaY, 150.f * CE::GameTimeClock::Get().GetDeltaSeconds());
+
+				SDL_WarpMouseInWindow(g_window, centerX, centerY);
+			}
+		}
+
 		while (SDL_PollEvent(&event) != 0)
 		{
 #ifdef _WIN32
@@ -1274,42 +1316,6 @@ int main(int argc, char* argv[])
 							break;
 						}
 
-						case SDLK_w:
-						{
-							if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_RIGHT))
-							{
-								g_camera->MoveForward(1000 * CE::RealTimeClock::Get().GetDeltaSeconds());
-							}
-							break;
-						}
-
-						case SDLK_a:
-						{
-							if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_RIGHT))
-							{
-								g_camera->MoveLeft(1000 * CE::RealTimeClock::Get().GetDeltaSeconds());
-							}
-							break;
-						}
-
-						case SDLK_s:
-						{
-							if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_RIGHT))
-							{
-								g_camera->MoveBackward(1000 * CE::RealTimeClock::Get().GetDeltaSeconds());
-							}
-							break;
-						}
-
-						case SDLK_d:
-						{
-							if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_RIGHT))
-							{
-								g_camera->MoveRight(1000 * CE::RealTimeClock::Get().GetDeltaSeconds());
-							}
-							break;
-						}
-
 						case SDLK_F11:
 						case SDLK_F12:
 						{
@@ -1325,33 +1331,12 @@ int main(int argc, char* argv[])
 				// osr_window_win.cc
 				case SDL_MOUSEMOTION:
 				{
-					if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_RIGHT))
-					{
-						int centerX = SCREEN_WIDTH / 2;
-						int centerY = SCREEN_HEIGHT / 2;
+					CefMouseEvent mouseEvent;
+					mouseEvent.x = event.motion.x;
+					mouseEvent.y = event.motion.y;
+					mouseEvent.modifiers = GetCefMouseModifiers(event);
 
-						bool isCenterWarp = event.motion.x == centerX && event.motion.y == centerY;
-
-						if (!isCenterWarp)
-						{
-							SDL_WarpMouseInWindow(g_window, centerX, centerY);
-
-							// because (0, 0) is upper left instead of lower left, negate the X delta
-							int deltaX = event.motion.x - centerX;
-							int deltaY = centerY - event.motion.y;
-
-							g_camera->Swivel(deltaX, deltaY);
-						}
-					}
-					else
-					{
-						CefMouseEvent mouseEvent;
-						mouseEvent.x = event.motion.x;
-						mouseEvent.y = event.motion.y;
-						mouseEvent.modifiers = GetCefMouseModifiers(event);
-
-						g_browser->GetHost()->SendMouseMoveEvent(mouseEvent, false);
-					}
+					g_browser->GetHost()->SendMouseMoveEvent(mouseEvent, false);
 
 					break;
 				}
