@@ -1228,6 +1228,8 @@ int main(int argc, char* argv[])
 	CE::RealTimeClock::Get().Initialize(currentTicks);
 	CE::GameTimeClock::Get().Initialize(currentTicks);
 
+	int rightClickWarpX, rightClickWarpY;
+
 	bool quit = false;
 
 	while (!quit)
@@ -1240,48 +1242,6 @@ int main(int argc, char* argv[])
 		CE::GameTimeClock::Get().Update(deltaTicks);
 
 		SDL_Event event;
-
-		int mouseX, mouseY;
-
-		if (SDL_GetMouseState(&mouseX, &mouseY) & SDL_BUTTON(SDL_BUTTON_RIGHT))
-		{
-			float movementDelta = 500.f * CE::GameTimeClock::Get().GetDeltaSeconds();
-
-			const Uint8* keyboardState = SDL_GetKeyboardState(NULL);
-
-			if (keyboardState[SDL_GetScancodeFromKey(SDLK_w)])
-			{
-				g_camera->MoveForward(movementDelta);
-			}
-			if (keyboardState[SDL_GetScancodeFromKey(SDLK_a)])
-			{
-				g_camera->MoveLeft(movementDelta);
-			}
-			if (keyboardState[SDL_GetScancodeFromKey(SDLK_s)])
-			{
-				g_camera->MoveBackward(movementDelta);
-			}
-			if (keyboardState[SDL_GetScancodeFromKey(SDLK_d)])
-			{
-				g_camera->MoveRight(movementDelta);
-			}
-
-			int centerX = SCREEN_WIDTH / 2;
-			int centerY = SCREEN_HEIGHT / 2;
-
-			bool isCenterWarp = mouseX == centerX && mouseY == centerY;
-
-			if (!isCenterWarp)
-			{
-				// because (0, 0) is upper left instead of lower left, negate the X delta
-				int deltaX = mouseX - centerX;
-				int deltaY = centerY - mouseY;
-
-				g_camera->Swivel(deltaX, deltaY, 150.f * CE::GameTimeClock::Get().GetDeltaSeconds());
-
-				SDL_WarpMouseInWindow(g_window, centerX, centerY);
-			}
-		}
 
 		while (SDL_PollEvent(&event) != 0)
 		{
@@ -1331,6 +1291,8 @@ int main(int argc, char* argv[])
 				// osr_window_win.cc
 				case SDL_MOUSEMOTION:
 				{
+					// TODO: CEF also gets all of the right-click camera movement events, which are unnecessary.
+
 					CefMouseEvent mouseEvent;
 					mouseEvent.x = event.motion.x;
 					mouseEvent.y = event.motion.y;
@@ -1371,7 +1333,9 @@ int main(int argc, char* argv[])
 
 					if (event.button.button == SDL_BUTTON_RIGHT)
 					{
-						SDL_WarpMouseInWindow(g_window, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
+						rightClickWarpX = event.button.x;
+						rightClickWarpY = event.button.y;
+						SDL_SetWindowGrab(g_window, SDL_TRUE);
 						SDL_ShowCursor(SDL_DISABLE);
 					}
 
@@ -1408,6 +1372,7 @@ int main(int argc, char* argv[])
 
 					if (event.button.button == SDL_BUTTON_RIGHT)
 					{
+						SDL_SetWindowGrab(g_window, SDL_FALSE);
 						SDL_ShowCursor(SDL_ENABLE);
 					}
 
@@ -1447,6 +1412,41 @@ int main(int argc, char* argv[])
 				}
 #endif
 			}
+		}
+
+		int currentMouseX, currentMouseY;
+
+		if (SDL_GetMouseState(&currentMouseX, &currentMouseY) & SDL_BUTTON(SDL_BUTTON_RIGHT))
+		{
+			float movementDelta = 500.f * CE::GameTimeClock::Get().GetDeltaSeconds();
+
+			const Uint8* keyboardState = SDL_GetKeyboardState(NULL);
+
+			if (keyboardState[SDL_GetScancodeFromKey(SDLK_w)])
+			{
+				g_camera->MoveForward(movementDelta);
+			}
+			if (keyboardState[SDL_GetScancodeFromKey(SDLK_a)])
+			{
+				g_camera->MoveLeft(movementDelta);
+			}
+			if (keyboardState[SDL_GetScancodeFromKey(SDLK_s)])
+			{
+				g_camera->MoveBackward(movementDelta);
+			}
+			if (keyboardState[SDL_GetScancodeFromKey(SDLK_d)])
+			{
+				g_camera->MoveRight(movementDelta);
+			}
+
+			// Because (0, 0) is upper left instead of lower left, we negate the delta x.
+			// Note that this entire algorithm leans on SDL_WarpMouseInWindow() for its success.
+			int deltaMouseX = currentMouseX - rightClickWarpX;
+			int deltaMouseY = rightClickWarpY - currentMouseY;
+
+			g_camera->Swivel(deltaMouseX, deltaMouseY, 0.2f * CE::GameTimeClock::Get().GetDeltaSeconds());
+
+			SDL_WarpMouseInWindow(g_window, rightClickWarpX, rightClickWarpY);
 		}
 
 		for (CE::AnimationComponent* animationComponent : g_animationComponents)
