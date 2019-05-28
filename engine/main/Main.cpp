@@ -1325,28 +1325,32 @@ int main(int argc, char* argv[])
 				// osr_window_win.cc
 				case SDL_MOUSEMOTION:
 				{
-					// TODO: CEF doesn't need all of these right-click events.
-					CefMouseEvent mouseEvent;
-					mouseEvent.x = event.motion.x;
-					mouseEvent.y = event.motion.y;
-					mouseEvent.modifiers = GetCefMouseModifiers(event);
-
-					g_browser->GetHost()->SendMouseMoveEvent(mouseEvent, false);
-
-					int centerX = SCREEN_WIDTH / 2;
-					int centerY = SCREEN_HEIGHT / 2;
-
-					bool isCenterWarp = event.motion.x == centerX && event.motion.y == centerY;
-
-					if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_RIGHT) && !isCenterWarp)
+					if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_RIGHT))
 					{
-						SDL_WarpMouseInWindow(g_window, centerX, centerY);
+						int centerX = SCREEN_WIDTH / 2;
+						int centerY = SCREEN_HEIGHT / 2;
 
-						// because (0, 0) is upper left instead of lower left, negate the X delta
-						int deltaX = event.motion.x - centerX;
-						int deltaY = centerY - event.motion.y;
+						bool isCenterWarp = event.motion.x == centerX && event.motion.y == centerY;
 
-						g_camera->Swivel(deltaX, deltaY);
+						if (!isCenterWarp)
+						{
+							SDL_WarpMouseInWindow(g_window, centerX, centerY);
+
+							// because (0, 0) is upper left instead of lower left, negate the X delta
+							int deltaX = event.motion.x - centerX;
+							int deltaY = centerY - event.motion.y;
+
+							g_camera->Swivel(deltaX, deltaY);
+						}
+					}
+					else
+					{
+						CefMouseEvent mouseEvent;
+						mouseEvent.x = event.motion.x;
+						mouseEvent.y = event.motion.y;
+						mouseEvent.modifiers = GetCefMouseModifiers(event);
+
+						g_browser->GetHost()->SendMouseMoveEvent(mouseEvent, false);
 					}
 
 					break;
