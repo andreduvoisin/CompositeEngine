@@ -1000,7 +1000,7 @@ bool Initialize()
 
 	//g_camera = new CE::Camera(glm::vec3(0, 100, 400), glm::vec3(0, 100, 0)); // paladin
 	//g_camera = new CE::Camera(glm::vec3(0, 200, 400), glm::vec3(0, 100, 0)); // solider
-	g_camera = new CE::Camera(glm::vec3(0, 100, 700), glm::vec3(0, 0, -1)); // thriller, quarterback
+	g_camera = new CE::Camera(glm::vec3(0, 100, 700), glm::vec3(0, 0, -1), glm::vec3(0, 1, 0)); // thriller, quarterback
 	//g_camera = new CE::Camera(glm::vec3(0, 2, 8), glm::vec3(0, 2, 0)); // wonder woman
 	//g_camera = new CE::Camera(glm::vec3(0, 0, 1), glm::vec3(0, 0, 0));
 
@@ -1276,25 +1276,37 @@ int main(int argc, char* argv[])
 
 						case SDLK_w:
 						{
-							g_camera->MoveForward(1000 * CE::RealTimeClock::Get().GetDeltaSeconds());
+							if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_RIGHT))
+							{
+								g_camera->MoveForward(1000 * CE::RealTimeClock::Get().GetDeltaSeconds());
+							}
 							break;
 						}
 
 						case SDLK_a:
 						{
-							g_camera->MoveLeft(1000 * CE::RealTimeClock::Get().GetDeltaSeconds());
+							if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_RIGHT))
+							{
+								g_camera->MoveLeft(1000 * CE::RealTimeClock::Get().GetDeltaSeconds());
+							}
 							break;
 						}
 
 						case SDLK_s:
 						{
-							g_camera->MoveBackward(1000 * CE::RealTimeClock::Get().GetDeltaSeconds());
+							if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_RIGHT))
+							{
+								g_camera->MoveBackward(1000 * CE::RealTimeClock::Get().GetDeltaSeconds());
+							}
 							break;
 						}
 
 						case SDLK_d:
 						{
-							g_camera->MoveRight(1000 * CE::RealTimeClock::Get().GetDeltaSeconds());
+							if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_RIGHT))
+							{
+								g_camera->MoveRight(1000 * CE::RealTimeClock::Get().GetDeltaSeconds());
+							}
 							break;
 						}
 
@@ -1313,12 +1325,29 @@ int main(int argc, char* argv[])
 				// osr_window_win.cc
 				case SDL_MOUSEMOTION:
 				{
+					// TODO: CEF doesn't need all of these right-click events.
 					CefMouseEvent mouseEvent;
 					mouseEvent.x = event.motion.x;
 					mouseEvent.y = event.motion.y;
 					mouseEvent.modifiers = GetCefMouseModifiers(event);
 
 					g_browser->GetHost()->SendMouseMoveEvent(mouseEvent, false);
+
+					int centerX = SCREEN_WIDTH / 2;
+					int centerY = SCREEN_HEIGHT / 2;
+
+					bool isCenterWarp = event.motion.x == centerX && event.motion.y == centerY;
+
+					if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_RIGHT) && !isCenterWarp)
+					{
+						SDL_WarpMouseInWindow(g_window, centerX, centerY);
+
+						// because (0, 0) is upper left instead of lower left, negate the X delta
+						int deltaX = event.motion.x - centerX;
+						int deltaY = centerY - event.motion.y;
+
+						g_camera->Swivel(deltaX, deltaY);
+					}
 
 					break;
 				}
@@ -1351,6 +1380,12 @@ int main(int argc, char* argv[])
 
 					g_browser->GetHost()->SendMouseClickEvent(mouseEvent, mouseButtonType, false, event.button.clicks);
 
+					if (event.button.button == SDL_BUTTON_RIGHT)
+					{
+						SDL_WarpMouseInWindow(g_window, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
+						SDL_ShowCursor(SDL_DISABLE);
+					}
+
 					break;
 				}
 
@@ -1381,6 +1416,11 @@ int main(int argc, char* argv[])
 					mouseEvent.modifiers = GetCefMouseModifiers(event);
 
 					g_browser->GetHost()->SendMouseClickEvent(mouseEvent, mouseButtonType, true, event.button.clicks);
+
+					if (event.button.button == SDL_BUTTON_RIGHT)
+					{
+						SDL_ShowCursor(SDL_ENABLE);
+					}
 
 					break;
 				}
