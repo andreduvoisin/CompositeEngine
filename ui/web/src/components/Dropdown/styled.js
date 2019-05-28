@@ -12,7 +12,7 @@ const Item = styled('li')(
     borderTop: 'none',
     lineHeight: '1em',
     color: 'rgba(187,187,187,0.7)',
-    fontSize: 10,
+    fontSize: 12,
     textTransform: 'none',
     fontWeight: '200',
     boxShadow: 'none',
@@ -22,15 +22,15 @@ const Item = styled('li')(
   },
   ({ isActive, isSelected }) => {
     const styles = [];
+    if (isSelected) {
+      styles.push({
+        background: 'rgba(255,255,255,0.05)',
+        fontWeight: '500'
+      });
+    }
     if (isActive) {
       styles.push({
         background: '#4B6EAF'
-      });
-    }
-    if (isSelected) {
-      styles.push({
-        background: '#4B6EAF',
-        fontWeight: '700'
       });
     }
     return styles;

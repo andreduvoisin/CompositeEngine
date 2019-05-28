@@ -42,7 +42,7 @@ const MyDownshiftMenu = withDownshift(
               item={item}
               index={index}
               isActive={highlightedIndex === index}
-              isSelected={selectedItem === item}
+              isSelected={selectedItem.id === item.id}
             >
               {itemToString(item)}
             </DownshiftItem>

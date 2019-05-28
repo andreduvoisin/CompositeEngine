@@ -28,9 +28,9 @@ const DownshiftButton = withDownshift(
 );
 
 const DownshiftItem = withDownshift(
-  ({ downshift: { getItemProps }, component: Comp = 'div', ...rest }) => (
-    <Comp {...getItemProps(rest)} />
-  )
+  ({ downshift: { getItemProps }, component: Comp = 'div', ...rest }) => {
+    return <Comp {...getItemProps(rest)} />;
+  }
 );
 
 function withDownshift(Component) {
@@ -56,10 +56,12 @@ function DownshiftComps({ children, ...rest }) {
       {(downshift) => {
         return (
           <div>
-            <DownshiftContext.Provider value={{
-              ...downshift,
-              items: rest.items
-            }}>
+            <DownshiftContext.Provider
+              value={{
+                ...downshift,
+                items: rest.items
+              }}
+            >
               {children}
             </DownshiftContext.Provider>
           </div>
