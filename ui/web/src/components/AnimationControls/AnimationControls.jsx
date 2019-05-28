@@ -2,7 +2,8 @@ import React from 'react';
 import styled from 'styled-components';
 import classNames from 'classnames';
 import './AnimationControls.less';
-import Slider from "../Slider/Slider";
+import Slider from '../Slider/Slider';
+import Dropdown from '../Dropdown/Dropdown';
 
 const AnimationControlsList = styled.ul`
   text-align: center;
@@ -16,7 +17,7 @@ const AnimationControlsListItem = styled.li`
 `;
 
 const AnimationControlsButton = styled.div`
-  border: solid 1px ${props => props.theme.colors.borders.button};
+  border: solid 1px ${(props) => props.theme.colors.borders.button};
   border-radius: 3px;
   padding: 3px;
   margin-right: 3px;
@@ -31,23 +32,20 @@ const AnimationControlsIcon = styled.i`
   margin-right: auto;
   margin-left: auto;
   display: inline-block;
-  text-shadow: 1px 1px 3px ${props => props.theme.colors.transparentBlack};
+  text-shadow: 1px 1px 3px ${(props) => props.theme.colors.transparentBlack};
 `;
 
 export default class AnimationControls extends React.Component {
-
   renderPlayButton() {
     const { props } = this;
     return (
       <AnimationControlsButton
-        onClick={(props.isPlaying) ? null : props.toggleAnimation}
-        className={classNames("AnimationControlsListItem-play", {
-          "is-active": props.isPlaying
+        onClick={props.isPlaying ? null : props.toggleAnimation}
+        className={classNames('AnimationControlsListItem-play', {
+          'is-active': props.isPlaying
         })}
       >
-        <AnimationControlsIcon
-          className={classNames('fa fa-play')}
-        />
+        <AnimationControlsIcon className={classNames('fa fa-play')} />
       </AnimationControlsButton>
     );
   }
@@ -56,25 +54,47 @@ export default class AnimationControls extends React.Component {
     const { props } = this;
     return (
       <AnimationControlsButton
-        onClick={(props.isPlaying) ? props.toggleAnimation : null}
-        className={classNames("AnimationControlsListItem-stop", {
-          "is-active": !props.isPlaying
+        onClick={props.isPlaying ? props.toggleAnimation : null}
+        className={classNames('AnimationControlsListItem-stop', {
+          'is-active': !props.isPlaying
         })}
       >
-        <AnimationControlsIcon
-          className={classNames('fa fa-stop')}
-        />
+        <AnimationControlsIcon className={classNames('fa fa-stop')} />
       </AnimationControlsButton>
     );
   }
 
   render() {
     const { props } = this;
+    const renderModeMenuItems = [
+      {
+        name: 'Mesh',
+        id: 'mesh',
+        value: 0
+      },
+      {
+        name: 'Skeleton',
+        id: 'skeleton',
+        value: 1
+      },
+      {
+        name: 'Mesh w/ Skeleton',
+        id: 'mesh-w-skeleton',
+        value: 2
+      },
+      {
+        name: 'Mesh w/ Wireframe',
+        id: 'mesh-w-wireframe',
+        value: 3
+      }
+    ];
     return (
-      <AnimationControlsList className={classNames('AnimationControls', {
-        'is-playing': props.isPlaying,
-        'is-paused': !props.isPlaying
-      })}>
+      <AnimationControlsList
+        className={classNames('AnimationControls', {
+          'is-playing': props.isPlaying,
+          'is-paused': !props.isPlaying
+        })}
+      >
         <AnimationControlsListItem>
           {this.renderPlayButton()}
         </AnimationControlsListItem>
@@ -92,24 +112,16 @@ export default class AnimationControls extends React.Component {
           />
         </AnimationControlsListItem>
         <AnimationControlsListItem>
-          <label style={{
-              marginLeft: '10px'
-          }}>
-            Draw Mode:
-          </label>
-          <select
-            defaultValue={0}
-            value={props.renderMode}
-            onChange={props.setRenderMode}
+          <Dropdown
             style={{
               marginLeft: '10px'
             }}
-          >
-            <option value={0}>Mesh</option>
-            <option value={1}>Skeleton</option>
-            <option value={2}>Mesh w/ Skeleton</option>
-            <option value={3}>Mesh w/ Wire Frame</option>
-          </select>
+            width={150}
+            items={renderModeMenuItems}
+            onChange={(selectedItem) => {
+              props.setRenderMode(selectedItem.value);
+            }}
+          />
         </AnimationControlsListItem>
       </AnimationControlsList>
     );
