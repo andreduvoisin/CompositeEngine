@@ -1346,8 +1346,6 @@ int main(int argc, char* argv[])
 						int deltaX = event.motion.x - centerX;
 						int deltaY = centerY - event.motion.y;
 
-						printf("event.motion.x: %d, event.motion.y: %d\n", event.motion.x, event.motion.y);
-						printf("deltaX: %d, deltaY: %d\n", deltaX, deltaY);
 						g_camera->Swivel(deltaX, deltaY);
 					}
 
