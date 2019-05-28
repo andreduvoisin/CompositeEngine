@@ -27,6 +27,8 @@ namespace CE
 		glm::vec3 location;
 		glm::vec3 forward;
 		glm::vec3 up;
+
+		float swivelRotationY;
 	};
 }
 

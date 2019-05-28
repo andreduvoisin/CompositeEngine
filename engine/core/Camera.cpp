@@ -3,12 +3,15 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/quaternion.hpp>
 
+#include <algorithm>
+
 namespace CE
 {
 	Camera::Camera(const glm::vec3& location, const glm::vec3& forward, const glm::vec3& up)
 		: location(location)
 		, forward(glm::normalize(forward))
 		, up(glm::normalize(up))
+		, swivelRotationY(0.f)
 	{
 
 	}
@@ -39,13 +42,23 @@ namespace CE
 	{
 		glm::vec3 worldUp(0, 1, 0);
 
-		glm::quat quatX = glm::angleAxis((float)x * delta, worldUp);
+		// Horizontal rotation is unlimited around the up axis.
+		float rotationX = static_cast<float>(x) * delta;
+		glm::quat quatX = glm::angleAxis(rotationX, worldUp);
 		glm::quat conjX = glm::conjugate(quatX);
 		forward = conjX * forward * quatX;
 		up = conjX * up * quatX;
-		
+
+		// Vertical rotation is clamped to 90 degrees around the left axis.
+		float rotationY = static_cast<float>(y) * delta;
+		rotationY = std::clamp(
+			rotationY,
+			-glm::half_pi<float>() - swivelRotationY,
+			glm::half_pi<float>() - swivelRotationY);
+		swivelRotationY += rotationY;
+
 		glm::vec3 left = CreateLeftVector();
-		glm::quat quatY = glm::angleAxis((float)y * delta, left);
+		glm::quat quatY = glm::angleAxis(rotationY, left);
 		glm::quat conjY = glm::conjugate(quatY);
 		forward = conjY * forward * quatY;
 		up = conjY * up * quatY;
