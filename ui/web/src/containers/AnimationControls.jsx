@@ -15,8 +15,8 @@ const mapDispatchToProps = (dispatch) => {
     setAnimationTime: (event) => {
       dispatch(setAnimationTime(event.target.value));
     },
-    setRenderMode: (event) => {
-      dispatch(setRenderSkeletonMode(event.target.value));
+    setRenderMode: (value) => {
+      dispatch(setRenderSkeletonMode(value));
     }
   };
 };
