@@ -1448,7 +1448,6 @@ int main(int argc, char* argv[])
 			if (mouseMoved)
 			{
 				g_camera->Swivel(deltaMouseX, deltaMouseY, 0.1f * CE::GameTimeClock::Get().GetDeltaSeconds());
-
 				SDL_WarpMouseInWindow(g_window, rightClickWarpX, rightClickWarpY);
 			}
 		}

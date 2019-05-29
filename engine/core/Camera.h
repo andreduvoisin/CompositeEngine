@@ -21,14 +21,15 @@ namespace CE
 		glm::mat4 CreateViewMatrix();
 
 	private:
+		void SwivelHorizontal(int x, float delta);
+		void SwivelVertical(int y, float delta);
+
 		glm::vec3 CreateRightVector();
 		glm::vec3 CreateLeftVector();
 
 		glm::vec3 location;
 		glm::vec3 forward;
 		glm::vec3 up;
-
-		float swivelRotationY;
 	};
 }
 
