@@ -93,9 +93,10 @@ GLuint g_uiTextureUnit = -1;
 GLuint g_uiTextureID = -1;
 
 std::vector<const char*> g_assetNames = {
-	"assets/Quarterback Pass.ceasset",
+	// "assets/Quarterback Pass.ceasset",
 	// "assets/Thriller Part 2.ceasset",
-	// "assets/Standing Walk Forward.ceasset"
+	// "assets/Standing Walk Forward.ceasset",
+	"assets/Zombie Stand Up.ceasset"
 };
 
 CE::AssetImporter* g_assetImporter;
