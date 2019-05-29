@@ -1443,10 +1443,14 @@ int main(int argc, char* argv[])
 			// Note that this entire algorithm leans on SDL_WarpMouseInWindow() for its success.
 			int deltaMouseX = currentMouseX - rightClickWarpX;
 			int deltaMouseY = rightClickWarpY - currentMouseY;
+			bool mouseMoved = deltaMouseX != 0 || deltaMouseY != 0;
 
-			g_camera->Swivel(deltaMouseX, deltaMouseY, 0.1f * CE::GameTimeClock::Get().GetDeltaSeconds());
+			if (mouseMoved)
+			{
+				g_camera->Swivel(deltaMouseX, deltaMouseY, 0.1f * CE::GameTimeClock::Get().GetDeltaSeconds());
 
-			SDL_WarpMouseInWindow(g_window, rightClickWarpX, rightClickWarpY);
+				SDL_WarpMouseInWindow(g_window, rightClickWarpX, rightClickWarpY);
+			}
 		}
 
 		for (CE::AnimationComponent* animationComponent : g_animationComponents)
