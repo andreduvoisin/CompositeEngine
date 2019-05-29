@@ -53,8 +53,8 @@ namespace CE
 		float rotationY = static_cast<float>(y) * delta;
 		rotationY = std::clamp(
 			rotationY,
-			-glm::half_pi<float>() - swivelRotationY,
-			glm::half_pi<float>() - swivelRotationY);
+			-glm::quarter_pi<float>() - swivelRotationY,
+			glm::quarter_pi<float>() - swivelRotationY);
 		swivelRotationY += rotationY;
 
 		glm::vec3 left = CreateLeftVector();
