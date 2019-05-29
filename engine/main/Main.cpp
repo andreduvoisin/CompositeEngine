@@ -1228,6 +1228,7 @@ int main(int argc, char* argv[])
 	CE::RealTimeClock::Get().Initialize(currentTicks);
 	CE::GameTimeClock::Get().Initialize(currentTicks);
 
+	bool isClickThrough = false;
 	int rightClickWarpX, rightClickWarpY;
 
 	bool quit = false;
@@ -1333,10 +1334,19 @@ int main(int argc, char* argv[])
 
 					if (event.button.button == SDL_BUTTON_RIGHT)
 					{
-						rightClickWarpX = event.button.x;
-						rightClickWarpY = event.button.y;
-						SDL_SetWindowGrab(g_window, SDL_TRUE);
-						SDL_ShowCursor(SDL_DISABLE);
+						SDL_SetRelativeMouseMode(SDL_TRUE);
+
+						SDL_GetRelativeMouseState(NULL, NULL);
+
+						if (isClickThrough)
+						{
+							SDL_GetGlobalMouseState(&rightClickWarpX, &rightClickWarpY);
+						}
+						else
+						{
+							rightClickWarpX = event.button.x;
+							rightClickWarpY = event.button.y;
+						}
 					}
 
 					break;
@@ -1372,8 +1382,17 @@ int main(int argc, char* argv[])
 
 					if (event.button.button == SDL_BUTTON_RIGHT)
 					{
-						SDL_SetWindowGrab(g_window, SDL_FALSE);
-						SDL_ShowCursor(SDL_ENABLE);
+						SDL_SetRelativeMouseMode(SDL_FALSE);
+
+						if (isClickThrough)
+						{
+							SDL_WarpMouseGlobal(rightClickWarpX, rightClickWarpY);
+							isClickThrough = false;
+						}
+						else
+						{
+							SDL_WarpMouseInWindow(g_window, rightClickWarpX, rightClickWarpY);
+						}
 					}
 
 					break;
@@ -1406,6 +1425,16 @@ int main(int argc, char* argv[])
 
 							break;
 						}
+
+						case SDL_WINDOWEVENT_FOCUS_GAINED:
+						{
+							if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_RIGHT))
+							{
+								// This is required to warp the mouse properly.
+								isClickThrough = true;
+							}
+							break;
+						}
 					}
 
 					break;
@@ -1414,9 +1443,9 @@ int main(int argc, char* argv[])
 			}
 		}
 
-		int currentMouseX, currentMouseY;
+		int deltaMouseX, deltaMouseY;
 
-		if (SDL_GetMouseState(&currentMouseX, &currentMouseY) & SDL_BUTTON(SDL_BUTTON_RIGHT))
+		if (SDL_GetRelativeMouseState(&deltaMouseX, &deltaMouseY) & SDL_BUTTON(SDL_BUTTON_RIGHT))
 		{
 			float movementDelta = 500.f * CE::RealTimeClock::Get().GetDeltaSeconds();
 
@@ -1439,16 +1468,17 @@ int main(int argc, char* argv[])
 				g_camera->MoveRight(movementDelta);
 			}
 
-			// Because (0, 0) is upper left instead of lower left, we negate the delta x.
-			// Note that this entire algorithm leans on SDL_WarpMouseInWindow() for its success.
-			int deltaMouseX = currentMouseX - rightClickWarpX;
-			int deltaMouseY = rightClickWarpY - currentMouseY;
 			bool mouseMoved = deltaMouseX != 0 || deltaMouseY != 0;
 
 			if (mouseMoved)
 			{
-				g_camera->Swivel(deltaMouseX, deltaMouseY, 0.1f * CE::RealTimeClock::Get().GetDeltaSeconds());
-				SDL_WarpMouseInWindow(g_window, rightClickWarpX, rightClickWarpY);
+				// Because (0, 0) is upper left instead of lower left, we negate the delta y.
+				g_camera->Swivel(deltaMouseX, -deltaMouseY, 0.1f * CE::RealTimeClock::Get().GetDeltaSeconds());
+
+				if (isClickThrough)
+				{
+					SDL_WarpMouseGlobal(rightClickWarpX, rightClickWarpY);
+				}
 			}
 		}
 
