@@ -1418,7 +1418,7 @@ int main(int argc, char* argv[])
 
 		if (SDL_GetMouseState(&currentMouseX, &currentMouseY) & SDL_BUTTON(SDL_BUTTON_RIGHT))
 		{
-			float movementDelta = 500.f * CE::GameTimeClock::Get().GetDeltaSeconds();
+			float movementDelta = 500.f * CE::RealTimeClock::Get().GetDeltaSeconds();
 
 			const Uint8* keyboardState = SDL_GetKeyboardState(NULL);
 
@@ -1447,7 +1447,7 @@ int main(int argc, char* argv[])
 
 			if (mouseMoved)
 			{
-				g_camera->Swivel(deltaMouseX, deltaMouseY, 0.1f * CE::GameTimeClock::Get().GetDeltaSeconds());
+				g_camera->Swivel(deltaMouseX, deltaMouseY, 0.1f * CE::RealTimeClock::Get().GetDeltaSeconds());
 				SDL_WarpMouseInWindow(g_window, rightClickWarpX, rightClickWarpY);
 			}
 		}
