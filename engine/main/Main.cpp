@@ -1289,25 +1289,25 @@ int main(int argc, char* argv[])
 					break;
 				}
 
-#ifdef _WIN32
 				// osr_window_win.cc
 				case SDL_MOUSEMOTION:
 				{
+#ifdef _WIN32
 					// TODO: CEF also gets all of the right-click camera movement events, which are unnecessary.
-
 					CefMouseEvent mouseEvent;
 					mouseEvent.x = event.motion.x;
 					mouseEvent.y = event.motion.y;
 					mouseEvent.modifiers = GetCefMouseModifiers(event);
 
 					g_browser->GetHost()->SendMouseMoveEvent(mouseEvent, false);
-
+#endif
 					break;
 				}
 
 				// osr_window_win.cc
 				case SDL_MOUSEBUTTONDOWN:
 				{
+#ifdef _WIN32
 					CefBrowserHost::MouseButtonType mouseButtonType;
 					if (event.button.button == SDL_BUTTON_LEFT)
 					{
@@ -1332,7 +1332,7 @@ int main(int argc, char* argv[])
 					mouseEvent.modifiers = GetCefMouseModifiers(event);
 
 					g_browser->GetHost()->SendMouseClickEvent(mouseEvent, mouseButtonType, false, event.button.clicks);
-
+#endif
 					if (event.button.button == SDL_BUTTON_RIGHT)
 					{
 						SDL_SetRelativeMouseMode(SDL_TRUE);
@@ -1356,6 +1356,7 @@ int main(int argc, char* argv[])
 				// osr_window_win.cc
 				case SDL_MOUSEBUTTONUP:
 				{
+#ifdef _WIN32
 					CefBrowserHost::MouseButtonType mouseButtonType;
 					if (event.button.button == SDL_BUTTON_LEFT)
 					{
@@ -1380,7 +1381,7 @@ int main(int argc, char* argv[])
 					mouseEvent.modifiers = GetCefMouseModifiers(event);
 
 					g_browser->GetHost()->SendMouseClickEvent(mouseEvent, mouseButtonType, true, event.button.clicks);
-
+#endif
 					if (event.button.button == SDL_BUTTON_RIGHT)
 					{
 						SDL_SetRelativeMouseMode(SDL_FALSE);
@@ -1402,12 +1403,13 @@ int main(int argc, char* argv[])
 				// osr_window_win.cc
 				case SDL_MOUSEWHEEL:
 				{
+#ifdef _WIN32
 					CefMouseEvent mouseEvent;
 					SDL_GetMouseState(&mouseEvent.x, &mouseEvent.y);
 					mouseEvent.modifiers = GetCefMouseModifiers(event);
 
 					g_browser->GetHost()->SendMouseWheelEvent(mouseEvent, event.wheel.x, event.wheel.y);
-
+#endif
 					break;
 				}
 
@@ -1418,12 +1420,13 @@ int main(int argc, char* argv[])
 					{
 						case SDL_WINDOWEVENT_LEAVE:
 						{
+#ifdef _WIN32
 							CefMouseEvent mouseEvent;
 							SDL_GetMouseState(&mouseEvent.x, &mouseEvent.y);
 							mouseEvent.modifiers = GetCefMouseModifiers(event);
 
 							g_browser->GetHost()->SendMouseMoveEvent(mouseEvent, true);
-
+#endif
 							break;
 						}
 
@@ -1440,7 +1443,6 @@ int main(int argc, char* argv[])
 
 					break;
 				}
-#endif
 			}
 		}
 
