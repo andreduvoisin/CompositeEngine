@@ -1452,30 +1452,6 @@ int main(int argc, char* argv[])
 							eventSystem->EnqueueEvent(setRenderModeEvent);
 							break;
 						}
-						
-						case SDLK_w:
-						{
-							g_camera->MoveForward(1000 * CE::RealTimeClock::Get().GetDeltaSeconds());
-							break;
-						}
-
-						case SDLK_a:
-						{
-							g_camera->MoveLeft(1000 * CE::RealTimeClock::Get().GetDeltaSeconds());
-							break;
-						}
-
-						case SDLK_s:
-						{
-							g_camera->MoveBackward(1000 * CE::RealTimeClock::Get().GetDeltaSeconds());
-							break;
-						}
-
-						case SDLK_d:
-						{
-							g_camera->MoveRight(1000 * CE::RealTimeClock::Get().GetDeltaSeconds());
-							break;
-						}
 #ifdef _WIN32
 						case SDLK_F11:
 						case SDLK_F12:
@@ -1500,6 +1476,7 @@ int main(int argc, char* argv[])
 					mouseEvent.modifiers = GetSdlCefInputModifiers(event);
 
 					g_browser->GetHost()->SendMouseMoveEvent(mouseEvent, false);
+
 					break;
 				}
 
