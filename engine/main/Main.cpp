@@ -33,6 +33,8 @@
 #include "event/ToggleBindPoseEvent.h"
 #include "event/SetRenderModeEvent.h"
 #include "core/Camera.h"
+#include "event/SdlEvent.h"
+#include "core/EditorCameraEventHandler.h"
 
 #include "include/cef_app.h"
 #include "cef/client/UIClient.h"
@@ -54,8 +56,8 @@
 #include "include/wrapper/cef_library_loader.h"
 #endif
 
-const int SCREEN_WIDTH = 1600;
-const int SCREEN_HEIGHT = 900;
+const int SCREEN_WIDTH = 1280;
+const int SCREEN_HEIGHT = 720;
 
 SDL_Window* g_window = NULL;
 SDL_GLContext g_context;
@@ -1406,10 +1408,9 @@ int main(int argc, char* argv[])
 	CE::RealTimeClock::Get().Initialize(currentTicks);
 	CE::GameTimeClock::Get().Initialize(currentTicks);
 
-	bool isClickThrough = false;
-	int rightClickWarpX, rightClickWarpY;
-
 	bool quit = false;
+
+	CE::EditorCameraEventHandler editorCameraEventHandler(eventSystem, g_camera);
 
 	while (!quit)
 	{
@@ -1424,6 +1425,10 @@ int main(int argc, char* argv[])
 
 		while (SDL_PollEvent(&event) != 0)
 		{
+			CE::SdlEvent wrappedEvent;
+			wrappedEvent.event = event;
+			eventSystem->DispatchEvent(wrappedEvent);
+
 			externalMessagePump->ProcessEvent(event);
 
 			// TODO: Haven't done focus events for Cef (see CefBrowserHost). Do I need these?
@@ -1509,23 +1514,6 @@ int main(int argc, char* argv[])
 
 					g_browser->GetHost()->SendMouseClickEvent(mouseEvent, mouseButtonType, false, event.button.clicks);
 
-					if (event.button.button == SDL_BUTTON_RIGHT)
-					{
-						SDL_SetRelativeMouseMode(SDL_TRUE);
-
-						SDL_GetRelativeMouseState(NULL, NULL);
-
-						if (isClickThrough)
-						{
-							SDL_GetGlobalMouseState(&rightClickWarpX, &rightClickWarpY);
-						}
-						else
-						{
-							rightClickWarpX = event.button.x;
-							rightClickWarpY = event.button.y;
-						}
-					}
-
 					break;
 				}
 
@@ -1557,22 +1545,7 @@ int main(int argc, char* argv[])
 					mouseEvent.modifiers = GetSdlCefInputModifiers(event);
 
 					g_browser->GetHost()->SendMouseClickEvent(mouseEvent, mouseButtonType, true, event.button.clicks);
-
-					if (event.button.button == SDL_BUTTON_RIGHT)
-					{
-						SDL_SetRelativeMouseMode(SDL_FALSE);
-
-						if (isClickThrough)
-						{
-							SDL_WarpMouseGlobal(rightClickWarpX, rightClickWarpY);
-							isClickThrough = false;
-						}
-						else
-						{
-							SDL_WarpMouseInWindow(g_window, rightClickWarpX, rightClickWarpY);
-						}
-					}
-
+					
 					break;
 				}
 
@@ -1605,16 +1578,6 @@ int main(int argc, char* argv[])
 							
 							break;
 						}
-
-						case SDL_WINDOWEVENT_FOCUS_GAINED:
-						{
-							if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_RIGHT))
-							{
-								// This is required to warp the mouse properly.
-								isClickThrough = true;
-							}
-							break;
-						}
 					}
 
 					break;
@@ -1622,44 +1585,7 @@ int main(int argc, char* argv[])
 			}
 		}
 
-		int deltaMouseX, deltaMouseY;
-
-		if (SDL_GetRelativeMouseState(&deltaMouseX, &deltaMouseY) & SDL_BUTTON(SDL_BUTTON_RIGHT))
-		{
-			float movementDelta = 500.f * CE::RealTimeClock::Get().GetDeltaSeconds();
-
-			const Uint8* keyboardState = SDL_GetKeyboardState(NULL);
-
-			if (keyboardState[SDL_GetScancodeFromKey(SDLK_w)])
-			{
-				g_camera->MoveForward(movementDelta);
-			}
-			if (keyboardState[SDL_GetScancodeFromKey(SDLK_a)])
-			{
-				g_camera->MoveLeft(movementDelta);
-			}
-			if (keyboardState[SDL_GetScancodeFromKey(SDLK_s)])
-			{
-				g_camera->MoveBackward(movementDelta);
-			}
-			if (keyboardState[SDL_GetScancodeFromKey(SDLK_d)])
-			{
-				g_camera->MoveRight(movementDelta);
-			}
-
-			bool mouseMoved = deltaMouseX != 0 || deltaMouseY != 0;
-
-			if (mouseMoved)
-			{
-				// Because (0, 0) is upper left instead of lower left, we negate the delta y.
-				g_camera->Swivel(deltaMouseX, -deltaMouseY, 0.1f * CE::RealTimeClock::Get().GetDeltaSeconds());
-
-				if (isClickThrough)
-				{
-					SDL_WarpMouseGlobal(rightClickWarpX, rightClickWarpY);
-				}
-			}
-		}
+		editorCameraEventHandler.Update(CE::RealTimeClock::Get().GetDeltaSeconds());
 
 		for (CE::AnimationComponent* animationComponent : g_animationComponents)
 		{

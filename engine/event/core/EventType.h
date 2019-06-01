@@ -14,7 +14,8 @@ enum class EventType : uint32_t
 	SET_RENDER_MODE,
 	REQUEST_FPS_STATE,
 	FPS_STATE,
-	TOGGLE_BIND_POSE
+	TOGGLE_BIND_POSE,
+	SDL
 };
 
 #endif // _CE_EVENT_TYPE_H_
