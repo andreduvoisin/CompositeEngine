@@ -13,10 +13,6 @@ namespace CE
         SdlEvent* Clone() const override;
 
         SDL_Event event;
-
-    protected:
-        void SerializeInternal(JsonSerializer& serializer) const override;
-        void DeserializeInternal(const JsonDeserializer& deserializer) override;
     };
 }
 

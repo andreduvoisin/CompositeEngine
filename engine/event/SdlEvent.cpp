@@ -15,14 +15,4 @@ namespace CE
     {
         return new SdlEvent(*this);
     }
-
-    void SdlEvent::SerializeInternal(JsonSerializer& serializer) const
-    {
-        (void)0;
-    }
-
-    void SdlEvent::DeserializeInternal(const JsonDeserializer& deserializer)
-    {
-        (void)0;
-    }
 }
