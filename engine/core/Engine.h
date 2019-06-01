@@ -10,7 +10,7 @@ namespace CE
 	public:
 		Engine(EventSystem* eventSystem);
 
-		int RenderMode() const { return renderMode; }
+		int GetRenderMode() const { return renderMode; }
 
 		bool IsRenderBindPose() const { return renderBindPose; }
 

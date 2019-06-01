@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom';
 import { Provider as ReduxProvider } from 'react-redux';
 import { applyMiddleware, createStore } from 'redux';
 import { composeWithDevTools } from 'remote-redux-devtools';
-// import logger from 'redux-logger';
 import createSagaMiddleware from 'redux-saga';
 import App from './App';
 import './index.css';
@@ -26,8 +25,7 @@ const sagaMiddleware = createSagaMiddleware();
 // create the redux store
 const enhancers = composeWithDevTools(
   applyMiddleware(
-    sagaMiddleware,
-    // logger
+    sagaMiddleware
   )
 );
 
