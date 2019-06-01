@@ -54,8 +54,8 @@
 #include "CoreFoundation/CoreFoundation.h"
 #endif
 
-const int SCREEN_WIDTH = 1600;
-const int SCREEN_HEIGHT = 900;
+const int SCREEN_WIDTH = 1280;
+const int SCREEN_HEIGHT = 720;
 
 SDL_Window* g_window = NULL;
 SDL_GLContext g_context;

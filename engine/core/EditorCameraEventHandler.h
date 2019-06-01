@@ -5,6 +5,8 @@
 
 class EventSystem;
 
+struct SDL_MouseButtonEvent;
+
 namespace CE
 {
     class Camera;
@@ -21,6 +23,9 @@ namespace CE
 
 	private:
 		void HandleSdlEvent(const Event& event);
+        void HandleMouseButtonDown(const SDL_MouseButtonEvent& event);
+        void HandleMouseButtonUp(const SDL_MouseButtonEvent& event);
+        void HandleWindowFocusGained();
 
 		EventSystem* eventSystem;
 		Camera* camera;

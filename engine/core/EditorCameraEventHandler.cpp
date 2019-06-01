@@ -7,6 +7,9 @@
 
 namespace CE
 {
+    const float MOVEMENT_FACTOR = 500.f;
+    const float SWIVEL_FACTOR = 0.1f;
+
 	EditorCameraEventHandler::EditorCameraEventHandler(
 			EventSystem* eventSystem,
 			Camera* camera)
@@ -21,11 +24,12 @@ namespace CE
 
 	void EditorCameraEventHandler::Update(float deltaSeconds)
 	{
-		int deltaMouseX, deltaMouseY;
+		int deltaMouseX;
+        int deltaMouseY;
 
 		if (SDL_GetRelativeMouseState(&deltaMouseX, &deltaMouseY) & SDL_BUTTON(SDL_BUTTON_RIGHT))
 		{
-			float movementDelta = 500.f * deltaSeconds;
+			float movementDelta = MOVEMENT_FACTOR * deltaSeconds;
 
 			const Uint8* keyboardState = SDL_GetKeyboardState(NULL);
 
@@ -51,7 +55,7 @@ namespace CE
 			if (mouseMoved)
 			{
 				// Because (0, 0) is upper left instead of lower left, we negate the delta y.
-				camera->Swivel(deltaMouseX, -deltaMouseY, 0.1f * deltaSeconds);
+				camera->Swivel(deltaMouseX, -deltaMouseY, SWIVEL_FACTOR * deltaSeconds);
 
 				if (isClickThrough)
 				{
@@ -83,43 +87,13 @@ namespace CE
         {
             case SDL_MOUSEBUTTONDOWN:
             {
-                if (nativeEvent.button.button == SDL_BUTTON_RIGHT)
-                {
-                    SDL_SetRelativeMouseMode(SDL_TRUE);
-
-                    SDL_GetRelativeMouseState(NULL, NULL);
-
-                    if (isClickThrough)
-                    {
-                        SDL_GetGlobalMouseState(&rightClickWarpX, &rightClickWarpY);
-                    }
-                    else
-                    {
-                        rightClickWarpX = nativeEvent.button.x;
-                        rightClickWarpY = nativeEvent.button.y;
-                    }
-                }
-
+                HandleMouseButtonDown(nativeEvent.button);
                 break;
             }
 
             case SDL_MOUSEBUTTONUP:
             {
-                if (nativeEvent.button.button == SDL_BUTTON_RIGHT)
-                {
-                    SDL_SetRelativeMouseMode(SDL_FALSE);
-
-                    if (isClickThrough)
-                    {
-                        SDL_WarpMouseGlobal(rightClickWarpX, rightClickWarpY);
-                        isClickThrough = false;
-                    }
-                    else
-                    {
-                        SDL_WarpMouseInWindow(NULL, rightClickWarpX, rightClickWarpY);
-                    }
-                }
-
+                HandleMouseButtonUp(nativeEvent.button);
                 break;
             }
 
@@ -129,18 +103,60 @@ namespace CE
                 {
                     case SDL_WINDOWEVENT_FOCUS_GAINED:
                     {
-                        if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_RIGHT))
-                        {
-                            // This is required to warp the mouse properly.
-                            isClickThrough = true;
-                        }
-
+                        HandleWindowFocusGained();
                         break;
                     }
                 }
 
                 break;
             }
+        }
+    }
+
+    void EditorCameraEventHandler::HandleMouseButtonDown(const SDL_MouseButtonEvent& event)
+    {
+        if (event.button == SDL_BUTTON_RIGHT)
+        {
+            SDL_SetRelativeMouseMode(SDL_TRUE);
+
+            SDL_GetRelativeMouseState(NULL, NULL);
+
+            if (isClickThrough)
+            {
+                SDL_GetGlobalMouseState(&rightClickWarpX, &rightClickWarpY);
+            }
+            else
+            {
+                rightClickWarpX = event.x;
+                rightClickWarpY = event.y;
+            }
+        }
+    }
+
+    void EditorCameraEventHandler::HandleMouseButtonUp(const SDL_MouseButtonEvent& event)
+    {
+        if (event.button == SDL_BUTTON_RIGHT)
+        {
+            SDL_SetRelativeMouseMode(SDL_FALSE);
+
+            if (isClickThrough)
+            {
+                SDL_WarpMouseGlobal(rightClickWarpX, rightClickWarpY);
+                isClickThrough = false;
+            }
+            else
+            {
+                SDL_WarpMouseInWindow(NULL, rightClickWarpX, rightClickWarpY);
+            }
+        }
+    }
+
+    void EditorCameraEventHandler::HandleWindowFocusGained()
+    {
+        if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_RIGHT))
+        {
+            // This is required to warp the mouse properly.
+            isClickThrough = true;
         }
     }
 }
