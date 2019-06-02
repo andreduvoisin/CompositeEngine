@@ -5,7 +5,13 @@ if(POLICY CMP0077)
 	cmake_policy(SET CMP0077 NEW)
 endif()
 
-set(CEF_VERSION "3.3538.1852.gcb937fc")
+# Off-screen rendering on CEF builds using Chromium 73 are currently broken (at least on Mac).
+# References:
+# 	https://magpcss.org/ceforum/viewtopic.php?f=6&t=16608
+# 	https://magpcss.org/ceforum/viewtopic.php?f=6&t=16675
+# 	https://bitbucket.org/chromiumembedded/cef/issues/2618
+# This may be fixed once PR #222 solving issue 2618 (above) is merged.
+set(CEF_VERSION "3.3626.1895.g7001d56")
 
 if(OS_WINDOWS)
 	set(CEF_PLATFORM "windows64")
@@ -14,6 +20,10 @@ elseif(OS_MACOSX)
 endif()
 set(CEF_DISTRIBUTION "cef_binary_${CEF_VERSION}_${CEF_PLATFORM}")
 set(CEF_ROOT "${EXTERN_DIR}/${CEF_DISTRIBUTION}")
+
+# The CEF build server requires the URL to be encoded, returning a 403 Forbidden otherwise.
+set(CEF_URL "http://opensource.spotify.com/cefbuilds/${CEF_DISTRIBUTION}.tar.bz2")
+string(REPLACE "+" "%2B" CEF_ENCODED_URL ${CEF_URL})
 
 # CMake Reference:
 # https://bitbucket.org/chromiumembedded/cef-project/src/master/CMakeLists.txt
@@ -49,15 +59,17 @@ if(OS_MACOSX)
 		"${CEF_ROOT}/libcef_dll_wrapper/libcef_dll_wrapper.a"
 		"${CEF_ROOT}/${CMAKE_BUILD_TYPE}/Chromium Embedded Framework.framework")
 	
-	set(LIBRARIES
-		"${CEF_ROOT}/libcef_dll_wrapper/libcef_dll_wrapper.a"
-		"${CEF_ROOT}/${CMAKE_BUILD_TYPE}/Chromium Embedded Framework.framework")
+	set(LIBRARIES "${CEF_ROOT}/libcef_dll_wrapper/libcef_dll_wrapper.a")
 	#set(LIBRARIES ${LIBRARIES} "${CEF_ROOT}/${CMAKE_BUILD_TYPE}/cef_sandbox.a")
 	
 	# TODO: This should use EXECUTABLE_SUBDIR?
 	install(
 		DIRECTORY "${CEF_ROOT}/${CMAKE_BUILD_TYPE}/Chromium Embedded Framework.framework"
 		DESTINATION "${CMAKE_INSTALL_PREFIX}/CompositeEngine.app/Contents/Frameworks")
+	# TODO: Shouldn't be including this framework twice...
+	install(
+		DIRECTORY "${CEF_ROOT}/${CMAKE_BUILD_TYPE}/Chromium Embedded Framework.framework"
+		DESTINATION "${CMAKE_INSTALL_PREFIX}/CompositeEngine.app/Contents/Frameworks/CompositeCefSubprocess.app/Contents/Frameworks")
 endif()
 	
 ExternalProject_Add(
@@ -65,7 +77,7 @@ ExternalProject_Add(
 	PREFIX ${CEF_DISTRIBUTION}
 
 	DOWNLOAD_DIR ${EXTERN_DIR}
-	URL "http://opensource.spotify.com/cefbuilds/${CEF_DISTRIBUTION}.tar.bz2"
+	URL ${CEF_ENCODED_URL}
 
 	SOURCE_DIR ${CEF_ROOT}
 	BINARY_DIR ${CEF_ROOT}

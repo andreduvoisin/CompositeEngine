@@ -4,6 +4,10 @@
 
 #include "include/cef_base.h"
 
+#ifdef __APPLE__
+#include "include/wrapper/cef_library_loader.h"
+#endif
+
 
 enum class ProcessType
 {
@@ -79,6 +83,15 @@ CefRefPtr<CefApp> CreateApp(CefRefPtr<CefCommandLine> commandLine)
 
 int main(int argc, char* argv[])
 {
+#ifdef __APPLE__
+	CefScopedLibraryLoader libraryLoader;
+	if (!libraryLoader.LoadInMain())
+	{
+		printf("CEF failed to load framework in subprocess.\n");
+		return 1;
+	}
+#endif
+
 	CefMainArgs mainArgs;
 	CefRefPtr<CefCommandLine> commandLine = CefCommandLine::CreateCommandLine();
 

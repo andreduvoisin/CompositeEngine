@@ -36,7 +36,6 @@
 #include "event/SdlEvent.h"
 #include "core/EditorCameraEventHandler.h"
 
-#ifdef _WIN32
 #include "include/cef_app.h"
 #include "cef/client/UIClient.h"
 #include "cef/client/UIRenderHandler.h"
@@ -48,10 +47,13 @@
 #include "cef/browser/UIQueryResponder.h"
 #include "cef/browser/UIExternalMessagePump.h"
 #include "include/wrapper/cef_message_router.h"
-#endif
 
 #ifdef __APPLE__
-#include "CoreFoundation/CoreFoundation.h"
+#include <CoreFoundation/CoreFoundation.h>
+
+#include "cef/WindowContentView.h"
+
+#include "include/wrapper/cef_library_loader.h"
 #endif
 
 const int SCREEN_WIDTH = 1280;
@@ -106,12 +108,10 @@ CE::AssetImporter* g_assetImporter;
 std::vector<CE::MeshComponent*> g_meshComponents;
 std::vector<CE::AnimationComponent*> g_animationComponents;
 
-#ifdef _WIN32
 CefRefPtr<UIClient> g_uiClient;
 CefRefPtr<CefBrowser> g_browser;
 UIQueryHandler* queryHandler;
 UIExternalMessagePump* externalMessagePump;
-#endif
 
 EventSystem* eventSystem;
 CE::Engine* engine;
@@ -393,7 +393,6 @@ void RenderGrid(const glm::mat4& projectionViewModel)
 
 void RenderUI()
 {
-#ifdef _WIN32
 	glUseProgram(g_uiProgramId);
 
 	struct UIVertex
@@ -467,7 +466,6 @@ void RenderUI()
 
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
-#endif
 }
 
 void Render()
@@ -526,6 +524,8 @@ std::string ReadFile(const char *file)
 	fileTitle = fileName.substr(0, dotPos);
 	fileExtension = fileName.substr(dotPos + 1);
 
+	// TODO: Free? See https://developer.apple.com/library/archive/documentation/CoreFoundation/Conceptual/CFMemoryMgmt/Concepts/Ownership.html#//apple_ref/doc/uid/20001148-103029
+	// Also do this where this logic is copy/pasted.
 	CFStringRef fileTitleStringRef = CFStringCreateWithCStringNoCopy(NULL, fileTitle.c_str(), kCFStringEncodingASCII, kCFAllocatorNull);
 	CFStringRef fileExtensionStringRef = CFStringCreateWithCStringNoCopy(NULL, fileExtension.c_str(), kCFStringEncodingASCII, kCFAllocatorNull);
 	CFStringRef directoryNameStringRef = directoryName.empty() ? NULL : CFStringCreateWithCStringNoCopy(NULL, directoryName.c_str(), kCFStringEncodingASCII, kCFAllocatorNull);
@@ -713,20 +713,47 @@ bool InitializeOpenGL()
 	return true;
 }
 
-bool StartCef()
+bool StartCef(int argc, char* argv[])
 {
+#ifdef __APPLE__
+	CefScopedLibraryLoader libraryLoader;
+	if (!libraryLoader.LoadInMain())
+	{
+		printf("CEF failed to load framework in engine.\n");
+		return false;
+	}
+#endif
+
+	CefMainArgs main_args;
 #ifdef _WIN32
-	CefMainArgs main_args(::GetModuleHandle(NULL));
+	main_args = CefMainArgs(::GetModuleHandle(NULL));
+#elif __APPLE__
+	main_args = CefMainArgs(argc, argv);
+#endif
 
 	externalMessagePump = new UIExternalMessagePump();
 	CefRefPtr<UIBrowserProcessHandler> browserProcessHandler = new UIBrowserProcessHandler(externalMessagePump);
 	CefRefPtr<UIAppBrowser> app = new UIAppBrowser(browserProcessHandler);
 
 	CefSettings settings;
+	settings.no_sandbox = true;
 	settings.external_message_pump = true;
 	settings.windowless_rendering_enabled = true;
 	settings.remote_debugging_port = 3469;
+#ifdef _WIN32
 	CefString(&settings.browser_subprocess_path).FromASCII("CompositeCefSubprocess.exe");
+#elif __APPLE__
+	CFBundleRef mainBundle = CFBundleGetMainBundle();
+	// TODO: Free? See https://developer.apple.com/library/archive/documentation/CoreFoundation/Conceptual/CFMemoryMgmt/Concepts/Ownership.html#//apple_ref/doc/uid/20001148-103029
+	CFURLRef privateFrameworksUrl = CFBundleCopyPrivateFrameworksURL(mainBundle);
+	UInt8 privateFrameworksDirectoryName[1024];
+	CFURLGetFileSystemRepresentation(privateFrameworksUrl, true, privateFrameworksDirectoryName, 1024);
+
+	std::string subprocessFile = (char*) privateFrameworksDirectoryName;
+	subprocessFile += "/CompositeCefSubprocess.app/Contents/MacOS/CompositeCefSubprocess";
+	CefString(&settings.browser_subprocess_path).FromString(subprocessFile);
+#endif
+
 	if (!CefInitialize(main_args, settings, app, NULL))
 	{
 		printf("CEF failed to initialize.\n");
@@ -759,7 +786,12 @@ bool StartCef()
 
 	CefBrowserSettings browserSettings;
 	CefWindowInfo windowInfo;
+#ifdef _WIN32
 	windowInfo.SetAsWindowless(sysInfo.info.win.window);
+#elif __APPLE__
+	NSView* view = (NSView*) CE::GetWindowContentView(sysInfo.info.cocoa.window);
+	windowInfo.SetAsWindowless(view);
+#endif
 
 	g_browser = CefBrowserHost::CreateBrowserSync(
 		windowInfo,
@@ -767,14 +799,13 @@ bool StartCef()
 		"http://localhost:3000", // "about:blank"
 		browserSettings,
 		nullptr);
-#endif
-
+	
 	return true;
 }
 
+#ifdef _WIN32
 void ToggleDevToolsWindow()
 {
-#ifdef _WIN32
 	if (g_browser->GetHost()->HasDevTools())
 	{
 		g_browser->GetHost()->CloseDevTools();
@@ -793,101 +824,157 @@ void ToggleDevToolsWindow()
 		windowInfo.SetAsPopup(sysInfo.info.win.window, "DevTools");
 		g_browser->GetHost()->ShowDevTools(windowInfo, g_uiClient, browserSettings, CefPoint(0, 0));
 	}
-#endif
 }
+#endif
 
 #ifdef _WIN32
-bool IsKeyDown(WPARAM wparam) {
-	return (GetKeyState((int)wparam) & 0x8000) != 0;
+// util_win.cc
+bool IsKeyDown(WPARAM wparam)
+{
+	return (::GetKeyState(static_cast<int>(wparam)) & 0x8000) != 0;
 }
 
-// TODO: Either convert this to SDL or convert GetCefMouseModifiers to native.
-int GetCefKeyboardModifiers(WPARAM wparam, LPARAM lparam) {
+// util_win.cc
+int GetNativeCefKeyboardModifiers(WPARAM wparam, LPARAM lparam)
+{
 	int modifiers = 0;
+
 	if (IsKeyDown(VK_SHIFT))
+	{
 		modifiers |= EVENTFLAG_SHIFT_DOWN;
+	}
 	if (IsKeyDown(VK_CONTROL))
+	{
 		modifiers |= EVENTFLAG_CONTROL_DOWN;
+	}
 	if (IsKeyDown(VK_MENU))
+	{
 		modifiers |= EVENTFLAG_ALT_DOWN;
+	}
 
 	// Low bit set from GetKeyState indicates "toggled".
 	if (::GetKeyState(VK_NUMLOCK) & 1)
+	{
 		modifiers |= EVENTFLAG_NUM_LOCK_ON;
-	if (::GetKeyState(VK_CAPITAL) & 1)
-		modifiers |= EVENTFLAG_CAPS_LOCK_ON;
-
-	switch (wparam) {
-	case VK_RETURN:
-		if ((lparam >> 16) & KF_EXTENDED)
-			modifiers |= EVENTFLAG_IS_KEY_PAD;
-		break;
-	case VK_INSERT:
-	case VK_DELETE:
-	case VK_HOME:
-	case VK_END:
-	case VK_PRIOR:
-	case VK_NEXT:
-	case VK_UP:
-	case VK_DOWN:
-	case VK_LEFT:
-	case VK_RIGHT:
-		if (!((lparam >> 16) & KF_EXTENDED))
-			modifiers |= EVENTFLAG_IS_KEY_PAD;
-		break;
-	case VK_NUMLOCK:
-	case VK_NUMPAD0:
-	case VK_NUMPAD1:
-	case VK_NUMPAD2:
-	case VK_NUMPAD3:
-	case VK_NUMPAD4:
-	case VK_NUMPAD5:
-	case VK_NUMPAD6:
-	case VK_NUMPAD7:
-	case VK_NUMPAD8:
-	case VK_NUMPAD9:
-	case VK_DIVIDE:
-	case VK_MULTIPLY:
-	case VK_SUBTRACT:
-	case VK_ADD:
-	case VK_DECIMAL:
-	case VK_CLEAR:
-		modifiers |= EVENTFLAG_IS_KEY_PAD;
-		break;
-	case VK_SHIFT:
-		if (IsKeyDown(VK_LSHIFT))
-			modifiers |= EVENTFLAG_IS_LEFT;
-		else if (IsKeyDown(VK_RSHIFT))
-			modifiers |= EVENTFLAG_IS_RIGHT;
-		break;
-	case VK_CONTROL:
-		if (IsKeyDown(VK_LCONTROL))
-			modifiers |= EVENTFLAG_IS_LEFT;
-		else if (IsKeyDown(VK_RCONTROL))
-			modifiers |= EVENTFLAG_IS_RIGHT;
-		break;
-	case VK_MENU:
-		if (IsKeyDown(VK_LMENU))
-			modifiers |= EVENTFLAG_IS_LEFT;
-		else if (IsKeyDown(VK_RMENU))
-			modifiers |= EVENTFLAG_IS_RIGHT;
-		break;
-	case VK_LWIN:
-		modifiers |= EVENTFLAG_IS_LEFT;
-		break;
-	case VK_RWIN:
-		modifiers |= EVENTFLAG_IS_RIGHT;
-		break;
 	}
+	if (::GetKeyState(VK_CAPITAL) & 1)
+	{
+		modifiers |= EVENTFLAG_CAPS_LOCK_ON;
+	}
+
+	switch (wparam)
+	{
+		case VK_RETURN:
+		{
+			if ((lparam >> 16) & KF_EXTENDED)
+			{
+				modifiers |= EVENTFLAG_IS_KEY_PAD;
+			}
+			break;
+		}
+
+		case VK_INSERT:
+		case VK_DELETE:
+		case VK_HOME:
+		case VK_END:
+		case VK_PRIOR:
+		case VK_NEXT:
+		case VK_UP:
+		case VK_DOWN:
+		case VK_LEFT:
+		case VK_RIGHT:
+		{
+			if (!((lparam >> 16) & KF_EXTENDED))
+			{
+				modifiers |= EVENTFLAG_IS_KEY_PAD;
+			}
+			break;
+		}
+
+		case VK_NUMLOCK:
+		case VK_NUMPAD0:
+		case VK_NUMPAD1:
+		case VK_NUMPAD2:
+		case VK_NUMPAD3:
+		case VK_NUMPAD4:
+		case VK_NUMPAD5:
+		case VK_NUMPAD6:
+		case VK_NUMPAD7:
+		case VK_NUMPAD8:
+		case VK_NUMPAD9:
+		case VK_DIVIDE:
+		case VK_MULTIPLY:
+		case VK_SUBTRACT:
+		case VK_ADD:
+		case VK_DECIMAL:
+		case VK_CLEAR:
+		{
+			modifiers |= EVENTFLAG_IS_KEY_PAD;
+			break;
+		}
+
+		case VK_SHIFT:
+		{
+			if (IsKeyDown(VK_LSHIFT))
+			{
+				modifiers |= EVENTFLAG_IS_LEFT;
+			}
+			else if (IsKeyDown(VK_RSHIFT))
+			{
+				modifiers |= EVENTFLAG_IS_RIGHT;
+			}
+			break;
+		}
+
+		case VK_CONTROL:
+		{
+			if (IsKeyDown(VK_LCONTROL))
+			{
+				modifiers |= EVENTFLAG_IS_LEFT;
+			}
+			else if (IsKeyDown(VK_RCONTROL))
+			{
+				modifiers |= EVENTFLAG_IS_RIGHT;
+			}
+			break;
+		}
+
+		case VK_MENU:
+		{
+			if (IsKeyDown(VK_LMENU))
+			{
+				modifiers |= EVENTFLAG_IS_LEFT;
+			}
+			else if (IsKeyDown(VK_RMENU))
+			{
+				modifiers |= EVENTFLAG_IS_RIGHT;
+			}
+			break;
+		}
+
+		case VK_LWIN:
+		{
+			modifiers |= EVENTFLAG_IS_LEFT;
+			break;
+		}
+
+		case VK_RWIN:
+		{
+			modifiers |= EVENTFLAG_IS_RIGHT;
+			break;
+		}
+	}
+
 	return modifiers;
 }
 
+// osr_window_win.cc
 void WindowsMessageHook(
 		void* userdata,
-		void* hWnd,
+		void* hwnd,
 		unsigned int message,
-		Uint64 wParam,
-		Sint64 lParam)
+		Uint64 wparam,
+		Sint64 lparam)
 {
 	switch (message)
 	{
@@ -899,8 +986,8 @@ void WindowsMessageHook(
 		case WM_CHAR:
 		{
 			CefKeyEvent keyEvent;
-			keyEvent.windows_key_code = static_cast<int>(wParam);
-			keyEvent.native_key_code = static_cast<int>(lParam);
+			keyEvent.windows_key_code = static_cast<int>(wparam);
+			keyEvent.native_key_code = static_cast<int>(lparam);
 			keyEvent.is_system_key = message == WM_SYSCHAR
 				|| message == WM_SYSKEYDOWN
 				|| message == WM_SYSKEYUP;
@@ -916,8 +1003,8 @@ void WindowsMessageHook(
 			{
 				keyEvent.type = KEYEVENT_CHAR;
 			}
-			keyEvent.modifiers = GetCefKeyboardModifiers(static_cast<WPARAM>(wParam), static_cast<LPARAM>(lParam));
-
+			keyEvent.modifiers = GetNativeCefKeyboardModifiers(static_cast<WPARAM>(wparam), static_cast<LPARAM>(lparam));
+			
 			g_browser->GetHost()->SendKeyEvent(keyEvent);
 
 			break;
@@ -926,7 +1013,7 @@ void WindowsMessageHook(
 }
 #endif
 
-bool Initialize()
+bool Initialize(int argc, char* argv[])
 {
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) < 0)
 	{
@@ -961,6 +1048,9 @@ bool Initialize()
 
 	g_context = SDL_GL_CreateContext(g_window);
 
+	// CefKeyEvent keyevent;
+	// keyevent.unmodified_character = 0;
+
 	if (g_context == NULL)
 	{
 		printf("OpenGL context could not be created! SDL_Error: %s\n", SDL_GetError());
@@ -994,10 +1084,8 @@ bool Initialize()
 
 	eventSystem = new EventSystem();
 	engine = new CE::Engine(eventSystem);
-
-#ifdef _WIN32
+	
 	queryHandler = new UIQueryHandler(eventSystem, new UIQueryResponder(eventSystem));
-#endif
 
 	g_fpsCounter = new CE::FpsCounter(eventSystem);
 
@@ -1036,7 +1124,7 @@ bool Initialize()
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	if (!StartCef())
+	if (!StartCef(argc, argv))
 	{
 		printf("CEF failed to start!\n");
 		return false;
@@ -1047,7 +1135,6 @@ bool Initialize()
 
 void StopCef()
 {
-#ifdef _WIN32
 	externalMessagePump->Shutdown();
 
 	g_browser->GetHost()->CloseBrowser(true);
@@ -1056,7 +1143,6 @@ void StopCef()
 	g_uiClient = nullptr;
 
 	CefShutdown();
-#endif
 }
 
 void Destroy()
@@ -1074,10 +1160,9 @@ void Destroy()
 	SDL_Quit();
 }
 
-// TODO: Either convert this to native or convert GetCefKeyboardModifiers to SDL.
 // osr_window_win.cc
-#ifdef _WIN32
-unsigned GetCefMouseModifiers(const SDL_Event& event)
+// browser_window_osr_mac.mm
+unsigned GetSdlCefInputModifiers(const SDL_Event& event)
 {
 	unsigned modifiers = 0;
 
@@ -1115,8 +1200,101 @@ unsigned GetCefMouseModifiers(const SDL_Event& event)
 	}
 #endif
 
+	// todo: if mouse-only, still keep these two if's?
+	if (keymod & KMOD_LSHIFT
+		|| keymod & KMOD_LCTRL
+		|| keymod & KMOD_LALT
+		|| keymod & KMOD_LGUI)
+	{
+		modifiers |= EVENTFLAG_IS_LEFT;
+	}
+
+	if (keymod & KMOD_RSHIFT
+		|| keymod & KMOD_RCTRL
+		|| keymod & KMOD_RALT
+		|| keymod & KMOD_RGUI)
+	{
+		modifiers |= EVENTFLAG_IS_RIGHT;
+	}
+
 	switch (event.type)
 	{
+		// todo: remove and make this function mouse-only?
+		case SDL_KEYDOWN:
+		case SDL_KEYUP:
+		{
+			switch(event.key.keysym.sym)
+			{
+				case SDLK_KP_DIVIDE:
+				case SDLK_KP_MULTIPLY:
+				case SDLK_KP_MINUS:
+				case SDLK_KP_PLUS:
+				case SDLK_KP_ENTER:
+				case SDLK_KP_1:
+				case SDLK_KP_2:
+				case SDLK_KP_3:
+				case SDLK_KP_4:
+				case SDLK_KP_5:
+				case SDLK_KP_6:
+				case SDLK_KP_7:
+				case SDLK_KP_8:
+				case SDLK_KP_9:
+				case SDLK_KP_0:
+				case SDLK_KP_PERIOD:
+				case SDLK_KP_EQUALS:
+				case SDLK_KP_COMMA:
+				case SDLK_KP_EQUALSAS400:
+				case SDLK_KP_00:
+				case SDLK_KP_000:
+				case SDLK_KP_LEFTPAREN:
+				case SDLK_KP_RIGHTPAREN:
+				case SDLK_KP_LEFTBRACE:
+				case SDLK_KP_RIGHTBRACE:
+				case SDLK_KP_TAB:
+				case SDLK_KP_BACKSPACE:
+				case SDLK_KP_A:
+				case SDLK_KP_B:
+				case SDLK_KP_C:
+				case SDLK_KP_D:
+				case SDLK_KP_E:
+				case SDLK_KP_F:
+				case SDLK_KP_XOR:
+				case SDLK_KP_POWER:
+				case SDLK_KP_PERCENT:
+				case SDLK_KP_LESS:
+				case SDLK_KP_GREATER:
+				case SDLK_KP_AMPERSAND:
+				case SDLK_KP_DBLAMPERSAND:
+				case SDLK_KP_VERTICALBAR:
+				case SDLK_KP_DBLVERTICALBAR:
+				case SDLK_KP_COLON:
+				case SDLK_KP_HASH:
+				case SDLK_KP_SPACE:
+				case SDLK_KP_AT:
+				case SDLK_KP_EXCLAM:
+				case SDLK_KP_MEMSTORE:
+				case SDLK_KP_MEMRECALL:
+				case SDLK_KP_MEMCLEAR:
+				case SDLK_KP_MEMADD:
+				case SDLK_KP_MEMSUBTRACT:
+				case SDLK_KP_MEMMULTIPLY:
+				case SDLK_KP_MEMDIVIDE:
+				case SDLK_KP_PLUSMINUS:
+				case SDLK_KP_CLEAR:
+				case SDLK_KP_CLEARENTRY:
+				case SDLK_KP_BINARY:
+				case SDLK_KP_OCTAL:
+				case SDLK_KP_DECIMAL:
+				case SDLK_KP_HEXADECIMAL:
+				{
+					modifiers |= EVENTFLAG_IS_KEY_PAD;
+					break;
+				}
+			}
+
+			break;
+		}
+
 		case SDL_MOUSEMOTION:
 		{
 			if (event.motion.state & SDL_BUTTON_LMASK)
@@ -1213,16 +1391,15 @@ unsigned GetCefMouseModifiers(const SDL_Event& event)
 
 	return modifiers;
 }
-#endif
 
 int main(int argc, char* argv[])
 {
 	CE_SET_MAIN_THREAD();
 
-	if (!Initialize())
+	if (!Initialize(argc, argv))
 	{
 		printf("Failed to initialize.\n");
-		return -1;
+		return 1;
 	}
 
 	uint64_t currentTicks = SDL_GetPerformanceCounter();
@@ -1252,9 +1429,7 @@ int main(int argc, char* argv[])
 			wrappedEvent.event = event;
 			eventSystem->DispatchEvent(wrappedEvent);
 
-#ifdef _WIN32
 			externalMessagePump->ProcessEvent(event);
-#endif
 
 			// TODO: Haven't done focus events for Cef (see CefBrowserHost). Do I need these?
 			switch (event.type)
@@ -1282,37 +1457,38 @@ int main(int argc, char* argv[])
 							eventSystem->EnqueueEvent(setRenderModeEvent);
 							break;
 						}
-
+#ifdef _WIN32
 						case SDLK_F11:
 						case SDLK_F12:
 						{
 							ToggleDevToolsWindow();
 							break;
 						}
+#endif
 					}
 
 					break;
 				}
 
 				// osr_window_win.cc
+				// browser_window_osr_mac.mm
 				case SDL_MOUSEMOTION:
 				{
-#ifdef _WIN32
 					// TODO: CEF also gets all of the right-click camera movement events, which are unnecessary.
 					CefMouseEvent mouseEvent;
 					mouseEvent.x = event.motion.x;
 					mouseEvent.y = event.motion.y;
-					mouseEvent.modifiers = GetCefMouseModifiers(event);
+					mouseEvent.modifiers = GetSdlCefInputModifiers(event);
 
 					g_browser->GetHost()->SendMouseMoveEvent(mouseEvent, false);
-#endif
+
 					break;
 				}
 
 				// osr_window_win.cc
+				// browser_window_osr_mac.mm
 				case SDL_MOUSEBUTTONDOWN:
 				{
-#ifdef _WIN32
 					CefBrowserHost::MouseButtonType mouseButtonType;
 					if (event.button.button == SDL_BUTTON_LEFT)
 					{
@@ -1334,17 +1510,17 @@ int main(int argc, char* argv[])
 					CefMouseEvent mouseEvent;
 					mouseEvent.x = event.button.x;
 					mouseEvent.y = event.button.y;
-					mouseEvent.modifiers = GetCefMouseModifiers(event);
+					mouseEvent.modifiers = GetSdlCefInputModifiers(event);
 
 					g_browser->GetHost()->SendMouseClickEvent(mouseEvent, mouseButtonType, false, event.button.clicks);
-#endif
+
 					break;
 				}
 
 				// osr_window_win.cc
+				// browser_window_osr_mac.mm
 				case SDL_MOUSEBUTTONUP:
 				{
-#ifdef _WIN32
 					CefBrowserHost::MouseButtonType mouseButtonType;
 					if (event.button.button == SDL_BUTTON_LEFT)
 					{
@@ -1366,40 +1542,40 @@ int main(int argc, char* argv[])
 					CefMouseEvent mouseEvent;
 					mouseEvent.x = event.button.x;
 					mouseEvent.y = event.button.y;
-					mouseEvent.modifiers = GetCefMouseModifiers(event);
+					mouseEvent.modifiers = GetSdlCefInputModifiers(event);
 
 					g_browser->GetHost()->SendMouseClickEvent(mouseEvent, mouseButtonType, true, event.button.clicks);
-#endif
+
 					break;
 				}
 
 				// osr_window_win.cc
+				// browser_window_osr_mac.mm
 				case SDL_MOUSEWHEEL:
 				{
-#ifdef _WIN32
 					CefMouseEvent mouseEvent;
 					SDL_GetMouseState(&mouseEvent.x, &mouseEvent.y);
-					mouseEvent.modifiers = GetCefMouseModifiers(event);
+					mouseEvent.modifiers = GetSdlCefInputModifiers(event);
 
 					g_browser->GetHost()->SendMouseWheelEvent(mouseEvent, event.wheel.x, event.wheel.y);
-#endif
+
 					break;
 				}
 
 				// osr_window_win.cc
+				// browser_window_osr_mac.mm
 				case SDL_WINDOWEVENT:
 				{
 					switch (event.window.event)
 					{
 						case SDL_WINDOWEVENT_LEAVE:
 						{
-#ifdef _WIN32
 							CefMouseEvent mouseEvent;
 							SDL_GetMouseState(&mouseEvent.x, &mouseEvent.y);
-							mouseEvent.modifiers = GetCefMouseModifiers(event);
+							mouseEvent.modifiers = GetSdlCefInputModifiers(event);
 
 							g_browser->GetHost()->SendMouseMoveEvent(mouseEvent, true);
-#endif
+							
 							break;
 						}
 					}
