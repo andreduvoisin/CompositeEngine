@@ -134,6 +134,7 @@
     "less-loader": "^5.0.0",
     "recompose": "^0.30.0",
     "redux-devtools-extension": "^2.13.8",
+    "reduxsauce": "^1.1.0",
     "remote-redux-devtools": "^0.5.16",
     "reselect": "^4.0.0",
     "storybook-addon-styled-component-theme": "^1.2.3",
