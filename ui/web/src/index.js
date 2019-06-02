@@ -14,34 +14,30 @@ import {
 } from './redux/actions';
 import rootSaga from './redux/sagas';
 import {
-  subscribeToPauseState,
-  subscribeToAnimationState,
-  subscribeToFpsCounterState
+  MessageTypes,
+  subscribeToFpsCounterState,
+  subscribeToMessage
 } from './ipc';
 
 // create the saga middleware
 const sagaMiddleware = createSagaMiddleware();
 
 // create the redux store
-const enhancers = composeWithDevTools(
-  applyMiddleware(
-    sagaMiddleware
-  )
-);
+const enhancers = composeWithDevTools(applyMiddleware(sagaMiddleware));
 
 const store = createStore(reducer, enhancers);
 
 sagaMiddleware.run(rootSaga);
 
-subscribeToPauseState((state) => {
+subscribeToMessage(MessageTypes.REQUEST_PAUSE_STATE, (state) => {
   store.dispatch(updatePauseState(state));
 });
 
-subscribeToAnimationState((state) => {
+subscribeToMessage(MessageTypes.REQUEST_ANIMATION_STATE, (state) => {
   store.dispatch(updateAnimationState(state));
 });
 
-subscribeToFpsCounterState((state) => {
+subscribeToMessage(MessageTypes.REQUEST_FPS_STATE, (state) => {
   store.dispatch(updateFpsCounterState(state));
 });
 
@@ -49,4 +45,5 @@ ReactDOM.render(
   <ReduxProvider store={store}>
     <App />
   </ReduxProvider>,
-  document.getElementById('root'));
+  document.getElementById('root')
+);
