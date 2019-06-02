@@ -1048,8 +1048,8 @@ bool Initialize(int argc, char* argv[])
 
 	g_context = SDL_GL_CreateContext(g_window);
 
-	CefKeyEvent keyevent;
-	keyevent.unmodified_character = 0;
+	// CefKeyEvent keyevent;
+	// keyevent.unmodified_character = 0;
 
 	if (g_context == NULL)
 	{
@@ -1545,7 +1545,7 @@ int main(int argc, char* argv[])
 					mouseEvent.modifiers = GetSdlCefInputModifiers(event);
 
 					g_browser->GetHost()->SendMouseClickEvent(mouseEvent, mouseButtonType, true, event.button.clicks);
-					
+
 					break;
 				}
 
