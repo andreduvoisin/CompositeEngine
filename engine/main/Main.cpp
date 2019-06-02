@@ -36,24 +36,10 @@
 #include "event/SdlEvent.h"
 #include "core/EditorCameraEventHandler.h"
 
-#include "include/cef_app.h"
-#include "cef/client/UIClient.h"
-#include "cef/client/UIRenderHandler.h"
-#include "cef/browser/UIAppBrowser.h"
-#include "cef/browser/UIBrowserProcessHandler.h"
-#include "cef/client/UIRequestHandler.h"
-#include "cef/client/UILifeSpanHandler.h"
-#include "cef/browser/UIQueryHandler.h"
-#include "cef/browser/UIQueryResponder.h"
-#include "cef/browser/UIExternalMessagePump.h"
-#include "include/wrapper/cef_message_router.h"
+#include "cef/CefMain.h"
 
 #ifdef __APPLE__
 #include <CoreFoundation/CoreFoundation.h>
-
-#include "cef/WindowContentView.h"
-
-#include "include/wrapper/cef_library_loader.h"
 #endif
 
 const int SCREEN_WIDTH = 1280;
@@ -108,10 +94,7 @@ CE::AssetImporter* g_assetImporter;
 std::vector<CE::MeshComponent*> g_meshComponents;
 std::vector<CE::AnimationComponent*> g_animationComponents;
 
-CefRefPtr<UIClient> g_uiClient;
-CefRefPtr<CefBrowser> g_browser;
-UIQueryHandler* queryHandler;
-UIExternalMessagePump* externalMessagePump;
+CE::CefMain* cefMain;
 
 EventSystem* eventSystem;
 CE::Engine* engine;
@@ -451,12 +434,12 @@ void RenderUI()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	char* viewBuffer = ((UIRenderHandler*)(g_uiClient->GetRenderHandler().get()))->GetViewBuffer();
+	const char* viewBuffer = cefMain->GetViewBuffer();
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, SCREEN_WIDTH, SCREEN_HEIGHT, 0, GL_BGRA, GL_UNSIGNED_BYTE, viewBuffer);
-	char* popupBuffer = ((UIRenderHandler*)(g_uiClient->GetRenderHandler().get()))->GetPopupBuffer();
+	const char* popupBuffer = cefMain->GetPopupBuffer();
 	if (popupBuffer != nullptr)
 	{
-		const CefRect& popupRect = ((UIRenderHandler*)(g_uiClient->GetRenderHandler().get()))->GetPopupRect();
+		const CefRect& popupRect = cefMain->GetPopupRect();
 		glTexSubImage2D(GL_TEXTURE_2D, 0, popupRect.x, popupRect.y, popupRect.width, popupRect.height, GL_BGRA, GL_UNSIGNED_BYTE, popupBuffer);
 	}
 	glGenerateMipmap(GL_TEXTURE_2D);
@@ -712,120 +695,6 @@ bool InitializeOpenGL()
 
 	return true;
 }
-
-bool StartCef(int argc, char* argv[])
-{
-#ifdef __APPLE__
-	CefScopedLibraryLoader libraryLoader;
-	if (!libraryLoader.LoadInMain())
-	{
-		printf("CEF failed to load framework in engine.\n");
-		return false;
-	}
-#endif
-
-	CefMainArgs main_args;
-#ifdef _WIN32
-	main_args = CefMainArgs(::GetModuleHandle(NULL));
-#elif __APPLE__
-	main_args = CefMainArgs(argc, argv);
-#endif
-
-	externalMessagePump = new UIExternalMessagePump();
-	CefRefPtr<UIBrowserProcessHandler> browserProcessHandler = new UIBrowserProcessHandler(externalMessagePump);
-	CefRefPtr<UIAppBrowser> app = new UIAppBrowser(browserProcessHandler);
-
-	CefSettings settings;
-	settings.no_sandbox = true;
-	settings.external_message_pump = true;
-	settings.windowless_rendering_enabled = true;
-	settings.remote_debugging_port = 3469;
-#ifdef _WIN32
-	CefString(&settings.browser_subprocess_path).FromASCII("CompositeCefSubprocess.exe");
-#elif __APPLE__
-	CFBundleRef mainBundle = CFBundleGetMainBundle();
-	// TODO: Free? See https://developer.apple.com/library/archive/documentation/CoreFoundation/Conceptual/CFMemoryMgmt/Concepts/Ownership.html#//apple_ref/doc/uid/20001148-103029
-	CFURLRef privateFrameworksUrl = CFBundleCopyPrivateFrameworksURL(mainBundle);
-	UInt8 privateFrameworksDirectoryName[1024];
-	CFURLGetFileSystemRepresentation(privateFrameworksUrl, true, privateFrameworksDirectoryName, 1024);
-
-	std::string subprocessFile = (char*) privateFrameworksDirectoryName;
-	subprocessFile += "/CompositeCefSubprocess.app/Contents/MacOS/CompositeCefSubprocess";
-	CefString(&settings.browser_subprocess_path).FromString(subprocessFile);
-#endif
-
-	if (!CefInitialize(main_args, settings, app, NULL))
-	{
-		printf("CEF failed to initialize.\n");
-		return false;
-	}
-
-	CefMessageRouterConfig messageRouterConfig;
-	CefRefPtr<CefMessageRouterBrowserSide> messageRouterBrowserSide = CefMessageRouterBrowserSide::Create(messageRouterConfig);
-	messageRouterBrowserSide->AddHandler(queryHandler, true);
-
-	CefRefPtr<UIContextMenuHandler> contextMenuHandler = new UIContextMenuHandler();
-	CefRefPtr<UIRenderHandler> renderHandler = new UIRenderHandler(SCREEN_WIDTH, SCREEN_HEIGHT);
-	CefRefPtr<UILifeSpanHandler> lifeSpanHandler = new UILifeSpanHandler(messageRouterBrowserSide);
-	CefRefPtr<UILoadHandler> loadHandler = new UILoadHandler();
-	CefRefPtr<UIRequestHandler> requestHandler = new UIRequestHandler(messageRouterBrowserSide);
-	g_uiClient = new UIClient(
-		contextMenuHandler,
-		renderHandler,
-		lifeSpanHandler,
-		loadHandler,
-		requestHandler,
-		messageRouterBrowserSide);
-
-	SDL_SysWMinfo sysInfo;
-	SDL_VERSION(&sysInfo.version);
-	if (!SDL_GetWindowWMInfo(g_window, &sysInfo))
-	{
-		return false;
-	}
-
-	CefBrowserSettings browserSettings;
-	CefWindowInfo windowInfo;
-#ifdef _WIN32
-	windowInfo.SetAsWindowless(sysInfo.info.win.window);
-#elif __APPLE__
-	NSView* view = (NSView*) CE::GetWindowContentView(sysInfo.info.cocoa.window);
-	windowInfo.SetAsWindowless(view);
-#endif
-
-	g_browser = CefBrowserHost::CreateBrowserSync(
-		windowInfo,
-		g_uiClient,
-		"http://localhost:3000", // "about:blank"
-		browserSettings,
-		nullptr);
-	
-	return true;
-}
-
-#ifdef _WIN32
-void ToggleDevToolsWindow()
-{
-	if (g_browser->GetHost()->HasDevTools())
-	{
-		g_browser->GetHost()->CloseDevTools();
-	}
-	else
-	{
-		SDL_SysWMinfo sysInfo;
-		SDL_VERSION(&sysInfo.version);
-		if (!SDL_GetWindowWMInfo(g_window, &sysInfo))
-		{
-			return;
-		}
-
-		CefBrowserSettings browserSettings;
-		CefWindowInfo windowInfo;
-		windowInfo.SetAsPopup(sysInfo.info.win.window, "DevTools");
-		g_browser->GetHost()->ShowDevTools(windowInfo, g_uiClient, browserSettings, CefPoint(0, 0));
-	}
-}
-#endif
 
 #ifdef _WIN32
 // util_win.cc
@@ -1085,7 +954,7 @@ bool Initialize(int argc, char* argv[])
 	eventSystem = new EventSystem();
 	engine = new CE::Engine(eventSystem);
 	
-	queryHandler = new UIQueryHandler(eventSystem, new UIQueryResponder(eventSystem));
+	cefMain = new CE::CefMain(eventSystem, g_window);
 
 	g_fpsCounter = new CE::FpsCounter(eventSystem);
 
@@ -1124,25 +993,13 @@ bool Initialize(int argc, char* argv[])
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	if (!StartCef(argc, argv))
+	if (!cefMain->StartCef(argc, argv, SCREEN_WIDTH, SCREEN_HEIGHT))
 	{
 		printf("CEF failed to start!\n");
 		return false;
 	}
 
 	return true;
-}
-
-void StopCef()
-{
-	externalMessagePump->Shutdown();
-
-	g_browser->GetHost()->CloseBrowser(true);
-
-	g_browser = nullptr;
-	g_uiClient = nullptr;
-
-	CefShutdown();
 }
 
 void Destroy()
@@ -1152,244 +1009,12 @@ void Destroy()
 	CE::SkeletonManager::Get().Destroy();
 	CE::TextureManager::Get().Destroy();
 
-	StopCef();
+	cefMain->StopCef();
 
 	SDL_DestroyWindow(g_window);
 	g_window = NULL;
 
 	SDL_Quit();
-}
-
-// osr_window_win.cc
-// browser_window_osr_mac.mm
-unsigned GetSdlCefInputModifiers(const SDL_Event& event)
-{
-	unsigned modifiers = 0;
-
-	SDL_Keymod keymod = SDL_GetModState();
-
-	if (keymod & KMOD_CTRL)
-	{
-		modifiers |= EVENTFLAG_CONTROL_DOWN;
-	}
-
-	if (keymod & KMOD_SHIFT)
-	{
-		modifiers |= EVENTFLAG_SHIFT_DOWN;
-	}
-
-	if (keymod & KMOD_ALT)
-	{
-		modifiers |= EVENTFLAG_ALT_DOWN;
-	}
-
-	if (keymod & KMOD_NUM)
-	{
-		modifiers |= EVENTFLAG_NUM_LOCK_ON;
-	}
-
-	if (keymod & KMOD_CAPS)
-	{
-		modifiers |= EVENTFLAG_CAPS_LOCK_ON;
-	}
-
-#ifdef __APPLE__
-	if (keymod & KMOD_GUI)
-	{
-		modifiers |= EVENTFLAG_COMMAND_DOWN;
-	}
-#endif
-
-	// todo: if mouse-only, still keep these two if's?
-	if (keymod & KMOD_LSHIFT
-		|| keymod & KMOD_LCTRL
-		|| keymod & KMOD_LALT
-		|| keymod & KMOD_LGUI)
-	{
-		modifiers |= EVENTFLAG_IS_LEFT;
-	}
-
-	if (keymod & KMOD_RSHIFT
-		|| keymod & KMOD_RCTRL
-		|| keymod & KMOD_RALT
-		|| keymod & KMOD_RGUI)
-	{
-		modifiers |= EVENTFLAG_IS_RIGHT;
-	}
-
-	switch (event.type)
-	{
-		// todo: remove and make this function mouse-only?
-		case SDL_KEYDOWN:
-		case SDL_KEYUP:
-		{
-			switch(event.key.keysym.sym)
-			{
-				case SDLK_KP_DIVIDE:
-				case SDLK_KP_MULTIPLY:
-				case SDLK_KP_MINUS:
-				case SDLK_KP_PLUS:
-				case SDLK_KP_ENTER:
-				case SDLK_KP_1:
-				case SDLK_KP_2:
-				case SDLK_KP_3:
-				case SDLK_KP_4:
-				case SDLK_KP_5:
-				case SDLK_KP_6:
-				case SDLK_KP_7:
-				case SDLK_KP_8:
-				case SDLK_KP_9:
-				case SDLK_KP_0:
-				case SDLK_KP_PERIOD:
-				case SDLK_KP_EQUALS:
-				case SDLK_KP_COMMA:
-				case SDLK_KP_EQUALSAS400:
-				case SDLK_KP_00:
-				case SDLK_KP_000:
-				case SDLK_KP_LEFTPAREN:
-				case SDLK_KP_RIGHTPAREN:
-				case SDLK_KP_LEFTBRACE:
-				case SDLK_KP_RIGHTBRACE:
-				case SDLK_KP_TAB:
-				case SDLK_KP_BACKSPACE:
-				case SDLK_KP_A:
-				case SDLK_KP_B:
-				case SDLK_KP_C:
-				case SDLK_KP_D:
-				case SDLK_KP_E:
-				case SDLK_KP_F:
-				case SDLK_KP_XOR:
-				case SDLK_KP_POWER:
-				case SDLK_KP_PERCENT:
-				case SDLK_KP_LESS:
-				case SDLK_KP_GREATER:
-				case SDLK_KP_AMPERSAND:
-				case SDLK_KP_DBLAMPERSAND:
-				case SDLK_KP_VERTICALBAR:
-				case SDLK_KP_DBLVERTICALBAR:
-				case SDLK_KP_COLON:
-				case SDLK_KP_HASH:
-				case SDLK_KP_SPACE:
-				case SDLK_KP_AT:
-				case SDLK_KP_EXCLAM:
-				case SDLK_KP_MEMSTORE:
-				case SDLK_KP_MEMRECALL:
-				case SDLK_KP_MEMCLEAR:
-				case SDLK_KP_MEMADD:
-				case SDLK_KP_MEMSUBTRACT:
-				case SDLK_KP_MEMMULTIPLY:
-				case SDLK_KP_MEMDIVIDE:
-				case SDLK_KP_PLUSMINUS:
-				case SDLK_KP_CLEAR:
-				case SDLK_KP_CLEARENTRY:
-				case SDLK_KP_BINARY:
-				case SDLK_KP_OCTAL:
-				case SDLK_KP_DECIMAL:
-				case SDLK_KP_HEXADECIMAL:
-				{
-					modifiers |= EVENTFLAG_IS_KEY_PAD;
-					break;
-				}
-			}
-
-			break;
-		}
-
-		case SDL_MOUSEMOTION:
-		{
-			if (event.motion.state & SDL_BUTTON_LMASK)
-			{
-				modifiers |= EVENTFLAG_LEFT_MOUSE_BUTTON;
-			}
-
-			if (event.motion.state & SDL_BUTTON_MMASK)
-			{
-				modifiers |= EVENTFLAG_MIDDLE_MOUSE_BUTTON;
-			}
-
-			if (event.motion.state & SDL_BUTTON_RMASK)
-			{
-				modifiers |= EVENTFLAG_RIGHT_MOUSE_BUTTON;
-			}
-
-			break;
-		}
-
-		case SDL_MOUSEBUTTONDOWN:
-		case SDL_MOUSEBUTTONUP:
-		{
-			if (event.button.button == SDL_BUTTON_LEFT)
-			{
-				modifiers |= EVENTFLAG_LEFT_MOUSE_BUTTON;
-			}
-
-			if (event.button.button == SDL_BUTTON_MIDDLE)
-			{
-				modifiers |= EVENTFLAG_MIDDLE_MOUSE_BUTTON;
-			}
-
-			if (event.button.button == SDL_BUTTON_RIGHT)
-			{
-				modifiers |= EVENTFLAG_RIGHT_MOUSE_BUTTON;
-			}
-
-			break;
-		}
-
-		case SDL_MOUSEWHEEL:
-		{
-			unsigned state = SDL_GetMouseState(NULL, NULL);
-
-			if (state & SDL_BUTTON_LMASK)
-			{
-				modifiers |= EVENTFLAG_LEFT_MOUSE_BUTTON;
-			}
-
-			if (state & SDL_BUTTON_MMASK)
-			{
-				modifiers |= EVENTFLAG_MIDDLE_MOUSE_BUTTON;
-			}
-
-			if (state & SDL_BUTTON_RMASK)
-			{
-				modifiers |= EVENTFLAG_RIGHT_MOUSE_BUTTON;
-			}
-
-			break;
-		}
-
-		case SDL_WINDOWEVENT:
-		{
-			switch (event.window.event)
-			{
-				case SDL_WINDOWEVENT_LEAVE:
-				{
-					unsigned state = SDL_GetMouseState(NULL, NULL);
-
-					if (state & SDL_BUTTON_LMASK)
-					{
-						modifiers |= EVENTFLAG_LEFT_MOUSE_BUTTON;
-					}
-
-					if (state & SDL_BUTTON_MMASK)
-					{
-						modifiers |= EVENTFLAG_MIDDLE_MOUSE_BUTTON;
-					}
-
-					if (state & SDL_BUTTON_RMASK)
-					{
-						modifiers |= EVENTFLAG_RIGHT_MOUSE_BUTTON;
-					}
-
-					break;
-				}
-			}
-
-			break;
-		}
-	}
-
-	return modifiers;
 }
 
 int main(int argc, char* argv[])
@@ -1429,8 +1054,6 @@ int main(int argc, char* argv[])
 			wrappedEvent.event = event;
 			eventSystem->DispatchEvent(wrappedEvent);
 
-			externalMessagePump->ProcessEvent(event);
-
 			// TODO: Haven't done focus events for Cef (see CefBrowserHost). Do I need these?
 			switch (event.type)
 			{
@@ -1455,127 +1078,6 @@ int main(int argc, char* argv[])
 							SetRenderModeEvent setRenderModeEvent;
 							setRenderModeEvent.mode = (engine->GetRenderMode() + 1) % 3;
 							eventSystem->EnqueueEvent(setRenderModeEvent);
-							break;
-						}
-#ifdef _WIN32
-						case SDLK_F11:
-						case SDLK_F12:
-						{
-							ToggleDevToolsWindow();
-							break;
-						}
-#endif
-					}
-
-					break;
-				}
-
-				// osr_window_win.cc
-				// browser_window_osr_mac.mm
-				case SDL_MOUSEMOTION:
-				{
-					// TODO: CEF also gets all of the right-click camera movement events, which are unnecessary.
-					CefMouseEvent mouseEvent;
-					mouseEvent.x = event.motion.x;
-					mouseEvent.y = event.motion.y;
-					mouseEvent.modifiers = GetSdlCefInputModifiers(event);
-
-					g_browser->GetHost()->SendMouseMoveEvent(mouseEvent, false);
-
-					break;
-				}
-
-				// osr_window_win.cc
-				// browser_window_osr_mac.mm
-				case SDL_MOUSEBUTTONDOWN:
-				{
-					CefBrowserHost::MouseButtonType mouseButtonType;
-					if (event.button.button == SDL_BUTTON_LEFT)
-					{
-						mouseButtonType = MBT_LEFT;
-					}
-					else if (event.button.button == SDL_BUTTON_MIDDLE)
-					{
-						mouseButtonType = MBT_MIDDLE;
-					}
-					else if (event.button.button == SDL_BUTTON_RIGHT)
-					{
-						mouseButtonType = MBT_RIGHT;
-					}
-					else
-					{
-						break;
-					}
-
-					CefMouseEvent mouseEvent;
-					mouseEvent.x = event.button.x;
-					mouseEvent.y = event.button.y;
-					mouseEvent.modifiers = GetSdlCefInputModifiers(event);
-
-					g_browser->GetHost()->SendMouseClickEvent(mouseEvent, mouseButtonType, false, event.button.clicks);
-
-					break;
-				}
-
-				// osr_window_win.cc
-				// browser_window_osr_mac.mm
-				case SDL_MOUSEBUTTONUP:
-				{
-					CefBrowserHost::MouseButtonType mouseButtonType;
-					if (event.button.button == SDL_BUTTON_LEFT)
-					{
-						mouseButtonType = MBT_LEFT;
-					}
-					else if (event.button.button == SDL_BUTTON_MIDDLE)
-					{
-						mouseButtonType = MBT_MIDDLE;
-					}
-					else if (event.button.button == SDL_BUTTON_RIGHT)
-					{
-						mouseButtonType = MBT_RIGHT;
-					}
-					else
-					{
-						break;
-					}
-
-					CefMouseEvent mouseEvent;
-					mouseEvent.x = event.button.x;
-					mouseEvent.y = event.button.y;
-					mouseEvent.modifiers = GetSdlCefInputModifiers(event);
-
-					g_browser->GetHost()->SendMouseClickEvent(mouseEvent, mouseButtonType, true, event.button.clicks);
-
-					break;
-				}
-
-				// osr_window_win.cc
-				// browser_window_osr_mac.mm
-				case SDL_MOUSEWHEEL:
-				{
-					CefMouseEvent mouseEvent;
-					SDL_GetMouseState(&mouseEvent.x, &mouseEvent.y);
-					mouseEvent.modifiers = GetSdlCefInputModifiers(event);
-
-					g_browser->GetHost()->SendMouseWheelEvent(mouseEvent, event.wheel.x, event.wheel.y);
-
-					break;
-				}
-
-				// osr_window_win.cc
-				// browser_window_osr_mac.mm
-				case SDL_WINDOWEVENT:
-				{
-					switch (event.window.event)
-					{
-						case SDL_WINDOWEVENT_LEAVE:
-						{
-							CefMouseEvent mouseEvent;
-							SDL_GetMouseState(&mouseEvent.x, &mouseEvent.y);
-							mouseEvent.modifiers = GetSdlCefInputModifiers(event);
-
-							g_browser->GetHost()->SendMouseMoveEvent(mouseEvent, true);
-							
 							break;
 						}
 					}
