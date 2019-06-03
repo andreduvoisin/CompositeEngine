@@ -19,7 +19,6 @@
 #include "graphics/skeleton/Skeleton.h"
 #include "graphics/skeleton/SkeletonManager.h"
 #include "graphics/texture/TextureManager.h"
-#include "graphics/texture/Texture.h"
 
 #include "graphics/ceasset/input/AssetImporter.h"
 
@@ -792,11 +791,7 @@ bool Initialize(int argc, char* argv[])
 
 	g_fpsCounter = new CE::FpsCounter(eventSystem);
 
-	//g_camera = new CE::Camera(glm::vec3(0, 100, 400), glm::vec3(0, 100, 0)); // paladin
-	//g_camera = new CE::Camera(glm::vec3(0, 200, 400), glm::vec3(0, 100, 0)); // solider
-	g_camera = new CE::Camera(glm::vec3(0, 100, 700), glm::vec3(0, 0, -1), glm::vec3(0, 1, 0)); // thriller, quarterback
-	//g_camera = new CE::Camera(glm::vec3(0, 2, 8), glm::vec3(0, 2, 0)); // wonder woman
-	//g_camera = new CE::Camera(glm::vec3(0, 0, 1), glm::vec3(0, 0, 0));
+	g_camera = new CE::Camera(glm::vec3(0, 100, 700), glm::vec3(0, 0, -1), glm::vec3(0, 1, 0));
 
 	if (!InitializeOpenGL())
 	{
@@ -810,9 +805,9 @@ bool Initialize(int argc, char* argv[])
 	printf("GL_VERSION: %s\n", version);
 	// TODO: Doesn't work on my laptop's Intel HD Graphics 4000, which only supports up to OpenGL 4.0.
 
-	GLint components;
-	glGetIntegerv(GL_MAX_VERTEX_UNIFORM_COMPONENTS, &components);
-	printf("GL_MAX_VERTEX_UNIFORM_COMPONENTS: %u\n", components);
+	// GLint components;
+	// glGetIntegerv(GL_MAX_VERTEX_UNIFORM_COMPONENTS, &components);
+	// printf("GL_MAX_VERTEX_UNIFORM_COMPONENTS: %u\n", components);
 
 	// tell GL to only draw onto a pixel if the shape is closer to the viewer
 	glEnable(GL_DEPTH_TEST); // enable depth-testing
