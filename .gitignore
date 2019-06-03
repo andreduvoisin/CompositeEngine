@@ -11,6 +11,7 @@ install/
 
 # Visual Studio
 .vs
+enc_temp_folder/
 
 # VS Code
 .vscode/*
