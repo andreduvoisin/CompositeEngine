@@ -15,7 +15,8 @@ enum class EventType : uint32_t
 	REQUEST_FPS_STATE,
 	FPS_STATE,
 	TOGGLE_BIND_POSE,
-	SDL
+	SDL,
+	WINDOWS_MESSAGE
 };
 
 #endif // _CE_EVENT_TYPE_H_

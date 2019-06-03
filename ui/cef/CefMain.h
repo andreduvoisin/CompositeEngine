@@ -42,8 +42,12 @@ namespace CE
 	private:
 	    void HandleSdlEvent(const Event& event);
         unsigned GetSdlCefInputModifiers(const SDL_Event& event);
+
 #ifdef _WIN32
-        void ToggleDevToolsWindow();
+		void HandleWindowsMessageEvent(const Event& event);
+		bool IsKeyDown(WPARAM wParam);
+		int GetNativeCefKeyboardModifiers(WPARAM wParam, LPARAM lParam);
+		void ToggleDevToolsWindow();
 #endif
 
 		EventSystem* eventSystem;

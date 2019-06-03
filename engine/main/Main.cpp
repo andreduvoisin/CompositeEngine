@@ -37,6 +37,7 @@
 #include "core/EditorCameraEventHandler.h"
 
 #include "cef/CefMain.h"
+#include "event/WindowsMessageEvent.h"
 
 #ifdef __APPLE__
 #include <CoreFoundation/CoreFoundation.h>
@@ -697,188 +698,21 @@ bool InitializeOpenGL()
 }
 
 #ifdef _WIN32
-// util_win.cc
-bool IsKeyDown(WPARAM wparam)
-{
-	return (::GetKeyState(static_cast<int>(wparam)) & 0x8000) != 0;
-}
-
-// util_win.cc
-int GetNativeCefKeyboardModifiers(WPARAM wparam, LPARAM lparam)
-{
-	int modifiers = 0;
-
-	if (IsKeyDown(VK_SHIFT))
-	{
-		modifiers |= EVENTFLAG_SHIFT_DOWN;
-	}
-	if (IsKeyDown(VK_CONTROL))
-	{
-		modifiers |= EVENTFLAG_CONTROL_DOWN;
-	}
-	if (IsKeyDown(VK_MENU))
-	{
-		modifiers |= EVENTFLAG_ALT_DOWN;
-	}
-
-	// Low bit set from GetKeyState indicates "toggled".
-	if (::GetKeyState(VK_NUMLOCK) & 1)
-	{
-		modifiers |= EVENTFLAG_NUM_LOCK_ON;
-	}
-	if (::GetKeyState(VK_CAPITAL) & 1)
-	{
-		modifiers |= EVENTFLAG_CAPS_LOCK_ON;
-	}
-
-	switch (wparam)
-	{
-		case VK_RETURN:
-		{
-			if ((lparam >> 16) & KF_EXTENDED)
-			{
-				modifiers |= EVENTFLAG_IS_KEY_PAD;
-			}
-			break;
-		}
-
-		case VK_INSERT:
-		case VK_DELETE:
-		case VK_HOME:
-		case VK_END:
-		case VK_PRIOR:
-		case VK_NEXT:
-		case VK_UP:
-		case VK_DOWN:
-		case VK_LEFT:
-		case VK_RIGHT:
-		{
-			if (!((lparam >> 16) & KF_EXTENDED))
-			{
-				modifiers |= EVENTFLAG_IS_KEY_PAD;
-			}
-			break;
-		}
-
-		case VK_NUMLOCK:
-		case VK_NUMPAD0:
-		case VK_NUMPAD1:
-		case VK_NUMPAD2:
-		case VK_NUMPAD3:
-		case VK_NUMPAD4:
-		case VK_NUMPAD5:
-		case VK_NUMPAD6:
-		case VK_NUMPAD7:
-		case VK_NUMPAD8:
-		case VK_NUMPAD9:
-		case VK_DIVIDE:
-		case VK_MULTIPLY:
-		case VK_SUBTRACT:
-		case VK_ADD:
-		case VK_DECIMAL:
-		case VK_CLEAR:
-		{
-			modifiers |= EVENTFLAG_IS_KEY_PAD;
-			break;
-		}
-
-		case VK_SHIFT:
-		{
-			if (IsKeyDown(VK_LSHIFT))
-			{
-				modifiers |= EVENTFLAG_IS_LEFT;
-			}
-			else if (IsKeyDown(VK_RSHIFT))
-			{
-				modifiers |= EVENTFLAG_IS_RIGHT;
-			}
-			break;
-		}
-
-		case VK_CONTROL:
-		{
-			if (IsKeyDown(VK_LCONTROL))
-			{
-				modifiers |= EVENTFLAG_IS_LEFT;
-			}
-			else if (IsKeyDown(VK_RCONTROL))
-			{
-				modifiers |= EVENTFLAG_IS_RIGHT;
-			}
-			break;
-		}
-
-		case VK_MENU:
-		{
-			if (IsKeyDown(VK_LMENU))
-			{
-				modifiers |= EVENTFLAG_IS_LEFT;
-			}
-			else if (IsKeyDown(VK_RMENU))
-			{
-				modifiers |= EVENTFLAG_IS_RIGHT;
-			}
-			break;
-		}
-
-		case VK_LWIN:
-		{
-			modifiers |= EVENTFLAG_IS_LEFT;
-			break;
-		}
-
-		case VK_RWIN:
-		{
-			modifiers |= EVENTFLAG_IS_RIGHT;
-			break;
-		}
-	}
-
-	return modifiers;
-}
-
 // osr_window_win.cc
 void WindowsMessageHook(
 		void* userdata,
-		void* hwnd,
+		void* hWnd,
 		unsigned int message,
-		Uint64 wparam,
-		Sint64 lparam)
+		Uint64 wParam,
+		Sint64 lParam)
 {
-	switch (message)
-	{
-		case WM_SYSCHAR:
-		case WM_SYSKEYDOWN:
-		case WM_SYSKEYUP:
-		case WM_KEYDOWN:
-		case WM_KEYUP:
-		case WM_CHAR:
-		{
-			CefKeyEvent keyEvent;
-			keyEvent.windows_key_code = static_cast<int>(wparam);
-			keyEvent.native_key_code = static_cast<int>(lparam);
-			keyEvent.is_system_key = message == WM_SYSCHAR
-				|| message == WM_SYSKEYDOWN
-				|| message == WM_SYSKEYUP;
-			if (message == WM_KEYDOWN || message == WM_SYSKEYDOWN)
-			{
-				keyEvent.type = KEYEVENT_RAWKEYDOWN;
-			}
-			else if (message == WM_KEYUP || message == WM_SYSKEYUP)
-			{
-				keyEvent.type = KEYEVENT_KEYUP;
-			}
-			else
-			{
-				keyEvent.type = KEYEVENT_CHAR;
-			}
-			keyEvent.modifiers = GetNativeCefKeyboardModifiers(static_cast<WPARAM>(wparam), static_cast<LPARAM>(lparam));
-			
-			g_browser->GetHost()->SendKeyEvent(keyEvent);
-
-			break;
-		}
-	}
+	CE::WindowsMessageEvent event;
+	event.userdata = userdata;
+	event.hWnd = hWnd;
+	event.message = message;
+	event.wParam = wParam;
+	event.lParam = lParam;
+	eventSystem->DispatchEvent(event);
 }
 #endif
 

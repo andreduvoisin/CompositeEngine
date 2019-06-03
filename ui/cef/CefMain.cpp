@@ -16,6 +16,7 @@
 #include "cef/browser/UIQueryHandler.h"
 
 #include <SDL_syswm.h>
+#include "event/WindowsMessageEvent.h"
 
 #ifdef __APPLE__
 #include <CoreFoundation/CoreFoundation.h>
@@ -34,6 +35,7 @@ namespace CE
         , g_window(g_window)
 	{
 		eventSystem->RegisterListener(this, EventType::SDL);
+		eventSystem->RegisterListener(this, EventType::WINDOWS_MESSAGE);
 	}
 
     bool CefMain::StartCef(
@@ -167,6 +169,13 @@ namespace CE
 				HandleSdlEvent(event);
 				break;
 			}
+#ifdef _WIN32
+			case EventType::WINDOWS_MESSAGE:
+			{
+				HandleWindowsMessageEvent(event);
+				break;
+			}
+#endif
 		}
 	}
 
@@ -311,7 +320,7 @@ namespace CE
         }
     }
 
-    // osr_window_win.cc
+	// osr_window_win.cc
     // browser_window_osr_mac.mm
     unsigned CefMain::GetSdlCefInputModifiers(const SDL_Event& event)
     {
@@ -544,6 +553,186 @@ namespace CE
     }
 
 #ifdef _WIN32
+	void CefMain::HandleWindowsMessageEvent(const Event& event)
+	{
+		const WindowsMessageEvent& windowsMessageEvent = reinterpret_cast<const WindowsMessageEvent&>(event);
+
+		switch (windowsMessageEvent.message)
+		{
+			case WM_SYSCHAR:
+			case WM_SYSKEYDOWN:
+			case WM_SYSKEYUP:
+			case WM_KEYDOWN:
+			case WM_KEYUP:
+			case WM_CHAR:
+			{
+				CefKeyEvent keyEvent;
+				keyEvent.windows_key_code = static_cast<int>(windowsMessageEvent.wParam);
+				keyEvent.native_key_code = static_cast<int>(windowsMessageEvent.lParam);
+				keyEvent.is_system_key = windowsMessageEvent.message == WM_SYSCHAR
+					|| windowsMessageEvent.message == WM_SYSKEYDOWN
+					|| windowsMessageEvent.message == WM_SYSKEYUP;
+				if (windowsMessageEvent.message == WM_KEYDOWN || windowsMessageEvent.message == WM_SYSKEYDOWN)
+				{
+					keyEvent.type = KEYEVENT_RAWKEYDOWN;
+				}
+				else if (windowsMessageEvent.message == WM_KEYUP || windowsMessageEvent.message == WM_SYSKEYUP)
+				{
+					keyEvent.type = KEYEVENT_KEYUP;
+				}
+				else
+				{
+					keyEvent.type = KEYEVENT_CHAR;
+				}
+				keyEvent.modifiers = GetNativeCefKeyboardModifiers(static_cast<WPARAM>(windowsMessageEvent.wParam), static_cast<LPARAM>(windowsMessageEvent.lParam));
+
+				g_browser->GetHost()->SendKeyEvent(keyEvent);
+
+				break;
+			}
+		}
+	}
+
+	// util_win.cc
+	bool CefMain::IsKeyDown(WPARAM wParam)
+	{
+		return (::GetKeyState(static_cast<int>(wParam)) & 0x8000) != 0;
+	}
+
+	// util_win.cc
+	int CefMain::GetNativeCefKeyboardModifiers(WPARAM wParam, LPARAM lParam)
+	{
+		int modifiers = 0;
+
+		if (IsKeyDown(VK_SHIFT))
+		{
+			modifiers |= EVENTFLAG_SHIFT_DOWN;
+		}
+		if (IsKeyDown(VK_CONTROL))
+		{
+			modifiers |= EVENTFLAG_CONTROL_DOWN;
+		}
+		if (IsKeyDown(VK_MENU))
+		{
+			modifiers |= EVENTFLAG_ALT_DOWN;
+		}
+
+		// Low bit set from GetKeyState indicates "toggled".
+		if (::GetKeyState(VK_NUMLOCK) & 1)
+		{
+			modifiers |= EVENTFLAG_NUM_LOCK_ON;
+		}
+		if (::GetKeyState(VK_CAPITAL) & 1)
+		{
+			modifiers |= EVENTFLAG_CAPS_LOCK_ON;
+		}
+
+		switch (wParam)
+		{
+			case VK_RETURN:
+			{
+				if ((lParam >> 16) & KF_EXTENDED)
+				{
+					modifiers |= EVENTFLAG_IS_KEY_PAD;
+				}
+				break;
+			}
+
+			case VK_INSERT:
+			case VK_DELETE:
+			case VK_HOME:
+			case VK_END:
+			case VK_PRIOR:
+			case VK_NEXT:
+			case VK_UP:
+			case VK_DOWN:
+			case VK_LEFT:
+			case VK_RIGHT:
+			{
+				if (!((lParam >> 16) & KF_EXTENDED))
+				{
+					modifiers |= EVENTFLAG_IS_KEY_PAD;
+				}
+				break;
+			}
+
+			case VK_NUMLOCK:
+			case VK_NUMPAD0:
+			case VK_NUMPAD1:
+			case VK_NUMPAD2:
+			case VK_NUMPAD3:
+			case VK_NUMPAD4:
+			case VK_NUMPAD5:
+			case VK_NUMPAD6:
+			case VK_NUMPAD7:
+			case VK_NUMPAD8:
+			case VK_NUMPAD9:
+			case VK_DIVIDE:
+			case VK_MULTIPLY:
+			case VK_SUBTRACT:
+			case VK_ADD:
+			case VK_DECIMAL:
+			case VK_CLEAR:
+			{
+				modifiers |= EVENTFLAG_IS_KEY_PAD;
+				break;
+			}
+
+			case VK_SHIFT:
+			{
+				if (IsKeyDown(VK_LSHIFT))
+				{
+					modifiers |= EVENTFLAG_IS_LEFT;
+				}
+				else if (IsKeyDown(VK_RSHIFT))
+				{
+					modifiers |= EVENTFLAG_IS_RIGHT;
+				}
+				break;
+			}
+
+			case VK_CONTROL:
+			{
+				if (IsKeyDown(VK_LCONTROL))
+				{
+					modifiers |= EVENTFLAG_IS_LEFT;
+				}
+				else if (IsKeyDown(VK_RCONTROL))
+				{
+					modifiers |= EVENTFLAG_IS_RIGHT;
+				}
+				break;
+			}
+
+			case VK_MENU:
+			{
+				if (IsKeyDown(VK_LMENU))
+				{
+					modifiers |= EVENTFLAG_IS_LEFT;
+				}
+				else if (IsKeyDown(VK_RMENU))
+				{
+					modifiers |= EVENTFLAG_IS_RIGHT;
+				}
+				break;
+			}
+
+			case VK_LWIN:
+			{
+				modifiers |= EVENTFLAG_IS_LEFT;
+				break;
+			}
+
+			case VK_RWIN:
+			{
+				modifiers |= EVENTFLAG_IS_RIGHT;
+				break;
+			}
+		}
+
+		return modifiers;
+	}
+
     void CefMain::ToggleDevToolsWindow()
     {
         if (g_browser->GetHost()->HasDevTools())

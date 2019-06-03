@@ -1,8 +1,5 @@
 #include "SdlEvent.h"
 
-#include "common/json/JsonSerializer.h"
-#include "common/json/JsonDeserializer.h"
-
 namespace CE
 {
     SdlEvent::SdlEvent()
