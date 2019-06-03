@@ -1,73 +1,30 @@
-export const AnimationMutationTypes = {
+import { createActions } from 'reduxsauce';
 
-  TOGGLE_ANIMATION_REQUEST: 'TOGGLE_ANIMATION_REQUEST',
-  TOGGLE_ANIMATION_SUCCESS: 'TOGGLE_ANIMATION_SUCCESS',
-  TOGGLE_ANIMATION_FAILURE: 'TOGGLE_ANIMATION_FAILURE',
-
-  PAUSE_STATE_UPDATE: 'PAUSE_STATE_UPDATE',
-
-  ANIMATION_STATE_UPDATE: 'ANIMATION_STATE_UPDATE',
-
-  FPS_COUNTER_STATE_UPDATE: 'FPS_COUNTER_STATE_UPDATE',
-
-  SET_ANIMATION_TIME: 'SET_ANIMATION_TIME',
-
-  SET_RENDER_MODE: 'SET_RENDER_MODE',
-};
-
-export const toggleAnimation = () => {
+const setAnimationTime = (time) => {
   return {
-    type: AnimationMutationTypes.TOGGLE_ANIMATION_REQUEST
-  }
-};
-
-export const toggleAnimationSuccess = () => {
-  return {
-    type: AnimationMutationTypes.TOGGLE_ANIMATION_SUCCESS
-  };
-};
-
-export const toggleAnimationFailure = () => {
-  return {
-    type: AnimationMutationTypes.TOGGLE_ANIMATION_FAILURE
-  };
-};
-
-export const updatePauseState = (pauseState) => {
-  return {
-    type: AnimationMutationTypes.PAUSE_STATE_UPDATE,
-    payload: pauseState
-  };
-};
-
-export const updateAnimationState = (animationState) => {
-  return {
-    type: AnimationMutationTypes.ANIMATION_STATE_UPDATE,
-    payload: animationState
-  };
-};
-
-export const setAnimationTime = (time) => {
-  return {
-    type: AnimationMutationTypes.SET_ANIMATION_TIME,
+    type: 'SET_ANIMATION_TIME',
     payload: {
       time: parseFloat(time)
     }
   };
 };
 
-export const setRenderSkeletonMode = (mode) => {
+const setRenderMode = (mode) => {
   return {
-    type: AnimationMutationTypes.SET_RENDER_MODE,
+    type: 'SET_RENDER_MODE',
     payload: {
       mode: parseInt(mode)
     }
   };
 };
 
-export const updateFpsCounterState = (fpsCounterState) => {
-  return {
-    type: AnimationMutationTypes.FPS_COUNTER_STATE_UPDATE,
-    payload: fpsCounterState
-  };
-};
+export const { Types, Creators } = createActions({
+  toggleAnimationRequest: null,
+  toggleAnimationSuccess: null,
+  toggleAnimationFailure: null,
+  pauseStateUpdate: ['payload'],
+  animationStateUpdate: ['payload'],
+  fpsCounterStateUpdate: ['payload'],
+  setRenderMode,
+  setAnimationTime
+});

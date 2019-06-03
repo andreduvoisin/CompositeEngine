@@ -1,6 +1,4 @@
-// import eventemitter3 from "eventemitter3";
-
-const MessageTypes = Object.freeze({
+export const MessageTypes = Object.freeze({
   SET_ANIMATION_TIME: 0,
   REQUEST_ANIMATION_STATE: 1,
   ANIMATION_STATE: 2,
@@ -52,41 +50,9 @@ export const sendSetAnimationTime = (time) => {
   });
 };
 
-export const subscribeToPauseState = (handler) => {
+export const subscribeToMessage = (messageType, handler) => {
   const message = {
-    type: MessageTypes.REQUEST_PAUSE_STATE
-  };
-  window.cefQuery({
-    request: JSON.stringify(message),
-    persistent: true,
-    onSuccess: (data) => {
-      handler(JSON.parse(data));
-    },
-    onFailure: (data) => {
-      console.log(data);
-    }
-  });
-};
-
-export const subscribeToAnimationState = (handler) => {
-  const message = {
-    type: MessageTypes.REQUEST_ANIMATION_STATE
-  };
-  window.cefQuery({
-    request: JSON.stringify(message),
-    persistent: true,
-    onSuccess: (data) => {
-      handler(JSON.parse(data));
-    },
-    onFailure: (data) => {
-      console.log(data);
-    }
-  });
-};
-
-export const subscribeToFpsCounterState = (handler) => {
-  const message = {
-    type: MessageTypes.REQUEST_FPS_STATE
+    type: messageType
   };
   window.cefQuery({
     request: JSON.stringify(message),

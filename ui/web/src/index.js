@@ -7,46 +7,40 @@ import createSagaMiddleware from 'redux-saga';
 import App from './App';
 import './index.css';
 import reducer from './redux/reducers/index';
-import {
-  updatePauseState,
-  updateAnimationState,
-  updateFpsCounterState
-} from './redux/actions';
+import { Creators } from './redux/actions';
 import rootSaga from './redux/sagas';
-import {
-  subscribeToPauseState,
-  subscribeToAnimationState,
-  subscribeToFpsCounterState
-} from './ipc';
+import { MessageTypes, subscribeToMessage } from './ipc';
+const {
+  pauseStateUpdate,
+  animationStateUpdate,
+  fpsCounterStateUpdate
+} = Creators;
 
 // create the saga middleware
 const sagaMiddleware = createSagaMiddleware();
 
 // create the redux store
-const enhancers = composeWithDevTools(
-  applyMiddleware(
-    sagaMiddleware
-  )
-);
+const enhancers = composeWithDevTools(applyMiddleware(sagaMiddleware));
 
 const store = createStore(reducer, enhancers);
 
 sagaMiddleware.run(rootSaga);
 
-subscribeToPauseState((state) => {
-  store.dispatch(updatePauseState(state));
+subscribeToMessage(MessageTypes.REQUEST_PAUSE_STATE, (state) => {
+  store.dispatch(pauseStateUpdate(state));
 });
 
-subscribeToAnimationState((state) => {
-  store.dispatch(updateAnimationState(state));
+subscribeToMessage(MessageTypes.REQUEST_ANIMATION_STATE, (state) => {
+  store.dispatch(animationStateUpdate(state));
 });
 
-subscribeToFpsCounterState((state) => {
-  store.dispatch(updateFpsCounterState(state));
+subscribeToMessage(MessageTypes.REQUEST_FPS_STATE, (state) => {
+  store.dispatch(fpsCounterStateUpdate(state));
 });
 
 ReactDOM.render(
   <ReduxProvider store={store}>
     <App />
   </ReduxProvider>,
-  document.getElementById('root'));
+  document.getElementById('root')
+);

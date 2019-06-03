@@ -1,45 +1,44 @@
-import { AnimationMutationTypes } from "../actions";
+import { Types } from "../actions";
+import { createReducer } from "reduxsauce";
 
-const initialState = {
+const INITIAL_STATE = {
   isPlaying: true,
   currentTime: 0,
   duration: 0,
   fps: 0
 };
 
-export default (
-  state = initialState,
-  action
-) => {
+const HANDLERS = {
 
-  switch (action.type) {
+  [Types.PAUSE_STATE_UPDATE]: (state, action) => {
+    return {
+      ...state,
+      isPlaying: action.payload.paused !== true
+    };
+  },
 
-    case AnimationMutationTypes.PAUSE_STATE_UPDATE:
-      return {
-        ...state,
-        isPlaying: action.payload.paused !== true
-      };
+  [Types.ANIMATION_STATE_UPDATE]: (state, action) => {
+    return {
+      ...state,
+      currentTime: action.payload.currentTime,
+      duration: action.payload.duration
+    };
+  },
 
-    case AnimationMutationTypes.ANIMATION_STATE_UPDATE:
-      return {
-        ...state,
-        currentTime: action.payload.currentTime,
-        duration: action.payload.duration
-      };
+  [Types.FPS_COUNTER_STATE_UPDATE]: (state, action) => {
+    return {
+      ...state,
+      fps: action.payload.fps
+    };
+  },
 
-    case AnimationMutationTypes.FPS_COUNTER_STATE_UPDATE:
-      return {
-        ...state,
-        fps: action.payload.fps
-      };
+  [Types.SET_RENDER_MODE]: (state, action) => {
+    return {
+      ...state,
+      renderMode: action.payload.mode
+    };
+  },
 
-    case AnimationMutationTypes.SET_RENDER_MODE:
-      return {
-        ...state,
-        renderMode: action.payload.mode
-      };
-
-    default:
-      return state;
-  }
 };
+
+export default createReducer(INITIAL_STATE, HANDLERS);
