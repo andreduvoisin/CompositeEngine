@@ -459,7 +459,7 @@ void Render()
 	// TODO: Is this required? Works without it?
 	glBindVertexArray(g_vao);
 
-	glm::mat4 projection = glm::perspective(glm::pi<float>() * 0.25f, (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 10000.0f);
+	glm::mat4 projection = glm::perspective(glm::quarter_pi<float>(), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 10000.0f);
 	glm::mat4 view = g_camera->CreateViewMatrix();
 	glm::mat4 model = glm::mat4(1.0f);
 	glm::mat4 projectionViewModel = projection * view * model;
