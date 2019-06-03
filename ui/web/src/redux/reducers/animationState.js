@@ -1,5 +1,3 @@
-// import { createReducer } from 'reduxsauce';
-
 import { Types } from "../actions";
 import { createReducer } from "reduxsauce";
 
