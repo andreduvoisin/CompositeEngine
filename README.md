@@ -21,7 +21,8 @@ This repository requires [Git Large File Storage (Git LFS)](https://git-lfs.gith
 
 * Run `git lfs install` in the repository directory.
 	* This must be done once per repository clone.
-* If you cloned the repository before installing Git LFS to your machine (see the `Before Cloning` section above), run `git lfs fetch` in the repository.
+* If you cloned the repository before installing Git LFS to your machine (see the `Before Cloning` section above):
+	* Run `git lfs fetch` and `git lfs pull` in the repository.
 
 #### Windows
 
