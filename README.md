@@ -10,14 +10,18 @@ and Chromium Embedded Framework (CEF) for a JavaScript user interface layer. Fea
 
 ### How do I get set up?
 
-#### After Cloning
+#### Before Cloning
 
 This repository requires [Git Large File Storage (Git LFS)](https://git-lfs.github.com/).
 
 * Install [Git LFS](https://git-lfs.github.com/).
 	* This must be done once for your machine.
+
+#### After Cloning
+
 * Run `git lfs install` in the repository directory.
 	* This must be done once per repository clone.
+* If you cloned the repository before installing Git LFS to your machine (in the `Before Cloning` section above), run `git lfs fetch` in the repository.
 
 #### Windows
 
