@@ -23,16 +23,18 @@ set(UI_SRC_DIR "${CMAKE_CURRENT_LIST_DIR}/ui")
 set(CEF_SUBPROCESS_SRC_DIR "${UI_SRC_DIR}/cef/subprocess")
 set(ASSET_CONVERTER_SRC_DIR "${CMAKE_CURRENT_LIST_DIR}/asset-converter")
 
+# TODO: Move CefMain.cpp and WindowContentView.mm to better locations.
 file(GLOB_RECURSE ENGINE_SRC_FILES
 	"${ENGINE_SRC_DIR}/*.cpp"
 	"${UI_SRC_DIR}/cef/browser/*.cpp"
-	"${UI_SRC_DIR}/cef/client/*.cpp")
+	"${UI_SRC_DIR}/cef/client/*.cpp"
+	"${UI_SRC_DIR}/cef/CefMain.cpp")
 if (OS_WINDOWS)
 	set(ENGINE_SRC_FILES ${ENGINE_SRC_FILES} "${ENGINE_SRC_DIR}/CompositeEngine.manifest")
 endif()
 if (OS_MACOSX)
 	file(GLOB_RECURSE ENGINE_SRC_FILES_MACOSX
-		"${UI_SRC_DIR}/cef/*.mm")
+		"${UI_SRC_DIR}/cef/WindowContentView.mm")
 	set(ENGINE_SRC_FILES ${ENGINE_SRC_FILES} ${ENGINE_SRC_FILES_MACOSX})
 endif()
 
