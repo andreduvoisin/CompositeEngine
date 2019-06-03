@@ -30,9 +30,9 @@ namespace CE
 {
 	CefMain::CefMain(
             EventSystem* eventSystem,
-            SDL_Window* g_window)
+            SDL_Window* window)
 		: eventSystem(eventSystem)
-        , g_window(g_window)
+        , window(window)
 	{
 		eventSystem->RegisterListener(this, EventType::SDL);
 		eventSystem->RegisterListener(this, EventType::WINDOWS_MESSAGE);
@@ -41,8 +41,8 @@ namespace CE
     bool CefMain::StartCef(
             int argc,
             char* argv[],
-            uint32_t SCREEN_WIDTH,
-            uint32_t SCREEN_HEIGHT)
+            uint32_t screenWidth,
+            uint32_t screenHeight)
     {
 #ifdef __APPLE__
         CefScopedLibraryLoader libraryLoader;
@@ -53,11 +53,11 @@ namespace CE
         }
 #endif
 
-        CefMainArgs main_args;
+        CefMainArgs mainArgs;
 #ifdef _WIN32
-        main_args = CefMainArgs(::GetModuleHandle(NULL));
+        mainArgs = CefMainArgs(::GetModuleHandle(NULL));
 #elif __APPLE__
-        main_args = CefMainArgs(argc, argv);
+		mainArgs = CefMainArgs(argc, argv);
 #endif
 
 	    queryHandler = new UIQueryHandler(eventSystem, new UIQueryResponder(eventSystem));
@@ -84,7 +84,7 @@ namespace CE
         CefString(&settings.browser_subprocess_path).FromString(subprocessFile);
 #endif
 
-        if (!CefInitialize(main_args, settings, app, NULL))
+        if (!CefInitialize(mainArgs, settings, app, NULL))
         {
             printf("CEF failed to initialize.\n");
             return false;
@@ -95,11 +95,11 @@ namespace CE
         messageRouterBrowserSide->AddHandler(queryHandler, true);
 
         CefRefPtr<UIContextMenuHandler> contextMenuHandler = new UIContextMenuHandler();
-        CefRefPtr<UIRenderHandler> renderHandler = new UIRenderHandler(SCREEN_WIDTH, SCREEN_HEIGHT);
+        CefRefPtr<UIRenderHandler> renderHandler = new UIRenderHandler(screenWidth, screenHeight);
         CefRefPtr<UILifeSpanHandler> lifeSpanHandler = new UILifeSpanHandler(messageRouterBrowserSide);
         CefRefPtr<UILoadHandler> loadHandler = new UILoadHandler();
         CefRefPtr<UIRequestHandler> requestHandler = new UIRequestHandler(messageRouterBrowserSide);
-        g_uiClient = new UIClient(
+        uiClient = new UIClient(
             contextMenuHandler,
             renderHandler,
             lifeSpanHandler,
@@ -109,7 +109,7 @@ namespace CE
 
         SDL_SysWMinfo sysInfo;
         SDL_VERSION(&sysInfo.version);
-        if (!SDL_GetWindowWMInfo(g_window, &sysInfo))
+        if (!SDL_GetWindowWMInfo(window, &sysInfo))
         {
             return false;
         }
@@ -123,9 +123,9 @@ namespace CE
         windowInfo.SetAsWindowless(view);
 #endif
 
-        g_browser = CefBrowserHost::CreateBrowserSync(
+        browser = CefBrowserHost::CreateBrowserSync(
             windowInfo,
-            g_uiClient,
+            uiClient,
             "http://localhost:3000", // "about:blank"
             browserSettings,
             nullptr);
@@ -137,27 +137,27 @@ namespace CE
     {
         externalMessagePump->Shutdown();
 
-        g_browser->GetHost()->CloseBrowser(true);
+        browser->GetHost()->CloseBrowser(true);
 
-        g_browser = nullptr;
-        g_uiClient = nullptr;
+        browser = nullptr;
+        uiClient = nullptr;
 
         CefShutdown();
     }
 
     const char* CefMain::GetViewBuffer()
     {
-        return ((UIRenderHandler*)(g_uiClient->GetRenderHandler().get()))->GetViewBuffer();
+        return ((UIRenderHandler*)(uiClient->GetRenderHandler().get()))->GetViewBuffer();
     }
 
     const char* CefMain::GetPopupBuffer()
     {
-        return ((UIRenderHandler*)(g_uiClient->GetRenderHandler().get()))->GetPopupBuffer();
+        return ((UIRenderHandler*)(uiClient->GetRenderHandler().get()))->GetPopupBuffer();
     }
 
     const CefRect& CefMain::GetPopupRect()
     {
-        return ((UIRenderHandler*)(g_uiClient->GetRenderHandler().get()))->GetPopupRect();
+        return ((UIRenderHandler*)(uiClient->GetRenderHandler().get()))->GetPopupRect();
     }
 
 	void CefMain::OnEvent(const Event& event)
@@ -215,7 +215,7 @@ namespace CE
                 mouseEvent.y = nativeEvent.motion.y;
                 mouseEvent.modifiers = GetSdlCefInputModifiers(nativeEvent);
 
-                g_browser->GetHost()->SendMouseMoveEvent(mouseEvent, false);
+                browser->GetHost()->SendMouseMoveEvent(mouseEvent, false);
 
                 break;
             }
@@ -247,7 +247,7 @@ namespace CE
                 mouseEvent.y = nativeEvent.button.y;
                 mouseEvent.modifiers = GetSdlCefInputModifiers(nativeEvent);
 
-                g_browser->GetHost()->SendMouseClickEvent(mouseEvent, mouseButtonType, false, nativeEvent.button.clicks);
+                browser->GetHost()->SendMouseClickEvent(mouseEvent, mouseButtonType, false, nativeEvent.button.clicks);
 
                 break;
             }
@@ -279,7 +279,7 @@ namespace CE
                 mouseEvent.y = nativeEvent.button.y;
                 mouseEvent.modifiers = GetSdlCefInputModifiers(nativeEvent);
 
-                g_browser->GetHost()->SendMouseClickEvent(mouseEvent, mouseButtonType, true, nativeEvent.button.clicks);
+                browser->GetHost()->SendMouseClickEvent(mouseEvent, mouseButtonType, true, nativeEvent.button.clicks);
 
                 break;
             }
@@ -292,7 +292,7 @@ namespace CE
                 SDL_GetMouseState(&mouseEvent.x, &mouseEvent.y);
                 mouseEvent.modifiers = GetSdlCefInputModifiers(nativeEvent);
 
-                g_browser->GetHost()->SendMouseWheelEvent(mouseEvent, nativeEvent.wheel.x, nativeEvent.wheel.y);
+                browser->GetHost()->SendMouseWheelEvent(mouseEvent, nativeEvent.wheel.x, nativeEvent.wheel.y);
 
                 break;
             }
@@ -309,7 +309,7 @@ namespace CE
                         SDL_GetMouseState(&mouseEvent.x, &mouseEvent.y);
                         mouseEvent.modifiers = GetSdlCefInputModifiers(nativeEvent);
 
-                        g_browser->GetHost()->SendMouseMoveEvent(mouseEvent, true);
+                        browser->GetHost()->SendMouseMoveEvent(mouseEvent, true);
                         
                         break;
                     }
@@ -586,7 +586,7 @@ namespace CE
 				}
 				keyEvent.modifiers = GetNativeCefKeyboardModifiers(static_cast<WPARAM>(windowsMessageEvent.wParam), static_cast<LPARAM>(windowsMessageEvent.lParam));
 
-				g_browser->GetHost()->SendKeyEvent(keyEvent);
+				browser->GetHost()->SendKeyEvent(keyEvent);
 
 				break;
 			}
@@ -735,15 +735,15 @@ namespace CE
 
     void CefMain::ToggleDevToolsWindow()
     {
-        if (g_browser->GetHost()->HasDevTools())
+        if (browser->GetHost()->HasDevTools())
         {
-            g_browser->GetHost()->CloseDevTools();
+            browser->GetHost()->CloseDevTools();
         }
         else
         {
             SDL_SysWMinfo sysInfo;
             SDL_VERSION(&sysInfo.version);
-            if (!SDL_GetWindowWMInfo(g_window, &sysInfo))
+            if (!SDL_GetWindowWMInfo(window, &sysInfo))
             {
                 return;
             }
@@ -751,7 +751,7 @@ namespace CE
             CefBrowserSettings browserSettings;
             CefWindowInfo windowInfo;
             windowInfo.SetAsPopup(sysInfo.info.win.window, "DevTools");
-            g_browser->GetHost()->ShowDevTools(windowInfo, g_uiClient, browserSettings, CefPoint(0, 0));
+            browser->GetHost()->ShowDevTools(windowInfo, uiClient, browserSettings, CefPoint(0, 0));
         }
     }
 #endif

@@ -22,13 +22,13 @@ namespace CE
 	public:
 		CefMain(
             EventSystem* eventSystem,
-            SDL_Window* g_window);
+            SDL_Window* window);
 
         bool StartCef(
             int argc,
             char* argv[],
-            uint32_t SCREEN_WIDTH,
-            uint32_t SCREEN_HEIGHT);
+            uint32_t screenWidth,
+            uint32_t screenHeight);
         void StopCef();
 
         // TODO: This probably shouldn't be architected this way.
@@ -51,10 +51,10 @@ namespace CE
 #endif
 
 		EventSystem* eventSystem;
-        SDL_Window* g_window;
+        SDL_Window* window;
 
-        CefRefPtr<UIClient> g_uiClient;
-        CefRefPtr<CefBrowser> g_browser;
+        CefRefPtr<UIClient> uiClient;
+        CefRefPtr<CefBrowser> browser;
         UIExternalMessagePump* externalMessagePump;
         UIQueryHandler* queryHandler;
 	};
