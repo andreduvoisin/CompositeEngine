@@ -19,6 +19,7 @@
 #include "graphics/skeleton/Skeleton.h"
 #include "graphics/skeleton/SkeletonManager.h"
 #include "graphics/texture/TextureManager.h"
+#include "graphics/texture/Texture.h"
 
 #include "graphics/ceasset/input/AssetImporter.h"
 
