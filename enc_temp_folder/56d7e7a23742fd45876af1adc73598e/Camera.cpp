@@ -40,7 +40,7 @@ namespace CE
 
 	void Camera::MoveUp(float delta)
 	{
-		location += WORLD_UP * delta;
+		location += up * delta;
 	}
 
 	void Camera::Swivel(int x, int y, float delta)
