@@ -49,6 +49,10 @@ namespace CE
 			{
 				camera->MoveRight(movementDelta);
 			}
+			if (keyboardState[SDL_GetScancodeFromKey(SDLK_SPACE)])
+			{
+				camera->MoveUp(movementDelta);
+			}
 
 			bool mouseMoved = deltaMouseX != 0 || deltaMouseY != 0;
 

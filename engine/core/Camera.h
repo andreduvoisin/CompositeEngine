@@ -15,6 +15,7 @@ namespace CE
 		void MoveBackward(float delta);
 		void MoveLeft(float delta);
 		void MoveRight(float delta);
+		void MoveUp(float delta);
 
 		void Swivel(int x, int y, float delta);
 

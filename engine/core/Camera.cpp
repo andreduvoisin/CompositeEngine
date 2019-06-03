@@ -38,6 +38,11 @@ namespace CE
 		location += right * delta;
 	}
 
+	void Camera::MoveUp(float delta)
+	{
+		location += up * delta;
+	}
+
 	void Camera::Swivel(int x, int y, float delta)
 	{
 		SwivelHorizontal(x, delta);
