@@ -22,6 +22,9 @@ namespace CE
 		GLuint g_diffuseTextureLocation,
 		GLuint g_diffuseTextureUnit)
 	{
+    nVertices = 0;
+    nIndices = 0;
+
 		for (size_t i = 0; i < m_meshes->size(); ++i)
 		{
 			DrawMesh(
@@ -32,6 +35,8 @@ namespace CE
 				g_diffuseTextureLocation,
 				g_diffuseTextureUnit);
 		}
+
+//    printf("MeshComponent drawn.  nVerts:  %zd  nIndices:  %zd \n", nVertices, nIndices);
 	}
 
 	void MeshComponent::DrawMesh(
@@ -44,9 +49,11 @@ namespace CE
 	{
 		glBindBuffer(GL_ARRAY_BUFFER, g_vbo);
 		glBufferData(GL_ARRAY_BUFFER, mesh.m_vertices.size() * sizeof(CE::Vertex1P1UV4J), mesh.m_vertices.data(), GL_STATIC_DRAW);
+    nVertices += mesh.m_vertices.size();
 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_ibo);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh.m_indices.size() * sizeof(unsigned int), mesh.m_indices.data(), GL_STATIC_DRAW);
+    nIndices += mesh.m_indices.size();
 
 		const Texture& texture = (*m_textures)[mesh.m_diffuseIndex];
 

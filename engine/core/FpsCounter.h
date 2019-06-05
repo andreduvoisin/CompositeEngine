@@ -14,12 +14,14 @@ namespace CE
 
 		void Update(float deltaSeconds);
 
-	private:
+  private:
 		void SendFpsStateEvent();
 
 		EventSystem* eventSystem;
 		uint32_t fps;
-	};
+    uint32_t ticker = 0;
+    float ticker_tm = 0.0f;
+  };
 }
 
 #endif // _CE_FPS_COUNTER_H_

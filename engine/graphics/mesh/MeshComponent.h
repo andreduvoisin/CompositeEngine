@@ -16,6 +16,9 @@ namespace CE
 	{
 	public:
 		MeshComponent(Meshes* meshes, Textures* textures);
+    size_t  nVertices;
+    size_t  nIndices;
+    bool    _initialized = false;
 
 		void Draw(
 			GLuint g_vbo,
