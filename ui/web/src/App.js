@@ -22,21 +22,9 @@ class App extends Component {
         <>
           {(debugLayout) ? <DebugStyles /> : null}
           <GlobalStyles />
-          <Toolbar></Toolbar>
           <Toolbar>
             <AnimationControls />
           </Toolbar>
-          <Layout.FullHeightContainer>
-            <Layout.Sidebar width={90}>
-              <Sidebar></Sidebar>
-            </Layout.Sidebar>
-            <Layout.Center />
-            {/* <Layout.Sidebar>
-                <Sidebar>
-                  <span>Sidebar</span>
-                </Sidebar>
-              </Layout.Sidebar> */}
-          </Layout.FullHeightContainer>
           <ToastContainer toastClassName="Toast" />
           <FpsCounter />
         </>
