@@ -120,6 +120,8 @@ sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
 		* https://stackoverflow.com/questions/17370/using-glew-to-use-opengl-extensions-under-windows
 		* https://gamedev.stackexchange.com/questions/112182/what-is-glew-and-how-does-it-work
 		* https://www.opengl.org/discussion_boards/showthread.php/175661-Using-OpenGL-without-GLEW
+	* Textures:
+		* https://community.khronos.org/t/what-is-a-texture-unit/63250
 	* Apple:
 		* https://support.apple.com/en-us/HT202823
 		* https://developer.apple.com/library/content/documentation/3DDrawing/Conceptual/OpenGLES_ProgrammingGuide/OpenGLESontheiPhone/OpenGLESontheiPhone.html
