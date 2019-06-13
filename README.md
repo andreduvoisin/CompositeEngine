@@ -9,6 +9,8 @@ and Chromium Embedded Framework (CEF) for a JavaScript user interface layer. Fea
 - Event system to marshal events between different engine systems
 - CMake build system for Windows and Mac that also handles dependency management
 
+Video Demo: https://youtu.be/Q19MtGOospc
+
 ### How do I get set up?
 
 #### Before Cloning
