@@ -52,9 +52,11 @@ sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
 
 - On Windows, open with `x64 Native Tools Command Prompt`.
 
-#### All Platforms
+### Running
 
-- Hit Play
+- Run the CMake build and install steps. This changes frequently; see `.vscode/launch.json` and `.vscode/tasks.json` for up-to-date commands.
+  - For Visual Studio Code, run in Debug or Release mode from the debugger.
+  - For Visual Studio 2019, run "Composite Engine.exe (Install)" from the Select Startup Item menu.
 
 ### Dependencies
 
