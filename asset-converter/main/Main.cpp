@@ -13,7 +13,6 @@ int main(int argc, char* argv[])
 {
 	// TODO: Build argument parser.
 	// For now, all args (except 0) are full paths to files.
-	printf("Converting...\n");
 	unsigned assetsExportedCount = 0;
 
 	CE::FBXImporter fbxImporter;
@@ -23,26 +22,36 @@ int main(int argc, char* argv[])
 	{
 		std::string fileName = argv[argIndex];
 
+		printf("Converting %s...\n", fileName.c_str());
+
+		printf("Extracting skeleton...\n");
+
 		CE::Skeleton skeleton;
 		if (!fbxImporter.ExtractSkeleton(fileName.c_str(), &skeleton))
 		{
-			printf("Extracting Skeleton Failed: %s\n", fileName.c_str());
+			printf("Extracting skeleton failed: %s\n", fileName.c_str());
 			continue;
 		}
+
+		printf("Extracting meshes...\n");
 
 		CE::Meshes meshes;
 		if (!fbxImporter.ExtractMeshes(fileName.c_str(), skeleton, &meshes))
 		{
-			printf("Extracting Meshes Failed: %s\n", fileName.c_str());
+			printf("Extracting meshes failed: %s\n", fileName.c_str());
 			continue;
 		}
+
+		printf("Extracting animations...\n");
 
 		CE::Animations animations;
 		if (!fbxImporter.ExtractAnimations(fileName.c_str(), skeleton, &animations))
 		{
-			printf("Extracting Animations Failed: %s\n", fileName.c_str());
+			printf("Extracting animations failed: %s\n", fileName.c_str());
 			continue;
 		}
+
+		printf("Extracting textures...\n");
 
 		bool textureSuccess = true;
 		CE::Textures textures;
@@ -52,7 +61,7 @@ int main(int argc, char* argv[])
 			CE::Texture& texture = textures.back();
 			if (!stbImageImporter.ExtractTexture(mesh.m_diffuseMapName.c_str(), &texture))
 			{
-				printf("Extracting Texture Failed: %s\n", mesh.m_diffuseMapName.c_str());
+				printf("Extracting texture failed: %s\n", mesh.m_diffuseMapName.c_str());
 				textureSuccess = false;
 			}
 			mesh.m_diffuseIndex = static_cast<uint8_t>(textures.size() - 1);
@@ -60,12 +69,16 @@ int main(int argc, char* argv[])
 
 		if (!textureSuccess)
 		{
-			printf("Extracting Textures Failed: %s\n", fileName.c_str());
+			printf("Extracting textures failed: %s\n", fileName.c_str());
 			continue;
 		}
 
+		printf("Optimizing animations...\n");
+
 		CE::AnimationOptimizer optimizer(&animations);
 		optimizer.OptimizeAnimations();
+
+		printf("Exporting ceasset file...\n");
 
 		const auto position = fileName.find_last_of('.');
 		std::string outputFileName = fileName.substr(0, position) + ".ceasset";
@@ -83,7 +96,7 @@ int main(int argc, char* argv[])
 		}
 		else
 		{
-			printf("Export Failed: %s\n", fileName.c_str());
+			printf("Export failed: %s\n", fileName.c_str());
 		}
 	}
 
