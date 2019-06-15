@@ -1,6 +1,8 @@
 ---
 Checks: 'bugprone-*,cert-*,clang-analyzer-*,cppcoreguidelines-*,hicpp-*,misc-*,modernize-*,mpi-*,objc-*,performance-*,portability-*,readability-*'
+AnalyzeTemporaryDtors: true
 FormatStyle: file
+HeaderFilterRegex: ''
 WarningsAsErrors: '*'
 CheckOptions:
   - key: readability-identifier-naming.AbstractClassCase
