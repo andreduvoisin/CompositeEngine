@@ -3,39 +3,41 @@
 
 #include <vector>
 
+// NOLINTNEXTLINE(readability-identifier-naming)
 namespace fbxsdk
 {
-	class FbxManager;
-	class FbxNode;
-	class FbxScene;
+    class FbxManager;
+    class FbxNode;
+    class FbxScene;
 }
 
 namespace CE
 {
-	struct Skeleton;
-	struct Animation;
-	typedef std::vector<Animation> Animations;
+    struct Skeleton;
+    struct Animation;
 
-	class FBXAnimationImporter
-	{
-	public:
-		FBXAnimationImporter(
-			fbxsdk::FbxManager* fbxManager,
-			const char* szFileName,
-			const Skeleton& skeleton,
-			Animations* outAnimations);
+    using Animations = std::vector<Animation>;
 
-		bool LoadAnimations();
+    class FBXAnimationImporter
+    {
+    public:
+        FBXAnimationImporter(
+                fbxsdk::FbxManager* fbxManager,
+                const char* fileName,
+                const Skeleton& skeleton,
+                Animations* outAnimations);
 
-	private:
-		void ProcessAnimation(fbxsdk::FbxNode* node, fbxsdk::FbxScene* scene);
+        bool LoadAnimations();
 
-	private:
-		fbxsdk::FbxManager* m_fbxManager;
-		const char* m_szFileName;
-		const Skeleton& m_skeleton;
-		Animations* m_outAnimations;
-	};
+    private:
+        void ProcessAnimation(fbxsdk::FbxNode* node, fbxsdk::FbxScene* scene);
+
+    private:
+        fbxsdk::FbxManager* fbxManager;
+        const char* fileName;
+        const Skeleton& skeleton;
+        Animations* outAnimations;
+    };
 }
 
 #endif // _CE_FBX_ANIMATION_IMPORTER_H_
