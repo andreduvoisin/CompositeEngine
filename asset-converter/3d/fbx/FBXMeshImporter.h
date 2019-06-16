@@ -24,25 +24,25 @@ namespace CE
 	public:
 		FBXMeshImporter(
 			fbxsdk::FbxManager* fbxManager,
-			const char* szFileName,
+			const char* fileName,
 			const Skeleton& skeleton,
 			Meshes* outMeshes);
 
 		bool LoadMeshes();
 
 	private:
-		void ParseNodes(fbxsdk::FbxNode* pFbxRootNode, fbxsdk::FbxScene* pFbxScene);
-		void ProcessVertices(Mesh& currentMesh, fbxsdk::FbxMesh* pMesh);
-		void ProcessMaterialTexture(Mesh& currentMesh, fbxsdk::FbxSurfaceMaterial* inMaterial);
+		void ParseNodes(fbxsdk::FbxNode* rootNode, fbxsdk::FbxScene* scene);
+		void ProcessVertices(Mesh& currentMesh, fbxsdk::FbxMesh* mesh);
+		void ProcessMaterialTexture(Mesh& currentMesh, fbxsdk::FbxSurfaceMaterial* material);
 		void ProcessSkinnedMesh(Mesh& currentMesh, fbxsdk::FbxNode* node, fbxsdk::FbxScene* scene);
 
 	private:
-		fbxsdk::FbxManager* m_fbxManager;
-		const char* m_szFileName;
-		const Skeleton& m_skeleton;
-		Meshes* m_outMeshes;
+		fbxsdk::FbxManager* fbxManager;
+		const char* fileName;
+		const Skeleton& skeleton;
+		Meshes* outMeshes;
 
-		std::unordered_map<int, std::vector<int>> m_controlPointToVertices;
+		std::unordered_map<int, std::vector<int>> controlPointToVertices;
 	};
 }
 

@@ -16,28 +16,28 @@ namespace CE
 	/**
 	* Return a string-based representation based on the attribute type.
 	*/
-	FbxString GetAttributeTypeName(FbxNodeAttribute::EType type) {
+	fbxsdk::FbxString GetAttributeTypeName(fbxsdk::FbxNodeAttribute::EType type) {
 		switch (type) {
-		case FbxNodeAttribute::eUnknown: return "unidentified";
-		case FbxNodeAttribute::eNull: return "null";
-		case FbxNodeAttribute::eMarker: return "marker";
-		case FbxNodeAttribute::eSkeleton: return "skeleton";
-		case FbxNodeAttribute::eMesh: return "mesh";
-		case FbxNodeAttribute::eNurbs: return "nurbs";
-		case FbxNodeAttribute::ePatch: return "patch";
-		case FbxNodeAttribute::eCamera: return "camera";
-		case FbxNodeAttribute::eCameraStereo: return "stereo";
-		case FbxNodeAttribute::eCameraSwitcher: return "camera switcher";
-		case FbxNodeAttribute::eLight: return "light";
-		case FbxNodeAttribute::eOpticalReference: return "optical reference";
-		case FbxNodeAttribute::eOpticalMarker: return "marker";
-		case FbxNodeAttribute::eNurbsCurve: return "nurbs curve";
-		case FbxNodeAttribute::eTrimNurbsSurface: return "trim nurbs surface";
-		case FbxNodeAttribute::eBoundary: return "boundary";
-		case FbxNodeAttribute::eNurbsSurface: return "nurbs surface";
-		case FbxNodeAttribute::eShape: return "shape";
-		case FbxNodeAttribute::eLODGroup: return "lodgroup";
-		case FbxNodeAttribute::eSubDiv: return "subdiv";
+		case fbxsdk::FbxNodeAttribute::eUnknown: return "unidentified";
+		case fbxsdk::FbxNodeAttribute::eNull: return "null";
+		case fbxsdk::FbxNodeAttribute::eMarker: return "marker";
+		case fbxsdk::FbxNodeAttribute::eSkeleton: return "skeleton";
+		case fbxsdk::FbxNodeAttribute::eMesh: return "mesh";
+		case fbxsdk::FbxNodeAttribute::eNurbs: return "nurbs";
+		case fbxsdk::FbxNodeAttribute::ePatch: return "patch";
+		case fbxsdk::FbxNodeAttribute::eCamera: return "camera";
+		case fbxsdk::FbxNodeAttribute::eCameraStereo: return "stereo";
+		case fbxsdk::FbxNodeAttribute::eCameraSwitcher: return "camera switcher";
+		case fbxsdk::FbxNodeAttribute::eLight: return "light";
+		case fbxsdk::FbxNodeAttribute::eOpticalReference: return "optical reference";
+		case fbxsdk::FbxNodeAttribute::eOpticalMarker: return "marker";
+		case fbxsdk::FbxNodeAttribute::eNurbsCurve: return "nurbs curve";
+		case fbxsdk::FbxNodeAttribute::eTrimNurbsSurface: return "trim nurbs surface";
+		case fbxsdk::FbxNodeAttribute::eBoundary: return "boundary";
+		case fbxsdk::FbxNodeAttribute::eNurbsSurface: return "nurbs surface";
+		case fbxsdk::FbxNodeAttribute::eShape: return "shape";
+		case fbxsdk::FbxNodeAttribute::eLODGroup: return "lodgroup";
+		case fbxsdk::FbxNodeAttribute::eSubDiv: return "subdiv";
 		default: return "unknown";
 		}
 	}
@@ -45,26 +45,26 @@ namespace CE
 	/**
 	* Print an attribute.
 	*/
-	void PrintAttribute(FbxNodeAttribute* pAttribute) {
+	void PrintAttribute(fbxsdk::FbxNodeAttribute* pAttribute) {
 		if (!pAttribute) return;
 
-		FbxString typeName = GetAttributeTypeName(pAttribute->GetAttributeType());
-		FbxString attrName = pAttribute->GetName();
+		fbxsdk::FbxString typeName = GetAttributeTypeName(pAttribute->GetAttributeType());
+		fbxsdk::FbxString attrName = pAttribute->GetName();
 		PrintTabs();
-		// Note: to retrieve the character array of a FbxString, use its Buffer() method.
+		// Note: to retrieve the character array of a fbxsdk::FbxString, use its Buffer() method.
 		printf("<attribute type='%s' name='%s'/>\n", typeName.Buffer(), attrName.Buffer());
 	}
 
 	/**
 	* Print a node, its attributes, and all its children recursively.
 	*/
-	void PrintNode(FbxNode* pNode) {
+	void PrintNode(fbxsdk::FbxNode* pNode) {
 		PrintTabs();
 		const char* nodeName = pNode->GetName();
 
-		FbxDouble3 translation = pNode->LclTranslation.Get();
-		FbxDouble3 rotation = pNode->LclRotation.Get();
-		FbxDouble3 scaling = pNode->LclScaling.Get();
+		fbxsdk::FbxDouble3 translation = pNode->LclTranslation.Get();
+		fbxsdk::FbxDouble3 rotation = pNode->LclRotation.Get();
+		fbxsdk::FbxDouble3 scaling = pNode->LclScaling.Get();
 
 		// Print the contents of the node.
 		printf("<node name='%s' translation='(%f, %f, %f)' rotation='(%f, %f, %f)' scaling='(%f, %f, %f)'>\n",

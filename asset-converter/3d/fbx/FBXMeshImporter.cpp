@@ -11,76 +11,76 @@
 namespace CE
 {
 	FBXMeshImporter::FBXMeshImporter(
-			FbxManager* fbxManager,
-			const char* szFileName,
+			fbxsdk::FbxManager* fbxManager,
+			const char* fileName,
 			const Skeleton& skeleton,
 			Meshes* outMeshes)
-		: m_fbxManager(fbxManager)
-		, m_szFileName(szFileName)
-		, m_skeleton(skeleton)
-		, m_outMeshes(outMeshes)
+		: fbxManager(fbxManager)
+		, fileName(fileName)
+		, skeleton(skeleton)
+		, outMeshes(outMeshes)
 	{
 
 	}
 
 	bool FBXMeshImporter::LoadMeshes()
 	{
-		FBXValidator validator(m_fbxManager, m_szFileName);
+		FBXValidator validator(fbxManager, fileName);
 		if (!validator.Validate())
 		{
 			return false;
 		}
 
-		FbxImporter* pImporter = FbxImporter::Create(m_fbxManager, "");
-		FbxScene* pFbxScene = FbxScene::Create(m_fbxManager, "");
+		fbxsdk::FbxImporter* importer = fbxsdk::FbxImporter::Create(fbxManager, "");
+		fbxsdk::FbxScene* scene = fbxsdk::FbxScene::Create(fbxManager, "");
 
-		if (!pImporter->Initialize(m_szFileName, -1, m_fbxManager->GetIOSettings()))
+		if (!importer->Initialize(fileName, -1, fbxManager->GetIOSettings()))
 		{
 			return false;
 		}
 
-		if (!pImporter->Import(pFbxScene))
+		if (!importer->Import(scene))
 		{
 			return false;
 		}
 
-		pImporter->Destroy();
+		importer->Destroy();
 
-		FbxNode* pFbxRootNode = pFbxScene->GetRootNode();
-		if (!pFbxRootNode)
+		fbxsdk::FbxNode* rootNode = scene->GetRootNode();
+		if (!rootNode)
 		{
 			return false;
 		}
 
-		ParseNodes(pFbxRootNode, pFbxScene);
+		ParseNodes(rootNode, scene);
 
 		return true;
 	}
 
-	void FBXMeshImporter::ParseNodes(FbxNode* pFbxRootNode, FbxScene* pFbxScene)
+	void FBXMeshImporter::ParseNodes(fbxsdk::FbxNode* rootNode, fbxsdk::FbxScene* scene)
 	{
-		PrintNode(pFbxRootNode);
+		PrintNode(rootNode);
 
-		const int meshCount = pFbxScene->GetSrcObjectCount<FbxMesh>();
-		m_outMeshes->resize(meshCount);
+		const int meshCount = scene->GetSrcObjectCount<fbxsdk::FbxMesh>();
+		outMeshes->resize(meshCount);
 
 		for (int i = 0; i < meshCount; i++)
 		{
-			FbxMesh* pMesh = pFbxScene->GetSrcObject<FbxMesh>(i);
-			FbxNode* pNode = pMesh->GetNode();
+			fbxsdk::FbxMesh* pMesh = scene->GetSrcObject<fbxsdk::FbxMesh>(i);
+			fbxsdk::FbxNode* pNode = pMesh->GetNode();
 
-			Mesh& currentMesh = m_outMeshes->at(i);
-			m_controlPointToVertices.clear();
+			Mesh& currentMesh = outMeshes->at(i);
+			controlPointToVertices.clear();
 
 			unsigned int materialCount = pNode->GetMaterialCount();
 			for (unsigned int i = 0; i < materialCount; ++i)
 			{
-				FbxSurfaceMaterial* surfaceMaterial = pNode->GetMaterial(i);
+				fbxsdk::FbxSurfaceMaterial* surfaceMaterial = pNode->GetMaterial(i);
 				ProcessMaterialTexture(currentMesh, surfaceMaterial);
 			}
 
 			ProcessVertices(currentMesh, pMesh);
-			ProcessSkinnedMesh(currentMesh, pNode, pFbxScene);
+			ProcessSkinnedMesh(currentMesh, pNode, scene);
 
 			printf("currentMesh.m_diffuseMapName: %s\n", currentMesh.m_diffuseMapName.c_str());
 			printf("currentMesh.m_specularMapName: %s\n", currentMesh.m_specularMapName.c_str());
@@ -88,20 +88,20 @@ namespace CE
 		}
 	}
 
-	void FBXMeshImporter::ProcessVertices(Mesh& currentMesh, FbxMesh* pMesh)
+	void FBXMeshImporter::ProcessVertices(Mesh& currentMesh, fbxsdk::FbxMesh* mesh)
 	{
 		//get all UV set names
-		FbxStringList lUVSetNameList;
-		pMesh->GetUVSetNames(lUVSetNameList);
+		fbxsdk::FbxStringList lUVSetNameList;
+		mesh->GetUVSetNames(lUVSetNameList);
 
 		for (int lUVSetIndex = 0; lUVSetIndex < lUVSetNameList.GetCount(); lUVSetIndex++)
 		{
 			const char* lUVSetName = lUVSetNameList.GetStringAt(lUVSetIndex);
-			const FbxGeometryElementUV* lUVElement = pMesh->GetElementUV(lUVSetName);
+			const fbxsdk::FbxGeometryElementUV* lUVElement = mesh->GetElementUV(lUVSetName);
 			printf("lUVSetName: %s\n", lUVSetName);
 		}
 
-		currentMesh.m_indices.reserve(pMesh->GetControlPointsCount());
+		currentMesh.m_indices.reserve(mesh->GetControlPointsCount());
 
 		int quadCount = 0, triCount = 0, unknownCount = 0;
 
@@ -110,8 +110,8 @@ namespace CE
 		//{
 		//get lUVSetIndex-th uv set
 		//const char* lUVSetName = lUVSetNameList.GetStringAt(lUVSetIndex);
-		//const FbxGeometryElementUV* lUVElement = pMesh->GetElementUV(lUVSetName);
-		const FbxGeometryElementUV* lUVElement = pMesh->GetElementUV(0);// , fbxsdk::FbxLayerElement::eTextureDiffuse);
+		//const fbxsdk::FbxGeometryElementUV* lUVElement = mesh->GetElementUV(lUVSetName);
+		const fbxsdk::FbxGeometryElementUV* lUVElement = mesh->GetElementUV(0);// , fbxsdk::FbxLayerElement::eTextureDiffuse);
 
 		if (!lUVElement)
 		{
@@ -120,29 +120,29 @@ namespace CE
 		}
 
 		// only support mapping mode eByPolygonVertex and eByControlPoint
-		if (lUVElement->GetMappingMode() != FbxGeometryElement::eByPolygonVertex
-			&& lUVElement->GetMappingMode() != FbxGeometryElement::eByControlPoint)
+		if (lUVElement->GetMappingMode() != fbxsdk::FbxGeometryElement::eByPolygonVertex
+			&& lUVElement->GetMappingMode() != fbxsdk::FbxGeometryElement::eByControlPoint)
 		{
 			//continue;
 			return;
 		}
 
 		//index array, where holds the index referenced to the uv data
-		const bool lUseIndex = lUVElement->GetReferenceMode() != FbxGeometryElement::eDirect;
+		const bool lUseIndex = lUVElement->GetReferenceMode() != fbxsdk::FbxGeometryElement::eDirect;
 		const int lIndexCount = (lUseIndex) ? lUVElement->GetIndexArray().GetCount() : 0;
 
 		//iterating through the data by polygon
-		const int lPolyCount = pMesh->GetPolygonCount();
+		const int lPolyCount = mesh->GetPolygonCount();
 		//printf("lUVSetName: %s\n", lUVSetName);
 		printf("lPolyCount: %i\n", lPolyCount);
 
-		const FbxAMatrix globalTransform = pMesh->GetNode()->EvaluateGlobalTransform();
+		const fbxsdk::FbxAMatrix globalTransform = mesh->GetNode()->EvaluateGlobalTransform();
 
 		int lPolyIndexCounter = 0;
 		for (int lPolyIndex = 0; lPolyIndex < lPolyCount; ++lPolyIndex)
 		{
 			// build the max index array that we need to pass into MakePoly
-			const int lPolySize = pMesh->GetPolygonSize(lPolyIndex);
+			const int lPolySize = mesh->GetPolygonSize(lPolyIndex);
 			if (lPolySize < 3)
 			{
 				printf("degenerate polygon!\n");
@@ -162,9 +162,9 @@ namespace CE
 					}
 
 					//get the index of the current vertex in control points array
-					int lPolyVertIndex = pMesh->GetPolygonVertex(lPolyIndex, currentIndex);
+					int lPolyVertIndex = mesh->GetPolygonVertex(lPolyIndex, currentIndex);
 					
-					FbxVector4 vertexPosition = pMesh->GetControlPointAt(lPolyVertIndex);
+					fbxsdk::FbxVector4 vertexPosition = mesh->GetControlPointAt(lPolyVertIndex);
 					vertexPosition[3] = 1.f;
 					vertexPosition = globalTransform.MultT(vertexPosition);
 
@@ -173,15 +173,15 @@ namespace CE
 					vertex.position.y = static_cast<float>(vertexPosition[1]);
 					vertex.position.z = static_cast<float>(vertexPosition[2]);
 
-					FbxVector2 lUVValue;
+					fbxsdk::FbxVector2 lUVValue;
 
 					//the UV index depends on the reference mode
 					int lUVIndex = 0;
-					if (lUVElement->GetMappingMode() == FbxGeometryElement::eByControlPoint)
+					if (lUVElement->GetMappingMode() == fbxsdk::FbxGeometryElement::eByControlPoint)
 					{
 						lUVIndex = lUseIndex ? lUVElement->GetIndexArray().GetAt(lPolyVertIndex) : lPolyVertIndex;
 					}
-					else if (lUVElement->GetMappingMode() == FbxGeometryElement::eByPolygonVertex)
+					else if (lUVElement->GetMappingMode() == fbxsdk::FbxGeometryElement::eByPolygonVertex)
 					{
 						int adjustedIndexCounter = lPolyIndexCounter + currentIndex;
 						if (adjustedIndexCounter < lIndexCount)
@@ -208,7 +208,7 @@ namespace CE
 					if (index == currentMesh.m_vertices.size())
 					{
 						currentMesh.m_vertices.push_back(vertex);
-						m_controlPointToVertices[lPolyVertIndex].push_back((int) currentMesh.m_vertices.size() - 1);
+						controlPointToVertices[lPolyVertIndex].push_back((int) currentMesh.m_vertices.size() - 1);
 					}
 
 					currentMesh.m_indices.push_back(index);
@@ -220,14 +220,12 @@ namespace CE
 		//}
 	}
 
-	void FBXMeshImporter::ProcessMaterialTexture(Mesh& currentMesh, fbxsdk::FbxSurfaceMaterial* inMaterial)
+	void FBXMeshImporter::ProcessMaterialTexture(Mesh& currentMesh, fbxsdk::FbxSurfaceMaterial* material)
 	{
-		unsigned int textureIndex = 0;
-		fbxsdk::FbxProperty property;
-
-		FBXSDK_FOR_EACH_TEXTURE(textureIndex)
+        for (unsigned int textureIndex = 0; textureIndex < fbxsdk::FbxLayerElement::sTypeTextureCount; ++textureIndex)
 		{
-			property = inMaterial->FindProperty(fbxsdk::FbxLayerElement::sTextureChannelNames[textureIndex]);
+            fbxsdk::FbxProperty property =
+                    material->FindProperty(fbxsdk::FbxLayerElement::sTextureChannelNames[textureIndex]);
 			if (property.IsValid())
 			{
 				unsigned int textureCount = property.GetSrcObjectCount<fbxsdk::FbxTexture>();
@@ -246,7 +244,7 @@ namespace CE
 						if (texture)
 						{
 							std::string textureType = property.GetNameAsCStr();
-							fbxsdk::FbxFileTexture* fileTexture = FbxCast<fbxsdk::FbxFileTexture>(texture);
+							fbxsdk::FbxFileTexture* fileTexture = fbxsdk::FbxCast<fbxsdk::FbxFileTexture>(texture);
 
 							if (fileTexture)
 							{
@@ -271,9 +269,9 @@ namespace CE
 		}
 	}
 
-	void FBXMeshImporter::ProcessSkinnedMesh(Mesh& currentMesh, FbxNode* node, FbxScene* scene)
+	void FBXMeshImporter::ProcessSkinnedMesh(Mesh& currentMesh, fbxsdk::FbxNode* node, fbxsdk::FbxScene* scene)
 	{
-		FbxMesh* currMesh = node->GetMesh();
+		fbxsdk::FbxMesh* currMesh = node->GetMesh();
 		unsigned int numOfDeformers = currMesh->GetDeformerCount();
 
 		struct JointIndexWeightPair
@@ -286,7 +284,7 @@ namespace CE
 
 		for (unsigned deformerIndex = 0; deformerIndex < numOfDeformers; ++deformerIndex)
 		{
-			FbxSkin* currSkin = reinterpret_cast<FbxSkin*>(currMesh->GetDeformer(deformerIndex, FbxDeformer::eSkin));
+			fbxsdk::FbxSkin* currSkin = reinterpret_cast<fbxsdk::FbxSkin*>(currMesh->GetDeformer(deformerIndex, fbxsdk::FbxDeformer::eSkin));
 			if (!currSkin)
 			{
 				continue;
@@ -295,13 +293,13 @@ namespace CE
 			unsigned numOfClusters = currSkin->GetClusterCount();
 			for (unsigned clusterIndex = 0; clusterIndex < numOfClusters; ++clusterIndex)
 			{
-				FbxCluster* currCluster = currSkin->GetCluster(clusterIndex);
+				fbxsdk::FbxCluster* currCluster = currSkin->GetCluster(clusterIndex);
 				std::string currJointName = currCluster->GetLink()->GetName();
 
 				unsigned int currJointIndex = -1;
-				for (unsigned i = 0; i < m_skeleton.joints.size(); ++i)
+				for (unsigned i = 0; i < skeleton.joints.size(); ++i)
 				{
-					if (m_skeleton.joints[i].name == currJointName)
+					if (skeleton.joints[i].name == currJointName)
 					{
 						currJointIndex = i;
 						break;
@@ -316,7 +314,7 @@ namespace CE
 				unsigned int numOfIndices = currCluster->GetControlPointIndicesCount();
 				for (unsigned controlPointIndex = 0; controlPointIndex < numOfIndices; ++controlPointIndex)
 				{
-					const auto& verticesForControlPoint = m_controlPointToVertices[currCluster->GetControlPointIndices()[controlPointIndex]];
+					const auto& verticesForControlPoint = controlPointToVertices[currCluster->GetControlPointIndices()[controlPointIndex]];
 					for (unsigned vertexIndex = 0; vertexIndex < verticesForControlPoint.size(); ++vertexIndex)
 					{
 						JointIndexWeightPair jointIndexWeightPair;

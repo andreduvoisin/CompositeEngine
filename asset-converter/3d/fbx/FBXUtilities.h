@@ -6,9 +6,9 @@
 namespace CE
 {
 	void PrintTabs();
-	FbxString GetAttributeTypeName(FbxNodeAttribute::EType type);
-	void PrintAttribute(FbxNodeAttribute* pAttribute);
-	void PrintNode(FbxNode* pNode);
+	fbxsdk::FbxString GetAttributeTypeName(fbxsdk::FbxNodeAttribute::EType type);
+	void PrintAttribute(fbxsdk::FbxNodeAttribute* pAttribute);
+	void PrintNode(fbxsdk::FbxNode* pNode);
 }
 
 #endif // _CE_FBX_UTILITIES_H_

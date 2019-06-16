@@ -10,9 +10,9 @@ namespace CE
 {
 	FBXImporter::FBXImporter()
 	{
-		m_fbxManager = FbxManager::Create();
+		m_fbxManager = fbxsdk::FbxManager::Create();
 
-		FbxIOSettings* ioSettings = FbxIOSettings::Create(m_fbxManager, IOSROOT);
+		fbxsdk::FbxIOSettings* ioSettings = fbxsdk::FbxIOSettings::Create(m_fbxManager, IOSROOT);
 		m_fbxManager->SetIOSettings(ioSettings);
 	}
 

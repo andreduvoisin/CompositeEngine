@@ -5,7 +5,7 @@
 namespace CE
 {
 	FBXValidator::FBXValidator(
-			FbxManager* manager, 
+			fbxsdk::FbxManager* manager, 
 			const char* fileName)
 		: manager(manager)
 		, fileName(fileName)
@@ -15,8 +15,8 @@ namespace CE
 
 	bool FBXValidator::Validate()
 	{
-		FbxImporter* importer = FbxImporter::Create(manager, "");
-		FbxScene* scene = FbxScene::Create(manager, "");
+		fbxsdk::FbxImporter* importer = fbxsdk::FbxImporter::Create(manager, "");
+		fbxsdk::FbxScene* scene = fbxsdk::FbxScene::Create(manager, "");
 
 		if (!importer->Initialize(fileName, -1, manager->GetIOSettings()))
 		{
@@ -30,7 +30,7 @@ namespace CE
 
 		importer->Destroy();
 
-		FbxNode* rootNode = scene->GetRootNode();
+		fbxsdk::FbxNode* rootNode = scene->GetRootNode();
 		if (!rootNode)
 		{
 			return false;
@@ -39,19 +39,19 @@ namespace CE
 		return ValidateNode(rootNode);
 	}
 
-	bool FBXValidator::ValidateNode(FbxNode* node)
+	bool FBXValidator::ValidateNode(fbxsdk::FbxNode* node)
 	{
 		return ValidateGeometry(node)
 			&& ValidateCluster(node)
 			&& ValidateChildren(node);
 	}
 
-	bool FBXValidator::ValidateGeometry(FbxNode* node)
+	bool FBXValidator::ValidateGeometry(fbxsdk::FbxNode* node)
 	{
-		FbxAMatrix geometryTransform(
-			node->GetGeometricTranslation(FbxNode::EPivotSet::eSourcePivot),
-			node->GetGeometricRotation(FbxNode::EPivotSet::eSourcePivot),
-			node->GetGeometricScaling(FbxNode::EPivotSet::eSourcePivot));
+		fbxsdk::FbxAMatrix geometryTransform(
+			node->GetGeometricTranslation(fbxsdk::FbxNode::EPivotSet::eSourcePivot),
+			node->GetGeometricRotation(fbxsdk::FbxNode::EPivotSet::eSourcePivot),
+			node->GetGeometricScaling(fbxsdk::FbxNode::EPivotSet::eSourcePivot));
 
 		return geometryTransform.IsIdentity();
 	}
@@ -59,7 +59,7 @@ namespace CE
 	// TODO: Validate the whole skin. (see ozz-animation)
 	bool FBXValidator::ValidateCluster(fbxsdk::FbxNode* node)
 	{
-		FbxMesh* mesh = node->GetMesh();
+		fbxsdk::FbxMesh* mesh = node->GetMesh();
 		if (!mesh)
 		{
 			return true;
@@ -68,7 +68,7 @@ namespace CE
 		const unsigned deformerCount = mesh->GetDeformerCount();
 		for (unsigned deformerIndex = 0; deformerIndex < deformerCount; ++deformerIndex)
 		{
-			FbxSkin* skin = reinterpret_cast<FbxSkin*>(mesh->GetDeformer(deformerIndex, FbxDeformer::eSkin));
+			fbxsdk::FbxSkin* skin = reinterpret_cast<fbxsdk::FbxSkin*>(mesh->GetDeformer(deformerIndex, fbxsdk::FbxDeformer::eSkin));
 			if (!skin)
 			{
 				continue;
@@ -77,9 +77,9 @@ namespace CE
 			const unsigned clusterCount = skin->GetClusterCount();
 			for (unsigned clusterIndex = 0; clusterIndex < clusterCount; ++clusterIndex)
 			{
-				FbxCluster* cluster = skin->GetCluster(clusterIndex);
-				const FbxCluster::ELinkMode linkMode = cluster->GetLinkMode();
-				if (linkMode != FbxCluster::ELinkMode::eNormalize)
+				fbxsdk::FbxCluster* cluster = skin->GetCluster(clusterIndex);
+				const fbxsdk::FbxCluster::ELinkMode linkMode = cluster->GetLinkMode();
+				if (linkMode != fbxsdk::FbxCluster::ELinkMode::eNormalize)
 				{
 					return false;
 				}
@@ -94,7 +94,7 @@ namespace CE
 	{
 		for (int i = 0; i < node->GetChildCount(); ++i)
 		{
-			FbxNode* childNode = node->GetChild(i);
+			fbxsdk::FbxNode* childNode = node->GetChild(i);
 			if (!ValidateNode(childNode))
 			{
 				return false;
