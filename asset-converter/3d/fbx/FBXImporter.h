@@ -3,26 +3,32 @@
 
 #include "graphics/File3DImporter.h"
 
+// NOLINTNEXTLINE(readability-identifier-naming)
 namespace fbxsdk
 {
-	class FbxManager;
+    class FbxManager;
 }
 
 namespace CE
 {
-	class FBXImporter : public File3DImporter
-	{
-	public:
-		FBXImporter();
-		~FBXImporter();
+    class FBXImporter : public File3DImporter
+    {
+    public:
+        FBXImporter();
+        ~FBXImporter();
 
-		bool ExtractSkeleton(const char* fileName, Skeleton* outSkeleton);
-		bool ExtractMeshes(const char* fileName, const Skeleton& skeleton, Meshes* outMeshes);
-		bool ExtractAnimations(const char* fileName, const Skeleton& skeleton, Animations* outAnimations);
+        FBXImporter(const FBXImporter&) = delete;
+        FBXImporter(FBXImporter&&) = delete;
+        FBXImporter& operator=(const FBXImporter&) = delete;
+        FBXImporter& operator=(FBXImporter&&) = delete;
 
-	private:
-		fbxsdk::FbxManager* m_fbxManager;
-	};
+        bool ExtractSkeleton(const char* fileName, Skeleton* outSkeleton) override;
+        bool ExtractMeshes(const char* fileName, const Skeleton& skeleton, Meshes* outMeshes) override;
+        bool ExtractAnimations(const char* fileName, const Skeleton& skeleton, Animations* outAnimations) override;
+
+    private:
+        fbxsdk::FbxManager* fbxManager;
+    };
 }
 
 #endif // _CE_FBX_IMPORTER_H_
