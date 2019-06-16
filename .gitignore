@@ -30,30 +30,34 @@ vim.exe.stackdump
 # CMake Temporary Download Directories
 extern/ex-*/
 
-# SDL
-extern/SDL2-*/
-extern/SDL2-*.tar.gz
-
-# GLEW
-extern/glew-*/
-extern/glew-*.tgz
-
 # CEF
 extern/cef_binary_*/
 extern/cef_binary_*.tar.bz2
 extern/cef_binary_*.tar.bz2.sha1
 
-# RapidJSON
-extern/rapidjson-*/
+# FBX SDK
+extern/*_fbxsdk_*/
+extern/*_fbxsdk_*.exe
+extern/*_fbxsdk_*.pkg.tgz
 
-# STB
-extern/stb-*/
+# GLEW
+extern/glew-*/
+extern/glew-*.tgz
 
 # GLM
 extern/glm-*/
 extern/glm-*.zip
 
-# FBX SDK
-extern/*_fbxsdk_*/
-extern/*_fbxsdk_*.exe
-extern/*_fbxsdk_*.pkg.tgz
+# GSL
+extern/gsl-*/
+extern/v*.zip
+
+# RapidJSON
+extern/rapidjson-*/
+
+# SDL
+extern/SDL2-*/
+extern/SDL2-*.tar.gz
+
+# STB
+extern/stb-*/

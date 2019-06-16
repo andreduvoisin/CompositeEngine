@@ -6,42 +6,45 @@
 #include "graphics/mesh/Mesh.h"
 #include "graphics/skeleton/Skeleton.h"
 #include "graphics/texture/Texture.h"
+#include <gsl/gsl>
+
+#include <iostream>
 
 bool ConvertAsset(const std::string& fileName)
 {
     CE::FBXImporter fbxImporter;
     CE::STBImageImporter stbImageImporter;
 
-    printf("Converting %s...\n", fileName.c_str());
+    std::cout << "Converting " << fileName.c_str() << "...\n";
 
-    printf("Extracting skeleton...\n");
+    std::cout << "Extracting skeleton...\n";
 
     CE::Skeleton skeleton;
     if (!fbxImporter.ExtractSkeleton(fileName.c_str(), &skeleton))
     {
-        printf("Extracting skeleton failed: %s\n", fileName.c_str());
+        std::cout << "Extracting skeleton failed: " << fileName.c_str() << "\n";
         return false;
     }
 
-    printf("Extracting meshes...\n");
+    std::cout << "Extracting meshes...\n";
 
     CE::Meshes meshes;
     if (!fbxImporter.ExtractMeshes(fileName.c_str(), skeleton, &meshes))
     {
-        printf("Extracting meshes failed: %s\n", fileName.c_str());
+        std::cout << "Extracting meshes failed: " << fileName.c_str() << "\n";
         return false;
     }
 
-    printf("Extracting animations...\n");
+    std::cout << "Extracting animations...\n";
 
     CE::Animations animations;
     if (!fbxImporter.ExtractAnimations(fileName.c_str(), skeleton, &animations))
     {
-        printf("Extracting animations failed: %s\n", fileName.c_str());
+        std::cout << "Extracting animations failed: " << fileName.c_str() << "\n";
         return false;
     }
 
-    printf("Extracting textures...\n");
+    std::cout << "Extracting textures...\n";
 
     bool textureSuccess = true;
     CE::Textures textures;
@@ -51,7 +54,7 @@ bool ConvertAsset(const std::string& fileName)
         CE::Texture& texture = textures.back();
         if (!stbImageImporter.ExtractTexture(mesh.m_diffuseMapName.c_str(), &texture))
         {
-            printf("Extracting texture failed: %s\n", mesh.m_diffuseMapName.c_str());
+            std::cout << "Extracting texture failed: " << mesh.m_diffuseMapName.c_str() << "\n";
             textureSuccess = false;
         }
         mesh.m_diffuseIndex = static_cast<uint8_t>(textures.size() - 1);
@@ -59,16 +62,16 @@ bool ConvertAsset(const std::string& fileName)
 
     if (!textureSuccess)
     {
-        printf("Extracting textures failed: %s\n", fileName.c_str());
+        std::cout << "Extracting textures failed: " << fileName.c_str() << "\n";
         return false;
     }
 
-    printf("Optimizing animations...\n");
+    std::cout << "Optimizing animations...\n";
 
     CE::AnimationOptimizer optimizer(&animations);
     optimizer.OptimizeAnimations();
 
-    printf("Exporting ceasset file...\n");
+    std::cout << "Exporting ceasset file...\n";
 
     const auto position = fileName.find_last_of('.');
     std::string outputFileName = fileName.substr(0, position) + ".ceasset";
@@ -77,25 +80,30 @@ bool ConvertAsset(const std::string& fileName)
             outputFileName.c_str(), skeleton, meshes, animations, textures);
     if (!exportSuccess)
     {
-        printf("Export failed: %s\n", fileName.c_str());
+        std::cout << "Export failed: " << fileName.c_str() << "\n";
         return false;
     }
 
-    printf("Exported: %s\n", outputFileName.c_str());
+    std::cout << "Exported: " << outputFileName.c_str() << "\n";
     return true;
 }
 
 int main(int argc, char* argv[])
 {
-    unsigned assetsExportedCount = 0;
+    // https://github.com/isocpp/CppCoreGuidelines/blob/master/CppCoreGuidelines.md#slio10-unless-you-use-printf-family-functions-call-ios_basesync_with_stdiofalse
+    std::ios_base::sync_with_stdio(false);
 
     // TODO: Build argument parser.
     // For now, all args (except 0) are full paths to files.
-    for (int argIndex = 1; argIndex < argc; ++argIndex)
-    {
-        std::string fileName = argv[argIndex];
+    gsl::multi_span<char*> arguments(argv, argc);
 
-        bool success = ConvertAsset(fileName);
+    unsigned assetsExportedCount = 0;
+
+    auto it = std::begin(arguments);
+    ++it; // Skip the first argument, which is the name of the executable.
+    for (auto end = std::end(arguments); it != end; ++it)
+    {
+        bool success = ConvertAsset(*it);
 
         if (success)
         {
@@ -103,9 +111,9 @@ int main(int argc, char* argv[])
         }
     }
 
-    printf("Exported %u assets.\n", assetsExportedCount);
+    std::cout << "Exported " << assetsExportedCount << " assets.\n";
 
-    printf("Done.\n");
+    std::cout << "Done.\n";
 
     getchar();
 

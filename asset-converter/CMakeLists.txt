@@ -3,7 +3,7 @@ add_executable(CompositeAssetConverter ${ASSET_CONVERTER_SRC_FILES})
 
 source_group(TREE ${CMAKE_SOURCE_DIR} FILES ${ASSET_CONVERTER_SRC_FILES})
 
-target_link_libraries(CompositeAssetConverter PRIVATE FBXSDK GLM STB)
+target_link_libraries(CompositeAssetConverter PRIVATE FBXSDK GLM GSL STB)
 target_include_directories(CompositeAssetConverter PRIVATE ${ASSET_CONVERTER_SRC_DIR} ${ENGINE_SRC_DIR})
 
 install(
