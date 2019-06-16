@@ -10,7 +10,7 @@ namespace CE
 		int width;
 		int height;
 		int channels;
-		unsigned char* data;
+		std::vector<std::byte> data;
 	};
 
 	typedef std::vector<Texture> Textures;

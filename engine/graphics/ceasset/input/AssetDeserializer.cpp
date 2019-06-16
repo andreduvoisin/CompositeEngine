@@ -74,10 +74,12 @@ namespace CE
 	{
 		stream >> outTexture.width;
 		stream >> outTexture.height;
-		stream >> outTexture.channels;
-		// todo: delete. also probs shouldn't be here anyways
-		outTexture.data = new unsigned char[outTexture.width * outTexture.height * outTexture.channels];
-		stream.Read(outTexture.data, outTexture.width * outTexture.height * outTexture.channels);
+        stream >> outTexture.channels;
+
+        // TODO: Should this be allocating memory?
+        int size = outTexture.width * outTexture.height * outTexture.channels;
+        outTexture.data = std::vector<std::byte>(size);
+        stream.Read(outTexture.data.data(), size);
 	}
 
 	template <typename T>

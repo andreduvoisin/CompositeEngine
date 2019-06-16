@@ -90,7 +90,7 @@ namespace CE
 		stream << texture.width;
 		stream << texture.height;
 		stream << texture.channels;
-		stream.Write(texture.data, texture.width * texture.height * texture.channels);
+		stream.Write(texture.data.data(), texture.width * texture.height * texture.channels);
 	}
 
 	void AssetSerializer::WriteTextures(const Textures& textures)

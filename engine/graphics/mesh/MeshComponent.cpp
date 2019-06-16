@@ -57,7 +57,7 @@ namespace CE
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		unsigned int glChannels = texture.channels == 3 ? GL_RGB : GL_RGBA;
-		glTexImage2D(GL_TEXTURE_2D, 0, glChannels, texture.width, texture.height, 0, glChannels, GL_UNSIGNED_BYTE, texture.data);
+		glTexImage2D(GL_TEXTURE_2D, 0, glChannels, texture.width, texture.height, 0, glChannels, GL_UNSIGNED_BYTE, texture.data.data());
 		glGenerateMipmap(GL_TEXTURE_2D);
 		glUniform1i(g_diffuseTextureLocation, g_diffuseTextureUnit);
 

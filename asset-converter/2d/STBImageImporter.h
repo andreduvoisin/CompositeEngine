@@ -10,7 +10,7 @@ namespace CE
     public:
         STBImageImporter();
 
-        bool ExtractTexture(const char* fileName, Texture* outTexture);
+        bool ExtractTexture(const char* fileName, Texture* outTexture) override;
     };
 }
 
