@@ -13,8 +13,6 @@ install(
 )
 
 if(OS_WINDOWS)
-	target_compile_options(CompositeCefSubprocess PRIVATE /W3 /WX)
-
 	# TODO: ONLY FOR DEBUG BUILDS
 	install(
 		FILES $<TARGET_PDB_FILE:CompositeCefSubprocess>

@@ -12,8 +12,6 @@ install(
 )
 
 if(OS_WINDOWS)
-	target_compile_options(CompositeAssetConverter PRIVATE /W3 /WX)
-
 	# TODO: ONLY FOR DEBUG BUILDS
 	install(
 		FILES $<TARGET_PDB_FILE:CompositeAssetConverter>

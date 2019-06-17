@@ -14,8 +14,6 @@ install(
 )
 
 if(OS_WINDOWS)
-	target_compile_options(CompositeEngine PRIVATE /W3 /WX)
-	
 	# TODO: ONLY FOR DEBUG BUILDS
 	install(
 		FILES $<TARGET_PDB_FILE:CompositeEngine>
@@ -39,6 +37,7 @@ endif()
 
 if(OS_MACOSX)
 	# TODO: ONLY FOR DEBUG BUILDS
+	# Supposedly this should happen by default with CMAKE_BUILD_TYPE?
 	target_compile_options(CompositeEngine PRIVATE -g)
 
 	find_library(CORE_FOUNDATION_LIBRARY CoreFoundation)
