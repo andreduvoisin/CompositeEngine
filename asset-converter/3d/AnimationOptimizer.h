@@ -5,22 +5,32 @@
 
 namespace CE
 {
-	struct Animation;
-	typedef std::vector<Animation> Animations;
+    struct Animation;
+    using Animations = std::vector<Animation>;
 
-	class AnimationOptimizer
-	{
-	public:
-		AnimationOptimizer(Animations* animations);
+    class AnimationOptimizer
+    {
+    public:
+        explicit AnimationOptimizer(Animations* animations);
+        AnimationOptimizer(
+                Animations* animations,
+                float translationTolerance,
+                float rotationTolerance,
+                float scaleTolerance,
+                float hierarchicalTolerance);
 
-		void OptimizeAnimations();
+        void OptimizeAnimations();
 
-	private:
-		void OptimizeAnimation(Animation& animation);
+    private:
+        void OptimizeAnimation(Animation& animation);
 
-	private:
-		Animations* m_animations;
-	};
+        Animations* animations;
+
+        const float TRANSLATION_TOLERANCE;
+        const float ROTATION_TOLERANCE;
+        const float SCALE_TOLERANCE;
+        const float HIERARCHICAL_TOLERANCE;
+    };
 }
 
 #endif // _CE_ANIMATION_OPTIMIZER_H_
