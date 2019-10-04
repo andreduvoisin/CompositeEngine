@@ -85,9 +85,9 @@ namespace CE
         PrintTabs();
         // Note: to retrieve the character array of a fbxsdk::FbxString, use its Buffer() method.
         std::cout << "<attribute"
-            << " type='" << typeName.Buffer() << "'"
-            << " name='" << attrName.Buffer() << "'"
-            << "/>\n";
+                  << " type='" << typeName.Buffer() << "'"
+                  << " name='" << attrName.Buffer() << "'"
+                  << "/>\n";
     }
 
     /**
@@ -104,11 +104,11 @@ namespace CE
 
         // Print the contents of the node.
         std::cout << "<node"
-            << " name='" << nodeName << "'"
-            << " translation='(" << translation[0] << ", " << translation[1] << ", " << translation[2] << ")'"
-            << " rotation='(" << rotation[0] << ", " << rotation[1] << ", " << rotation[2] << ")'"
-            << " scaling='(" << scaling[0] << ", " << scaling[1] << ", " << scaling[2] << ")'"
-            << ">\n";
+                  << " name='" << nodeName << "'"
+                  << " translation='(" << translation[0] << ", " << translation[1] << ", " << translation[2] << ")'"
+                  << " rotation='(" << rotation[0] << ", " << rotation[1] << ", " << rotation[2] << ")'"
+                  << " scaling='(" << scaling[0] << ", " << scaling[1] << ", " << scaling[2] << ")'"
+                  << ">\n";
         numTabs++;
 
         // Print the node's attributes.
