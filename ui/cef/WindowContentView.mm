@@ -6,7 +6,7 @@ namespace CE
 {
     void* GetWindowContentView(void* window)
     {
-        NSWindow* nsWindow = (NSWindow*) window;
+        auto nsWindow = (NSWindow*) window;
         return [nsWindow contentView];
     }
 }
