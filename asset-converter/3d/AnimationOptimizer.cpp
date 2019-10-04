@@ -48,12 +48,12 @@ namespace CE
     // TODO: This needs to take into account how much it moves the entire hierarchy.
     void AnimationOptimizer::OptimizeAnimation(Animation& animation)
     {
-        for (auto it = animation.translations.begin(); it != animation.translations.end(); ++it)
+        for (auto& translation : animation.translations)
         {
             // Translation.
             // TODO: can these be done in place? is it even worth it?
             // TODO: remove duplication between s/r/t
-            const std::vector<TranslationKey>& currentTranslations = *it;
+            const std::vector<TranslationKey>& currentTranslations = translation;
             std::vector<TranslationKey> newTranslations;
             for (size_t j = 0; j < currentTranslations.size(); ++j)
             {
@@ -85,15 +85,15 @@ namespace CE
                     newTranslations.push_back(currentTranslations[j]);
                 }
             }
-            *it = newTranslations;
+            translation = newTranslations;
         }
 
-        for (auto it = animation.rotations.begin(); it != animation.rotations.end(); ++it)
+        for (auto& rotation : animation.rotations)
         {
             // Rotation.
             // TODO: can these be done in place? is it even worth it?
             // TODO: remove duplication between s/r/t
-            const std::vector<RotationKey>& currentRotations = *it;
+            const std::vector<RotationKey>& currentRotations = rotation;
             std::vector<RotationKey> newRotations;
             for (size_t j = 0; j < currentRotations.size(); ++j)
             {
@@ -128,15 +128,15 @@ namespace CE
                     newRotations.push_back(currentRotations[j]);
                 }
             }
-            *it = newRotations;
+            rotation = newRotations;
         }
 
-        for (auto it = animation.scales.begin(); it != animation.scales.end(); ++it)
+        for (auto& scale : animation.scales)
         {
             // Scale.
             // TODO: can these be done in place? is it even worth it?
             // TODO: remove duplication between s/r/t
-            const std::vector<ScaleKey>& currentScales = *it;
+            const std::vector<ScaleKey>& currentScales = scale;
             std::vector<ScaleKey> newScales;
             for (size_t j = 0; j < currentScales.size(); ++j)
             {
@@ -164,7 +164,7 @@ namespace CE
                     newScales.push_back(currentScales[j]);
                 }
             }
-            *it = newScales;
+            scale = newScales;
         }
     }
 }
