@@ -8,18 +8,18 @@ class UIExternalMessagePump;
 class UIBrowserProcessHandler : public CefBrowserProcessHandler
 {
 public:
-	UIBrowserProcessHandler(UIExternalMessagePump* externalMessagePump);
+    explicit UIBrowserProcessHandler(UIExternalMessagePump* externalMessagePump);
 
-	// CefBrowserProcessHandler Interface
-	void OnScheduleMessagePumpWork(int64 delayMillis) override;
+    // CefBrowserProcessHandler Interface
+    void OnScheduleMessagePumpWork(int64 delayMillis) override;
 
 private:
-	uint32_t ClampToUint32(int64 value);
+    uint32_t ClampToUint32(int64 value);
 
-	UIExternalMessagePump* externalMessagePump;
+    UIExternalMessagePump* externalMessagePump;
 
-	// IMPLEMENT_* macros set access modifiers, so they must come last.
-	IMPLEMENT_REFCOUNTING(UIBrowserProcessHandler);
+    // IMPLEMENT_* macros set access modifiers, so they must come last.
+    IMPLEMENT_REFCOUNTING(UIBrowserProcessHandler);
 };
 
 #endif //_CE_UI_BROWSER_PROCESS_HANDLER_H_
