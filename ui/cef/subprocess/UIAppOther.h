@@ -14,8 +14,6 @@ public:
     UIAppOther& operator=(const UIAppOther&) = delete;
     UIAppOther& operator=(UIAppOther&&) = delete;
 
-private:
-
     // IMPLEMENT_* macros set access modifiers, so they must come last.
     IMPLEMENT_REFCOUNTING(UIAppOther);
 };
