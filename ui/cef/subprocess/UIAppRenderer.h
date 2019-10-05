@@ -7,9 +7,12 @@
 class UIAppRenderer : public CefApp
 {
 public:
-    explicit UIAppRenderer(CefRefPtr<UIRenderProcessHandler> renderProcessHandler);
+    explicit UIAppRenderer(const CefRefPtr<UIRenderProcessHandler>& renderProcessHandler);
     ~UIAppRenderer() override = default;
+
+    UIAppRenderer(const UIAppRenderer&) = delete;
     UIAppRenderer(UIAppRenderer&&) = delete;
+    UIAppRenderer& operator=(const UIAppRenderer&) = delete;
     UIAppRenderer& operator=(UIAppRenderer&&) = delete;
 
     // CefApp Interface
@@ -17,8 +20,6 @@ public:
 
 private:
     CefRefPtr<UIRenderProcessHandler> renderProcessHandler;
-
-    DISALLOW_COPY_AND_ASSIGN(UIAppRenderer);
 
     // IMPLEMENT_* macros set access modifiers, so they must come last.
     IMPLEMENT_REFCOUNTING(UIAppRenderer);

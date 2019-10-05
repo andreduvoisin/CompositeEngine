@@ -1,6 +1,6 @@
 #include "UIAppBrowser.h"
 
-UIAppBrowser::UIAppBrowser(CefRefPtr<UIBrowserProcessHandler> browserProcessHandler)
+UIAppBrowser::UIAppBrowser(const CefRefPtr<UIBrowserProcessHandler>& browserProcessHandler)
     : browserProcessHandler(browserProcessHandler)
 {
 }

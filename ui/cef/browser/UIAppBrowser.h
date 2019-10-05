@@ -7,9 +7,12 @@
 class UIAppBrowser : public CefApp
 {
 public:
-    explicit UIAppBrowser(CefRefPtr<UIBrowserProcessHandler> browserProcessHandler);
+    explicit UIAppBrowser(const CefRefPtr<UIBrowserProcessHandler>& browserProcessHandler);
     ~UIAppBrowser() override = default;
+
+    UIAppBrowser(const UIAppBrowser&) = delete;
     UIAppBrowser(UIAppBrowser&&) = delete;
+    UIAppBrowser& operator=(const UIAppBrowser&) = delete;
     UIAppBrowser& operator=(UIAppBrowser&&) = delete;
 
     // CefApp Interface
@@ -17,8 +20,6 @@ public:
 
 private:
     CefRefPtr<UIBrowserProcessHandler> browserProcessHandler;
-
-    DISALLOW_COPY_AND_ASSIGN(UIAppBrowser);
 
     // IMPLEMENT_* macros set access modifiers, so they must come last.
     IMPLEMENT_REFCOUNTING(UIAppBrowser);

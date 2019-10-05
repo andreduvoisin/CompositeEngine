@@ -1,6 +1,6 @@
 #include "UIAppRenderer.h"
 
-UIAppRenderer::UIAppRenderer(CefRefPtr<UIRenderProcessHandler> renderProcessHandler)
+UIAppRenderer::UIAppRenderer(const CefRefPtr<UIRenderProcessHandler>& renderProcessHandler)
     : renderProcessHandler(renderProcessHandler)
 {
 }
