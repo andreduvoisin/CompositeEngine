@@ -1,6 +1,7 @@
 #ifndef _CE_UI_EXTERNAL_MESSAGE_PUMP_H_
 #define _CE_UI_EXTERNAL_MESSAGE_PUMP_H_
 
+#define HAVE_STRING_H
 #include <SDL_events.h>
 #include <SDL_timer.h>
 
