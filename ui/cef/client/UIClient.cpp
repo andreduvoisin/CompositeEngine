@@ -44,10 +44,10 @@ CefRefPtr<CefRequestHandler> UIClient::GetRequestHandler()
 
 bool UIClient::OnProcessMessageReceived(
 		CefRefPtr<CefBrowser> browser,
-		CefProcessId source_process,
+        CefProcessId sourceProcess,
 		CefRefPtr<CefProcessMessage> message)
 {
 	bool handled = false;
-	handled = messageRouterBrowserSide->OnProcessMessageReceived(browser, source_process, message) || handled;
+    handled = messageRouterBrowserSide->OnProcessMessageReceived(browser, sourceProcess, message) || handled;
 	return handled;
 }
