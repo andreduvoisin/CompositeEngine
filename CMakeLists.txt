@@ -33,16 +33,16 @@ endfunction()
 # Reference: https://gitlab.kitware.com/cmake/cmake/issues/19084
 if(OS_WINDOWS)
 	# set warning level and turn on warnings as errors
-	RemoveCMakeCXXFlag("/W3")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W3 /WX")
+	#RemoveCMakeCXXFlag("/W3")
+	#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W3 /WX")
 
 	# disable RTTI
-	RemoveCMakeCXXFlag("/GR")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /GR-")
+	#RemoveCMakeCXXFlag("/GR")
+	#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /GR-")
 
 	# disable exceptions
-	RemoveCMakeCXXFlag("/EHsc")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHs-c- /D_HAS_EXCEPTIONS=0")
+	#RemoveCMakeCXXFlag("/EHsc")
+	#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHs-c- /D_HAS_EXCEPTIONS=0")
 endif()
 
 set(CMAKE_DIR "${CMAKE_CURRENT_LIST_DIR}/cmake")

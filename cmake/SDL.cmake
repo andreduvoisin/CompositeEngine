@@ -1,6 +1,6 @@
 include(ExternalProject)
 
-set(SDL_VERSION "2.0.9")
+set(SDL_VERSION "2.0.10")
 set(SDL_VERSION_STRING "SDL2-${SDL_VERSION}")
 
 set(SDL_ROOT_DIR "${EXTERN_DIR}/${SDL_VERSION_STRING}")
