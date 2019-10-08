@@ -7,27 +7,23 @@
 class UIRenderProcessHandler : public CefRenderProcessHandler
 {
 public:
-	UIRenderProcessHandler(CefRefPtr<CefMessageRouterRendererSide> messageRouterRendererSide);
+    explicit UIRenderProcessHandler(CefRefPtr<CefMessageRouterRendererSide> messageRouterRendererSide);
 
-	// CefRenderProcessHandler Interface
-	void OnContextCreated(
-		CefRefPtr<CefBrowser> browser,
-		CefRefPtr<CefFrame> frame,
-		CefRefPtr<CefV8Context> context) override;
-	void OnContextReleased(
-		CefRefPtr<CefBrowser> browser,
-		CefRefPtr<CefFrame> frame,
-		CefRefPtr<CefV8Context> context) override;
-	bool OnProcessMessageReceived(
-		CefRefPtr<CefBrowser> browser,
-		CefProcessId source_process,
-		CefRefPtr<CefProcessMessage> message) override;
+    // CefRenderProcessHandler Interface
+    void OnContextCreated(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, CefRefPtr<CefV8Context> context)
+            override;
+    void OnContextReleased(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, CefRefPtr<CefV8Context> context)
+            override;
+    bool OnProcessMessageReceived(
+            CefRefPtr<CefBrowser> browser,
+            CefProcessId sourceProcess,
+            CefRefPtr<CefProcessMessage> message) override;
 
 private:
-	CefRefPtr<CefMessageRouterRendererSide> messageRouterRendererSide;
+    CefRefPtr<CefMessageRouterRendererSide> messageRouterRendererSide;
 
-	// IMPLEMENT_* macros set access modifiers, so they must come last.
-	IMPLEMENT_REFCOUNTING(UIRenderProcessHandler);
+    // IMPLEMENT_* macros set access modifiers, so they must come last.
+    IMPLEMENT_REFCOUNTING(UIRenderProcessHandler);
 };
 
 #endif //_CE_UI_RENDER_PROCESS_HANDLER_H_

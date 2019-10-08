@@ -24,10 +24,10 @@ void UIRenderProcessHandler::OnContextReleased(
 
 bool UIRenderProcessHandler::OnProcessMessageReceived(
 		CefRefPtr<CefBrowser> browser,
-		CefProcessId source_process,
+        CefProcessId sourceProcess,
 		CefRefPtr<CefProcessMessage> message)
 {
 	bool handled = false;
-	handled = messageRouterRendererSide->OnProcessMessageReceived(browser, source_process, message) || handled;
+    handled = messageRouterRendererSide->OnProcessMessageReceived(browser, sourceProcess, message) || handled;
 	return handled;
 }
