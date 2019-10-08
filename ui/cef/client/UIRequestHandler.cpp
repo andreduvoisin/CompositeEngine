@@ -17,8 +17,8 @@ bool UIRequestHandler::OnBeforeBrowse(
 		CefRefPtr<CefBrowser> browser,
 		CefRefPtr<CefFrame> frame,
 		CefRefPtr<CefRequest> request,
-		bool user_gesture,
-		bool is_redirect)
+		bool userGesture,
+		bool isRedirect)
 {
 	messageRouterBrowserSide->OnBeforeBrowse(browser, frame);
 	return false;
