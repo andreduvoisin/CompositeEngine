@@ -7,7 +7,7 @@
 class UILifeSpanHandler : public CefLifeSpanHandler
 {
 public:
-    explicit UILifeSpanHandler(CefRefPtr<CefMessageRouterBrowserSide> messageRouterBrowserSide);
+    explicit UILifeSpanHandler(const CefRefPtr<CefMessageRouterBrowserSide>& messageRouterBrowserSide);
 
     // CefLifeSpanHandler Interface
     void OnBeforeClose(CefRefPtr<CefBrowser> browser) override;
