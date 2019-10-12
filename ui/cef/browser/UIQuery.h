@@ -7,9 +7,9 @@
 
 struct UIQuery
 {
-	int64_t queryId;
-	bool persistent;
-	CefRefPtr<CefMessageRouterBrowserSide::Handler::Callback> callback;
+    int64_t queryId;
+    bool persistent;
+    CefRefPtr<CefMessageRouterBrowserSide::Handler::Callback> callback;
 };
 
 #endif // _CE_UI_QUERY_H_
