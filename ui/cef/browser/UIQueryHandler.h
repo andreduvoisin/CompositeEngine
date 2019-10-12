@@ -26,8 +26,8 @@ private:
     template<typename T>
     void SendEvent(const JsonDeserializer& deserializer);
 
-    void SendSuccessResponse(CefRefPtr<Callback> callback);
-    void AddQueryToResponder(EventType type, int64 queryId, bool persistent, CefRefPtr<Callback> callback);
+    void SendSuccessResponse(const CefRefPtr<Callback>& callback);
+    void AddQueryToResponder(EventType type, int64 queryId, bool persistent, const CefRefPtr<Callback>& callback);
 
     EventSystem* eventSystem;
     UIQueryResponder* queryResponder;
