@@ -1,5 +1,5 @@
 ---
-Checks: 'bugprone-*,cert-*,clang-analyzer-*,cppcoreguidelines-*,hicpp-*,misc-*,modernize-*,mpi-*,objc-*,performance-*,portability-*,readability-*,-cppcoreguidelines-pro-type-union-access,-modernize-use-trailing-return-type,-readability-convert-member-functions-to-static'
+Checks: 'bugprone-*,cert-*,clang-analyzer-*,cppcoreguidelines-*,hicpp-*,misc-*,modernize-*,mpi-*,objc-*,performance-*,portability-*,readability-*,-modernize-use-trailing-return-type,-readability-convert-member-functions-to-static'
 AnalyzeTemporaryDtors: true
 FormatStyle: file
 HeaderFilterRegex: ''
