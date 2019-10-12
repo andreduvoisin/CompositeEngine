@@ -13,12 +13,12 @@ class UIClient : public CefClient
 {
 public:
     UIClient(
-            CefRefPtr<UIContextMenuHandler> contextMenuHandler,
-            CefRefPtr<UIRenderHandler> renderHandler,
-            CefRefPtr<UILifeSpanHandler> lifeSpanHandler,
-            CefRefPtr<UILoadHandler> loadHandler,
-            CefRefPtr<UIRequestHandler> requestHandler,
-            CefRefPtr<CefMessageRouterBrowserSide> messageRouterBrowserSide);
+            const CefRefPtr<UIContextMenuHandler>& contextMenuHandler,
+            const CefRefPtr<UIRenderHandler>& renderHandler,
+            const CefRefPtr<UILifeSpanHandler>& lifeSpanHandler,
+            const CefRefPtr<UILoadHandler>& loadHandler,
+            const CefRefPtr<UIRequestHandler>& requestHandler,
+            const CefRefPtr<CefMessageRouterBrowserSide>& messageRouterBrowserSide);
 
     // CefClient Interface
     CefRefPtr<CefContextMenuHandler> GetContextMenuHandler() override;
