@@ -31,12 +31,14 @@ namespace CE
     CefMain::CefMain(EventSystem* eventSystem, SDL_Window* window)
         : eventSystem(eventSystem)
         , window(window)
+        , externalMessagePump(new UIExternalMessagePump())
+        , queryHandler(new UIQueryHandler(eventSystem, new UIQueryResponder(eventSystem)))
     {
         eventSystem->RegisterListener(this, EventType::SDL);
         eventSystem->RegisterListener(this, EventType::WINDOWS_MESSAGE);
     }
 
-    // NOLINTNEXTLINE(misc-unused-parameters)
+    // NOLINTNEXTLINE(misc-unused-parameters, cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
     bool CefMain::StartCef(int argc, char* argv[], uint32_t screenWidth, uint32_t screenHeight)
     {
 #ifdef __APPLE__
@@ -55,8 +57,6 @@ namespace CE
         mainArgs = CefMainArgs(argc, argv);
 #endif
 
-        queryHandler = new UIQueryHandler(eventSystem, new UIQueryResponder(eventSystem));
-        externalMessagePump = new UIExternalMessagePump();
         CefRefPtr<UIBrowserProcessHandler> browserProcessHandler = new UIBrowserProcessHandler(externalMessagePump);
         CefRefPtr<UIAppBrowser> app = new UIAppBrowser(browserProcessHandler);
 
@@ -114,7 +114,7 @@ namespace CE
         CefBrowserSettings browserSettings;
         CefWindowInfo windowInfo;
 #ifdef _WIN32
-        windowInfo.SetAsWindowless(sysInfo.info.win.window);
+        windowInfo.SetAsWindowless(sysInfo.info.win.window); // NOLINT(cppcoreguidelines-pro-type-union-access)
 #elif __APPLE__
         NSView* view = (NSView*) CE::GetWindowContentView(sysInfo.info.cocoa.window);
         windowInfo.SetAsWindowless(view);
@@ -229,15 +229,15 @@ namespace CE
             case SDL_MOUSEBUTTONDOWN:
             {
                 CefBrowserHost::MouseButtonType mouseButtonType;
-                if (nativeEvent.button.button == SDL_BUTTON_LEFT)
+                if (IsMouseButton(nativeEvent.button.button, SDL_BUTTON_LEFT))
                 {
                     mouseButtonType = MBT_LEFT;
                 }
-                else if (nativeEvent.button.button == SDL_BUTTON_MIDDLE)
+                else if (IsMouseButton(nativeEvent.button.button, SDL_BUTTON_MIDDLE))
                 {
                     mouseButtonType = MBT_MIDDLE;
                 }
-                else if (nativeEvent.button.button == SDL_BUTTON_RIGHT)
+                else if (IsMouseButton(nativeEvent.button.button, SDL_BUTTON_RIGHT))
                 {
                     mouseButtonType = MBT_RIGHT;
                 }
@@ -261,15 +261,15 @@ namespace CE
             case SDL_MOUSEBUTTONUP:
             {
                 CefBrowserHost::MouseButtonType mouseButtonType;
-                if (nativeEvent.button.button == SDL_BUTTON_LEFT)
+                if (IsMouseButton(nativeEvent.button.button, SDL_BUTTON_LEFT))
                 {
                     mouseButtonType = MBT_LEFT;
                 }
-                else if (nativeEvent.button.button == SDL_BUTTON_MIDDLE)
+                else if (IsMouseButton(nativeEvent.button.button, SDL_BUTTON_MIDDLE))
                 {
                     mouseButtonType = MBT_MIDDLE;
                 }
-                else if (nativeEvent.button.button == SDL_BUTTON_RIGHT)
+                else if (IsMouseButton(nativeEvent.button.button, SDL_BUTTON_RIGHT))
                 {
                     mouseButtonType = MBT_RIGHT;
                 }
@@ -326,53 +326,55 @@ namespace CE
 
     // osr_window_win.cc
     // browser_window_osr_mac.mm
-    unsigned CefMain::GetSdlCefInputModifiers(const SDL_Event& event)
+    uint32_t CefMain::GetSdlCefInputModifiers(const SDL_Event& event)
     {
-        unsigned modifiers = 0;
+        uint32_t modifiers = 0;
 
         SDL_Keymod keymod = SDL_GetModState();
 
-        if (keymod & KMOD_CTRL)
+        if (IsKeyModActive(keymod, KMOD_CTRL))
         {
-            modifiers |= EVENTFLAG_CONTROL_DOWN;
+            modifiers |= AsUnsigned(EVENTFLAG_CONTROL_DOWN);
         }
 
-        if (keymod & KMOD_SHIFT)
+        if (IsKeyModActive(keymod, KMOD_SHIFT))
         {
-            modifiers |= EVENTFLAG_SHIFT_DOWN;
+            modifiers |= AsUnsigned(EVENTFLAG_SHIFT_DOWN);
         }
 
-        if (keymod & KMOD_ALT)
+        if (IsKeyModActive(keymod, KMOD_ALT))
         {
-            modifiers |= EVENTFLAG_ALT_DOWN;
+            modifiers |= AsUnsigned(EVENTFLAG_ALT_DOWN);
         }
 
-        if (keymod & KMOD_NUM)
+        if (IsKeyModActive(keymod, KMOD_NUM))
         {
-            modifiers |= EVENTFLAG_NUM_LOCK_ON;
+            modifiers |= AsUnsigned(EVENTFLAG_NUM_LOCK_ON);
         }
 
-        if (keymod & KMOD_CAPS)
+        if (IsKeyModActive(keymod, KMOD_CAPS))
         {
-            modifiers |= EVENTFLAG_CAPS_LOCK_ON;
+            modifiers |= AsUnsigned(EVENTFLAG_CAPS_LOCK_ON);
         }
 
 #ifdef __APPLE__
-        if (keymod & KMOD_GUI)
+        if (IsKeyModActive(keymod, KMOD_GUI))
         {
-            modifiers |= EVENTFLAG_COMMAND_DOWN;
+            modifiers |= AsUnsigned(EVENTFLAG_COMMAND_DOWN);
         }
 #endif
 
         // todo: if mouse-only, still keep these two if's?
-        if (keymod & KMOD_LSHIFT || keymod & KMOD_LCTRL || keymod & KMOD_LALT || keymod & KMOD_LGUI)
+        if (IsKeyModActive(keymod, KMOD_LSHIFT) || IsKeyModActive(keymod, KMOD_LCTRL)
+            || IsKeyModActive(keymod, KMOD_LALT) || IsKeyModActive(keymod, KMOD_LGUI))
         {
-            modifiers |= EVENTFLAG_IS_LEFT;
+            modifiers |= AsUnsigned(EVENTFLAG_IS_LEFT);
         }
 
-        if (keymod & KMOD_RSHIFT || keymod & KMOD_RCTRL || keymod & KMOD_RALT || keymod & KMOD_RGUI)
+        if (IsKeyModActive(keymod, KMOD_RSHIFT) || IsKeyModActive(keymod, KMOD_RCTRL)
+            || IsKeyModActive(keymod, KMOD_RALT) || IsKeyModActive(keymod, KMOD_RGUI))
         {
-            modifiers |= EVENTFLAG_IS_RIGHT;
+            modifiers |= AsUnsigned(EVENTFLAG_IS_RIGHT);
         }
 
         switch (event.type)
@@ -445,7 +447,7 @@ namespace CE
                     case SDLK_KP_DECIMAL:
                     case SDLK_KP_HEXADECIMAL:
                     {
-                        modifiers |= EVENTFLAG_IS_KEY_PAD;
+                        modifiers |= AsUnsigned(EVENTFLAG_IS_KEY_PAD);
                         break;
                     }
                 }
@@ -455,19 +457,19 @@ namespace CE
 
             case SDL_MOUSEMOTION:
             {
-                if (event.motion.state & SDL_BUTTON_LMASK)
+                if (IsMouseButtonActive(event.motion.state, SDL_BUTTON_LMASK))
                 {
-                    modifiers |= EVENTFLAG_LEFT_MOUSE_BUTTON;
+                    modifiers |= AsUnsigned(EVENTFLAG_LEFT_MOUSE_BUTTON);
                 }
 
-                if (event.motion.state & SDL_BUTTON_MMASK)
+                if (IsMouseButtonActive(event.motion.state, SDL_BUTTON_MMASK))
                 {
-                    modifiers |= EVENTFLAG_MIDDLE_MOUSE_BUTTON;
+                    modifiers |= AsUnsigned(EVENTFLAG_MIDDLE_MOUSE_BUTTON);
                 }
 
-                if (event.motion.state & SDL_BUTTON_RMASK)
+                if (IsMouseButtonActive(event.motion.state, SDL_BUTTON_RMASK))
                 {
-                    modifiers |= EVENTFLAG_RIGHT_MOUSE_BUTTON;
+                    modifiers |= AsUnsigned(EVENTFLAG_RIGHT_MOUSE_BUTTON);
                 }
 
                 break;
@@ -476,19 +478,19 @@ namespace CE
             case SDL_MOUSEBUTTONDOWN:
             case SDL_MOUSEBUTTONUP:
             {
-                if (event.button.button == SDL_BUTTON_LEFT)
+                if (IsMouseButton(event.button.button, SDL_BUTTON_LEFT))
                 {
-                    modifiers |= EVENTFLAG_LEFT_MOUSE_BUTTON;
+                    modifiers |= AsUnsigned(EVENTFLAG_LEFT_MOUSE_BUTTON);
                 }
 
-                if (event.button.button == SDL_BUTTON_MIDDLE)
+                if (IsMouseButton(event.button.button, SDL_BUTTON_MIDDLE))
                 {
-                    modifiers |= EVENTFLAG_MIDDLE_MOUSE_BUTTON;
+                    modifiers |= AsUnsigned(EVENTFLAG_MIDDLE_MOUSE_BUTTON);
                 }
 
-                if (event.button.button == SDL_BUTTON_RIGHT)
+                if (IsMouseButton(event.button.button, SDL_BUTTON_RIGHT))
                 {
-                    modifiers |= EVENTFLAG_RIGHT_MOUSE_BUTTON;
+                    modifiers |= AsUnsigned(EVENTFLAG_RIGHT_MOUSE_BUTTON);
                 }
 
                 break;
@@ -496,21 +498,21 @@ namespace CE
 
             case SDL_MOUSEWHEEL:
             {
-                unsigned state = SDL_GetMouseState(nullptr, nullptr);
+                uint32_t state = SDL_GetMouseState(nullptr, nullptr);
 
-                if (state & SDL_BUTTON_LMASK)
+                if (IsMouseButtonActive(state, SDL_BUTTON_LMASK))
                 {
-                    modifiers |= EVENTFLAG_LEFT_MOUSE_BUTTON;
+                    modifiers |= AsUnsigned(EVENTFLAG_LEFT_MOUSE_BUTTON);
                 }
 
-                if (state & SDL_BUTTON_MMASK)
+                if (IsMouseButtonActive(state, SDL_BUTTON_MMASK))
                 {
-                    modifiers |= EVENTFLAG_MIDDLE_MOUSE_BUTTON;
+                    modifiers |= AsUnsigned(EVENTFLAG_MIDDLE_MOUSE_BUTTON);
                 }
 
-                if (state & SDL_BUTTON_RMASK)
+                if (IsMouseButtonActive(state, SDL_BUTTON_RMASK))
                 {
-                    modifiers |= EVENTFLAG_RIGHT_MOUSE_BUTTON;
+                    modifiers |= AsUnsigned(EVENTFLAG_RIGHT_MOUSE_BUTTON);
                 }
 
                 break;
@@ -522,21 +524,21 @@ namespace CE
                 {
                     case SDL_WINDOWEVENT_LEAVE:
                     {
-                        unsigned state = SDL_GetMouseState(nullptr, nullptr);
+                        uint32_t state = SDL_GetMouseState(nullptr, nullptr);
 
-                        if (state & SDL_BUTTON_LMASK)
+                        if (IsMouseButtonActive(state, SDL_BUTTON_LMASK))
                         {
-                            modifiers |= EVENTFLAG_LEFT_MOUSE_BUTTON;
+                            modifiers |= AsUnsigned(EVENTFLAG_LEFT_MOUSE_BUTTON);
                         }
 
-                        if (state & SDL_BUTTON_MMASK)
+                        if (IsMouseButtonActive(state, SDL_BUTTON_MMASK))
                         {
-                            modifiers |= EVENTFLAG_MIDDLE_MOUSE_BUTTON;
+                            modifiers |= AsUnsigned(EVENTFLAG_MIDDLE_MOUSE_BUTTON);
                         }
 
-                        if (state & SDL_BUTTON_RMASK)
+                        if (IsMouseButtonActive(state, SDL_BUTTON_RMASK))
                         {
-                            modifiers |= EVENTFLAG_RIGHT_MOUSE_BUTTON;
+                            modifiers |= AsUnsigned(EVENTFLAG_RIGHT_MOUSE_BUTTON);
                         }
 
                         break;
@@ -599,31 +601,31 @@ namespace CE
     }
 
     // util_win.cc
-    int CefMain::GetNativeCefKeyboardModifiers(WPARAM wParam, LPARAM lParam)
+    uint32_t CefMain::GetNativeCefKeyboardModifiers(WPARAM wParam, LPARAM lParam)
     {
-        int modifiers = 0;
+        uint32_t modifiers = 0;
 
         if (IsKeyDown(VK_SHIFT))
         {
-            modifiers |= EVENTFLAG_SHIFT_DOWN;
+            modifiers |= AsUnsigned(EVENTFLAG_SHIFT_DOWN);
         }
         if (IsKeyDown(VK_CONTROL))
         {
-            modifiers |= EVENTFLAG_CONTROL_DOWN;
+            modifiers |= AsUnsigned(EVENTFLAG_CONTROL_DOWN);
         }
         if (IsKeyDown(VK_MENU))
         {
-            modifiers |= EVENTFLAG_ALT_DOWN;
+            modifiers |= AsUnsigned(EVENTFLAG_ALT_DOWN);
         }
 
         // Low bit set from GetKeyState indicates "toggled".
         if (::GetKeyState(VK_NUMLOCK) & 1)
         {
-            modifiers |= EVENTFLAG_NUM_LOCK_ON;
+            modifiers |= AsUnsigned(EVENTFLAG_NUM_LOCK_ON);
         }
         if (::GetKeyState(VK_CAPITAL) & 1)
         {
-            modifiers |= EVENTFLAG_CAPS_LOCK_ON;
+            modifiers |= AsUnsigned(EVENTFLAG_CAPS_LOCK_ON);
         }
 
         switch (wParam)
@@ -632,7 +634,7 @@ namespace CE
             {
                 if ((lParam >> 16) & KF_EXTENDED)
                 {
-                    modifiers |= EVENTFLAG_IS_KEY_PAD;
+                    modifiers |= AsUnsigned(EVENTFLAG_IS_KEY_PAD);
                 }
                 break;
             }
@@ -650,7 +652,7 @@ namespace CE
             {
                 if (!((lParam >> 16) & KF_EXTENDED))
                 {
-                    modifiers |= EVENTFLAG_IS_KEY_PAD;
+                    modifiers |= AsUnsigned(EVENTFLAG_IS_KEY_PAD);
                 }
                 break;
             }
@@ -673,7 +675,7 @@ namespace CE
             case VK_DECIMAL:
             case VK_CLEAR:
             {
-                modifiers |= EVENTFLAG_IS_KEY_PAD;
+                modifiers |= AsUnsigned(EVENTFLAG_IS_KEY_PAD);
                 break;
             }
 
@@ -681,11 +683,11 @@ namespace CE
             {
                 if (IsKeyDown(VK_LSHIFT))
                 {
-                    modifiers |= EVENTFLAG_IS_LEFT;
+                    modifiers |= AsUnsigned(EVENTFLAG_IS_LEFT);
                 }
                 else if (IsKeyDown(VK_RSHIFT))
                 {
-                    modifiers |= EVENTFLAG_IS_RIGHT;
+                    modifiers |= AsUnsigned(EVENTFLAG_IS_RIGHT);
                 }
                 break;
             }
@@ -694,11 +696,11 @@ namespace CE
             {
                 if (IsKeyDown(VK_LCONTROL))
                 {
-                    modifiers |= EVENTFLAG_IS_LEFT;
+                    modifiers |= AsUnsigned(EVENTFLAG_IS_LEFT);
                 }
                 else if (IsKeyDown(VK_RCONTROL))
                 {
-                    modifiers |= EVENTFLAG_IS_RIGHT;
+                    modifiers |= AsUnsigned(EVENTFLAG_IS_RIGHT);
                 }
                 break;
             }
@@ -707,24 +709,24 @@ namespace CE
             {
                 if (IsKeyDown(VK_LMENU))
                 {
-                    modifiers |= EVENTFLAG_IS_LEFT;
+                    modifiers |= AsUnsigned(EVENTFLAG_IS_LEFT);
                 }
                 else if (IsKeyDown(VK_RMENU))
                 {
-                    modifiers |= EVENTFLAG_IS_RIGHT;
+                    modifiers |= AsUnsigned(EVENTFLAG_IS_RIGHT);
                 }
                 break;
             }
 
             case VK_LWIN:
             {
-                modifiers |= EVENTFLAG_IS_LEFT;
+                modifiers |= AsUnsigned(EVENTFLAG_IS_LEFT);
                 break;
             }
 
             case VK_RWIN:
             {
-                modifiers |= EVENTFLAG_IS_RIGHT;
+                modifiers |= AsUnsigned(EVENTFLAG_IS_RIGHT);
                 break;
             }
         }
@@ -749,9 +751,30 @@ namespace CE
 
             CefBrowserSettings browserSettings;
             CefWindowInfo windowInfo;
+            // NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access)
             windowInfo.SetAsPopup(sysInfo.info.win.window, "DevTools");
             browser->GetHost()->ShowDevTools(windowInfo, uiClient, browserSettings, CefPoint(0, 0));
         }
     }
 #endif
+
+    bool CefMain::IsKeyModActive(SDL_Keymod keymod, int modifier)
+    {
+        return (static_cast<uint32_t>(keymod) & static_cast<uint32_t>(modifier)) != 0;
+    }
+
+    uint32_t CefMain::AsUnsigned(cef_event_flags_t flag)
+    {
+        return static_cast<uint32_t>(flag);
+    }
+
+    bool CefMain::IsMouseButton(uint8_t button, int type)
+    {
+        return button == type;
+    }
+
+    bool CefMain::IsMouseButtonActive(uint32_t state, int mask)
+    {
+        return (state & static_cast<uint32_t>(mask)) != 0;
+    }
 }
