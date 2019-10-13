@@ -7,7 +7,7 @@
 class UIRequestHandler : public CefRequestHandler
 {
 public:
-    explicit UIRequestHandler(CefRefPtr<CefMessageRouterBrowserSide> messageRouterBrowserSide);
+    explicit UIRequestHandler(const CefRefPtr<CefMessageRouterBrowserSide>& messageRouterBrowserSide);
 
     // CefRequestHandler Interface
     void OnRenderProcessTerminated(CefRefPtr<CefBrowser> browser, TerminationStatus status) override;
