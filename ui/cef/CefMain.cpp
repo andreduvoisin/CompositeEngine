@@ -1,38 +1,48 @@
 #include "CefMain.h"
 
+#include "event/core/EventSystem.h"
+#include "event/SdlEvent.h"
+
+#include "include/cef_app.h"
+#include "cef/client/UIClient.h"
+#include "cef/client/UIRenderHandler.h"
 #include "cef/browser/UIAppBrowser.h"
 #include "cef/browser/UIBrowserProcessHandler.h"
-#include "cef/browser/UIExternalMessagePump.h"
-#include "cef/browser/UIQueryHandler.h"
-#include "cef/browser/UIQueryResponder.h"
-#include "cef/client/UIClient.h"
-#include "cef/client/UILifeSpanHandler.h"
-#include "cef/client/UIRenderHandler.h"
 #include "cef/client/UIRequestHandler.h"
-#include "event/SdlEvent.h"
-#include "event/WindowsMessageEvent.h"
-#include "event/core/EventSystem.h"
-#include "include/cef_app.h"
+#include "cef/client/UILifeSpanHandler.h"
+#include "cef/browser/UIQueryResponder.h"
+#include "cef/browser/UIExternalMessagePump.h"
 #include "include/wrapper/cef_message_router.h"
+#include "cef/browser/UIQueryHandler.h"
+
 #include <SDL_syswm.h>
+#include "event/WindowsMessageEvent.h"
 
 #ifdef __APPLE__
-#    include "cef/WindowContentView.h"
-#    include "include/wrapper/cef_library_loader.h"
-#    include <CoreFoundation/CoreFoundation.h>
+#include <CoreFoundation/CoreFoundation.h>
+
+#include "cef/WindowContentView.h"
+
+#include "include/wrapper/cef_library_loader.h"
 #endif
 
 namespace CE
 {
-    CefMain::CefMain(EventSystem* eventSystem, SDL_Window* window)
-        : eventSystem(eventSystem)
+	CefMain::CefMain(
+            EventSystem* eventSystem,
+            SDL_Window* window)
+		: eventSystem(eventSystem)
         , window(window)
-    {
-        eventSystem->RegisterListener(this, EventType::SDL);
-        eventSystem->RegisterListener(this, EventType::WINDOWS_MESSAGE);
-    }
+	{
+		eventSystem->RegisterListener(this, EventType::SDL);
+		eventSystem->RegisterListener(this, EventType::WINDOWS_MESSAGE);
+	}
 
-    bool CefMain::StartCef(int argc, char* argv[], uint32_t screenWidth, uint32_t screenHeight)
+    bool CefMain::StartCef(
+            int argc,
+            char* argv[],
+            uint32_t screenWidth,
+            uint32_t screenHeight)
     {
 #ifdef __APPLE__
         CefScopedLibraryLoader libraryLoader;
@@ -47,43 +57,41 @@ namespace CE
 #ifdef _WIN32
         mainArgs = CefMainArgs(::GetModuleHandle(NULL));
 #elif __APPLE__
-        mainArgs = CefMainArgs(argc, argv);
+		mainArgs = CefMainArgs(argc, argv);
 #endif
 
-        queryHandler = new UIQueryHandler(eventSystem, new UIQueryResponder(eventSystem));
+	    queryHandler = new UIQueryHandler(eventSystem, new UIQueryResponder(eventSystem));
         externalMessagePump = new UIExternalMessagePump();
         CefRefPtr<UIBrowserProcessHandler> browserProcessHandler = new UIBrowserProcessHandler(externalMessagePump);
         CefRefPtr<UIAppBrowser> app = new UIAppBrowser(browserProcessHandler);
 
         CefSettings settings;
-        settings.no_sandbox = 1;
-        settings.external_message_pump = 1;
-        settings.windowless_rendering_enabled = 1;
+        settings.no_sandbox = true;
+        settings.external_message_pump = true;
+        settings.windowless_rendering_enabled = true;
         settings.remote_debugging_port = 3469;
 #ifdef _WIN32
         CefString(&settings.browser_subprocess_path).FromASCII("CompositeCefSubprocess.exe");
 #elif __APPLE__
         CFBundleRef mainBundle = CFBundleGetMainBundle();
-        // TODO: Free? See
-        // https://developer.apple.com/library/archive/documentation/CoreFoundation/Conceptual/CFMemoryMgmt/Concepts/Ownership.html#//apple_ref/doc/uid/20001148-103029
+        // TODO: Free? See https://developer.apple.com/library/archive/documentation/CoreFoundation/Conceptual/CFMemoryMgmt/Concepts/Ownership.html#//apple_ref/doc/uid/20001148-103029
         CFURLRef privateFrameworksUrl = CFBundleCopyPrivateFrameworksURL(mainBundle);
         UInt8 privateFrameworksDirectoryName[1024];
-        CFURLGetFileSystemRepresentation(privateFrameworksUrl, 1U, privateFrameworksDirectoryName, 1024);
+        CFURLGetFileSystemRepresentation(privateFrameworksUrl, true, privateFrameworksDirectoryName, 1024);
 
         std::string subprocessFile = (char*) privateFrameworksDirectoryName;
         subprocessFile += "/CompositeCefSubprocess.app/Contents/MacOS/CompositeCefSubprocess";
         CefString(&settings.browser_subprocess_path).FromString(subprocessFile);
 #endif
 
-        if (!CefInitialize(mainArgs, settings, app, nullptr))
+        if (!CefInitialize(mainArgs, settings, app, NULL))
         {
             printf("CEF failed to initialize.\n");
             return false;
         }
 
         CefMessageRouterConfig messageRouterConfig;
-        CefRefPtr<CefMessageRouterBrowserSide> messageRouterBrowserSide =
-                CefMessageRouterBrowserSide::Create(messageRouterConfig);
+        CefRefPtr<CefMessageRouterBrowserSide> messageRouterBrowserSide = CefMessageRouterBrowserSide::Create(messageRouterConfig);
         messageRouterBrowserSide->AddHandler(queryHandler, true);
 
         CefRefPtr<UIContextMenuHandler> contextMenuHandler = new UIContextMenuHandler();
@@ -92,16 +100,16 @@ namespace CE
         CefRefPtr<UILoadHandler> loadHandler = new UILoadHandler();
         CefRefPtr<UIRequestHandler> requestHandler = new UIRequestHandler(messageRouterBrowserSide);
         uiClient = new UIClient(
-                contextMenuHandler,
-                renderHandler,
-                lifeSpanHandler,
-                loadHandler,
-                requestHandler,
-                messageRouterBrowserSide);
+            contextMenuHandler,
+            renderHandler,
+            lifeSpanHandler,
+            loadHandler,
+            requestHandler,
+            messageRouterBrowserSide);
 
         SDL_SysWMinfo sysInfo;
         SDL_VERSION(&sysInfo.version);
-        if (SDL_GetWindowWMInfo(window, &sysInfo) == 0U)
+        if (!SDL_GetWindowWMInfo(window, &sysInfo))
         {
             return false;
         }
@@ -111,17 +119,17 @@ namespace CE
 #ifdef _WIN32
         windowInfo.SetAsWindowless(sysInfo.info.win.window);
 #elif __APPLE__
-        auto* view = (NSView*) CE::GetWindowContentView(sysInfo.info.cocoa.window);
+        NSView* view = (NSView*) CE::GetWindowContentView(sysInfo.info.cocoa.window);
         windowInfo.SetAsWindowless(view);
 #endif
 
         browser = CefBrowserHost::CreateBrowserSync(
-                windowInfo,
-                uiClient,
-                "http://localhost:3000", // "about:blank"
-                browserSettings,
-                nullptr);
-
+            windowInfo,
+            uiClient,
+            "http://localhost:3000", // "about:blank"
+            browserSettings,
+            nullptr);
+        
         return true;
     }
 
@@ -139,17 +147,17 @@ namespace CE
 
     const std::byte* CefMain::GetViewBuffer()
     {
-        return (dynamic_cast<UIRenderHandler*>(uiClient->GetRenderHandler().get()))->GetViewBuffer();
+        return ((UIRenderHandler*)(uiClient->GetRenderHandler().get()))->GetViewBuffer();
     }
 
     const std::byte* CefMain::GetPopupBuffer()
     {
-        return (dynamic_cast<UIRenderHandler*>(uiClient->GetRenderHandler().get()))->GetPopupBuffer();
+        return ((UIRenderHandler*)(uiClient->GetRenderHandler().get()))->GetPopupBuffer();
     }
 
     const CefRect& CefMain::GetPopupRect()
     {
-        return (dynamic_cast<UIRenderHandler*>(uiClient->GetRenderHandler().get()))->GetPopupRect();
+        return ((UIRenderHandler*)(uiClient->GetRenderHandler().get()))->GetPopupRect();
     }
 
     bool CefMain::HasPopup()
@@ -167,21 +175,21 @@ namespace CE
                 break;
             }
 #ifdef _WIN32
-            case EventType::WINDOWS_MESSAGE:
-            {
-                HandleWindowsMessageEvent(event);
-                break;
-            }
+			case EventType::WINDOWS_MESSAGE:
+			{
+				HandleWindowsMessageEvent(event);
+				break;
+			}
 #endif
-        }
-    }
+		}
+	}
 
-    void CefMain::HandleSdlEvent(const Event& event)
+	void CefMain::HandleSdlEvent(const Event& event)
     {
-        const auto& wrappedEvent = reinterpret_cast<const SdlEvent&>(event);
+		const SdlEvent& wrappedEvent = reinterpret_cast<const SdlEvent&>(event);
 
         const SDL_Event& nativeEvent = wrappedEvent.event;
-
+        
         externalMessagePump->ProcessEvent(nativeEvent);
 
         switch (nativeEvent.type)
@@ -307,7 +315,7 @@ namespace CE
                         mouseEvent.modifiers = GetSdlCefInputModifiers(nativeEvent);
 
                         browser->GetHost()->SendMouseMoveEvent(mouseEvent, true);
-
+                        
                         break;
                     }
                 }
@@ -317,7 +325,7 @@ namespace CE
         }
     }
 
-    // osr_window_win.cc
+	// osr_window_win.cc
     // browser_window_osr_mac.mm
     unsigned CefMain::GetSdlCefInputModifiers(const SDL_Event& event)
     {
@@ -325,47 +333,51 @@ namespace CE
 
         SDL_Keymod keymod = SDL_GetModState();
 
-        if ((keymod & KMOD_CTRL) != 0)
+        if (keymod & KMOD_CTRL)
         {
             modifiers |= EVENTFLAG_CONTROL_DOWN;
         }
 
-        if ((keymod & KMOD_SHIFT) != 0)
+        if (keymod & KMOD_SHIFT)
         {
             modifiers |= EVENTFLAG_SHIFT_DOWN;
         }
 
-        if ((keymod & KMOD_ALT) != 0)
+        if (keymod & KMOD_ALT)
         {
             modifiers |= EVENTFLAG_ALT_DOWN;
         }
 
-        if ((keymod & KMOD_NUM) != 0)
+        if (keymod & KMOD_NUM)
         {
             modifiers |= EVENTFLAG_NUM_LOCK_ON;
         }
 
-        if ((keymod & KMOD_CAPS) != 0)
+        if (keymod & KMOD_CAPS)
         {
             modifiers |= EVENTFLAG_CAPS_LOCK_ON;
         }
 
 #ifdef __APPLE__
-        if ((keymod & KMOD_GUI) != 0)
+        if (keymod & KMOD_GUI)
         {
             modifiers |= EVENTFLAG_COMMAND_DOWN;
         }
 #endif
 
         // todo: if mouse-only, still keep these two if's?
-        if (((keymod & KMOD_LSHIFT) != 0) || ((keymod & KMOD_LCTRL) != 0) || ((keymod & KMOD_LALT) != 0)
-            || ((keymod & KMOD_LGUI) != 0))
+        if (keymod & KMOD_LSHIFT
+            || keymod & KMOD_LCTRL
+            || keymod & KMOD_LALT
+            || keymod & KMOD_LGUI)
         {
             modifiers |= EVENTFLAG_IS_LEFT;
         }
 
-        if (((keymod & KMOD_RSHIFT) != 0) || ((keymod & KMOD_RCTRL) != 0) || ((keymod & KMOD_RALT) != 0)
-            || ((keymod & KMOD_RGUI) != 0))
+        if (keymod & KMOD_RSHIFT
+            || keymod & KMOD_RCTRL
+            || keymod & KMOD_RALT
+            || keymod & KMOD_RGUI)
         {
             modifiers |= EVENTFLAG_IS_RIGHT;
         }
@@ -376,7 +388,7 @@ namespace CE
             case SDL_KEYDOWN:
             case SDL_KEYUP:
             {
-                switch (event.key.keysym.sym)
+                switch(event.key.keysym.sym)
                 {
                     case SDLK_KP_DIVIDE:
                     case SDLK_KP_MULTIPLY:
@@ -450,17 +462,17 @@ namespace CE
 
             case SDL_MOUSEMOTION:
             {
-                if ((event.motion.state & SDL_BUTTON_LMASK) != 0U)
+                if (event.motion.state & SDL_BUTTON_LMASK)
                 {
                     modifiers |= EVENTFLAG_LEFT_MOUSE_BUTTON;
                 }
 
-                if ((event.motion.state & SDL_BUTTON_MMASK) != 0U)
+                if (event.motion.state & SDL_BUTTON_MMASK)
                 {
                     modifiers |= EVENTFLAG_MIDDLE_MOUSE_BUTTON;
                 }
 
-                if ((event.motion.state & SDL_BUTTON_RMASK) != 0U)
+                if (event.motion.state & SDL_BUTTON_RMASK)
                 {
                     modifiers |= EVENTFLAG_RIGHT_MOUSE_BUTTON;
                 }
@@ -491,19 +503,19 @@ namespace CE
 
             case SDL_MOUSEWHEEL:
             {
-                unsigned state = SDL_GetMouseState(nullptr, nullptr);
+                unsigned state = SDL_GetMouseState(NULL, NULL);
 
-                if ((state & SDL_BUTTON_LMASK) != 0U)
+                if (state & SDL_BUTTON_LMASK)
                 {
                     modifiers |= EVENTFLAG_LEFT_MOUSE_BUTTON;
                 }
 
-                if ((state & SDL_BUTTON_MMASK) != 0U)
+                if (state & SDL_BUTTON_MMASK)
                 {
                     modifiers |= EVENTFLAG_MIDDLE_MOUSE_BUTTON;
                 }
 
-                if ((state & SDL_BUTTON_RMASK) != 0U)
+                if (state & SDL_BUTTON_RMASK)
                 {
                     modifiers |= EVENTFLAG_RIGHT_MOUSE_BUTTON;
                 }
@@ -517,19 +529,19 @@ namespace CE
                 {
                     case SDL_WINDOWEVENT_LEAVE:
                     {
-                        unsigned state = SDL_GetMouseState(nullptr, nullptr);
+                        unsigned state = SDL_GetMouseState(NULL, NULL);
 
-                        if ((state & SDL_BUTTON_LMASK) != 0U)
+                        if (state & SDL_BUTTON_LMASK)
                         {
                             modifiers |= EVENTFLAG_LEFT_MOUSE_BUTTON;
                         }
 
-                        if ((state & SDL_BUTTON_MMASK) != 0U)
+                        if (state & SDL_BUTTON_MMASK)
                         {
                             modifiers |= EVENTFLAG_MIDDLE_MOUSE_BUTTON;
                         }
 
-                        if ((state & SDL_BUTTON_RMASK) != 0U)
+                        if (state & SDL_BUTTON_RMASK)
                         {
                             modifiers |= EVENTFLAG_RIGHT_MOUSE_BUTTON;
                         }
@@ -546,186 +558,185 @@ namespace CE
     }
 
 #ifdef _WIN32
-    void CefMain::HandleWindowsMessageEvent(const Event& event)
-    {
-        const WindowsMessageEvent& windowsMessageEvent = reinterpret_cast<const WindowsMessageEvent&>(event);
+	void CefMain::HandleWindowsMessageEvent(const Event& event)
+	{
+		const WindowsMessageEvent& windowsMessageEvent = reinterpret_cast<const WindowsMessageEvent&>(event);
 
-        switch (windowsMessageEvent.message)
-        {
-            case WM_SYSCHAR:
-            case WM_SYSKEYDOWN:
-            case WM_SYSKEYUP:
-            case WM_KEYDOWN:
-            case WM_KEYUP:
-            case WM_CHAR:
-            {
-                CefKeyEvent keyEvent;
-                keyEvent.windows_key_code = static_cast<int>(windowsMessageEvent.wParam);
-                keyEvent.native_key_code = static_cast<int>(windowsMessageEvent.lParam);
-                keyEvent.is_system_key = windowsMessageEvent.message == WM_SYSCHAR
-                        || windowsMessageEvent.message == WM_SYSKEYDOWN || windowsMessageEvent.message == WM_SYSKEYUP;
-                if (windowsMessageEvent.message == WM_KEYDOWN || windowsMessageEvent.message == WM_SYSKEYDOWN)
-                {
-                    keyEvent.type = KEYEVENT_RAWKEYDOWN;
-                }
-                else if (windowsMessageEvent.message == WM_KEYUP || windowsMessageEvent.message == WM_SYSKEYUP)
-                {
-                    keyEvent.type = KEYEVENT_KEYUP;
-                }
-                else
-                {
-                    keyEvent.type = KEYEVENT_CHAR;
-                }
-                keyEvent.modifiers = GetNativeCefKeyboardModifiers(
-                        static_cast<WPARAM>(windowsMessageEvent.wParam),
-                        static_cast<LPARAM>(windowsMessageEvent.lParam));
+		switch (windowsMessageEvent.message)
+		{
+			case WM_SYSCHAR:
+			case WM_SYSKEYDOWN:
+			case WM_SYSKEYUP:
+			case WM_KEYDOWN:
+			case WM_KEYUP:
+			case WM_CHAR:
+			{
+				CefKeyEvent keyEvent;
+				keyEvent.windows_key_code = static_cast<int>(windowsMessageEvent.wParam);
+				keyEvent.native_key_code = static_cast<int>(windowsMessageEvent.lParam);
+				keyEvent.is_system_key = windowsMessageEvent.message == WM_SYSCHAR
+					|| windowsMessageEvent.message == WM_SYSKEYDOWN
+					|| windowsMessageEvent.message == WM_SYSKEYUP;
+				if (windowsMessageEvent.message == WM_KEYDOWN || windowsMessageEvent.message == WM_SYSKEYDOWN)
+				{
+					keyEvent.type = KEYEVENT_RAWKEYDOWN;
+				}
+				else if (windowsMessageEvent.message == WM_KEYUP || windowsMessageEvent.message == WM_SYSKEYUP)
+				{
+					keyEvent.type = KEYEVENT_KEYUP;
+				}
+				else
+				{
+					keyEvent.type = KEYEVENT_CHAR;
+				}
+				keyEvent.modifiers = GetNativeCefKeyboardModifiers(static_cast<WPARAM>(windowsMessageEvent.wParam), static_cast<LPARAM>(windowsMessageEvent.lParam));
 
-                browser->GetHost()->SendKeyEvent(keyEvent);
+				browser->GetHost()->SendKeyEvent(keyEvent);
 
-                break;
-            }
-        }
-    }
+				break;
+			}
+		}
+	}
 
-    // util_win.cc
-    bool CefMain::IsKeyDown(WPARAM wParam)
-    {
-        return (::GetKeyState(static_cast<int>(wParam)) & 0x8000) != 0;
-    }
+	// util_win.cc
+	bool CefMain::IsKeyDown(WPARAM wParam)
+	{
+		return (::GetKeyState(static_cast<int>(wParam)) & 0x8000) != 0;
+	}
 
-    // util_win.cc
-    int CefMain::GetNativeCefKeyboardModifiers(WPARAM wParam, LPARAM lParam)
-    {
-        int modifiers = 0;
+	// util_win.cc
+	int CefMain::GetNativeCefKeyboardModifiers(WPARAM wParam, LPARAM lParam)
+	{
+		int modifiers = 0;
 
-        if (IsKeyDown(VK_SHIFT))
-        {
-            modifiers |= EVENTFLAG_SHIFT_DOWN;
-        }
-        if (IsKeyDown(VK_CONTROL))
-        {
-            modifiers |= EVENTFLAG_CONTROL_DOWN;
-        }
-        if (IsKeyDown(VK_MENU))
-        {
-            modifiers |= EVENTFLAG_ALT_DOWN;
-        }
+		if (IsKeyDown(VK_SHIFT))
+		{
+			modifiers |= EVENTFLAG_SHIFT_DOWN;
+		}
+		if (IsKeyDown(VK_CONTROL))
+		{
+			modifiers |= EVENTFLAG_CONTROL_DOWN;
+		}
+		if (IsKeyDown(VK_MENU))
+		{
+			modifiers |= EVENTFLAG_ALT_DOWN;
+		}
 
-        // Low bit set from GetKeyState indicates "toggled".
-        if (::GetKeyState(VK_NUMLOCK) & 1)
-        {
-            modifiers |= EVENTFLAG_NUM_LOCK_ON;
-        }
-        if (::GetKeyState(VK_CAPITAL) & 1)
-        {
-            modifiers |= EVENTFLAG_CAPS_LOCK_ON;
-        }
+		// Low bit set from GetKeyState indicates "toggled".
+		if (::GetKeyState(VK_NUMLOCK) & 1)
+		{
+			modifiers |= EVENTFLAG_NUM_LOCK_ON;
+		}
+		if (::GetKeyState(VK_CAPITAL) & 1)
+		{
+			modifiers |= EVENTFLAG_CAPS_LOCK_ON;
+		}
 
-        switch (wParam)
-        {
-            case VK_RETURN:
-            {
-                if ((lParam >> 16) & KF_EXTENDED)
-                {
-                    modifiers |= EVENTFLAG_IS_KEY_PAD;
-                }
-                break;
-            }
+		switch (wParam)
+		{
+			case VK_RETURN:
+			{
+				if ((lParam >> 16) & KF_EXTENDED)
+				{
+					modifiers |= EVENTFLAG_IS_KEY_PAD;
+				}
+				break;
+			}
 
-            case VK_INSERT:
-            case VK_DELETE:
-            case VK_HOME:
-            case VK_END:
-            case VK_PRIOR:
-            case VK_NEXT:
-            case VK_UP:
-            case VK_DOWN:
-            case VK_LEFT:
-            case VK_RIGHT:
-            {
-                if (!((lParam >> 16) & KF_EXTENDED))
-                {
-                    modifiers |= EVENTFLAG_IS_KEY_PAD;
-                }
-                break;
-            }
+			case VK_INSERT:
+			case VK_DELETE:
+			case VK_HOME:
+			case VK_END:
+			case VK_PRIOR:
+			case VK_NEXT:
+			case VK_UP:
+			case VK_DOWN:
+			case VK_LEFT:
+			case VK_RIGHT:
+			{
+				if (!((lParam >> 16) & KF_EXTENDED))
+				{
+					modifiers |= EVENTFLAG_IS_KEY_PAD;
+				}
+				break;
+			}
 
-            case VK_NUMLOCK:
-            case VK_NUMPAD0:
-            case VK_NUMPAD1:
-            case VK_NUMPAD2:
-            case VK_NUMPAD3:
-            case VK_NUMPAD4:
-            case VK_NUMPAD5:
-            case VK_NUMPAD6:
-            case VK_NUMPAD7:
-            case VK_NUMPAD8:
-            case VK_NUMPAD9:
-            case VK_DIVIDE:
-            case VK_MULTIPLY:
-            case VK_SUBTRACT:
-            case VK_ADD:
-            case VK_DECIMAL:
-            case VK_CLEAR:
-            {
-                modifiers |= EVENTFLAG_IS_KEY_PAD;
-                break;
-            }
+			case VK_NUMLOCK:
+			case VK_NUMPAD0:
+			case VK_NUMPAD1:
+			case VK_NUMPAD2:
+			case VK_NUMPAD3:
+			case VK_NUMPAD4:
+			case VK_NUMPAD5:
+			case VK_NUMPAD6:
+			case VK_NUMPAD7:
+			case VK_NUMPAD8:
+			case VK_NUMPAD9:
+			case VK_DIVIDE:
+			case VK_MULTIPLY:
+			case VK_SUBTRACT:
+			case VK_ADD:
+			case VK_DECIMAL:
+			case VK_CLEAR:
+			{
+				modifiers |= EVENTFLAG_IS_KEY_PAD;
+				break;
+			}
 
-            case VK_SHIFT:
-            {
-                if (IsKeyDown(VK_LSHIFT))
-                {
-                    modifiers |= EVENTFLAG_IS_LEFT;
-                }
-                else if (IsKeyDown(VK_RSHIFT))
-                {
-                    modifiers |= EVENTFLAG_IS_RIGHT;
-                }
-                break;
-            }
+			case VK_SHIFT:
+			{
+				if (IsKeyDown(VK_LSHIFT))
+				{
+					modifiers |= EVENTFLAG_IS_LEFT;
+				}
+				else if (IsKeyDown(VK_RSHIFT))
+				{
+					modifiers |= EVENTFLAG_IS_RIGHT;
+				}
+				break;
+			}
 
-            case VK_CONTROL:
-            {
-                if (IsKeyDown(VK_LCONTROL))
-                {
-                    modifiers |= EVENTFLAG_IS_LEFT;
-                }
-                else if (IsKeyDown(VK_RCONTROL))
-                {
-                    modifiers |= EVENTFLAG_IS_RIGHT;
-                }
-                break;
-            }
+			case VK_CONTROL:
+			{
+				if (IsKeyDown(VK_LCONTROL))
+				{
+					modifiers |= EVENTFLAG_IS_LEFT;
+				}
+				else if (IsKeyDown(VK_RCONTROL))
+				{
+					modifiers |= EVENTFLAG_IS_RIGHT;
+				}
+				break;
+			}
 
-            case VK_MENU:
-            {
-                if (IsKeyDown(VK_LMENU))
-                {
-                    modifiers |= EVENTFLAG_IS_LEFT;
-                }
-                else if (IsKeyDown(VK_RMENU))
-                {
-                    modifiers |= EVENTFLAG_IS_RIGHT;
-                }
-                break;
-            }
+			case VK_MENU:
+			{
+				if (IsKeyDown(VK_LMENU))
+				{
+					modifiers |= EVENTFLAG_IS_LEFT;
+				}
+				else if (IsKeyDown(VK_RMENU))
+				{
+					modifiers |= EVENTFLAG_IS_RIGHT;
+				}
+				break;
+			}
 
-            case VK_LWIN:
-            {
-                modifiers |= EVENTFLAG_IS_LEFT;
-                break;
-            }
+			case VK_LWIN:
+			{
+				modifiers |= EVENTFLAG_IS_LEFT;
+				break;
+			}
 
-            case VK_RWIN:
-            {
-                modifiers |= EVENTFLAG_IS_RIGHT;
-                break;
-            }
-        }
+			case VK_RWIN:
+			{
+				modifiers |= EVENTFLAG_IS_RIGHT;
+				break;
+			}
+		}
 
-        return modifiers;
-    }
+		return modifiers;
+	}
 
     void CefMain::ToggleDevToolsWindow()
     {
