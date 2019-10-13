@@ -7,7 +7,7 @@
 class UIRenderProcessHandler : public CefRenderProcessHandler
 {
 public:
-    explicit UIRenderProcessHandler(CefRefPtr<CefMessageRouterRendererSide> messageRouterRendererSide);
+    explicit UIRenderProcessHandler(const CefRefPtr<CefMessageRouterRendererSide>& messageRouterRendererSide);
 
     // CefRenderProcessHandler Interface
     void OnContextCreated(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, CefRefPtr<CefV8Context> context)
