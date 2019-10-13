@@ -17,8 +17,8 @@ static const uint32_t TIMER_DELAY_MAX = 1000 / 30; // denominator = fps
 
 static const SDL_TimerID INVALID_TIMER_ID = 0;
 
-static const uint32_t TIMER_EVENT = SDL_RegisterEvents(1); // NOLINT
-static const uint32_t WORK_EVENT = SDL_RegisterEvents(1); // NOLINT
+static const uint32_t TIMER_EVENT = SDL_RegisterEvents(1); // NOLINT(cert-err58-cpp)
+static const uint32_t WORK_EVENT = SDL_RegisterEvents(1); // NOLINT(cert-err58-cpp)
 
 UIExternalMessagePump::UIExternalMessagePump()
     : timerId(INVALID_TIMER_ID)
@@ -35,7 +35,8 @@ UIExternalMessagePump::~UIExternalMessagePump()
 void UIExternalMessagePump::OnScheduleMessagePumpWork(uint32_t delayMillis)
 {
     // This method may be called on any thread.
-    void* data1 = reinterpret_cast<void*>(static_cast<uintptr_t>(delayMillis)); // NOLINT
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+    void* data1 = reinterpret_cast<void*>(static_cast<uintptr_t>(delayMillis));
     PushEvent(WORK_EVENT, data1, nullptr);
 }
 
@@ -49,7 +50,8 @@ void UIExternalMessagePump::ProcessEvent(const SDL_Event& event)
     else if (event.type == WORK_EVENT)
     {
         // OnScheduleMessagePumpWork() request.
-        auto delayMillis = static_cast<uint32_t>(reinterpret_cast<uintptr_t>(event.user.data1)); // NOLINT
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+        auto delayMillis = static_cast<uint32_t>(reinterpret_cast<uintptr_t>(event.user.data1));
         OnScheduleWork(delayMillis);
     }
 }
