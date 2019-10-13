@@ -4,7 +4,7 @@ add_executable(CompositeEngine MACOSX_BUNDLE ${ENGINE_SRC_FILES})
 source_group(TREE ${CMAKE_SOURCE_DIR} FILES ${ENGINE_SRC_FILES})
 
 add_dependencies(CompositeEngine CompositeCefSubprocess)
-target_link_libraries(CompositeEngine PRIVATE CEF GLEW GLM OpenGL RapidJSON SDL)
+target_link_libraries(CompositeEngine PRIVATE CEF GLEW GLM GSL OpenGL RapidJSON SDL)
 target_include_directories(CompositeEngine PRIVATE ${ENGINE_SRC_DIR} ${UI_SRC_DIR})
 
 install(

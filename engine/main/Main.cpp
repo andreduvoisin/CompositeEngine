@@ -435,11 +435,11 @@ void RenderUI()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	const char* viewBuffer = cefMain->GetViewBuffer();
+	const std::byte* viewBuffer = cefMain->GetViewBuffer();
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, SCREEN_WIDTH, SCREEN_HEIGHT, 0, GL_BGRA, GL_UNSIGNED_BYTE, viewBuffer);
-	const char* popupBuffer = cefMain->GetPopupBuffer();
-	if (popupBuffer != nullptr)
+	if (cefMain->HasPopup())
 	{
+        const std::byte* popupBuffer = cefMain->GetPopupBuffer();
 		const CefRect& popupRect = cefMain->GetPopupRect();
 		glTexSubImage2D(GL_TEXTURE_2D, 0, popupRect.x, popupRect.y, popupRect.width, popupRect.height, GL_BGRA, GL_UNSIGNED_BYTE, popupBuffer);
 	}

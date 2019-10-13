@@ -1,6 +1,9 @@
 include(ExternalProject)
 
-set(GSL_VERSION "1212beae777dba02c230ece8c0c0ec12790047ea")
+# TODO: Change GSL_VERSION and GIT_REPOSITORY back to Microsoft once
+# this issue is resolved: https://github.com/microsoft/GSL/issues/816 
+
+set(GSL_VERSION "3d980415749a4cdd3c7f976e9128536416514571")
 set(GSL_VERSION_STRING "gsl-${GSL_VERSION}")
 
 set(GSL_ROOT_DIR "${EXTERN_DIR}/${GSL_VERSION_STRING}")
@@ -10,7 +13,7 @@ ExternalProject_Add(
 	PREFIX ${GSL_VERSION_STRING}
 
 	DOWNLOAD_DIR ${EXTERN_DIR}
-	GIT_REPOSITORY "https://github.com/microsoft/GSL.git"
+	GIT_REPOSITORY "https://github.com/andreduvoisin/GSL.git"
 	GIT_TAG ${GSL_VERSION}
 
 	SOURCE_DIR ${GSL_ROOT_DIR}

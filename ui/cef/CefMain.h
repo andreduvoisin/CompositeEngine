@@ -25,9 +25,10 @@ namespace CE
         void StopCef();
 
         // TODO: This probably shouldn't be architected this way.
-        const char* GetViewBuffer();
-        const char* GetPopupBuffer();
+        const std::byte* GetViewBuffer();
+        const std::byte* GetPopupBuffer();
         const CefRect& GetPopupRect();
+        bool HasPopup();
 
         // EventListener Interface
         void OnEvent(const Event& event) override;

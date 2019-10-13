@@ -137,12 +137,12 @@ namespace CE
         CefShutdown();
     }
 
-    const char* CefMain::GetViewBuffer()
+    const std::byte* CefMain::GetViewBuffer()
     {
         return (dynamic_cast<UIRenderHandler*>(uiClient->GetRenderHandler().get()))->GetViewBuffer();
     }
 
-    const char* CefMain::GetPopupBuffer()
+    const std::byte* CefMain::GetPopupBuffer()
     {
         return (dynamic_cast<UIRenderHandler*>(uiClient->GetRenderHandler().get()))->GetPopupBuffer();
     }
@@ -150,6 +150,11 @@ namespace CE
     const CefRect& CefMain::GetPopupRect()
     {
         return (dynamic_cast<UIRenderHandler*>(uiClient->GetRenderHandler().get()))->GetPopupRect();
+    }
+
+    bool CefMain::HasPopup()
+    {
+        return (dynamic_cast<UIRenderHandler*>(uiClient->GetRenderHandler().get()))->HasPopup();
     }
 
     void CefMain::OnEvent(const Event& event)
