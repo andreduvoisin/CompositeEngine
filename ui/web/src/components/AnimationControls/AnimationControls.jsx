@@ -48,7 +48,7 @@ const PlayButton = ({
         'is-active': animationStatus === "PLAYING"
       })}
     >
-      <AnimationControlsIcon className={classNames('fa fa-play')} />
+      <AnimationControlsIcon className={'fa fa-play'} />
     </AnimationControlsButton>
   );
 };
@@ -65,7 +65,7 @@ const StopButton = ({
         'is-active': animationStatus === "PAUSED"
       })}
     >
-      <AnimationControlsIcon className={classNames('fa fa-stop')} />
+      <AnimationControlsIcon className={'fa fa-stop'} />
     </AnimationControlsButton>
   );
 };
