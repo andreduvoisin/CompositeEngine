@@ -26,12 +26,12 @@ export default connect(
   mapStateToProps,
   mapDispatchToProps
 )((props) => {
+  const { animationState, setRenderMode, toggleAnimation, setAnimationTime } = props;
+  const { isPlaying, animationStatus, currentTime, duration } = animationState;
   return (
     <AnimationControls
-      isPlaying={props.animationState.isPlaying}
-      currentTime={props.animationState.currentTime}
-      duration={props.animationState.duration}
-      {...props}
+      {...{ isPlaying, animationStatus, currentTime, duration }}
+      {...{ setRenderMode, toggleAnimation, setAnimationTime }}
     />
   );
 });

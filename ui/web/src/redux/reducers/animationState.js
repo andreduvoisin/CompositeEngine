@@ -2,7 +2,7 @@ import { Types } from "../actions";
 import { createReducer } from "reduxsauce";
 
 const INITIAL_STATE = {
-  isPlaying: true,
+  animationStatus: "IDLE",
   currentTime: 0,
   duration: 0,
   fps: 0
@@ -13,7 +13,7 @@ const HANDLERS = {
   [Types.PAUSE_STATE_UPDATE]: (state, action) => {
     return {
       ...state,
-      isPlaying: action.payload.paused !== true
+      animationStatus: (action.payload.paused === true) ? "PAUSED" : "PLAYING"
     };
   },
 

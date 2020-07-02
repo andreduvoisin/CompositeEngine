@@ -37,11 +37,12 @@ const AnimationControlsIcon = styled.i`
 `;
 
 const PlayButton = (props) => {
+  const onClick = props.animationStatus === "PAUSED" ? props.toggleAnimation : null;
   return (
     <AnimationControlsButton
-      onClick={props.isPlaying ? null : props.toggleAnimation}
+      onClick={onClick}
       className={classNames('AnimationControlsListItem-play', {
-        'is-active': props.isPlaying
+        'is-active': props.animationStatus === "PLAYING"
       })}
     >
       <AnimationControlsIcon className={classNames('fa fa-play')} />
@@ -50,11 +51,12 @@ const PlayButton = (props) => {
 };
 
 const StopButton = (props) => {
+  const onClick = props.animationStatus === "PLAYING" ? props.toggleAnimation : null;
   return (
     <AnimationControlsButton
-      onClick={props.isPlaying ? props.toggleAnimation : null}
+      onClick={onClick}
       className={classNames('AnimationControlsListItem-stop', {
-        'is-active': !props.isPlaying
+        'is-active': props.animationStatus === "PAUSED"
       })}
     >
       <AnimationControlsIcon className={classNames('fa fa-stop')} />
@@ -90,8 +92,8 @@ const AnimationControls = (props) => {
   return (
     <AnimationControlsList
       className={classNames('AnimationControls', {
-        'is-playing': props.isPlaying,
-        'is-paused': !props.isPlaying
+        'is-playing': props.animationStatus === "PLAYING",
+        'is-paused': props.animationStatus === "PAUSED",
       })}
     >
       <AnimationControlsListItem>
