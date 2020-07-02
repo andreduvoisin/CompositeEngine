@@ -1,9 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
 import classNames from 'classnames';
-import './AnimationControls.less';
 import Slider from '../Slider/Slider';
 import Dropdown from '../Dropdown/Dropdown';
+
+import './AnimationControls.less';
 
 const AnimationControlsList = styled.ul`
   text-align: center;
@@ -35,95 +36,94 @@ const AnimationControlsIcon = styled.i`
   text-shadow: 1px 1px 3px ${(props) => props.theme.colors.transparentBlack};
 `;
 
-export default class AnimationControls extends React.Component {
-  renderPlayButton() {
-    const { props } = this;
-    return (
-      <AnimationControlsButton
-        onClick={props.isPlaying ? null : props.toggleAnimation}
-        className={classNames('AnimationControlsListItem-play', {
-          'is-active': props.isPlaying
-        })}
-      >
-        <AnimationControlsIcon className={classNames('fa fa-play')} />
-      </AnimationControlsButton>
-    );
-  }
+const PlayButton = (props) => {
+  return (
+    <AnimationControlsButton
+      onClick={props.isPlaying ? null : props.toggleAnimation}
+      className={classNames('AnimationControlsListItem-play', {
+        'is-active': props.isPlaying
+      })}
+    >
+      <AnimationControlsIcon className={classNames('fa fa-play')} />
+    </AnimationControlsButton>
+  );
+};
 
-  renderStopButton() {
-    const { props } = this;
-    return (
-      <AnimationControlsButton
-        onClick={props.isPlaying ? props.toggleAnimation : null}
-        className={classNames('AnimationControlsListItem-stop', {
-          'is-active': !props.isPlaying
-        })}
-      >
-        <AnimationControlsIcon className={classNames('fa fa-stop')} />
-      </AnimationControlsButton>
-    );
-  }
+const StopButton = (props) => {
+  return (
+    <AnimationControlsButton
+      onClick={props.isPlaying ? props.toggleAnimation : null}
+      className={classNames('AnimationControlsListItem-stop', {
+        'is-active': !props.isPlaying
+      })}
+    >
+      <AnimationControlsIcon className={classNames('fa fa-stop')} />
+    </AnimationControlsButton>
+  );
+};
 
-  render() {
-    const { props } = this;
-    const renderModeMenuItems = [
-      {
-        name: 'Mesh',
-        id: 'mesh',
-        value: 0
-      },
-      {
-        name: 'Skeleton',
-        id: 'skeleton',
-        value: 1
-      },
-      {
-        name: 'Mesh w/ Skeleton',
-        id: 'mesh-w-skeleton',
-        value: 2
-      },
-      {
-        name: 'Mesh w/ Wireframe',
-        id: 'mesh-w-wireframe',
-        value: 3
-      }
-    ];
-    return (
-      <AnimationControlsList
-        className={classNames('AnimationControls', {
-          'is-playing': props.isPlaying,
-          'is-paused': !props.isPlaying
-        })}
-      >
-        <AnimationControlsListItem>
-          {this.renderPlayButton()}
-        </AnimationControlsListItem>
-        <AnimationControlsListItem>
-          {this.renderStopButton()}
-        </AnimationControlsListItem>
-        <AnimationControlsListItem>
-          <Slider
-            step={0.0000000001}
-            min={0}
-            max={props.duration}
-            value={props.currentTime}
-            readOnly={true}
-            onChange={props.setAnimationTime}
-          />
-        </AnimationControlsListItem>
-        <AnimationControlsListItem>
-          <Dropdown
-            style={{
-              marginLeft: '10px'
-            }}
-            width={150}
-            items={renderModeMenuItems}
-            onChange={(selectedItem) => {
-              props.setRenderMode(selectedItem.value);
-            }}
-          />
-        </AnimationControlsListItem>
-      </AnimationControlsList>
-    );
-  }
-}
+const AnimationControls = (props) => {
+
+  const renderModeMenuItems = [
+    {
+      name: 'Mesh',
+      id: 'mesh',
+      value: 0
+    },
+    {
+      name: 'Skeleton',
+      id: 'skeleton',
+      value: 1
+    },
+    {
+      name: 'Mesh w/ Skeleton',
+      id: 'mesh-w-skeleton',
+      value: 2
+    },
+    {
+      name: 'Mesh w/ Wireframe',
+      id: 'mesh-w-wireframe',
+      value: 3
+    }
+  ];
+
+  return (
+    <AnimationControlsList
+      className={classNames('AnimationControls', {
+        'is-playing': props.isPlaying,
+        'is-paused': !props.isPlaying
+      })}
+    >
+      <AnimationControlsListItem>
+        <PlayButton {...props} />
+      </AnimationControlsListItem>
+      <AnimationControlsListItem>
+        <StopButton {...props} />
+      </AnimationControlsListItem>
+      <AnimationControlsListItem>
+        <Slider
+          step={0.0000000001}
+          min={0}
+          max={props.duration}
+          value={props.currentTime}
+          readOnly={true}
+          onChange={props.setAnimationTime}
+        />
+      </AnimationControlsListItem>
+      <AnimationControlsListItem>
+        <Dropdown
+          style={{
+            marginLeft: '10px'
+          }}
+          width={150}
+          items={renderModeMenuItems}
+          onChange={(selectedItem) => {
+            props.setRenderMode(selectedItem.value);
+          }}
+        />
+      </AnimationControlsListItem>
+    </AnimationControlsList>
+  );
+};
+
+export default AnimationControls;
