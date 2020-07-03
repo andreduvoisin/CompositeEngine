@@ -69,6 +69,23 @@ const StopButton = ({
   );
 };
 
+const AnimationScrubber = ({
+  onChange
+}) => {
+  const duration = useSelector(state => state.animationState.duration);
+  const currentTime = useSelector(state => state.animationState.currentTime);
+  return (
+    <Slider
+      step={0.0000000001}
+      min={0}
+      max={duration}
+      value={currentTime}
+      readOnly={true}
+      onChange={onChange}
+    />
+  );
+};
+
 const AnimationControls = ({
   setAnimationTime,
   setRenderMode,
@@ -99,8 +116,6 @@ const AnimationControls = ({
   ];
 
   const animationStatus = useSelector(state => state.animationState.animationStatus);
-  const duration = useSelector(state => state.animationState.duration);
-  const currentTime = useSelector(state => state.animationState.currentTime);
 
   return (
     <AnimationControlsList
@@ -116,14 +131,7 @@ const AnimationControls = ({
         <StopButton onClick={toggleAnimation} />
       </AnimationControlsListItem>
       <AnimationControlsListItem>
-        <Slider
-          step={0.0000000001}
-          min={0}
-          max={duration}
-          value={currentTime}
-          readOnly={true}
-          onChange={setAnimationTime}
-        />
+        <AnimationScrubber onChange={setAnimationTime} />
       </AnimationControlsListItem>
       <AnimationControlsListItem>
         <Dropdown
