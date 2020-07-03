@@ -5,10 +5,6 @@ import { Creators } from '../redux/actions';
 
 const { toggleAnimationRequest, setAnimationTime, setRenderMode } = Creators;
 
-const mapStateToProps = (state) => {
-  return state;
-};
-
 const mapDispatchToProps = (dispatch) => {
   return {
     toggleAnimation: () => {
@@ -24,15 +20,10 @@ const mapDispatchToProps = (dispatch) => {
 };
 
 export default connect(
-  mapStateToProps,
+  null,
   mapDispatchToProps
 )((props) => {
-  const { animationState, setRenderMode, toggleAnimation, setAnimationTime } = props;
-  const { isPlaying, animationStatus, currentTime, duration } = animationState;
   return (
-    <AnimationControls
-      {...{ isPlaying, animationStatus, currentTime, duration }}
-      {...{ setRenderMode, toggleAnimation, setAnimationTime }}
-    />
+    <AnimationControls {...props } />
   );
 });

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import classNames from 'classnames';
 import Slider from '../Slider/Slider';
@@ -37,15 +38,14 @@ const AnimationControlsIcon = styled.i`
 `;
 
 const PlayButton = ({
-  animationStatus,
-  toggleAnimation
+  onClick
 }) => {
-  const onClick = animationStatus === "PAUSED" ? toggleAnimation : null;
+  const animationStatus = useSelector(state => state.animationState.animationStatus);
   return (
     <AnimationControlsButton
-      onClick={onClick}
+      onClick={animationStatus === 'PAUSED' ? onClick : null}
       className={classNames('AnimationControlsListItem-play', {
-        'is-active': animationStatus === "PLAYING"
+        'is-active': animationStatus === 'PLAYING'
       })}
     >
       <AnimationControlsIcon className={'fa fa-play'} />
@@ -54,15 +54,14 @@ const PlayButton = ({
 };
 
 const StopButton = ({
-  animationStatus,
-  toggleAnimation
+  onClick
 }) => {
-  const onClick = animationStatus === "PLAYING" ? toggleAnimation : null;
+  const animationStatus = useSelector(state => state.animationState.animationStatus);
   return (
     <AnimationControlsButton
-      onClick={onClick}
+      onClick={animationStatus === 'PLAYING' ? onClick : null}
       className={classNames('AnimationControlsListItem-stop', {
-        'is-active': animationStatus === "PAUSED"
+        'is-active': animationStatus === 'PAUSED'
       })}
     >
       <AnimationControlsIcon className={'fa fa-stop'} />
@@ -70,7 +69,11 @@ const StopButton = ({
   );
 };
 
-const AnimationControls = (props) => {
+const AnimationControls = ({
+  setAnimationTime,
+  setRenderMode,
+  toggleAnimation
+}) => {
 
   const renderModeMenuItems = [
     {
@@ -95,27 +98,31 @@ const AnimationControls = (props) => {
     }
   ];
 
+  const animationStatus = useSelector(state => state.animationState.animationStatus);
+  const duration = useSelector(state => state.animationState.duration);
+  const currentTime = useSelector(state => state.animationState.currentTime);
+
   return (
     <AnimationControlsList
       className={classNames('AnimationControls', {
-        'is-playing': props.animationStatus === "PLAYING",
-        'is-paused': props.animationStatus === "PAUSED",
+        'is-playing': animationStatus === "PLAYING",
+        'is-paused': animationStatus === "PAUSED",
       })}
     >
       <AnimationControlsListItem>
-        <PlayButton {...props} />
+        <PlayButton onClick={toggleAnimation} />
       </AnimationControlsListItem>
       <AnimationControlsListItem>
-        <StopButton {...props} />
+        <StopButton onClick={toggleAnimation} />
       </AnimationControlsListItem>
       <AnimationControlsListItem>
         <Slider
           step={0.0000000001}
           min={0}
-          max={props.duration}
-          value={props.currentTime}
+          max={duration}
+          value={currentTime}
           readOnly={true}
-          onChange={props.setAnimationTime}
+          onChange={setAnimationTime}
         />
       </AnimationControlsListItem>
       <AnimationControlsListItem>
@@ -126,7 +133,7 @@ const AnimationControls = (props) => {
           width={150}
           items={renderModeMenuItems}
           onChange={(selectedItem) => {
-            props.setRenderMode(selectedItem.value);
+            setRenderMode(selectedItem.value);
           }}
         />
       </AnimationControlsListItem>
