@@ -10,6 +10,7 @@ import reducer from './redux/reducers/index';
 import { Creators } from './redux/actions';
 import rootSaga from './redux/sagas';
 import { MessageTypes, subscribeToMessage } from './ipc';
+
 const {
   pauseStateUpdate,
   animationStateUpdate,
@@ -20,7 +21,12 @@ const {
 const sagaMiddleware = createSagaMiddleware();
 
 // create the redux store
-const enhancers = composeWithDevTools(applyMiddleware(sagaMiddleware));
+const composeEnhancers = composeWithDevTools({}); // doesn't appear to work currently
+const enhancers = composeEnhancers(
+  applyMiddleware(
+    sagaMiddleware,
+  )
+);
 
 const store = createStore(reducer, enhancers);
 

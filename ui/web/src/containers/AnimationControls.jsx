@@ -2,6 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import AnimationControls from '../components/AnimationControls/AnimationControls';
 import { Creators } from '../redux/actions';
+
 const { toggleAnimationRequest, setAnimationTime, setRenderMode } = Creators;
 
 const mapStateToProps = (state) => {

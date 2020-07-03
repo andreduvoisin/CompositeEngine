@@ -1,7 +1,7 @@
 import React from 'react';
+import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import Portal from '../components/Portal/Portal';
-import withFps from './withFps';
 
 const Container = styled.div`
   position: absolute;
@@ -16,12 +16,13 @@ const Container = styled.div`
   background-color: rgba(0, 0, 0, 0.5);
 `;
 
-const FpsCounter = withFps(({ fps }) => {
+const FpsCounter = () => {
+  const fps = useSelector(state => state.animationState.fps);
   return (
     <Portal>
       <Container>{fps}</Container>
     </Portal>
   );
-});
+};
 
 export default FpsCounter;
