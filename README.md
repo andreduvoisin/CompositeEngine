@@ -160,6 +160,8 @@ xcode-select --install
 
   - Reference: http://docs.nvidia.com/nsight-visual-studio-edition/5.4/Nsight_Visual_Studio_Edition_User_Guide.htm
 
+- Debugging with VSCode on Mac: https://code.visualstudio.com/docs/cpp/lldb-mi
+
 ### Contributors
 
 Andre Duvoisin - [Website](https://andreduvoisin.com/), [GitHub](https://github.com/andreduvoisin), [Twitter](https://twitter.com/andreduvoisin)
