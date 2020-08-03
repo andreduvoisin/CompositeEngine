@@ -21,7 +21,6 @@
                 "program": "${workspaceFolder}/install/Debug/CompositeEngine.app/Contents/MacOS/CompositeEngine",
                 "cwd": "${workspaceFolder}/install/Debug/CompositeEngine.app/Contents/MacOS",
                 "MIMode": "lldb",
-                "miDebuggerPath": "/Applications/Xcode.app/Contents/Developer/usr/bin/lldb-mi",
             }
         },
         {
@@ -41,7 +40,6 @@
                 "program": "${workspaceFolder}/install/Release/CompositeEngine.app/Contents/MacOS/CompositeEngine",
                 "cwd": "${workspaceFolder}/install/Release/CompositeEngine.app/Contents/MacOS",
                 "MIMode": "lldb",
-                "miDebuggerPath": "/Applications/Xcode.app/Contents/Developer/usr/bin/lldb-mi",
             }
         }
     ]
