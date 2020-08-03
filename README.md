@@ -43,9 +43,6 @@ This repository requires [Git Large File Storage (Git LFS)](https://git-lfs.gith
 ```sh
 # Install the command line tools.
 xcode-select --install
-
-# Switch to Xcode's command line tools.
-sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
 ```
 
 #### Visual Studio Code
