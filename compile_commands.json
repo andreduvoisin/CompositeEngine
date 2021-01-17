@@ -1,0 +1,403 @@
+[
+{
+  "directory": "/Users/andreduvoisin/Development/CompositeEngine/build/Debug",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -DGLEW_STATIC -I../../engine -I../../ui -I../../extern/cef_binary_3.3626.1895.g7001d56_macosx64 -I../../extern/glew-2.1.0/include -I../../extern/glm-0.9.8.5 -I../../extern/rapidjson-67fac85e96220f69076121d569abd15471abb6bf/include -I../../extern/SDL2-2.0.9/include  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk   -g -std=c++1z -o engine/CMakeFiles/CompositeEngine.dir/common/Math.cpp.o -c /Users/andreduvoisin/Development/CompositeEngine/engine/common/Math.cpp",
+  "file": "/Users/andreduvoisin/Development/CompositeEngine/engine/common/Math.cpp"
+},
+
+{
+  "directory": "/Users/andreduvoisin/Development/CompositeEngine/build/Debug",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -DGLEW_STATIC -I../../engine -I../../ui -I../../extern/cef_binary_3.3626.1895.g7001d56_macosx64 -I../../extern/glew-2.1.0/include -I../../extern/glm-0.9.8.5 -I../../extern/rapidjson-67fac85e96220f69076121d569abd15471abb6bf/include -I../../extern/SDL2-2.0.9/include  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk   -g -std=c++1z -o engine/CMakeFiles/CompositeEngine.dir/common/debug/AssertThread.cpp.o -c /Users/andreduvoisin/Development/CompositeEngine/engine/common/debug/AssertThread.cpp",
+  "file": "/Users/andreduvoisin/Development/CompositeEngine/engine/common/debug/AssertThread.cpp"
+},
+
+{
+  "directory": "/Users/andreduvoisin/Development/CompositeEngine/build/Debug",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -DGLEW_STATIC -I../../engine -I../../ui -I../../extern/cef_binary_3.3626.1895.g7001d56_macosx64 -I../../extern/glew-2.1.0/include -I../../extern/glm-0.9.8.5 -I../../extern/rapidjson-67fac85e96220f69076121d569abd15471abb6bf/include -I../../extern/SDL2-2.0.9/include  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk   -g -std=c++1z -o engine/CMakeFiles/CompositeEngine.dir/common/json/JsonDeserializer.cpp.o -c /Users/andreduvoisin/Development/CompositeEngine/engine/common/json/JsonDeserializer.cpp",
+  "file": "/Users/andreduvoisin/Development/CompositeEngine/engine/common/json/JsonDeserializer.cpp"
+},
+
+{
+  "directory": "/Users/andreduvoisin/Development/CompositeEngine/build/Debug",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -DGLEW_STATIC -I../../engine -I../../ui -I../../extern/cef_binary_3.3626.1895.g7001d56_macosx64 -I../../extern/glew-2.1.0/include -I../../extern/glm-0.9.8.5 -I../../extern/rapidjson-67fac85e96220f69076121d569abd15471abb6bf/include -I../../extern/SDL2-2.0.9/include  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk   -g -std=c++1z -o engine/CMakeFiles/CompositeEngine.dir/common/json/JsonSerializer.cpp.o -c /Users/andreduvoisin/Development/CompositeEngine/engine/common/json/JsonSerializer.cpp",
+  "file": "/Users/andreduvoisin/Development/CompositeEngine/engine/common/json/JsonSerializer.cpp"
+},
+
+{
+  "directory": "/Users/andreduvoisin/Development/CompositeEngine/build/Debug",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -DGLEW_STATIC -I../../engine -I../../ui -I../../extern/cef_binary_3.3626.1895.g7001d56_macosx64 -I../../extern/glew-2.1.0/include -I../../extern/glm-0.9.8.5 -I../../extern/rapidjson-67fac85e96220f69076121d569abd15471abb6bf/include -I../../extern/SDL2-2.0.9/include  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk   -g -std=c++1z -o engine/CMakeFiles/CompositeEngine.dir/core/Camera.cpp.o -c /Users/andreduvoisin/Development/CompositeEngine/engine/core/Camera.cpp",
+  "file": "/Users/andreduvoisin/Development/CompositeEngine/engine/core/Camera.cpp"
+},
+
+{
+  "directory": "/Users/andreduvoisin/Development/CompositeEngine/build/Debug",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -DGLEW_STATIC -I../../engine -I../../ui -I../../extern/cef_binary_3.3626.1895.g7001d56_macosx64 -I../../extern/glew-2.1.0/include -I../../extern/glm-0.9.8.5 -I../../extern/rapidjson-67fac85e96220f69076121d569abd15471abb6bf/include -I../../extern/SDL2-2.0.9/include  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk   -g -std=c++1z -o engine/CMakeFiles/CompositeEngine.dir/core/EditorCameraEventHandler.cpp.o -c /Users/andreduvoisin/Development/CompositeEngine/engine/core/EditorCameraEventHandler.cpp",
+  "file": "/Users/andreduvoisin/Development/CompositeEngine/engine/core/EditorCameraEventHandler.cpp"
+},
+
+{
+  "directory": "/Users/andreduvoisin/Development/CompositeEngine/build/Debug",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -DGLEW_STATIC -I../../engine -I../../ui -I../../extern/cef_binary_3.3626.1895.g7001d56_macosx64 -I../../extern/glew-2.1.0/include -I../../extern/glm-0.9.8.5 -I../../extern/rapidjson-67fac85e96220f69076121d569abd15471abb6bf/include -I../../extern/SDL2-2.0.9/include  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk   -g -std=c++1z -o engine/CMakeFiles/CompositeEngine.dir/core/Engine.cpp.o -c /Users/andreduvoisin/Development/CompositeEngine/engine/core/Engine.cpp",
+  "file": "/Users/andreduvoisin/Development/CompositeEngine/engine/core/Engine.cpp"
+},
+
+{
+  "directory": "/Users/andreduvoisin/Development/CompositeEngine/build/Debug",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -DGLEW_STATIC -I../../engine -I../../ui -I../../extern/cef_binary_3.3626.1895.g7001d56_macosx64 -I../../extern/glew-2.1.0/include -I../../extern/glm-0.9.8.5 -I../../extern/rapidjson-67fac85e96220f69076121d569abd15471abb6bf/include -I../../extern/SDL2-2.0.9/include  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk   -g -std=c++1z -o engine/CMakeFiles/CompositeEngine.dir/core/EngineEventHandler.cpp.o -c /Users/andreduvoisin/Development/CompositeEngine/engine/core/EngineEventHandler.cpp",
+  "file": "/Users/andreduvoisin/Development/CompositeEngine/engine/core/EngineEventHandler.cpp"
+},
+
+{
+  "directory": "/Users/andreduvoisin/Development/CompositeEngine/build/Debug",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -DGLEW_STATIC -I../../engine -I../../ui -I../../extern/cef_binary_3.3626.1895.g7001d56_macosx64 -I../../extern/glew-2.1.0/include -I../../extern/glm-0.9.8.5 -I../../extern/rapidjson-67fac85e96220f69076121d569abd15471abb6bf/include -I../../extern/SDL2-2.0.9/include  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk   -g -std=c++1z -o engine/CMakeFiles/CompositeEngine.dir/core/FpsCounter.cpp.o -c /Users/andreduvoisin/Development/CompositeEngine/engine/core/FpsCounter.cpp",
+  "file": "/Users/andreduvoisin/Development/CompositeEngine/engine/core/FpsCounter.cpp"
+},
+
+{
+  "directory": "/Users/andreduvoisin/Development/CompositeEngine/build/Debug",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -DGLEW_STATIC -I../../engine -I../../ui -I../../extern/cef_binary_3.3626.1895.g7001d56_macosx64 -I../../extern/glew-2.1.0/include -I../../extern/glm-0.9.8.5 -I../../extern/rapidjson-67fac85e96220f69076121d569abd15471abb6bf/include -I../../extern/SDL2-2.0.9/include  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk   -g -std=c++1z -o engine/CMakeFiles/CompositeEngine.dir/core/clock/Clock.cpp.o -c /Users/andreduvoisin/Development/CompositeEngine/engine/core/clock/Clock.cpp",
+  "file": "/Users/andreduvoisin/Development/CompositeEngine/engine/core/clock/Clock.cpp"
+},
+
+{
+  "directory": "/Users/andreduvoisin/Development/CompositeEngine/build/Debug",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -DGLEW_STATIC -I../../engine -I../../ui -I../../extern/cef_binary_3.3626.1895.g7001d56_macosx64 -I../../extern/glew-2.1.0/include -I../../extern/glm-0.9.8.5 -I../../extern/rapidjson-67fac85e96220f69076121d569abd15471abb6bf/include -I../../extern/SDL2-2.0.9/include  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk   -g -std=c++1z -o engine/CMakeFiles/CompositeEngine.dir/event/AnimationStateEvent.cpp.o -c /Users/andreduvoisin/Development/CompositeEngine/engine/event/AnimationStateEvent.cpp",
+  "file": "/Users/andreduvoisin/Development/CompositeEngine/engine/event/AnimationStateEvent.cpp"
+},
+
+{
+  "directory": "/Users/andreduvoisin/Development/CompositeEngine/build/Debug",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -DGLEW_STATIC -I../../engine -I../../ui -I../../extern/cef_binary_3.3626.1895.g7001d56_macosx64 -I../../extern/glew-2.1.0/include -I../../extern/glm-0.9.8.5 -I../../extern/rapidjson-67fac85e96220f69076121d569abd15471abb6bf/include -I../../extern/SDL2-2.0.9/include  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk   -g -std=c++1z -o engine/CMakeFiles/CompositeEngine.dir/event/FpsStateEvent.cpp.o -c /Users/andreduvoisin/Development/CompositeEngine/engine/event/FpsStateEvent.cpp",
+  "file": "/Users/andreduvoisin/Development/CompositeEngine/engine/event/FpsStateEvent.cpp"
+},
+
+{
+  "directory": "/Users/andreduvoisin/Development/CompositeEngine/build/Debug",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -DGLEW_STATIC -I../../engine -I../../ui -I../../extern/cef_binary_3.3626.1895.g7001d56_macosx64 -I../../extern/glew-2.1.0/include -I../../extern/glm-0.9.8.5 -I../../extern/rapidjson-67fac85e96220f69076121d569abd15471abb6bf/include -I../../extern/SDL2-2.0.9/include  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk   -g -std=c++1z -o engine/CMakeFiles/CompositeEngine.dir/event/PauseStateEvent.cpp.o -c /Users/andreduvoisin/Development/CompositeEngine/engine/event/PauseStateEvent.cpp",
+  "file": "/Users/andreduvoisin/Development/CompositeEngine/engine/event/PauseStateEvent.cpp"
+},
+
+{
+  "directory": "/Users/andreduvoisin/Development/CompositeEngine/build/Debug",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -DGLEW_STATIC -I../../engine -I../../ui -I../../extern/cef_binary_3.3626.1895.g7001d56_macosx64 -I../../extern/glew-2.1.0/include -I../../extern/glm-0.9.8.5 -I../../extern/rapidjson-67fac85e96220f69076121d569abd15471abb6bf/include -I../../extern/SDL2-2.0.9/include  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk   -g -std=c++1z -o engine/CMakeFiles/CompositeEngine.dir/event/SdlEvent.cpp.o -c /Users/andreduvoisin/Development/CompositeEngine/engine/event/SdlEvent.cpp",
+  "file": "/Users/andreduvoisin/Development/CompositeEngine/engine/event/SdlEvent.cpp"
+},
+
+{
+  "directory": "/Users/andreduvoisin/Development/CompositeEngine/build/Debug",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -DGLEW_STATIC -I../../engine -I../../ui -I../../extern/cef_binary_3.3626.1895.g7001d56_macosx64 -I../../extern/glew-2.1.0/include -I../../extern/glm-0.9.8.5 -I../../extern/rapidjson-67fac85e96220f69076121d569abd15471abb6bf/include -I../../extern/SDL2-2.0.9/include  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk   -g -std=c++1z -o engine/CMakeFiles/CompositeEngine.dir/event/SetAnimationTimeEvent.cpp.o -c /Users/andreduvoisin/Development/CompositeEngine/engine/event/SetAnimationTimeEvent.cpp",
+  "file": "/Users/andreduvoisin/Development/CompositeEngine/engine/event/SetAnimationTimeEvent.cpp"
+},
+
+{
+  "directory": "/Users/andreduvoisin/Development/CompositeEngine/build/Debug",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -DGLEW_STATIC -I../../engine -I../../ui -I../../extern/cef_binary_3.3626.1895.g7001d56_macosx64 -I../../extern/glew-2.1.0/include -I../../extern/glm-0.9.8.5 -I../../extern/rapidjson-67fac85e96220f69076121d569abd15471abb6bf/include -I../../extern/SDL2-2.0.9/include  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk   -g -std=c++1z -o engine/CMakeFiles/CompositeEngine.dir/event/SetRenderModeEvent.cpp.o -c /Users/andreduvoisin/Development/CompositeEngine/engine/event/SetRenderModeEvent.cpp",
+  "file": "/Users/andreduvoisin/Development/CompositeEngine/engine/event/SetRenderModeEvent.cpp"
+},
+
+{
+  "directory": "/Users/andreduvoisin/Development/CompositeEngine/build/Debug",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -DGLEW_STATIC -I../../engine -I../../ui -I../../extern/cef_binary_3.3626.1895.g7001d56_macosx64 -I../../extern/glew-2.1.0/include -I../../extern/glm-0.9.8.5 -I../../extern/rapidjson-67fac85e96220f69076121d569abd15471abb6bf/include -I../../extern/SDL2-2.0.9/include  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk   -g -std=c++1z -o engine/CMakeFiles/CompositeEngine.dir/event/ToggleBindPoseEvent.cpp.o -c /Users/andreduvoisin/Development/CompositeEngine/engine/event/ToggleBindPoseEvent.cpp",
+  "file": "/Users/andreduvoisin/Development/CompositeEngine/engine/event/ToggleBindPoseEvent.cpp"
+},
+
+{
+  "directory": "/Users/andreduvoisin/Development/CompositeEngine/build/Debug",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -DGLEW_STATIC -I../../engine -I../../ui -I../../extern/cef_binary_3.3626.1895.g7001d56_macosx64 -I../../extern/glew-2.1.0/include -I../../extern/glm-0.9.8.5 -I../../extern/rapidjson-67fac85e96220f69076121d569abd15471abb6bf/include -I../../extern/SDL2-2.0.9/include  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk   -g -std=c++1z -o engine/CMakeFiles/CompositeEngine.dir/event/TogglePauseEvent.cpp.o -c /Users/andreduvoisin/Development/CompositeEngine/engine/event/TogglePauseEvent.cpp",
+  "file": "/Users/andreduvoisin/Development/CompositeEngine/engine/event/TogglePauseEvent.cpp"
+},
+
+{
+  "directory": "/Users/andreduvoisin/Development/CompositeEngine/build/Debug",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -DGLEW_STATIC -I../../engine -I../../ui -I../../extern/cef_binary_3.3626.1895.g7001d56_macosx64 -I../../extern/glew-2.1.0/include -I../../extern/glm-0.9.8.5 -I../../extern/rapidjson-67fac85e96220f69076121d569abd15471abb6bf/include -I../../extern/SDL2-2.0.9/include  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk   -g -std=c++1z -o engine/CMakeFiles/CompositeEngine.dir/event/WindowsMessageEvent.cpp.o -c /Users/andreduvoisin/Development/CompositeEngine/engine/event/WindowsMessageEvent.cpp",
+  "file": "/Users/andreduvoisin/Development/CompositeEngine/engine/event/WindowsMessageEvent.cpp"
+},
+
+{
+  "directory": "/Users/andreduvoisin/Development/CompositeEngine/build/Debug",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -DGLEW_STATIC -I../../engine -I../../ui -I../../extern/cef_binary_3.3626.1895.g7001d56_macosx64 -I../../extern/glew-2.1.0/include -I../../extern/glm-0.9.8.5 -I../../extern/rapidjson-67fac85e96220f69076121d569abd15471abb6bf/include -I../../extern/SDL2-2.0.9/include  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk   -g -std=c++1z -o engine/CMakeFiles/CompositeEngine.dir/event/core/Event.cpp.o -c /Users/andreduvoisin/Development/CompositeEngine/engine/event/core/Event.cpp",
+  "file": "/Users/andreduvoisin/Development/CompositeEngine/engine/event/core/Event.cpp"
+},
+
+{
+  "directory": "/Users/andreduvoisin/Development/CompositeEngine/build/Debug",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -DGLEW_STATIC -I../../engine -I../../ui -I../../extern/cef_binary_3.3626.1895.g7001d56_macosx64 -I../../extern/glew-2.1.0/include -I../../extern/glm-0.9.8.5 -I../../extern/rapidjson-67fac85e96220f69076121d569abd15471abb6bf/include -I../../extern/SDL2-2.0.9/include  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk   -g -std=c++1z -o engine/CMakeFiles/CompositeEngine.dir/event/core/EventSystem.cpp.o -c /Users/andreduvoisin/Development/CompositeEngine/engine/event/core/EventSystem.cpp",
+  "file": "/Users/andreduvoisin/Development/CompositeEngine/engine/event/core/EventSystem.cpp"
+},
+
+{
+  "directory": "/Users/andreduvoisin/Development/CompositeEngine/build/Debug",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -DGLEW_STATIC -I../../engine -I../../ui -I../../extern/cef_binary_3.3626.1895.g7001d56_macosx64 -I../../extern/glew-2.1.0/include -I../../extern/glm-0.9.8.5 -I../../extern/rapidjson-67fac85e96220f69076121d569abd15471abb6bf/include -I../../extern/SDL2-2.0.9/include  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk   -g -std=c++1z -o engine/CMakeFiles/CompositeEngine.dir/graphics/animation/AnimationComponent.cpp.o -c /Users/andreduvoisin/Development/CompositeEngine/engine/graphics/animation/AnimationComponent.cpp",
+  "file": "/Users/andreduvoisin/Development/CompositeEngine/engine/graphics/animation/AnimationComponent.cpp"
+},
+
+{
+  "directory": "/Users/andreduvoisin/Development/CompositeEngine/build/Debug",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -DGLEW_STATIC -I../../engine -I../../ui -I../../extern/cef_binary_3.3626.1895.g7001d56_macosx64 -I../../extern/glew-2.1.0/include -I../../extern/glm-0.9.8.5 -I../../extern/rapidjson-67fac85e96220f69076121d569abd15471abb6bf/include -I../../extern/SDL2-2.0.9/include  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk   -g -std=c++1z -o engine/CMakeFiles/CompositeEngine.dir/graphics/animation/AnimationEventHandler.cpp.o -c /Users/andreduvoisin/Development/CompositeEngine/engine/graphics/animation/AnimationEventHandler.cpp",
+  "file": "/Users/andreduvoisin/Development/CompositeEngine/engine/graphics/animation/AnimationEventHandler.cpp"
+},
+
+{
+  "directory": "/Users/andreduvoisin/Development/CompositeEngine/build/Debug",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -DGLEW_STATIC -I../../engine -I../../ui -I../../extern/cef_binary_3.3626.1895.g7001d56_macosx64 -I../../extern/glew-2.1.0/include -I../../extern/glm-0.9.8.5 -I../../extern/rapidjson-67fac85e96220f69076121d569abd15471abb6bf/include -I../../extern/SDL2-2.0.9/include  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk   -g -std=c++1z -o engine/CMakeFiles/CompositeEngine.dir/graphics/animation/AnimationManager.cpp.o -c /Users/andreduvoisin/Development/CompositeEngine/engine/graphics/animation/AnimationManager.cpp",
+  "file": "/Users/andreduvoisin/Development/CompositeEngine/engine/graphics/animation/AnimationManager.cpp"
+},
+
+{
+  "directory": "/Users/andreduvoisin/Development/CompositeEngine/build/Debug",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -DGLEW_STATIC -I../../engine -I../../ui -I../../extern/cef_binary_3.3626.1895.g7001d56_macosx64 -I../../extern/glew-2.1.0/include -I../../extern/glm-0.9.8.5 -I../../extern/rapidjson-67fac85e96220f69076121d569abd15471abb6bf/include -I../../extern/SDL2-2.0.9/include  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk   -g -std=c++1z -o engine/CMakeFiles/CompositeEngine.dir/graphics/ceasset/AssetTraits.cpp.o -c /Users/andreduvoisin/Development/CompositeEngine/engine/graphics/ceasset/AssetTraits.cpp",
+  "file": "/Users/andreduvoisin/Development/CompositeEngine/engine/graphics/ceasset/AssetTraits.cpp"
+},
+
+{
+  "directory": "/Users/andreduvoisin/Development/CompositeEngine/build/Debug",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -DGLEW_STATIC -I../../engine -I../../ui -I../../extern/cef_binary_3.3626.1895.g7001d56_macosx64 -I../../extern/glew-2.1.0/include -I../../extern/glm-0.9.8.5 -I../../extern/rapidjson-67fac85e96220f69076121d569abd15471abb6bf/include -I../../extern/SDL2-2.0.9/include  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk   -g -std=c++1z -o engine/CMakeFiles/CompositeEngine.dir/graphics/ceasset/input/AssetDeserializer.cpp.o -c /Users/andreduvoisin/Development/CompositeEngine/engine/graphics/ceasset/input/AssetDeserializer.cpp",
+  "file": "/Users/andreduvoisin/Development/CompositeEngine/engine/graphics/ceasset/input/AssetDeserializer.cpp"
+},
+
+{
+  "directory": "/Users/andreduvoisin/Development/CompositeEngine/build/Debug",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -DGLEW_STATIC -I../../engine -I../../ui -I../../extern/cef_binary_3.3626.1895.g7001d56_macosx64 -I../../extern/glew-2.1.0/include -I../../extern/glm-0.9.8.5 -I../../extern/rapidjson-67fac85e96220f69076121d569abd15471abb6bf/include -I../../extern/SDL2-2.0.9/include  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk   -g -std=c++1z -o engine/CMakeFiles/CompositeEngine.dir/graphics/ceasset/input/AssetImporter.cpp.o -c /Users/andreduvoisin/Development/CompositeEngine/engine/graphics/ceasset/input/AssetImporter.cpp",
+  "file": "/Users/andreduvoisin/Development/CompositeEngine/engine/graphics/ceasset/input/AssetImporter.cpp"
+},
+
+{
+  "directory": "/Users/andreduvoisin/Development/CompositeEngine/build/Debug",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -DGLEW_STATIC -I../../engine -I../../ui -I../../extern/cef_binary_3.3626.1895.g7001d56_macosx64 -I../../extern/glew-2.1.0/include -I../../extern/glm-0.9.8.5 -I../../extern/rapidjson-67fac85e96220f69076121d569abd15471abb6bf/include -I../../extern/SDL2-2.0.9/include  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk   -g -std=c++1z -o engine/CMakeFiles/CompositeEngine.dir/graphics/ceasset/input/InputFileStream.cpp.o -c /Users/andreduvoisin/Development/CompositeEngine/engine/graphics/ceasset/input/InputFileStream.cpp",
+  "file": "/Users/andreduvoisin/Development/CompositeEngine/engine/graphics/ceasset/input/InputFileStream.cpp"
+},
+
+{
+  "directory": "/Users/andreduvoisin/Development/CompositeEngine/build/Debug",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -DGLEW_STATIC -I../../engine -I../../ui -I../../extern/cef_binary_3.3626.1895.g7001d56_macosx64 -I../../extern/glew-2.1.0/include -I../../extern/glm-0.9.8.5 -I../../extern/rapidjson-67fac85e96220f69076121d569abd15471abb6bf/include -I../../extern/SDL2-2.0.9/include  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk   -g -std=c++1z -o engine/CMakeFiles/CompositeEngine.dir/graphics/ceasset/output/AssetExporter.cpp.o -c /Users/andreduvoisin/Development/CompositeEngine/engine/graphics/ceasset/output/AssetExporter.cpp",
+  "file": "/Users/andreduvoisin/Development/CompositeEngine/engine/graphics/ceasset/output/AssetExporter.cpp"
+},
+
+{
+  "directory": "/Users/andreduvoisin/Development/CompositeEngine/build/Debug",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -DGLEW_STATIC -I../../engine -I../../ui -I../../extern/cef_binary_3.3626.1895.g7001d56_macosx64 -I../../extern/glew-2.1.0/include -I../../extern/glm-0.9.8.5 -I../../extern/rapidjson-67fac85e96220f69076121d569abd15471abb6bf/include -I../../extern/SDL2-2.0.9/include  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk   -g -std=c++1z -o engine/CMakeFiles/CompositeEngine.dir/graphics/ceasset/output/AssetSerializer.cpp.o -c /Users/andreduvoisin/Development/CompositeEngine/engine/graphics/ceasset/output/AssetSerializer.cpp",
+  "file": "/Users/andreduvoisin/Development/CompositeEngine/engine/graphics/ceasset/output/AssetSerializer.cpp"
+},
+
+{
+  "directory": "/Users/andreduvoisin/Development/CompositeEngine/build/Debug",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -DGLEW_STATIC -I../../engine -I../../ui -I../../extern/cef_binary_3.3626.1895.g7001d56_macosx64 -I../../extern/glew-2.1.0/include -I../../extern/glm-0.9.8.5 -I../../extern/rapidjson-67fac85e96220f69076121d569abd15471abb6bf/include -I../../extern/SDL2-2.0.9/include  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk   -g -std=c++1z -o engine/CMakeFiles/CompositeEngine.dir/graphics/ceasset/output/OutputFileStream.cpp.o -c /Users/andreduvoisin/Development/CompositeEngine/engine/graphics/ceasset/output/OutputFileStream.cpp",
+  "file": "/Users/andreduvoisin/Development/CompositeEngine/engine/graphics/ceasset/output/OutputFileStream.cpp"
+},
+
+{
+  "directory": "/Users/andreduvoisin/Development/CompositeEngine/build/Debug",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -DGLEW_STATIC -I../../engine -I../../ui -I../../extern/cef_binary_3.3626.1895.g7001d56_macosx64 -I../../extern/glew-2.1.0/include -I../../extern/glm-0.9.8.5 -I../../extern/rapidjson-67fac85e96220f69076121d569abd15471abb6bf/include -I../../extern/SDL2-2.0.9/include  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk   -g -std=c++1z -o engine/CMakeFiles/CompositeEngine.dir/graphics/mesh/MeshComponent.cpp.o -c /Users/andreduvoisin/Development/CompositeEngine/engine/graphics/mesh/MeshComponent.cpp",
+  "file": "/Users/andreduvoisin/Development/CompositeEngine/engine/graphics/mesh/MeshComponent.cpp"
+},
+
+{
+  "directory": "/Users/andreduvoisin/Development/CompositeEngine/build/Debug",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -DGLEW_STATIC -I../../engine -I../../ui -I../../extern/cef_binary_3.3626.1895.g7001d56_macosx64 -I../../extern/glew-2.1.0/include -I../../extern/glm-0.9.8.5 -I../../extern/rapidjson-67fac85e96220f69076121d569abd15471abb6bf/include -I../../extern/SDL2-2.0.9/include  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk   -g -std=c++1z -o engine/CMakeFiles/CompositeEngine.dir/graphics/mesh/MeshManager.cpp.o -c /Users/andreduvoisin/Development/CompositeEngine/engine/graphics/mesh/MeshManager.cpp",
+  "file": "/Users/andreduvoisin/Development/CompositeEngine/engine/graphics/mesh/MeshManager.cpp"
+},
+
+{
+  "directory": "/Users/andreduvoisin/Development/CompositeEngine/build/Debug",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -DGLEW_STATIC -I../../engine -I../../ui -I../../extern/cef_binary_3.3626.1895.g7001d56_macosx64 -I../../extern/glew-2.1.0/include -I../../extern/glm-0.9.8.5 -I../../extern/rapidjson-67fac85e96220f69076121d569abd15471abb6bf/include -I../../extern/SDL2-2.0.9/include  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk   -g -std=c++1z -o engine/CMakeFiles/CompositeEngine.dir/graphics/skeleton/SkeletonManager.cpp.o -c /Users/andreduvoisin/Development/CompositeEngine/engine/graphics/skeleton/SkeletonManager.cpp",
+  "file": "/Users/andreduvoisin/Development/CompositeEngine/engine/graphics/skeleton/SkeletonManager.cpp"
+},
+
+{
+  "directory": "/Users/andreduvoisin/Development/CompositeEngine/build/Debug",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -DGLEW_STATIC -I../../engine -I../../ui -I../../extern/cef_binary_3.3626.1895.g7001d56_macosx64 -I../../extern/glew-2.1.0/include -I../../extern/glm-0.9.8.5 -I../../extern/rapidjson-67fac85e96220f69076121d569abd15471abb6bf/include -I../../extern/SDL2-2.0.9/include  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk   -g -std=c++1z -o engine/CMakeFiles/CompositeEngine.dir/graphics/texture/TextureManager.cpp.o -c /Users/andreduvoisin/Development/CompositeEngine/engine/graphics/texture/TextureManager.cpp",
+  "file": "/Users/andreduvoisin/Development/CompositeEngine/engine/graphics/texture/TextureManager.cpp"
+},
+
+{
+  "directory": "/Users/andreduvoisin/Development/CompositeEngine/build/Debug",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -DGLEW_STATIC -I../../engine -I../../ui -I../../extern/cef_binary_3.3626.1895.g7001d56_macosx64 -I../../extern/glew-2.1.0/include -I../../extern/glm-0.9.8.5 -I../../extern/rapidjson-67fac85e96220f69076121d569abd15471abb6bf/include -I../../extern/SDL2-2.0.9/include  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk   -g -std=c++1z -o engine/CMakeFiles/CompositeEngine.dir/main/Main.cpp.o -c /Users/andreduvoisin/Development/CompositeEngine/engine/main/Main.cpp",
+  "file": "/Users/andreduvoisin/Development/CompositeEngine/engine/main/Main.cpp"
+},
+
+{
+  "directory": "/Users/andreduvoisin/Development/CompositeEngine/build/Debug",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -DGLEW_STATIC -I../../engine -I../../ui -I../../extern/cef_binary_3.3626.1895.g7001d56_macosx64 -I../../extern/glew-2.1.0/include -I../../extern/glm-0.9.8.5 -I../../extern/rapidjson-67fac85e96220f69076121d569abd15471abb6bf/include -I../../extern/SDL2-2.0.9/include  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk   -g -std=c++1z -o engine/CMakeFiles/CompositeEngine.dir/__/ui/cef/CefMain.cpp.o -c /Users/andreduvoisin/Development/CompositeEngine/ui/cef/CefMain.cpp",
+  "file": "/Users/andreduvoisin/Development/CompositeEngine/ui/cef/CefMain.cpp"
+},
+
+{
+  "directory": "/Users/andreduvoisin/Development/CompositeEngine/build/Debug",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -DGLEW_STATIC -I../../engine -I../../ui -I../../extern/cef_binary_3.3626.1895.g7001d56_macosx64 -I../../extern/glew-2.1.0/include -I../../extern/glm-0.9.8.5 -I../../extern/rapidjson-67fac85e96220f69076121d569abd15471abb6bf/include -I../../extern/SDL2-2.0.9/include  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk   -g -std=c++1z -o engine/CMakeFiles/CompositeEngine.dir/__/ui/cef/browser/UIAppBrowser.cpp.o -c /Users/andreduvoisin/Development/CompositeEngine/ui/cef/browser/UIAppBrowser.cpp",
+  "file": "/Users/andreduvoisin/Development/CompositeEngine/ui/cef/browser/UIAppBrowser.cpp"
+},
+
+{
+  "directory": "/Users/andreduvoisin/Development/CompositeEngine/build/Debug",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -DGLEW_STATIC -I../../engine -I../../ui -I../../extern/cef_binary_3.3626.1895.g7001d56_macosx64 -I../../extern/glew-2.1.0/include -I../../extern/glm-0.9.8.5 -I../../extern/rapidjson-67fac85e96220f69076121d569abd15471abb6bf/include -I../../extern/SDL2-2.0.9/include  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk   -g -std=c++1z -o engine/CMakeFiles/CompositeEngine.dir/__/ui/cef/browser/UIBrowserProcessHandler.cpp.o -c /Users/andreduvoisin/Development/CompositeEngine/ui/cef/browser/UIBrowserProcessHandler.cpp",
+  "file": "/Users/andreduvoisin/Development/CompositeEngine/ui/cef/browser/UIBrowserProcessHandler.cpp"
+},
+
+{
+  "directory": "/Users/andreduvoisin/Development/CompositeEngine/build/Debug",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -DGLEW_STATIC -I../../engine -I../../ui -I../../extern/cef_binary_3.3626.1895.g7001d56_macosx64 -I../../extern/glew-2.1.0/include -I../../extern/glm-0.9.8.5 -I../../extern/rapidjson-67fac85e96220f69076121d569abd15471abb6bf/include -I../../extern/SDL2-2.0.9/include  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk   -g -std=c++1z -o engine/CMakeFiles/CompositeEngine.dir/__/ui/cef/browser/UIExternalMessagePump.cpp.o -c /Users/andreduvoisin/Development/CompositeEngine/ui/cef/browser/UIExternalMessagePump.cpp",
+  "file": "/Users/andreduvoisin/Development/CompositeEngine/ui/cef/browser/UIExternalMessagePump.cpp"
+},
+
+{
+  "directory": "/Users/andreduvoisin/Development/CompositeEngine/build/Debug",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -DGLEW_STATIC -I../../engine -I../../ui -I../../extern/cef_binary_3.3626.1895.g7001d56_macosx64 -I../../extern/glew-2.1.0/include -I../../extern/glm-0.9.8.5 -I../../extern/rapidjson-67fac85e96220f69076121d569abd15471abb6bf/include -I../../extern/SDL2-2.0.9/include  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk   -g -std=c++1z -o engine/CMakeFiles/CompositeEngine.dir/__/ui/cef/browser/UIQueryHandler.cpp.o -c /Users/andreduvoisin/Development/CompositeEngine/ui/cef/browser/UIQueryHandler.cpp",
+  "file": "/Users/andreduvoisin/Development/CompositeEngine/ui/cef/browser/UIQueryHandler.cpp"
+},
+
+{
+  "directory": "/Users/andreduvoisin/Development/CompositeEngine/build/Debug",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -DGLEW_STATIC -I../../engine -I../../ui -I../../extern/cef_binary_3.3626.1895.g7001d56_macosx64 -I../../extern/glew-2.1.0/include -I../../extern/glm-0.9.8.5 -I../../extern/rapidjson-67fac85e96220f69076121d569abd15471abb6bf/include -I../../extern/SDL2-2.0.9/include  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk   -g -std=c++1z -o engine/CMakeFiles/CompositeEngine.dir/__/ui/cef/browser/UIQueryResponder.cpp.o -c /Users/andreduvoisin/Development/CompositeEngine/ui/cef/browser/UIQueryResponder.cpp",
+  "file": "/Users/andreduvoisin/Development/CompositeEngine/ui/cef/browser/UIQueryResponder.cpp"
+},
+
+{
+  "directory": "/Users/andreduvoisin/Development/CompositeEngine/build/Debug",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -DGLEW_STATIC -I../../engine -I../../ui -I../../extern/cef_binary_3.3626.1895.g7001d56_macosx64 -I../../extern/glew-2.1.0/include -I../../extern/glm-0.9.8.5 -I../../extern/rapidjson-67fac85e96220f69076121d569abd15471abb6bf/include -I../../extern/SDL2-2.0.9/include  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk   -g -std=c++1z -o engine/CMakeFiles/CompositeEngine.dir/__/ui/cef/client/UIClient.cpp.o -c /Users/andreduvoisin/Development/CompositeEngine/ui/cef/client/UIClient.cpp",
+  "file": "/Users/andreduvoisin/Development/CompositeEngine/ui/cef/client/UIClient.cpp"
+},
+
+{
+  "directory": "/Users/andreduvoisin/Development/CompositeEngine/build/Debug",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -DGLEW_STATIC -I../../engine -I../../ui -I../../extern/cef_binary_3.3626.1895.g7001d56_macosx64 -I../../extern/glew-2.1.0/include -I../../extern/glm-0.9.8.5 -I../../extern/rapidjson-67fac85e96220f69076121d569abd15471abb6bf/include -I../../extern/SDL2-2.0.9/include  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk   -g -std=c++1z -o engine/CMakeFiles/CompositeEngine.dir/__/ui/cef/client/UIContextMenuHandler.cpp.o -c /Users/andreduvoisin/Development/CompositeEngine/ui/cef/client/UIContextMenuHandler.cpp",
+  "file": "/Users/andreduvoisin/Development/CompositeEngine/ui/cef/client/UIContextMenuHandler.cpp"
+},
+
+{
+  "directory": "/Users/andreduvoisin/Development/CompositeEngine/build/Debug",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -DGLEW_STATIC -I../../engine -I../../ui -I../../extern/cef_binary_3.3626.1895.g7001d56_macosx64 -I../../extern/glew-2.1.0/include -I../../extern/glm-0.9.8.5 -I../../extern/rapidjson-67fac85e96220f69076121d569abd15471abb6bf/include -I../../extern/SDL2-2.0.9/include  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk   -g -std=c++1z -o engine/CMakeFiles/CompositeEngine.dir/__/ui/cef/client/UILifeSpanHandler.cpp.o -c /Users/andreduvoisin/Development/CompositeEngine/ui/cef/client/UILifeSpanHandler.cpp",
+  "file": "/Users/andreduvoisin/Development/CompositeEngine/ui/cef/client/UILifeSpanHandler.cpp"
+},
+
+{
+  "directory": "/Users/andreduvoisin/Development/CompositeEngine/build/Debug",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -DGLEW_STATIC -I../../engine -I../../ui -I../../extern/cef_binary_3.3626.1895.g7001d56_macosx64 -I../../extern/glew-2.1.0/include -I../../extern/glm-0.9.8.5 -I../../extern/rapidjson-67fac85e96220f69076121d569abd15471abb6bf/include -I../../extern/SDL2-2.0.9/include  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk   -g -std=c++1z -o engine/CMakeFiles/CompositeEngine.dir/__/ui/cef/client/UILoadHandler.cpp.o -c /Users/andreduvoisin/Development/CompositeEngine/ui/cef/client/UILoadHandler.cpp",
+  "file": "/Users/andreduvoisin/Development/CompositeEngine/ui/cef/client/UILoadHandler.cpp"
+},
+
+{
+  "directory": "/Users/andreduvoisin/Development/CompositeEngine/build/Debug",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -DGLEW_STATIC -I../../engine -I../../ui -I../../extern/cef_binary_3.3626.1895.g7001d56_macosx64 -I../../extern/glew-2.1.0/include -I../../extern/glm-0.9.8.5 -I../../extern/rapidjson-67fac85e96220f69076121d569abd15471abb6bf/include -I../../extern/SDL2-2.0.9/include  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk   -g -std=c++1z -o engine/CMakeFiles/CompositeEngine.dir/__/ui/cef/client/UIRenderHandler.cpp.o -c /Users/andreduvoisin/Development/CompositeEngine/ui/cef/client/UIRenderHandler.cpp",
+  "file": "/Users/andreduvoisin/Development/CompositeEngine/ui/cef/client/UIRenderHandler.cpp"
+},
+
+{
+  "directory": "/Users/andreduvoisin/Development/CompositeEngine/build/Debug",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -DGLEW_STATIC -I../../engine -I../../ui -I../../extern/cef_binary_3.3626.1895.g7001d56_macosx64 -I../../extern/glew-2.1.0/include -I../../extern/glm-0.9.8.5 -I../../extern/rapidjson-67fac85e96220f69076121d569abd15471abb6bf/include -I../../extern/SDL2-2.0.9/include  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk   -g -std=c++1z -o engine/CMakeFiles/CompositeEngine.dir/__/ui/cef/client/UIRequestHandler.cpp.o -c /Users/andreduvoisin/Development/CompositeEngine/ui/cef/client/UIRequestHandler.cpp",
+  "file": "/Users/andreduvoisin/Development/CompositeEngine/ui/cef/client/UIRequestHandler.cpp"
+},
+
+{
+  "directory": "/Users/andreduvoisin/Development/CompositeEngine/build/Debug",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -DGLEW_STATIC -I../../engine -I../../ui -I../../extern/cef_binary_3.3626.1895.g7001d56_macosx64 -I../../extern/glew-2.1.0/include -I../../extern/glm-0.9.8.5 -I../../extern/rapidjson-67fac85e96220f69076121d569abd15471abb6bf/include -I../../extern/SDL2-2.0.9/include  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk   -g -std=c++1z -o engine/CMakeFiles/CompositeEngine.dir/__/ui/cef/WindowContentView.mm.o -c /Users/andreduvoisin/Development/CompositeEngine/ui/cef/WindowContentView.mm",
+  "file": "/Users/andreduvoisin/Development/CompositeEngine/ui/cef/WindowContentView.mm"
+},
+
+{
+  "directory": "/Users/andreduvoisin/Development/CompositeEngine/build/Debug",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++   -I../../ui/cef/subprocess -I../../extern/cef_binary_3.3626.1895.g7001d56_macosx64  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk   -std=c++1z -o ui/CMakeFiles/CompositeCefSubprocess.dir/cef/subprocess/Main.cpp.o -c /Users/andreduvoisin/Development/CompositeEngine/ui/cef/subprocess/Main.cpp",
+  "file": "/Users/andreduvoisin/Development/CompositeEngine/ui/cef/subprocess/Main.cpp"
+},
+
+{
+  "directory": "/Users/andreduvoisin/Development/CompositeEngine/build/Debug",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++   -I../../ui/cef/subprocess -I../../extern/cef_binary_3.3626.1895.g7001d56_macosx64  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk   -std=c++1z -o ui/CMakeFiles/CompositeCefSubprocess.dir/cef/subprocess/UIAppOther.cpp.o -c /Users/andreduvoisin/Development/CompositeEngine/ui/cef/subprocess/UIAppOther.cpp",
+  "file": "/Users/andreduvoisin/Development/CompositeEngine/ui/cef/subprocess/UIAppOther.cpp"
+},
+
+{
+  "directory": "/Users/andreduvoisin/Development/CompositeEngine/build/Debug",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++   -I../../ui/cef/subprocess -I../../extern/cef_binary_3.3626.1895.g7001d56_macosx64  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk   -std=c++1z -o ui/CMakeFiles/CompositeCefSubprocess.dir/cef/subprocess/UIAppRenderer.cpp.o -c /Users/andreduvoisin/Development/CompositeEngine/ui/cef/subprocess/UIAppRenderer.cpp",
+  "file": "/Users/andreduvoisin/Development/CompositeEngine/ui/cef/subprocess/UIAppRenderer.cpp"
+},
+
+{
+  "directory": "/Users/andreduvoisin/Development/CompositeEngine/build/Debug",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++   -I../../ui/cef/subprocess -I../../extern/cef_binary_3.3626.1895.g7001d56_macosx64  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk   -std=c++1z -o ui/CMakeFiles/CompositeCefSubprocess.dir/cef/subprocess/UIRenderProcessHandler.cpp.o -c /Users/andreduvoisin/Development/CompositeEngine/ui/cef/subprocess/UIRenderProcessHandler.cpp",
+  "file": "/Users/andreduvoisin/Development/CompositeEngine/ui/cef/subprocess/UIRenderProcessHandler.cpp"
+},
+
+{
+  "directory": "/Users/andreduvoisin/Development/CompositeEngine/build/Debug",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -DFBXSDK_NAMESPACE_USING=0 -I../../asset-converter -I../../engine -I\"../../extern/fbx20181_1_fbxsdk_clang_mac/Contents/Applications/Autodesk/FBX SDK/2018.1.1/include\" -I../../extern/glm-0.9.8.5 -I../../extern/gsl-1212beae777dba02c230ece8c0c0ec12790047ea/include -I../../extern/stb-e6afb9cbae4064da8c3e69af3ff5c4629579c1d2  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk   -std=c++1z -o asset-converter/CMakeFiles/CompositeAssetConverter.dir/2d/STBImageImporter.cpp.o -c /Users/andreduvoisin/Development/CompositeEngine/asset-converter/2d/STBImageImporter.cpp",
+  "file": "/Users/andreduvoisin/Development/CompositeEngine/asset-converter/2d/STBImageImporter.cpp"
+},
+
+{
+  "directory": "/Users/andreduvoisin/Development/CompositeEngine/build/Debug",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -DFBXSDK_NAMESPACE_USING=0 -I../../asset-converter -I../../engine -I\"../../extern/fbx20181_1_fbxsdk_clang_mac/Contents/Applications/Autodesk/FBX SDK/2018.1.1/include\" -I../../extern/glm-0.9.8.5 -I../../extern/gsl-1212beae777dba02c230ece8c0c0ec12790047ea/include -I../../extern/stb-e6afb9cbae4064da8c3e69af3ff5c4629579c1d2  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk   -std=c++1z -o asset-converter/CMakeFiles/CompositeAssetConverter.dir/3d/AnimationOptimizer.cpp.o -c /Users/andreduvoisin/Development/CompositeEngine/asset-converter/3d/AnimationOptimizer.cpp",
+  "file": "/Users/andreduvoisin/Development/CompositeEngine/asset-converter/3d/AnimationOptimizer.cpp"
+},
+
+{
+  "directory": "/Users/andreduvoisin/Development/CompositeEngine/build/Debug",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -DFBXSDK_NAMESPACE_USING=0 -I../../asset-converter -I../../engine -I\"../../extern/fbx20181_1_fbxsdk_clang_mac/Contents/Applications/Autodesk/FBX SDK/2018.1.1/include\" -I../../extern/glm-0.9.8.5 -I../../extern/gsl-1212beae777dba02c230ece8c0c0ec12790047ea/include -I../../extern/stb-e6afb9cbae4064da8c3e69af3ff5c4629579c1d2  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk   -std=c++1z -o asset-converter/CMakeFiles/CompositeAssetConverter.dir/3d/fbx/FBXAnimationImporter.cpp.o -c /Users/andreduvoisin/Development/CompositeEngine/asset-converter/3d/fbx/FBXAnimationImporter.cpp",
+  "file": "/Users/andreduvoisin/Development/CompositeEngine/asset-converter/3d/fbx/FBXAnimationImporter.cpp"
+},
+
+{
+  "directory": "/Users/andreduvoisin/Development/CompositeEngine/build/Debug",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -DFBXSDK_NAMESPACE_USING=0 -I../../asset-converter -I../../engine -I\"../../extern/fbx20181_1_fbxsdk_clang_mac/Contents/Applications/Autodesk/FBX SDK/2018.1.1/include\" -I../../extern/glm-0.9.8.5 -I../../extern/gsl-1212beae777dba02c230ece8c0c0ec12790047ea/include -I../../extern/stb-e6afb9cbae4064da8c3e69af3ff5c4629579c1d2  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk   -std=c++1z -o asset-converter/CMakeFiles/CompositeAssetConverter.dir/3d/fbx/FBXImporter.cpp.o -c /Users/andreduvoisin/Development/CompositeEngine/asset-converter/3d/fbx/FBXImporter.cpp",
+  "file": "/Users/andreduvoisin/Development/CompositeEngine/asset-converter/3d/fbx/FBXImporter.cpp"
+},
+
+{
+  "directory": "/Users/andreduvoisin/Development/CompositeEngine/build/Debug",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -DFBXSDK_NAMESPACE_USING=0 -I../../asset-converter -I../../engine -I\"../../extern/fbx20181_1_fbxsdk_clang_mac/Contents/Applications/Autodesk/FBX SDK/2018.1.1/include\" -I../../extern/glm-0.9.8.5 -I../../extern/gsl-1212beae777dba02c230ece8c0c0ec12790047ea/include -I../../extern/stb-e6afb9cbae4064da8c3e69af3ff5c4629579c1d2  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk   -std=c++1z -o asset-converter/CMakeFiles/CompositeAssetConverter.dir/3d/fbx/FBXMeshImporter.cpp.o -c /Users/andreduvoisin/Development/CompositeEngine/asset-converter/3d/fbx/FBXMeshImporter.cpp",
+  "file": "/Users/andreduvoisin/Development/CompositeEngine/asset-converter/3d/fbx/FBXMeshImporter.cpp"
+},
+
+{
+  "directory": "/Users/andreduvoisin/Development/CompositeEngine/build/Debug",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -DFBXSDK_NAMESPACE_USING=0 -I../../asset-converter -I../../engine -I\"../../extern/fbx20181_1_fbxsdk_clang_mac/Contents/Applications/Autodesk/FBX SDK/2018.1.1/include\" -I../../extern/glm-0.9.8.5 -I../../extern/gsl-1212beae777dba02c230ece8c0c0ec12790047ea/include -I../../extern/stb-e6afb9cbae4064da8c3e69af3ff5c4629579c1d2  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk   -std=c++1z -o asset-converter/CMakeFiles/CompositeAssetConverter.dir/3d/fbx/FBXSkeletonImporter.cpp.o -c /Users/andreduvoisin/Development/CompositeEngine/asset-converter/3d/fbx/FBXSkeletonImporter.cpp",
+  "file": "/Users/andreduvoisin/Development/CompositeEngine/asset-converter/3d/fbx/FBXSkeletonImporter.cpp"
+},
+
+{
+  "directory": "/Users/andreduvoisin/Development/CompositeEngine/build/Debug",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -DFBXSDK_NAMESPACE_USING=0 -I../../asset-converter -I../../engine -I\"../../extern/fbx20181_1_fbxsdk_clang_mac/Contents/Applications/Autodesk/FBX SDK/2018.1.1/include\" -I../../extern/glm-0.9.8.5 -I../../extern/gsl-1212beae777dba02c230ece8c0c0ec12790047ea/include -I../../extern/stb-e6afb9cbae4064da8c3e69af3ff5c4629579c1d2  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk   -std=c++1z -o asset-converter/CMakeFiles/CompositeAssetConverter.dir/3d/fbx/FBXUtilities.cpp.o -c /Users/andreduvoisin/Development/CompositeEngine/asset-converter/3d/fbx/FBXUtilities.cpp",
+  "file": "/Users/andreduvoisin/Development/CompositeEngine/asset-converter/3d/fbx/FBXUtilities.cpp"
+},
+
+{
+  "directory": "/Users/andreduvoisin/Development/CompositeEngine/build/Debug",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -DFBXSDK_NAMESPACE_USING=0 -I../../asset-converter -I../../engine -I\"../../extern/fbx20181_1_fbxsdk_clang_mac/Contents/Applications/Autodesk/FBX SDK/2018.1.1/include\" -I../../extern/glm-0.9.8.5 -I../../extern/gsl-1212beae777dba02c230ece8c0c0ec12790047ea/include -I../../extern/stb-e6afb9cbae4064da8c3e69af3ff5c4629579c1d2  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk   -std=c++1z -o asset-converter/CMakeFiles/CompositeAssetConverter.dir/3d/fbx/FBXValidator.cpp.o -c /Users/andreduvoisin/Development/CompositeEngine/asset-converter/3d/fbx/FBXValidator.cpp",
+  "file": "/Users/andreduvoisin/Development/CompositeEngine/asset-converter/3d/fbx/FBXValidator.cpp"
+},
+
+{
+  "directory": "/Users/andreduvoisin/Development/CompositeEngine/build/Debug",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -DFBXSDK_NAMESPACE_USING=0 -I../../asset-converter -I../../engine -I\"../../extern/fbx20181_1_fbxsdk_clang_mac/Contents/Applications/Autodesk/FBX SDK/2018.1.1/include\" -I../../extern/glm-0.9.8.5 -I../../extern/gsl-1212beae777dba02c230ece8c0c0ec12790047ea/include -I../../extern/stb-e6afb9cbae4064da8c3e69af3ff5c4629579c1d2  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk   -std=c++1z -o asset-converter/CMakeFiles/CompositeAssetConverter.dir/main/Main.cpp.o -c /Users/andreduvoisin/Development/CompositeEngine/asset-converter/main/Main.cpp",
+  "file": "/Users/andreduvoisin/Development/CompositeEngine/asset-converter/main/Main.cpp"
+},
+
+{
+  "directory": "/Users/andreduvoisin/Development/CompositeEngine/build/Debug",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -DFBXSDK_NAMESPACE_USING=0 -I../../asset-converter -I../../engine -I\"../../extern/fbx20181_1_fbxsdk_clang_mac/Contents/Applications/Autodesk/FBX SDK/2018.1.1/include\" -I../../extern/glm-0.9.8.5 -I../../extern/gsl-1212beae777dba02c230ece8c0c0ec12790047ea/include -I../../extern/stb-e6afb9cbae4064da8c3e69af3ff5c4629579c1d2  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk   -std=c++1z -o asset-converter/CMakeFiles/CompositeAssetConverter.dir/__/engine/common/Math.cpp.o -c /Users/andreduvoisin/Development/CompositeEngine/engine/common/Math.cpp",
+  "file": "/Users/andreduvoisin/Development/CompositeEngine/engine/common/Math.cpp"
+},
+
+{
+  "directory": "/Users/andreduvoisin/Development/CompositeEngine/build/Debug",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -DFBXSDK_NAMESPACE_USING=0 -I../../asset-converter -I../../engine -I\"../../extern/fbx20181_1_fbxsdk_clang_mac/Contents/Applications/Autodesk/FBX SDK/2018.1.1/include\" -I../../extern/glm-0.9.8.5 -I../../extern/gsl-1212beae777dba02c230ece8c0c0ec12790047ea/include -I../../extern/stb-e6afb9cbae4064da8c3e69af3ff5c4629579c1d2  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk   -std=c++1z -o asset-converter/CMakeFiles/CompositeAssetConverter.dir/__/engine/graphics/ceasset/AssetTraits.cpp.o -c /Users/andreduvoisin/Development/CompositeEngine/engine/graphics/ceasset/AssetTraits.cpp",
+  "file": "/Users/andreduvoisin/Development/CompositeEngine/engine/graphics/ceasset/AssetTraits.cpp"
+},
+
+{
+  "directory": "/Users/andreduvoisin/Development/CompositeEngine/build/Debug",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -DFBXSDK_NAMESPACE_USING=0 -I../../asset-converter -I../../engine -I\"../../extern/fbx20181_1_fbxsdk_clang_mac/Contents/Applications/Autodesk/FBX SDK/2018.1.1/include\" -I../../extern/glm-0.9.8.5 -I../../extern/gsl-1212beae777dba02c230ece8c0c0ec12790047ea/include -I../../extern/stb-e6afb9cbae4064da8c3e69af3ff5c4629579c1d2  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk   -std=c++1z -o asset-converter/CMakeFiles/CompositeAssetConverter.dir/__/engine/graphics/ceasset/output/AssetExporter.cpp.o -c /Users/andreduvoisin/Development/CompositeEngine/engine/graphics/ceasset/output/AssetExporter.cpp",
+  "file": "/Users/andreduvoisin/Development/CompositeEngine/engine/graphics/ceasset/output/AssetExporter.cpp"
+},
+
+{
+  "directory": "/Users/andreduvoisin/Development/CompositeEngine/build/Debug",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -DFBXSDK_NAMESPACE_USING=0 -I../../asset-converter -I../../engine -I\"../../extern/fbx20181_1_fbxsdk_clang_mac/Contents/Applications/Autodesk/FBX SDK/2018.1.1/include\" -I../../extern/glm-0.9.8.5 -I../../extern/gsl-1212beae777dba02c230ece8c0c0ec12790047ea/include -I../../extern/stb-e6afb9cbae4064da8c3e69af3ff5c4629579c1d2  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk   -std=c++1z -o asset-converter/CMakeFiles/CompositeAssetConverter.dir/__/engine/graphics/ceasset/output/AssetSerializer.cpp.o -c /Users/andreduvoisin/Development/CompositeEngine/engine/graphics/ceasset/output/AssetSerializer.cpp",
+  "file": "/Users/andreduvoisin/Development/CompositeEngine/engine/graphics/ceasset/output/AssetSerializer.cpp"
+},
+
+{
+  "directory": "/Users/andreduvoisin/Development/CompositeEngine/build/Debug",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -DFBXSDK_NAMESPACE_USING=0 -I../../asset-converter -I../../engine -I\"../../extern/fbx20181_1_fbxsdk_clang_mac/Contents/Applications/Autodesk/FBX SDK/2018.1.1/include\" -I../../extern/glm-0.9.8.5 -I../../extern/gsl-1212beae777dba02c230ece8c0c0ec12790047ea/include -I../../extern/stb-e6afb9cbae4064da8c3e69af3ff5c4629579c1d2  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk   -std=c++1z -o asset-converter/CMakeFiles/CompositeAssetConverter.dir/__/engine/graphics/ceasset/output/OutputFileStream.cpp.o -c /Users/andreduvoisin/Development/CompositeEngine/engine/graphics/ceasset/output/OutputFileStream.cpp",
+  "file": "/Users/andreduvoisin/Development/CompositeEngine/engine/graphics/ceasset/output/OutputFileStream.cpp"
+}
+]
